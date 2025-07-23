@@ -1,0 +1,540 @@
+/* register.component.css */
+
+/* Global box-sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Body reset */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.register-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  position: relative;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.register-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    #065f46 0%, 
+    #047857 25%, 
+    #059669 50%, 
+    #10b981 75%, 
+    #34d399 100%);
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
+}
+
+.background-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.05"><circle cx="30" cy="30" r="1"/><circle cx="10" cy="10" r="1"/><circle cx="50" cy="10" r="1"/><circle cx="10" cy="50" r="1"/><circle cx="50" cy="50" r="1"/></g></g></svg>') repeat;
+  opacity: 0.3;
+}
+
+.register-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 2rem 2rem;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.logo span {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #065f46;
+  letter-spacing: -0.025em;
+}
+
+.register-header h1 {
+  color: #111827;
+  font-size: 1.625rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  letter-spacing: -0.025em;
+}
+
+.register-header p {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.register-form {
+  margin-bottom: 1.5rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrapper input,
+.input-wrapper select {
+  width: 100%;
+  padding: 0.875rem 1rem 0.875rem 3rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: #ffffff;
+  color: #111827;
+  appearance: none;
+}
+
+.input-wrapper select {
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%236b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,9 12,15 18,9"></polyline></svg>');
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 16px;
+  padding-right: 3rem;
+}
+
+.input-wrapper input:focus,
+.input-wrapper select:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.input-wrapper input::placeholder,
+.input-wrapper select::placeholder {
+  color: #9ca3af;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-toggle:hover {
+  background-color: #f3f4f6;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  margin-left: 0.25rem;
+}
+
+.form-options {
+  margin-bottom: 1rem;
+}
+
+.form-options:last-of-type {
+  margin-bottom: 1.5rem;
+}
+
+.checkbox-wrapper {
+  display: flex;
+  align-items: flex-start;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+  display: none;
+}
+
+.checkmark {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  margin-right: 0.5rem;
+  margin-top: 0.125rem;
+  position: relative;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.checkbox-wrapper input[type="checkbox"]:checked + .checkmark {
+  background-color: #10b981;
+  border-color: #10b981;
+}
+
+.checkbox-wrapper input[type="checkbox"]:checked + .checkmark::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.link {
+  color: #10b981;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: #059669;
+  text-decoration: underline;
+}
+
+.register-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  position: relative;
+  overflow: hidden;
+}
+
+.register-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+}
+
+.register-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.register-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.divider {
+  position: relative;
+  text-align: center;
+  margin: 1.5rem 0;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.divider span {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0 1rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  position: relative;
+}
+
+.social-login {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+  color: #374151;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.social-btn:hover {
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1);
+}
+
+.google-btn:hover {
+  border-color: #4285f4;
+  box-shadow: 0 4px 12px -2px rgba(66, 133, 244, 0.2);
+}
+
+.facebook-btn:hover {
+  border-color: #1877f2;
+  box-shadow: 0 4px 12px -2px rgba(24, 119, 242, 0.2);
+}
+
+.login-link {
+  text-align: center;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1rem;
+}
+
+.login-link p {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.login-link a {
+  color: #10b981;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.login-link a:hover {
+  color: #059669;
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .register-container {
+    padding: 0.5rem;
+  }
+  
+  .register-card {
+    padding: 1.5rem 1.25rem;
+    border-radius: 16px;
+    max-height: calc(100vh - 1rem);
+    max-width: 100%;
+  }
+  
+  .register-header h1 {
+    font-size: 1.375rem;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  
+  .social-login {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-container {
+    padding: 0.25rem;
+  }
+  
+  .register-card {
+    padding: 1.25rem 1rem;
+    max-height: calc(100vh - 0.5rem);
+  }
+  
+  .register-header h1 {
+    font-size: 1.25rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .input-wrapper input,
+  .input-wrapper select {
+    padding: 0.75rem 0.875rem 0.75rem 2.75rem;
+    font-size: 0.9rem;
+  }
+  
+  .input-icon {
+    left: 0.875rem;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-height: 700px) {
+  .register-card {
+    padding: 1.25rem 2rem;
+  }
+  
+  .register-header {
+    margin-bottom: 1rem;
+  }
+  
+  .logo {
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .form-options {
+    margin-bottom: 0.75rem;
+  }
+  
+  .form-options:last-of-type {
+    margin-bottom: 1.25rem;
+  }
+  
+  .divider {
+    margin: 1.25rem 0;
+  }
+  
+  .social-login {
+    margin-bottom: 1.25rem;
+  }
+}
+
+@media (max-height: 600px) {
+  .register-card {
+    padding: 1rem 1.5rem;
+  }
+  
+  .register-header {
+    margin-bottom: 0.75rem;
+  }
+  
+  .register-header h1 {
+    font-size: 1.375rem;
+    margin-bottom: 0.125rem;
+  }
+  
+  .register-header p {
+    font-size: 0.875rem;
+  }
+  
+  .form-group {
+    margin-bottom: 0.875rem;
+  }
+  
+  .form-options {
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-options:last-of-type {
+    margin-bottom: 1rem;
+  }
+  
+  .checkbox-wrapper {
+    font-size: 0.8rem;
+  }
+  
+  .checkmark {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .divider {
+    margin: 1rem 0;
+  }
+  
+  .social-login {
+    margin-bottom: 1rem;
+  }
+  
+  .login-link {
+    padding-top: 0.75rem;
+  }
+}
