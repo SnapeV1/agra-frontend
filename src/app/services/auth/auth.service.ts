@@ -7,11 +7,11 @@ import { User } from 'src/app/features/user/models/user.model';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/api/auth'; // Adjust to match your backend
+  private apiUrl = 'http://localhost:8080/api/auth'; 
 
   constructor(private http: HttpClient) {}
 
-  register(userData: Partial<User>): Observable<User> {
-    return this.http.post<User>(`${this.apiUrl}/register`, userData);
+  register(userData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/register`, userData);
   }
 }
