@@ -2,57 +2,6 @@ import { Component, OnInit, OnDestroy, HostListener, ElementRef, ViewChild } fro
 import { Router } from '@angular/router';
 import { trigger, state, style, transition, animate, query, stagger } from '@angular/animations';
 
-interface Stat {
-  number: string;
-  label: string;
-  description?: string;
-}
-
-interface OverviewCard {
-  icon: string;
-  title: string;
-  description: string;
-}
-
-interface Feature {
-  icon: string;
-  title: string;
-  items: string[];
-}
-
-interface TechLayer {
-  title: string;
-  technologies: string[];
-}
-
-interface PricingCard {
-  title: string;
-  price: string;
-  currency: string;
-  period: string;
-  features: string[];
-  featured?: boolean;
-}
-
-interface CostBreakdown {
-  name: string;
-  cost: string;
-  percentage: string;
-}
-
-interface TimelineItem {
-  phase: number;
-  title: string;
-  duration: string;
-  description: string;
-  deliverables: string;
-}
-
-interface PerformanceMetric {
-  value: string;
-  label: string;
-}
-
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -86,199 +35,8 @@ interface PerformanceMetric {
 export class HomeComponent implements OnInit, OnDestroy {
   @ViewChild('navbar', { static: true }) navbar!: ElementRef;
 
-  // Component data
-  heroStats: Stat[] = [
-    { number: '30M+', label: 'Utilisateurs', description: 'Jeunes agriculteurs ciblés' },
-    { number: '5+', label: 'Pays', description: 'Afrique du Nord' },
-    { number: '2025', label: 'Lancement', description: 'Fin d\'année' }
-  ];
-
-  overviewCards: OverviewCard[] = [
-    {
-      icon: '🎯',
-      title: 'Objectif',
-      description: 'Former et connecter 30+ millions de jeunes agriculteurs à travers l\'Afrique du Nord via une plateforme d\'apprentissage innovante et accessible.'
-    },
-    {
-      icon: '🌍',
-      title: 'Portée',
-      description: 'Couverture complète des pays d\'Afrique du Nord avec support multilingue et adaptation aux contextes locaux spécifiques.'
-    },
-    {
-      icon: '⚡',
-      title: 'Innovation',
-      description: 'Technologies de pointe, IA pour personnalisation, réalité augmentée pour démonstrations pratiques agricoles.'
-    }
-  ];
-
-  features: Feature[] = [
-    {
-      icon: '👥',
-      title: 'Gestion des Utilisateurs',
-      items: [
-        'Enregistrement simplifié pour 30M+ utilisateurs',
-        'Profils détaillés par domaine et filière',
-        'Système de rôles et permissions',
-        'Tableau de bord personnalisé'
-      ]
-    },
-    {
-      icon: '🎓',
-      title: 'Formation en Ligne',
-      items: [
-        '5+ sessions annuelles personnalisables',
-        'Streaming vidéo haute qualité',
-        'Contenu interactif et gamifié',
-        'Évaluations et certifications'
-      ]
-    },
-    {
-      icon: '💬',
-      title: 'Interaction & Collaboration',
-      items: [
-        'Chat en temps réel formateurs-apprenants',
-        'Forums de discussion thématiques',
-        'Système de mentorat',
-        'Partage d\'expériences pratiques'
-      ]
-    },
-    {
-      icon: '📊',
-      title: 'Base de Données',
-      items: [
-        'Classification par pays et régions',
-        'Segmentation par domaines agricoles',
-        'Suivi des filières spécialisées',
-        'Analytics et rapports détaillés'
-      ]
-    },
-    {
-      icon: '📚',
-      title: 'Ressources Pédagogiques',
-      items: [
-        'Bibliothèque de kits de formation',
-        'Guides pratiques téléchargeables',
-        'Vidéos démonstration techniques',
-        'Mise à jour continue du contenu'
-      ]
-    },
-    {
-      icon: '📱',
-      title: 'Accessibilité Mobile',
-      items: [
-        'Application mobile native',
-        'Mode hors-ligne intelligent',
-        'Interface responsive adaptative',
-        'Optimisation bande passante faible'
-      ]
-    }
-  ];
-
-  techLayers: TechLayer[] = [
-    {
-      title: 'Frontend',
-      technologies: ['Angular 17+', 'TypeScript', 'Material Design', 'PWA']
-    },
-    {
-      title: 'Backend',
-      technologies: ['Node.js', 'Express.js', 'Microservices', 'GraphQL']
-    },
-    {
-      title: 'Base de Données',
-      technologies: ['MongoDB Atlas', 'Redis Cache', 'Elasticsearch', 'PostgreSQL']
-    },
-    {
-      title: 'Infrastructure',
-      technologies: ['AWS/Azure', 'Docker', 'Kubernetes', 'CDN Global']
-    }
-  ];
-
-  performanceMetrics: PerformanceMetric[] = [
-    { value: '99.9%', label: 'Disponibilité' },
-    { value: '< 2s', label: 'Temps de Chargement' },
-    { value: '30M+', label: 'Utilisateurs Simultanés' },
-    { value: '24/7', label: 'Support Technique' }
-  ];
-
-  pricingCards: PricingCard[] = [
-    {
-      title: 'Phase de Développement',
-      price: '850,000',
-      currency: '€',
-      period: 'Paiement échelonné sur 12 mois',
-      featured: true,
-      features: [
-        '✓ Conception et développement complet',
-        '✓ Architecture cloud scalable',
-        '✓ Applications mobile natives',
-        '✓ Tests et validation utilisateur',
-        '✓ Formation équipe technique',
-        '✓ Documentation complète',
-        '✓ Garantie 6 mois post-livraison'
-      ]
-    },
-    {
-      title: 'Maintenance & Support',
-      price: '180,000',
-      currency: '€',
-      period: 'Par année',
-      features: [
-        '✓ Support technique 24/7',
-        '✓ Mises à jour automatiques',
-        '✓ Monitoring et sécurité',
-        '✓ Évolutions fonctionnelles',
-        '✓ Formation continue staff',
-        '✓ Rapports de performance',
-        '✓ Sauvegarde et récupération'
-      ]
-    }
-  ];
-
-  costBreakdown: CostBreakdown[] = [
-    { name: 'Conception & UX/UI', cost: '€85,000', percentage: '10%' },
-    { name: 'Développement Backend', cost: '€340,000', percentage: '40%' },
-    { name: 'Développement Frontend', cost: '€255,000', percentage: '30%' },
-    { name: 'Infrastructure & DevOps', cost: '€85,000', percentage: '10%' },
-    { name: 'Tests & Déploiement', cost: '€85,000', percentage: '10%' }
-  ];
-
-  timelineItems: TimelineItem[] = [
-    {
-      phase: 1,
-      title: 'Analyse & Conception',
-      duration: 'Mois 1-2',
-      description: 'Analyse détaillée des besoins, conception UX/UI, architecture technique, validation avec AGRA et définition de la charte graphique.',
-      deliverables: 'Spécifications, Maquettes, Architecture'
-    },
-    {
-      phase: 2,
-      title: 'Développement Core',
-      duration: 'Mois 3-6',
-      description: 'Développement des fonctionnalités principales : authentification, gestion utilisateurs, base de données, API backend.',
-      deliverables: 'MVP, API Backend, Base de données'
-    },
-    {
-      phase: 3,
-      title: 'Fonctionnalités Avancées',
-      duration: 'Mois 7-9',
-      description: 'Système de formation, streaming vidéo, interactions, publication contenu, certifications, applications mobiles.',
-      deliverables: 'Plateforme complète, Apps mobiles'
-    },
-    {
-      phase: 4,
-      title: 'Tests & Optimisation',
-      duration: 'Mois 10-11',
-      description: 'Tests de charge, optimisation performance, tests utilisateurs pilotes, sécurité, corrections et ajustements.',
-      deliverables: 'Version finalisée, Rapports de tests'
-    },
-    {
-      phase: 5,
-      title: 'Déploiement & Formation',
-      duration: 'Mois 12',
-      description: 'Déploiement production, formation équipe technique, documentation, migration données, lancement officiel.',
-      deliverables: 'Plateforme en production, Formation'
-    }
-  ];
+  // Authentication state
+  isLoggedIn: boolean = false;
 
   // Component state
   isScrolled = false;
@@ -294,6 +52,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
+    this.checkAuthStatus();
     this.initializeAnimations();
     this.setupScrollObserver();
     this.preloadResources();
@@ -301,6 +60,56 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     // Cleanup any subscriptions or observers
+  }
+
+  /**
+   * Check if user is authenticated by checking JWT token
+   */
+  checkAuthStatus(): void {
+    const token = localStorage.getItem('jwt') || 
+                  localStorage.getItem('token') || 
+                  localStorage.getItem('authToken') ||
+                  localStorage.getItem('access_token');
+    this.isLoggedIn = !!token;
+  }
+
+  /**
+   * Handle user login - navigate to login page
+   */
+  login(): void {
+    this.router.navigate(['/login']);
+    this.trackInteraction('login_button_click', 'authentication');
+  }
+
+  /**
+   * Handle user sign out
+   */
+  signOut(): void {
+    // Remove all possible JWT token keys
+    localStorage.removeItem('jwt');
+    localStorage.removeItem('token');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    
+    // Update authentication status
+    this.isLoggedIn = false;
+    
+    // Track sign out event
+    this.trackInteraction('signout_button_click', 'authentication');
+    
+    // Optional: Show confirmation message
+    console.log('User signed out successfully');
+    
+    // Optional: Redirect to login page or refresh
+    // this.router.navigate(['/login']);
+  }
+
+  /**
+   * Refresh authentication status (useful for token changes)
+   */
+  refreshAuthStatus(): void {
+    this.checkAuthStatus();
   }
 
   @HostListener('window:scroll', ['$event'])
@@ -392,13 +201,7 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Handle CTA button click
    */
   onContactClick(): void {
-    // Add contact logic here - could open modal, navigate to contact page, etc.
     console.log('Contact button clicked');
-    
-    // Example: Show contact modal or navigate
-    // this.router.navigate(['/contact']);
-    
-    // Or trigger email
     window.location.href = 'mailto:contact@agra-platform.com?subject=Projet AGRA - Demande d\'information';
   }
 
@@ -420,15 +223,14 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Handle pricing card selection
    */
   onPricingCardClick(cardIndex: number): void {
-    console.log(`Pricing card ${cardIndex} selected:`, this.pricingCards[cardIndex]);
-    // Add pricing card selection logic
+    console.log(`Pricing card ${cardIndex} selected`);
+    this.trackInteraction('pricing_card_click', 'engagement', `card-${cardIndex}`);
   }
 
   /**
    * Get formatted number for animations
    */
   getAnimatedNumber(value: string): string {
-    // Remove non-numeric characters for animation purposes
     const numericValue = value.replace(/[^\d]/g, '');
     return numericValue;
   }
@@ -440,29 +242,23 @@ export class HomeComponent implements OnInit, OnDestroy {
     const width = window.innerWidth;
     
     if (width < 768) {
-      // Mobile layout adjustments
       this.adjustMobileLayout();
     } else if (width < 1024) {
-      // Tablet layout adjustments
       this.adjustTabletLayout();
     } else {
-      // Desktop layout adjustments
       this.adjustDesktopLayout();
     }
   }
 
   private adjustMobileLayout(): void {
-    // Mobile-specific adjustments
     console.log('Adjusting for mobile layout');
   }
 
   private adjustTabletLayout(): void {
-    // Tablet-specific adjustments
     console.log('Adjusting for tablet layout');
   }
 
   private adjustDesktopLayout(): void {
-    // Desktop-specific adjustments
     console.log('Adjusting for desktop layout');
   }
 
@@ -472,7 +268,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   private preloadResources(): void {
     this.isLoading = true;
     
-    // Simulate resource loading
     setTimeout(() => {
       this.isLoading = false;
     }, 1000);
@@ -482,20 +277,13 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Track user interactions for analytics
    */
   trackInteraction(action: string, category: string, label?: string): void {
-    // Add analytics tracking here
     console.log('Analytics:', { action, category, label });
-    
-    // Example: Google Analytics 4
-    // gtag('event', action, {
-    //   event_category: category,
-    //   event_label: label
-    // });
   }
 
   /**
    * Handle timeline item click
    */
-  onTimelineItemClick(item: TimelineItem): void {
+  onTimelineItemClick(item: any): void {
     console.log('Timeline item clicked:', item);
     this.trackInteraction('timeline_item_click', 'engagement', item.title);
   }
@@ -527,9 +315,8 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Get progress percentage for timeline
    */
   getTimelineProgress(): number {
-    // Calculate progress based on current date or project status
     const currentMonth = new Date().getMonth() + 1;
-    const projectStartMonth = 1; // January
+    const projectStartMonth = 1;
     const totalMonths = 12;
     
     const progressMonths = Math.min(currentMonth - projectStartMonth + 1, totalMonths);
@@ -550,7 +337,6 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Toggle mobile menu (if implemented)
    */
   toggleMobileMenu(): void {
-    // Add mobile menu toggle logic
     console.log('Mobile menu toggled');
   }
 
@@ -569,16 +355,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     event.preventDefault();
     
     if (this.newsletterEmail && this.isValidEmail(this.newsletterEmail)) {
-      // Simulate newsletter subscription
       console.log('Newsletter subscription:', this.newsletterEmail);
-      
-      // Show success message (you can implement a toast/notification service)
       alert('Merci pour votre inscription à notre newsletter !');
-      
-      // Track the subscription
       this.trackInteraction('newsletter_subscribe', 'engagement', this.newsletterEmail);
-      
-      // Reset form
       this.newsletterEmail = '';
     } else {
       alert('Veuillez entrer une adresse email valide.');
@@ -613,24 +392,20 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Handle footer link navigation
+   * Footer link navigation
    */
   onFooterLinkClick(linkType: string, linkName: string): void {
     console.log(`Footer link clicked: ${linkType} - ${linkName}`);
     this.trackInteraction('footer_link_click', 'navigation', `${linkType}-${linkName}`);
     
-    // Handle different types of footer links
     switch (linkType) {
       case 'platform':
-        // Navigate to platform sections
         this.scrollToSection(linkName);
         break;
       case 'legal':
-        // Navigate to legal pages
         this.router.navigate([`/${linkName}`]);
         break;
       case 'resource':
-        // Navigate to resource pages
         this.router.navigate([`/${linkName}`]);
         break;
       default:

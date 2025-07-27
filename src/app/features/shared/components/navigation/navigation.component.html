@@ -1,15 +1,50 @@
-<nav class="navbar" [ngClass]="{ 'scrolled': isScrolled }">
-  <div class="nav-container">
-    <div class="nav-brand">
-      <div class="logo">🌱</div>
-      <span class="brand-text">MyApp</span>
-    </div>
+<!-- Navigation with Authentication -->
+<nav class="navbar" [class.scrolled]="isScrolled">
+    <div class="nav-container">
+        <div class="nav-brand">
+            <span class="nav-logo">🌱</span>
+            <span class="nav-title">AGRA Platform</span>
+        </div>
+        
+        <div class="nav-menu">
+            <a href="#overview" (click)="scrollToSection('overview')" [class.active]="isSectionActive('overview')">Vue d'ensemble</a>
+            <a href="#features" (click)="scrollToSection('features')" [class.active]="isSectionActive('features')">Fonctionnalités</a>
+            <a href="#technical" (click)="scrollToSection('technical')" [class.active]="isSectionActive('technical')">Technique</a>
+            <a href="#pricing" (click)="scrollToSection('pricing')" [class.active]="isSectionActive('pricing')">Tarification</a>
+            <a href="#timeline" (click)="scrollToSection('timeline')" [class.active]="isSectionActive('timeline')">Planning</a>
+        </div>
 
-    <div class="nav-links">
-      <a routerLink="/">Home</a>
-      <a routerLink="/about">About</a>
-      <a routerLink="/courses">Courses</a>
-      <a routerLink="/login">Login</a>
+        <!-- Authentication Section -->
+        <div class="nav-auth">
+            <!-- Show Login button when user is NOT logged in -->
+            <button 
+                *ngIf="!isLoggedIn" 
+                class="auth-btn login-btn" 
+                (click)="login()">
+                <span class="btn-icon"></span>
+                Se connecter
+            </button>
+            
+            <!-- Show user menu when user IS logged in -->
+            <div *ngIf="isLoggedIn" class="user-menu">
+                <div class="user-info">
+                
+                
+                </div>
+                <button 
+                    class="auth-btn signout-btn" 
+                    (click)="signOut()">
+                    <span class="btn-icon"></span>
+                    Se déconnecter
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile menu toggle -->
+        <button class="mobile-toggle" (click)="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
     </div>
-  </div>
 </nav>
