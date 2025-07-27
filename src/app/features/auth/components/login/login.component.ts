@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +17,7 @@ export class LoginComponent {
   rememberMe = false;
   isLoading = false;
 
-  constructor(private router: Router) {}
+constructor(private router: Router, private authService: AuthService) {}
 
   onLogin() {
     if (this.isLoading) return;
@@ -24,12 +25,25 @@ export class LoginComponent {
     this.isLoading = true;
     
    
-    setTimeout(() => {
-      console.log('Login attempt:', this.loginData);
-      this.isLoading = false;
-          // TO DO
+   this.authService.login(this.loginData).subscribe({
+  next: (response) => {
+    console.log('Login successful:', response);
 
-    }, 2000);
+    localStorage.setItem('token', response.token);
+    localStorage.setItem('email', response.email);
+    localStorage.setItem('role', response.role);
+
+    this.isLoading = false;
+    this.router.navigate(['/home']); 
+  },
+  error: (error) => {
+    console.error('Login failed:', error);
+    this.isLoading = false;
+   
+  }
+});
+
+
   }
 
   togglePassword() {
