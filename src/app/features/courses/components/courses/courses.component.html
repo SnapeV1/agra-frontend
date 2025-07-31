@@ -1,0 +1,119 @@
+<app-navigation></app-navigation>
+<div class="courses-container">
+  <!-- Header Section -->
+  <div class="courses-header">
+    <h1 class="courses-title">Available Courses</h1>
+    <p class="courses-subtitle">Choose from our wide selection of courses and start learning today</p>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="search-bar">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (input)="onSearch()" 
+        placeholder="Search courses..." 
+        class="search-input">
+     
+    </div>
+
+    <div class="filter-controls">
+      <select [(ngModel)]="selectedDomain" (change)="onDomainChange()" class="filter-select">
+        <option value="">All Domains</option>
+        <option *ngFor="let domain of domains" [value]="domain">{{ domain }}</option>
+      </select>
+
+      <select [(ngModel)]="selectedCountry" (change)="onCountryChange()" class="filter-select">
+        <option value="">All Countries</option>
+        <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
+      </select>
+
+      <button (click)="clearFilters()" class="clear-filters-btn">Clear Filters</button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading courses...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="error-message">
+      <i class="fas fa-exclamation-triangle"></i>
+      <p>{{ error }}</p>
+      <button (click)="loadCourses()" class="retry-btn">Try Again</button>
+    </div>
+  </div>
+
+  <!-- Courses Grid -->
+  <div *ngIf="!loading && !error" class="courses-section">
+    <div class="courses-results-header">
+      <h2>Browse Courses ({{ filteredCourses.length }})</h2>
+    </div>
+
+    <div *ngIf="filteredCourses.length === 0" class="no-courses">
+      <div class="no-courses-message">
+        <i class="fas fa-search"></i>
+        <h3>No courses found</h3>
+        <p>Try adjusting your search criteria or filters</p>
+      </div>
+    </div>
+
+    <div *ngIf="filteredCourses.length > 0" class="courses-grid">
+      <div 
+        *ngFor="let course of filteredCourses" 
+        class="course-card" 
+        (click)="onCourseSelect(course)">
+        
+        <div class="course-image">
+          <img [src]="course.imageUrl" [alt]="course.title" *ngIf="course.imageUrl">
+          <div *ngIf="!course.imageUrl" class="course-placeholder">
+            <i class="fas fa-graduation-cap"></i>
+          </div>
+        </div>
+
+        <div class="course-content">
+          <div class="course-header">
+            <h3 class="course-title">{{ course.title }}</h3>
+            <div class="course-badges">
+              <span class="domain-badge">{{ course.domain }}</span>
+              <span class="country-badge">{{ course.country }}</span>
+            </div>
+          </div>
+
+          <p class="course-description">{{ course.description }}</p>
+
+          <div class="course-details">
+            <div class="course-languages" *ngIf="course.languagesAvailable.length > 0">
+              <i class="fas fa-language"></i>
+              <span>{{ course.languagesAvailable.join(', ') }}</span>
+            </div>
+
+            <div class="course-sessions" *ngIf="course.sessionIds.length > 0">
+              <i class="fas fa-calendar-alt"></i>
+              <span>{{ course.sessionIds.length }} sessions available</span>
+            </div>
+          </div>
+
+          <div class="course-footer">
+            <small class="course-date">
+              Added: {{ course.createdAt | date:'shortDate' }}
+            </small>
+            <div class="course-actions">
+              <button class="view-course-btn" (click)="onCourseSelect(course)">
+                View Details <i class="fas fa-arrow-right"></i>
+              </button>
+              <button class="enroll-btn" (click)="enrollInCourse(course, $event)">
+                <i class="fas fa-play"></i> Enroll Now
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  <app-footer></app-footer>

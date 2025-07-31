@@ -391,25 +391,5 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Footer link navigation
-   */
-  onFooterLinkClick(linkType: string, linkName: string): void {
-    console.log(`Footer link clicked: ${linkType} - ${linkName}`);
-    this.trackInteraction('footer_link_click', 'navigation', `${linkType}-${linkName}`);
-    
-    switch (linkType) {
-      case 'platform':
-        this.scrollToSection(linkName);
-        break;
-      case 'legal':
-        this.router.navigate([`/${linkName}`]);
-        break;
-      case 'resource':
-        this.router.navigate([`/${linkName}`]);
-        break;
-      default:
-        console.log('Unknown link type:', linkType);
-    }
-  }
+  
 }

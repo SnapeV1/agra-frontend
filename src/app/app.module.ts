@@ -6,24 +6,27 @@ import { AuthRoutingModule } from './features/auth/auth-routing.module';
 import { AuthModule } from './features/auth/auth.module';
 import { AppRoutingModule } from './app-routing.module';
 import { HomeComponent } from './features/home/components/home/home.component';
-import { NavigationComponent } from './features/shared/components/navigation/navigation.component';
-import { FooterComponent } from './features/shared/components/footer/footer.component';
+import { SharedModule } from "src/app/features/shared/shared.module";
+import { AdminModule } from './features/admin/admin.module';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
-    NavigationComponent,
-    FooterComponent,
+
+    
   
   ],
   imports: [
     BrowserModule,
-    AuthRoutingModule, 
+    AuthRoutingModule,
     AppRoutingModule,
-    AuthModule
-          
-  ],
+    AuthModule,
+    SharedModule,
+    AdminModule,
+    FormsModule
+],
   providers: [],
   bootstrap: [AppComponent]
 })

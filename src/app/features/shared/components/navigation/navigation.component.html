@@ -7,16 +7,14 @@
         </div>
         
         <div class="nav-menu">
-            <a href="#overview" (click)="scrollToSection('overview')" [class.active]="isSectionActive('overview')">Vue d'ensemble</a>
-            <a href="#features" (click)="scrollToSection('features')" [class.active]="isSectionActive('features')">Fonctionnalités</a>
+            <a href="home" (click)="scrollToSection('overview')" [class.active]="isSectionActive('overview')">home</a>
+            <a href="courses" (click)="scrollToSection('courses')" [class.active]="isSectionActive('courses')">Courses</a>
             <a href="#technical" (click)="scrollToSection('technical')" [class.active]="isSectionActive('technical')">Technique</a>
             <a href="#pricing" (click)="scrollToSection('pricing')" [class.active]="isSectionActive('pricing')">Tarification</a>
             <a href="#timeline" (click)="scrollToSection('timeline')" [class.active]="isSectionActive('timeline')">Planning</a>
         </div>
 
-        <!-- Authentication Section -->
         <div class="nav-auth">
-            <!-- Show Login button when user is NOT logged in -->
             <button 
                 *ngIf="!isLoggedIn" 
                 class="auth-btn login-btn" 

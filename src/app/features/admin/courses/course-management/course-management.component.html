@@ -1,0 +1,202 @@
+<div class="course-management">
+  <!-- Header Section -->
+  <div class="header">
+    <div class="title-section">
+      <h1>Course Management</h1>
+      <p>Manage all courses and their details</p>
+    </div>
+    <button class="btn-primary" (click)="openAddModal()">
+      <i class="icon-plus"></i>
+      Add New Course
+    </button>
+  </div>
+
+  <!-- Search and Filters -->
+  <div class="search-section">
+    <div class="search-box">
+      <i class="icon-search"></i>
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm"
+        placeholder="Search courses, trainer ID, domain, or country..." 
+        class="search-input"
+        name="searchTerm"
+      >
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Loading courses...</p>
+  </div>
+
+  <!-- Courses Grid -->
+  <div *ngIf="!loading && filteredCourses.length > 0" class="courses-grid">
+    <div *ngFor="let course of filteredCourses" class="course-card">
+      <div class="course-image">
+        <img [src]="course.imageUrl" [alt]="course.title" />
+      </div>
+      
+      <div class="course-content">
+        <div class="course-header">
+          <h3>{{ course.title }}</h3>
+          <div class="course-meta">
+            <span class="domain">{{ course.domain }}</span>
+            <span class="country">{{ course.country }}</span>
+          </div>
+        </div>
+        
+        <p class="description">{{ course.description }}</p>
+        
+        <div class="course-details">
+          <div class="detail-item">
+            <i class="icon-user"></i>
+            <span>{{ course.trainerId }}</span>
+          </div>
+          <div class="detail-item">
+            <i class="icon-languages"></i>
+            <span>{{ course.languagesAvailable.join(', ') }}</span>
+          </div>
+          <div class="detail-item">
+            <i class="icon-clock"></i>
+            <span>Sessions: {{ course.sessionIds.length }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="course-actions">
+        <button class="btn-action btn-edit" (click)="openEditModal(course)" title="Edit">
+          <i class="icon-edit"></i>
+        </button>
+        <button class="btn-action btn-delete" (click)="deleteCourse(course)" title="Delete">
+          <i class="icon-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && filteredCourses.length === 0" class="empty-state">
+    <div class="empty-icon">📚</div>
+    <h3>No courses found</h3>
+    <p>{{ searchTerm ? 'Try adjusting your search criteria' : 'Start by adding your first course' }}</p>
+    <button *ngIf="!searchTerm" class="btn-primary" (click)="openAddModal()">
+      Add Your First Course
+    </button>
+  </div>
+</div>
+
+<!-- Modal -->
+<div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ modalMode === 'add' ? 'Add New Course' : 'Edit Course' }}</h2>
+      <button class="modal-close" (click)="closeModal()">×</button>
+    </div>
+    
+    <form class="modal-content" (ngSubmit)="saveCourse()" #courseFormRef="ngForm">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="title">Course Title *</label>
+          <input 
+            type="text" 
+            id="title" 
+            name="title"
+            [(ngModel)]="courseForm.title"
+            required
+            placeholder="Enter course title"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="trainerId">Trainer ID *</label>
+          <input 
+            type="text" 
+            id="trainerId" 
+            name="trainerId"
+            [(ngModel)]="courseForm.trainerId"
+            required
+            placeholder="Enter trainer ID"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="domain">Domain *</label>
+          <input 
+            type="text" 
+            id="domain" 
+            name="domain"
+            [(ngModel)]="courseForm.domain"
+            required
+            placeholder="e.g., Web Development, Data Science"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="country">Country *</label>
+          <input 
+            type="text" 
+            id="country" 
+            name="country"
+            [(ngModel)]="courseForm.country"
+            required
+            placeholder="Enter country"
+          >
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea 
+          id="description" 
+          name="description"
+          [(ngModel)]="courseForm.description"
+          rows="3"
+          placeholder="Enter course description"
+        ></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label for="imageUrl">Image URL</label>
+        <input 
+          type="url" 
+          id="imageUrl" 
+          name="imageUrl"
+          [(ngModel)]="courseForm.imageUrl"
+          placeholder="https://example.com/image.jpg"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="languagesAvailable">Languages Available (comma-separated)</label>
+       <input 
+  type="text" 
+  id="languagesAvailable" 
+  name="languagesAvailable"
+  [ngModel]="courseForm.languagesAvailable.join(', ')"
+  placeholder="e.g., English, French, Arabic"
+/>
+
+      </div>
+
+      <div class="form-group">
+        <label for="sessionIds">Session IDs (comma-separated)</label>
+        <input 
+          type="text" 
+          id="sessionIds" 
+          name="sessionIds"
+          [ngModel]="courseForm.sessionIds.join(', ')"
+          placeholder="e.g., s1, s2, s3"
+        >
+      </div>
+      
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
+        <button type="submit" class="btn-primary" [disabled]="loading">
+          {{ loading ? 'Saving...' : (modalMode === 'add' ? 'Add Course' : 'Update Course') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
