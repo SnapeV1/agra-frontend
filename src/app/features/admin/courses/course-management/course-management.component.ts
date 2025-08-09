@@ -18,7 +18,7 @@ export class CourseManagementComponent {
   private apiUrl = 'http://localhost:8080/api/courses';
 
   courseForm: Course = {
-    id: '',
+  id: null as any,
     title: '',
     description: '',
     imageUrl: '',
@@ -97,47 +97,50 @@ export class CourseManagementComponent {
     };
   }
 
-  /** Add or Update Course */
-  async saveCourse(): Promise<void> {
-    if (!this.validateForm()) return;
+ async saveCourse(): Promise<void> {
+  if (!this.validateForm()) return;
 
-    this.loading = true;
-    try {
-      this.courseForm.updatedAt = new Date();
+  this.loading = true;
 
-      if (this.modalMode === 'add') {
-        this.courseForm.createdAt = new Date();
-        const response = await fetch(`${this.apiUrl}/addCourse`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(this.courseForm)
-        });
-        if (!response.ok) throw new Error('Failed to add course');
-        const newCourse = await response.json();
-        this.courses.push(newCourse);
+  try {
+    this.courseForm.updatedAt = new Date();
 
-      } else {
-        const response = await fetch(`${this.apiUrl}/updateCourse/${this.courseForm.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(this.courseForm)
-        });
-        if (!response.ok) throw new Error('Failed to update course');
-        const updatedCourse = await response.json();
-        const index = this.courses.findIndex(c => c.id === updatedCourse.id);
-        if (index !== -1) {
-          this.courses[index] = updatedCourse;
-        }
-      }
+    const isAdd = this.modalMode === 'add';
+    if (isAdd) this.courseForm.createdAt = new Date();
 
-      this.closeModal();
-    } catch (error) {
-      console.error('Error saving course:', error);
-      alert('Error saving course. Please try again.');
-    } finally {
-      this.loading = false;
+    const url = isAdd
+      ? `${this.apiUrl}/addCourse`
+      : `${this.apiUrl}/update/${this.courseForm.id}`;
+      console.log(this.courseForm.id);
+
+    const method = isAdd ? 'POST' : 'PUT';
+
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(this.courseForm)
+    });
+
+    if (!response.ok) throw new Error(`Failed to ${isAdd ? 'add' : 'update'} course`);
+
+    const course = await response.json();
+
+    if (isAdd) {
+      this.courses.push(course);
+    } else {
+      const index = this.courses.findIndex(c => c.id === course.id);
+      if (index !== -1) this.courses[index] = course;
     }
+
+    this.closeModal();
+  } catch (error) {
+    console.error('Error saving course:', error);
+    alert('Error saving course. Please try again.');
+  } finally {
+    this.loading = false;
   }
+}
+
 
   /** Delete Course */
   async deleteCourse(course: Course): Promise<void> {
