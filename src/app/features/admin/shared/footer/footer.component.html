@@ -1,0 +1,13 @@
+<footer class="footer">
+  <div>
+    © {{ currentYear }} AdminPro Dashboard. All rights reserved.
+  </div>
+  <div class="footer-links">
+    <a 
+      *ngFor="let link of footerLinks" 
+      [routerLink]="link.route"
+    >
+      {{ link.label }}
+    </a>
+  </div>
+</footer>

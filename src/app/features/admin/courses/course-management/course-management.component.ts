@@ -29,6 +29,7 @@ export class CourseManagementComponent {
     languagesAvailable: [],
     createdAt: new Date(),
     updatedAt: new Date(),
+    archived:false
   };
 
   constructor() {}
@@ -54,13 +55,24 @@ export class CourseManagementComponent {
   }
 
   /** Filtered courses for search */
-  get filteredCourses(): Course[] {
-    return this.courses.filter(course =>
+filterStatus: 'all' | 'archived' | 'active' = 'all';
+
+get filteredCourses(): Course[] {
+  return this.courses
+    .filter(course => {
+      // Status filter
+      if (this.filterStatus === 'archived') return course.archived;
+      if (this.filterStatus === 'active') return !course.archived;
+      return true; // all
+    })
+    .filter(course =>
+      // Search filter
       course.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       course.trainerId.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       course.domain.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
-  }
+}
+
 
   openAddModal(): void {
     this.modalMode = 'add';
@@ -90,6 +102,7 @@ export class CourseManagementComponent {
       domain: '',
       country: '',
       trainerId: '',
+      archived:false,
       sessionIds: [],
       languagesAvailable: [],
       createdAt: new Date(),
@@ -142,22 +155,24 @@ export class CourseManagementComponent {
 }
 
 
-  /** Delete Course */
-  async deleteCourse(course: Course): Promise<void> {
-    if (!confirm(`Are you sure you want to delete "${course.title}"?`)) return;
+ async toggleArchiveCourse(course: Course): Promise<void> {
+  const action = course.archived ? 'unarchive' : 'archive';
+  if (!confirm(`Are you sure you want to ${action} "${course.title}"?`)) return;
 
-    this.loading = true;
-    try {
-      const response = await fetch(`${this.apiUrl}/deleteCourse/${course.id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Failed to delete course');
-      this.courses = this.courses.filter(c => c.id !== course.id);
-    } catch (error) {
-      console.error('Error deleting course:', error);
-      alert('Error deleting course. Please try again.');
-    } finally {
-      this.loading = false;
-    }
+  this.loading = true;
+  try {
+    const response = await fetch(`${this.apiUrl}/ArchiveCourse/${course.id}`, { method: 'PUT' });
+    if (!response.ok) throw new Error('Failed to update course status');
+
+    course.archived = !course.archived; // update in UI
+  } catch (error) {
+    console.error(`Error trying to ${action} course:`, error);
+    alert(`Error trying to ${action} course. Please try again.`);
+  } finally {
+    this.loading = false;
   }
+}
+
 
   /** Validate form before submit */
   private validateForm(): boolean {

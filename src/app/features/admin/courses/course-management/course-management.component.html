@@ -1,4 +1,7 @@
+<app-base-layout>
+
 <div class="course-management">
+
   <!-- Header Section -->
   <div class="header">
     <div class="title-section">
@@ -24,6 +27,15 @@
       >
     </div>
   </div>
+<!-- Filter Dropdown -->
+<div class="filter-section">
+  <label for="statusFilter">Show:</label>
+  <select id="statusFilter" [(ngModel)]="filterStatus">
+    <option value="all">All</option>
+    <option value="active">Active</option>
+    <option value="archived">Archived</option>
+  </select>
+</div>
 
   <!-- Loading Spinner -->
   <div *ngIf="loading" class="loading">
@@ -33,7 +45,11 @@
 
   <!-- Courses Grid -->
   <div *ngIf="!loading && filteredCourses.length > 0" class="courses-grid">
-    <div *ngFor="let course of filteredCourses" class="course-card">
+<div 
+  *ngFor="let course of filteredCourses" 
+  class="course-card"
+  [class.archived]="course.archived"
+>
       <div class="course-image">
         <img [src]="course.imageUrl" [alt]="course.title" />
       </div>
@@ -69,9 +85,12 @@
         <button class="btn-action btn-edit" (click)="openEditModal(course)" title="Edit">
           <i class="icon-edit"></i>
         </button>
-        <button class="btn-action btn-delete" (click)="deleteCourse(course)" title="Delete">
-          <i class="icon-trash"></i>
-        </button>
+        <button class="btn-action" 
+        (click)="toggleArchiveCourse(course)" 
+        [title]="course.archived ? 'Unarchive' : 'Archive'">
+  <i [class.icon-archive]="!course.archived" [class.icon-undo]="course.archived"></i>
+</button>
+
       </div>
     </div>
   </div>
@@ -200,3 +219,4 @@
     </form>
   </div>
 </div>
+</app-base-layout>

@@ -10,4 +10,5 @@ export interface Course {
   languagesAvailable: string[];
   createdAt: Date;
   updatedAt: Date;
+  archived: boolean;
 }

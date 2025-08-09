@@ -1,0 +1,21 @@
+<nav class="sidebar" [class.collapsed]="isCollapsed" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <i class="fas fa-chart-line"></i>
+    </div>
+    <h3 class="sidebar-title">AdminPro</h3>
+  </div>
+  
+  <div class="sidebar-menu">
+    <a 
+      *ngFor="let item of menuItems" 
+      [routerLink]="item.route"
+      class="menu-item" 
+      [class.active]="activeMenuItem === item.id"
+      (click)="setActiveMenuItem(item.id)"
+    >
+      <i [class]="item.icon"></i>
+      <span class="menu-text">{{ item.text }}</span>
+    </a>
+  </div>
+</nav>

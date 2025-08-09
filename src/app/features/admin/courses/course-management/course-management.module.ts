@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // for ngModel support
 import { CourseManagementComponent } from './course-management.component';
 import { RouterModule } from '@angular/router';
+import { SharedModule } from "../../shared/shared.module";
 
 @NgModule({
   declarations: [CourseManagementComponent],
@@ -11,9 +12,10 @@ import { RouterModule } from '@angular/router';
     CommonModule,
     FormsModule,
     RouterModule.forChild([
-      { path: '', component: CourseManagementComponent }
-    ])
-  ],
+        { path: '', component: CourseManagementComponent }
+    ]),
+    SharedModule
+],
   exports: [CourseManagementComponent]
 })
 export class CourseManagementModule { }

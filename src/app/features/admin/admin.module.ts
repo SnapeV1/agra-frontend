@@ -5,16 +5,25 @@ import { AdminRoutingModule } from './admin-routing.module';
 import { FormsModule } from '@angular/forms';
 import { CoursesModule } from '../courses/courses.module';
 import { CourseManagementModule } from './courses/course-management/course-management.module';
+import { SharedModule } from './shared/shared.module';
+import { DashboardAdminComponent } from './dashboard-admin/dashboard-admin.component';
+import { RouterModule } from '@angular/router';
 
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    DashboardAdminComponent,
+    
+  ],
   imports: [
     CommonModule,
-    AdminRoutingModule,
     FormsModule,
     CoursesModule,
-    CourseManagementModule
+    CourseManagementModule,
+    SharedModule,
+    RouterModule,
+    AdminRoutingModule,
+
   ]
 })
 export class AdminModule { }
