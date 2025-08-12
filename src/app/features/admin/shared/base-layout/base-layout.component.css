@@ -1,17 +1,17 @@
 .dashboard-container {
-  position: relative; /* Add this */
+  position: relative; 
 }
 
 app-sidebar {
-  position: absolute; /* Change to absolute */
+  position: absolute; 
   left: 0;
   top: 0;
   height: 100vh;
   z-index: 1000;
-  /* ... rest of your styles */
+ 
 }
 
 .main-content {
-  margin-left: 70px; /* Always account for collapsed sidebar */
+  margin-left: 70px; 
   transition: margin-left 0.3s ease;
 }
