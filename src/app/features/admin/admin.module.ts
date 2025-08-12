@@ -8,11 +8,13 @@ import { CourseManagementModule } from './courses/course-management/course-manag
 import { SharedModule } from './shared/shared.module';
 import { DashboardAdminComponent } from './dashboard-admin/dashboard-admin.component';
 import { RouterModule } from '@angular/router';
+import { UserManagementComponent } from './user-management/user-management.component';
 
 
 @NgModule({
   declarations: [
     DashboardAdminComponent,
+    UserManagementComponent,
     
   ],
   imports: [
@@ -22,7 +24,7 @@ import { RouterModule } from '@angular/router';
     CourseManagementModule,
     SharedModule,
     RouterModule,
-    AdminRoutingModule,
+    AdminRoutingModule
 
   ]
 })

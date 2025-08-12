@@ -1,51 +1,17 @@
 .dashboard-container {
-  display: flex;
-  min-height: 100vh;
+  position: relative; /* Add this */
+}
+
+app-sidebar {
+  position: absolute; /* Change to absolute */
+  left: 0;
+  top: 0;
+  height: 100vh;
+  z-index: 1000;
+  /* ... rest of your styles */
 }
 
 .main-content {
-  flex: 1;
-  margin-left: 260px;
-  display: flex;
-  flex-direction: column;
+  margin-left: 70px; /* Always account for collapsed sidebar */
   transition: margin-left 0.3s ease;
-}
-
-.main-content.sidebar-collapsed {
-  margin-left: 70px;
-}
-
-.content-area {
-  flex: 1;
-  padding: 30px;
-  background: #f8f9fa;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .main-content {
-    margin-left: 70px;
-  }
-  
-  .main-content.sidebar-collapsed {
-    margin-left: 70px;
-  }
-  
-  .content-area {
-    padding: 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  .main-content {
-    margin-left: 0;
-  }
-  
-  .main-content.sidebar-collapsed {
-    margin-left: 0;
-  }
-  
-  .content-area {
-    padding: 15px;
-  }
 }

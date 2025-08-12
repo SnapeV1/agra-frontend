@@ -16,4 +16,6 @@ export interface User {
   role: string;
   registeredAt: string; 
   progress?: CourseProgress[];
+  archived: boolean;
+
 }

@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { CourseManagementComponent } from './courses/course-management/course-management.component';
 import { DashboardAdminComponent } from './dashboard-admin/dashboard-admin.component';
+import { UserManagementComponent } from './user-management/user-management.component';
 
 const routes: Routes = [
   {
@@ -9,6 +10,7 @@ const routes: Routes = [
     children: [
       { path: 'courses', component: CourseManagementComponent },
       { path: 'dashboard', component: DashboardAdminComponent },
+      { path: 'users', component: UserManagementComponent },
       { path: '', redirectTo: 'courses', pathMatch: 'full' } 
     ]
   }

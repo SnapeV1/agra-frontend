@@ -1,0 +1,91 @@
+<app-base-layout>
+<div class="user-management">
+  <div class="header">
+    <h1>User Management</h1>
+    <p>Manage your users and their permissions</p>
+  </div>
+
+  <div class="search-container">
+    <input 
+      type="text" 
+      placeholder="Search users..." 
+      [(ngModel)]="searchTerm"
+      class="search-input"
+    />
+    <div class="user-count">
+      {{ filteredUsers.length }} users found 
+      ({{ activeUsersCount }} active, {{ archivedUsersCount }} archived)
+    </div>
+  </div>
+
+  <div class="table-container" *ngIf="filteredUsers.length > 0">
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Country</th>
+          <th>Language</th>
+          <th>Domain</th>
+          <th>Role</th>
+          <th>Registered</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of filteredUsers" class="fade-in">
+          <td>
+            <div class="user-name">{{ user.name }}</div>
+          </td>
+          <td>
+            <div class="user-email">{{ user.email }}</div>
+          </td>
+          <td>{{ user.phone || '-' }}</td>
+          <td>{{ user.country || '-' }}</td>
+          <td>{{ user.language || '-' }}</td>
+          <td>{{ user.domain || '-' }}</td>
+          <td>
+            <span class="role-badge">{{ user.role }}</span>
+          </td>
+          <td>{{ user.registeredAt | date:'mediumDate' }}</td>
+          <td>
+            <span 
+              class="status-badge" 
+              [ngClass]="{
+                'status-active': !user.archived,
+                'status-archived': user.archived
+              }"
+            >
+              {{ user.archived ? 'Archived' : 'Active' }}
+            </span>
+          </td>
+          <td>
+            <div class="actions">
+              <button 
+                class="btn btn-toggle"
+                [ngClass]="{ 'archive': !user.archived }"
+                (click)="toggleArchive(user)"
+              >
+                {{ user.archived ? 'Unarchive' : 'Archive' }}
+              </button>
+              <button 
+                class="btn btn-delete" 
+                (click)="deleteUser(user.id)"
+              >
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="empty-state" *ngIf="filteredUsers.length === 0">
+    <h3>No users found</h3>
+    <p>Try adjusting your search criteria</p>
+  </div>
+</div>
+</app-base-layout>

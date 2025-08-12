@@ -6,12 +6,17 @@
     <h3 class="sidebar-title">AdminPro</h3>
   </div>
   
+  <div class="toggle-btn" (click)="toggleSidebar()">
+    <i class="fas" [class.fa-chevron-left]="!isCollapsed" [class.fa-chevron-right]="isCollapsed"></i>
+  </div>
+  
   <div class="sidebar-menu">
     <a 
       *ngFor="let item of menuItems" 
       [routerLink]="item.route"
       class="menu-item" 
       [class.active]="activeMenuItem === item.id"
+      [attr.data-tooltip]="item.text"
       (click)="setActiveMenuItem(item.id)"
     >
       <i [class]="item.icon"></i>

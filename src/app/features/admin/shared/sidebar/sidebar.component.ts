@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { SidebarService } from '../../services/sidebar.service';
 
@@ -13,18 +13,17 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private subscription: Subscription = new Subscription();
 
   menuItems = [
-    { id: 'dashboard', icon: 'fas fa-home', text: 'Dashboard', route: './dashboard' },
-    { id: 'users', icon: 'fas fa-users', text: 'Users', route: './users' },
-    { id: 'orders', icon: 'fas fa-shopping-cart', text: 'Orders', route: './orders' },
-    { id: 'products', icon: 'fas fa-box', text: 'Products', route: './products' },
-    { id: 'analytics', icon: 'fas fa-chart-bar', text: 'Analytics', route: './analytics' },
-    { id: 'settings', icon: 'fas fa-cog', text: 'Settings', route: './settings' }
+    { id: 'dashboard', icon: 'fas fa-home', text: 'Dashboard', route: '/dashboard' },
+    { id: 'users', icon: 'fas fa-users', text: 'Users', route: '/users' },
+    { id: 'orders', icon: 'fas fa-shopping-cart', text: 'Orders', route: '/orders' },
+    { id: 'products', icon: 'fas fa-box', text: 'Products', route: '/products' },
+    { id: 'analytics', icon: 'fas fa-chart-bar', text: 'Analytics', route: '/analytics' },
+    { id: 'settings', icon: 'fas fa-cog', text: 'Settings', route: '/settings' }
   ];
 
   constructor(private sidebarService: SidebarService) {}
 
   ngOnInit() {
-    // Subscribe to sidebar state changes
     this.subscription.add(
       this.sidebarService.isCollapsed$.subscribe(collapsed => {
         this.isCollapsed = collapsed;
