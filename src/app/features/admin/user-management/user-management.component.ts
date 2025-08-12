@@ -10,6 +10,8 @@ import { UsersService } from '../services/users.service';
 export class UserManagementComponent implements OnInit {
   users: User[] = [];
   searchTerm = '';
+  selectedUser: User | null = null;
+  showEditModal = false;
 
   constructor(private usersService: UsersService) {}
 
@@ -52,27 +54,55 @@ export class UserManagementComponent implements OnInit {
     return this.filteredUsers.filter(user => user.archived).length;
   }
 
-  toggleArchive(user: User): void {
-    user.archived = !user.archived;
-    
-    // Optionally call service to update on backend
-    // this.usersService.updateUser(user).subscribe({
-    //   next: () => console.log('User updated successfully'),
-    //   error: (err) => console.error('Error updating user:', err)
-    // });
+  openEditModal(user: User): void {
+    // Create a deep copy to avoid direct mutation
+    this.selectedUser = { ...user };
+    this.showEditModal = true;
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
   }
 
-  deleteUser(userId: string): void {
-    const confirmed = confirm('Are you sure you want to delete this user? This action cannot be undone.');
-    
-    if (confirmed) {
-      this.users = this.users.filter(u => u.id !== userId);
-      
-      // Optionally call service to delete on backend
-      // this.usersService.deleteUser(userId).subscribe({
-      //   next: () => console.log('User deleted successfully'),
-      //   error: (err) => console.error('Error deleting user:', err)
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.selectedUser = null;
+    // Restore body scroll
+    document.body.style.overflow = 'auto';
+  }
+
+  saveUser(): void {
+    if (this.selectedUser) {
+      // Find the original user and update it
+      const index = this.users.findIndex(u => u.id === this.selectedUser!.id);
+      if (index !== -1) {
+        this.users[index] = { ...this.selectedUser };
+      }
+
+      // Optionally call service to update on backend
+      // this.usersService.updateUser(this.selectedUser).subscribe({
+      //   next: () => {
+      //     console.log('User updated successfully');
+      //     this.closeEditModal();
+      //   },
+      //   error: (err) => {
+      //     console.error('Error updating user:', err);
+      //     // Handle error (show toast, etc.)
+      //   }
       // });
+
+      this.closeEditModal();
     }
   }
+
+  // Handle escape key to close modal
+  onKeyDown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this.showEditModal) {
+      this.closeEditModal();
+    }
+  }
+
+  toggleArchiveUser() {
+  if (this.selectedUser) {
+    this.selectedUser.archived = !this.selectedUser.archived;
+  }
+}
 }

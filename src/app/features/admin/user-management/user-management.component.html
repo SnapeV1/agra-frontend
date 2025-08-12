@@ -64,17 +64,10 @@
           <td>
             <div class="actions">
               <button 
-                class="btn btn-toggle"
-                [ngClass]="{ 'archive': !user.archived }"
-                (click)="toggleArchive(user)"
+                class="btn btn-edit"
+                (click)="openEditModal(user)"
               >
-                {{ user.archived ? 'Unarchive' : 'Archive' }}
-              </button>
-              <button 
-                class="btn btn-delete" 
-                (click)="deleteUser(user.id)"
-              >
-                Delete
+                Edit
               </button>
             </div>
           </td>
@@ -86,6 +79,92 @@
   <div class="empty-state" *ngIf="filteredUsers.length === 0">
     <h3>No users found</h3>
     <p>Try adjusting your search criteria</p>
+  </div>
+
+  <!-- Modal Backdrop -->
+  <div class="modal-backdrop" *ngIf="showEditModal" (click)="closeEditModal()"></div>
+
+  <!-- Edit Modal -->
+  <div class="modal" *ngIf="showEditModal && selectedUser">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Edit User</h3>
+        <button class="close-btn" (click)="closeEditModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" [(ngModel)]="selectedUser.name" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="selectedUser.email" class="form-input">
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="text" [(ngModel)]="selectedUser.phone" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Country</label>
+            <input type="text" [(ngModel)]="selectedUser.country" class="form-input">
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Language</label>
+            <input type="text" [(ngModel)]="selectedUser.language" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Domain</label>
+            <input type="text" [(ngModel)]="selectedUser.domain" class="form-input">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Role</label>
+          <select [(ngModel)]="selectedUser.role" class="form-input">
+            <option value="admin">Admin</option>
+            <option value="user">User</option>
+            <option value="moderator">Moderator</option>
+          </select>
+        </div>
+        
+        <div class="form-group checkbox-group">
+ <div class="archive-section">
+  <button 
+    class="archive-button"
+    [ngClass]="{ 'archived': selectedUser.archived }"
+    (click)="toggleArchiveUser()"
+  >
+    {{ selectedUser.archived ? 'Unarchive User' : 'Archive User' }}
+  </button>
+  
+  <div class="help-icon">
+    ?
+    <div class="help-tooltip">
+      Archived users are not visible for the users
+    </div>
+  </div>
+</div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveUser()">Save Changes</button>
+      </div>
+    </div>
   </div>
 </div>
 </app-base-layout>
