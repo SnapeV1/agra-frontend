@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ElementRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { SidebarService } from '../../services/sidebar.service';
 
@@ -21,12 +21,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
     { id: 'settings', icon: 'fas fa-cog', text: 'Settings', route: '/settings' }
   ];
 
-  constructor(private sidebarService: SidebarService) {}
+  constructor(private sidebarService: SidebarService,private elementRef: ElementRef) {}
 
   ngOnInit() {
     this.subscription.add(
       this.sidebarService.isCollapsed$.subscribe(collapsed => {
-        this.isCollapsed = collapsed;
+        this.isCollapsed = !collapsed;
       })
     );
   }
@@ -42,4 +42,17 @@ export class SidebarComponent implements OnInit, OnDestroy {
   setActiveMenuItem(itemId: string) {
     this.activeMenuItem = itemId;
   }
+  @HostListener('document:click', ['$event'])
+onDocumentClick(event: MouseEvent): void {
+  const clickedElement = event.target as HTMLElement;
+  const sidebarElement = this.elementRef.nativeElement.querySelector('.sidebar');
+  
+  // Only collapse if sidebar is expanded and click is outside
+  if (!this.isCollapsed && sidebarElement && !sidebarElement.contains(clickedElement)) {
+    this.isCollapsed = true;
+  }
+}
+onSidebarClick(event: MouseEvent): void {
+  event.stopPropagation(); // Prevents document click when clicking inside sidebar
+}
 }

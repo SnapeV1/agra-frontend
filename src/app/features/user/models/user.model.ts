@@ -1,7 +1,9 @@
 export interface CourseProgress {
-  courseId: string;
-  completed: boolean;
-  progressPercent: number;
+courseId: string;
+  courseName: string;
+  progress: number;
+  completedAt?: string;
+  status: 'in-progress' | 'completed' | 'not-started';
 }
 
 export interface User {
@@ -10,6 +12,7 @@ export interface User {
   email: string;
   phone?: string;
   password?: string;
+  picture?: string;
   country?: string;
   language?: string;
   domain?: string;
@@ -19,3 +22,4 @@ export interface User {
   archived: boolean;
 
 }
+

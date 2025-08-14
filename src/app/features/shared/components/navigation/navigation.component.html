@@ -1,4 +1,3 @@
-<!-- Navigation with Authentication -->
 <nav class="navbar" [class.scrolled]="isScrolled">
     <div class="nav-container">
         <div class="nav-brand">
@@ -23,22 +22,50 @@
                 Se connecter
             </button>
             
-            <!-- Show user menu when user IS logged in -->
             <div *ngIf="isLoggedIn" class="user-menu">
-                <div class="user-info">
-                
-                
+                <div class="profile-dropdown" (click)="toggleDropdown()">
+                    <img 
+                        [src]="user?.picture || 'assets/default-avatar.png'" 
+                        [alt]="user?.name || 'User'" 
+                        class="profile-avatar">
+                    <span class="profile-name">{{ user?.name || 'User' }}</span>
+                    <span class="dropdown-arrow" [class.open]="isDropdownOpen">▼</span>
                 </div>
-                <button 
-                    class="auth-btn signout-btn" 
-                    (click)="signOut()">
-                    <span class="btn-icon"></span>
-                    Se déconnecter
-                </button>
+                
+                <div class="dropdown-menu" [class.show]="isDropdownOpen" (clickOutside)="closeDropdown()">
+                    <div class="dropdown-header">
+                        <img 
+                            [src]="user?.picture || 'assets/default-avatar.png'" 
+                            [alt]="user?.name || 'User'" 
+                            class="dropdown-avatar">
+                        <div class="dropdown-user-info">
+                            <div class="dropdown-name">{{ user?.name || 'User' }}</div>
+                            <div class="dropdown-email">{{ user?.email || '' }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown-divider"></div>
+                    
+                    <a href="#" class="dropdown-item" (click)="navigateToProfile()">
+                        <span class="dropdown-icon">👤</span>
+                        Profil
+                    </a>
+                    
+                    <a href="#" class="dropdown-item" (click)="navigateToSettings()">
+                        <span class="dropdown-icon">⚙️</span>
+                        Paramètres
+                    </a>
+                    
+                    <div class="dropdown-divider"></div>
+                    
+                    <a href="#" class="dropdown-item logout" (click)="signOut()">
+                        <span class="dropdown-icon">🚪</span>
+                        Se déconnecter
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- Mobile menu toggle -->
         <button class="mobile-toggle" (click)="toggleMobileMenu()">
             <span></span>
             <span></span>

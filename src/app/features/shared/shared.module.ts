@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-// Import your shared components
 import { NavigationComponent } from './components/navigation/navigation.component';
 import { FooterComponent } from './components/footer/footer.component';
 
@@ -18,4 +17,8 @@ import { FooterComponent } from './components/footer/footer.component';
     FooterComponent
   ]
 })
-export class SharedModule {}
+export class SharedModule {
+  constructor() {
+    console.log('SharedModule loaded');
+  }
+}

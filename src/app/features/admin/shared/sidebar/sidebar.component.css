@@ -22,6 +22,7 @@
   align-items: center;
   gap: 12px;
   background: #fafbfc;
+  
 }
 
 .logo {
@@ -35,6 +36,7 @@
   color: white;
   font-size: 16px;
   flex-shrink: 0;
+  cursor: pointer;
 }
 
 .sidebar-title {
@@ -48,6 +50,73 @@
     opacity: 0;
     transform: translateX(-10px);
   }
+}
+
+.toggle-btn {
+  position: absolute;
+  top: 28px;
+  right: 16px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+  transition: all 0.3s ease;
+  border-radius: 6px;
+
+  &:hover {
+    transform: scale(1.1);
+    background: rgba(100, 116, 139, 0.1);
+  }
+}
+
+.hamburger-container {
+  width: 22px;
+  height: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: opacity 0.3s ease;
+
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.hamburger-bar {
+  height: 2px;
+  background: #64748b;
+  border-radius: 2px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+
+  &:nth-child(1) { width: 100%; }
+  &:nth-child(2) { width: 85%; }
+  &:nth-child(3) { width: 70%; }
+}
+
+.toggle-btn:hover .hamburger-bar {
+  background: #374151;
+  width: 100% !important;
+  transform: translateX(0);
+}
+
+.chevron-icon {
+  font-size: 14px;
+  color: #64748b;
+  transition: all 0.3s ease;
+
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.toggle-btn:hover .chevron-icon {
+  color: #374151;
 }
 
 .sidebar-menu {
@@ -110,32 +179,6 @@
   }
 }
 
-.toggle-btn {
-  position: absolute;
-  top: 32px;
-  right: -12px;
-  width: 24px;
-  height: 24px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #64748b;
-  font-size: 12px;
-  transition: all 0.2s ease;
-  z-index: 1001;
-
-  &:hover {
-    background: #f8fafc;
-    color: #374151;
-    transform: scale(1.1);
-  }
-}
-
-
 .sidebar.collapsed .menu-item {
   position: relative;
 
@@ -180,7 +223,6 @@
     opacity: 1;
   }
 }
-
 
 @media (max-width: 768px) {
   .sidebar {

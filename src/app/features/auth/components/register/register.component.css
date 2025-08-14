@@ -298,6 +298,16 @@ body, html {
   color: #6b7280;
   line-height: 1.4;
 }
+.form-options .checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1.9px;
+}
+
+.form-options .link {
+  margin-left: 1.8px; 
+}
+
 
 .checkbox-wrapper input[type="checkbox"] {
   display: none;

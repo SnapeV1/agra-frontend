@@ -1,13 +1,25 @@
-<nav class="sidebar" [class.collapsed]="isCollapsed" id="sidebar">
-  <div class="sidebar-header">
-    <div class="logo">
+<nav class="sidebar" [class.collapsed]="isCollapsed" id="sidebar"(click)="onSidebarClick($event)">
+  <div class="sidebar-header" 
+     >
+    <div class="logo"  [class.clickable]="isCollapsed"
+       (click)="isCollapsed ? toggleSidebar() : null"
+       [attr.aria-label]="isCollapsed ? 'Expand sidebar' : null"
+       [attr.title]="isCollapsed ? 'Click to expand sidebar' : null">
       <i class="fas fa-chart-line"></i>
     </div>
     <h3 class="sidebar-title">AdminPro</h3>
   </div>
   
-  <div class="toggle-btn" (click)="toggleSidebar()">
-    <i class="fas" [class.fa-chevron-left]="!isCollapsed" [class.fa-chevron-right]="isCollapsed"></i>
+  <div class="toggle-btn" 
+       *ngIf="!isCollapsed"
+       (click)="toggleSidebar()" 
+       [attr.aria-label]="'Collapse sidebar'">
+    
+    <div class="hamburger-container">
+      <div class="hamburger-bar"></div>
+      <div class="hamburger-bar"></div>
+      <div class="hamburger-bar"></div>
+    </div>
   </div>
   
   <div class="sidebar-menu">
