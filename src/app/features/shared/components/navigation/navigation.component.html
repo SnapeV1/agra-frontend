@@ -6,7 +6,7 @@
         </div>
         
         <div class="nav-menu">
-            <a href="home" (click)="scrollToSection('overview')" [class.active]="isSectionActive('overview')">home</a>
+            <a href="home" (click)="scrollToSection('overview')" [class.active]="isSectionActive('overview')">Home</a>
             <a href="courses" (click)="scrollToSection('courses')" [class.active]="isSectionActive('courses')">Courses</a>
             <a href="#technical" (click)="scrollToSection('technical')" [class.active]="isSectionActive('technical')">Technique</a>
             <a href="#pricing" (click)="scrollToSection('pricing')" [class.active]="isSectionActive('pricing')">Tarification</a>
@@ -14,6 +14,7 @@
         </div>
 
         <div class="nav-auth">
+            <!-- Login button for unauthenticated users -->
             <button 
                 *ngIf="!isLoggedIn" 
                 class="auth-btn login-btn" 
@@ -22,47 +23,79 @@
                 Se connecter
             </button>
             
+            <!-- User menu for authenticated users -->
             <div *ngIf="isLoggedIn" class="user-menu">
                 <div class="profile-dropdown" (click)="toggleDropdown()">
                     <img 
-                        [src]="user?.picture || 'assets/default-avatar.png'" 
-                        [alt]="user?.name || 'User'" 
+                        [src]="getUserAvatar()" 
+                        [alt]="getUserDisplayName()" 
                         class="profile-avatar">
-                    <span class="profile-name">{{ user?.name || 'User' }}</span>
+                    <span class="profile-name">{{ getUserDisplayName() }}</span>
+                    <span class="profile-role" *ngIf="getUserRole()" [ngClass]="getUserRole().toLowerCase()">
+                        {{ getUserRole() }}
+                    </span>
                     <span class="dropdown-arrow" [class.open]="isDropdownOpen">▼</span>
                 </div>
                 
-                <div class="dropdown-menu" [class.show]="isDropdownOpen" (clickOutside)="closeDropdown()">
+                <div class="dropdown-menu" [class.show]="isDropdownOpen">
+                    <!-- User info header -->
                     <div class="dropdown-header">
                         <img 
-                            [src]="user?.picture || 'assets/default-avatar.png'" 
-                            [alt]="user?.name || 'User'" 
+                            [src]="getUserAvatar()" 
+                            [alt]="getUserDisplayName()" 
                             class="dropdown-avatar">
                         <div class="dropdown-user-info">
-                            <div class="dropdown-name">{{ user?.name || 'User' }}</div>
-                            <div class="dropdown-email">{{ user?.email || '' }}</div>
+                            <div class="dropdown-name">{{ getUserDisplayName() }}</div>
+                            <div class="dropdown-email">{{ getUserEmail() }}</div>
+                            <div class="dropdown-role" *ngIf="getUserRole()" [ngClass]="getUserRole().toLowerCase()">
+                                {{ getUserRole() }}
+                            </div>
                         </div>
                     </div>
                     
                     <div class="dropdown-divider"></div>
                     
+                    <!-- Dashboard link -->
+                    <a href="#" class="dropdown-item" (click)="navigateToDashboard()">
+                        <span class="dropdown-icon">📊</span>
+                        <span *ngIf="isAdmin()">Admin Dashboard</span>
+                        <span *ngIf="!isAdmin()">Dashboard</span>
+                    </a>
+                    
+                    <!-- Profile link -->
                     <a href="#" class="dropdown-item" (click)="navigateToProfile()">
                         <span class="dropdown-icon">👤</span>
                         Profil
                     </a>
                     
+                    <!-- Settings link -->
                     <a href="#" class="dropdown-item" (click)="navigateToSettings()">
                         <span class="dropdown-icon">⚙️</span>
                         Paramètres
                     </a>
                     
+                    <!-- Admin-only section -->
+                    <div *ngIf="isAdmin()">
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item admin" (click)="router.navigate(['/admin']); closeDropdown()">
+                            <span class="dropdown-icon">🔧</span>
+                            Administration
+                        </a>
+                    </div>
+                    
                     <div class="dropdown-divider"></div>
                     
+                    <!-- Logout -->
                     <a href="#" class="dropdown-item logout" (click)="signOut()">
                         <span class="dropdown-icon">🚪</span>
                         Se déconnecter
                     </a>
                 </div>
+            </div>
+
+            <!-- Token expiration warning -->
+            <div *ngIf="isLoggedIn && authService.isTokenExpiringSoon()" class="token-warning">
+                ⚠️ Session expires soon
             </div>
         </div>
 

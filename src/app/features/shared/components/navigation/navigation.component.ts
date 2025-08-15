@@ -1,32 +1,36 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  picture?: string;
-}
+import { Subject, takeUntil } from 'rxjs';
+import { AuthUser } from 'src/app/features/auth/models/auth-user.model';
+import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
   selector: 'app-navigation',
   templateUrl: './navigation.component.html',
   styleUrls: ['./navigation.component.css']
 })
-export class NavigationComponent implements OnInit {
+export class NavigationComponent implements OnInit, OnDestroy {
   isScrolled = false;
-  isLoggedIn: boolean = false;
+  isLoggedIn = false;
   activeSection = 'overview';
   isDropdownOpen = false;
-  user: User | null = null;
+  user: AuthUser | null = null;
 
-  constructor(private router: Router) {}
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    public router: Router,
+    public authService: AuthService
+  ) {}
 
   ngOnInit(): void {
-    this.checkAuthStatus();
-    if (this.isLoggedIn) {
-      this.loadUserData();
-    }
+    this.subscribeToAuthState();
+    this.checkTokenExpiration();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   @HostListener('window:scroll', [])
@@ -39,42 +43,62 @@ export class NavigationComponent implements OnInit {
   onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;
     const dropdown = target.closest('.user-menu');
-    
     if (!dropdown && this.isDropdownOpen) {
       this.closeDropdown();
     }
   }
 
-  checkAuthStatus(): void {
-    const token = localStorage.getItem('jwt') || 
-                  localStorage.getItem('token') || 
-                  localStorage.getItem('authToken') ||
-                  localStorage.getItem('access_token');
-    this.isLoggedIn = !!token;
+  private subscribeToAuthState(): void {
+    this.authService.isAuthenticated$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(isAuthenticated => {
+        this.isLoggedIn = isAuthenticated;
+        if (!isAuthenticated) this.user = null;
+      });
+
+    this.authService.currentUser
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(user => {
+        this.user = user;
+      });
+
+    // Initialize immediately
+    this.isLoggedIn = this.authService.isAuthenticated();
+    this.user = this.authService.currentUserValue;
   }
 
-  loadUserData(): void {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      try {
-        this.user = JSON.parse(userData);
-      } catch (error) {
-        console.error('Error parsing user data:', error);
-        this.user = {
-          id: '1',
-          name: 'John Doe',
-          email: 'john.doe@example.com',
-          picture: 'assets/default-avatar.png'
-        };
-      }
-    } else {
-      this.user = {
-        id: '1',
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        picture: 'assets/default-avatar.png'
-      };
+  private checkTokenExpiration(): void {
+    if (this.authService.isTokenExpiringSoon()) {
+      console.warn('Token is expiring soon');
     }
+  }
+
+  getUserDisplayName(): string {
+    if (this.user?.user?.name) {
+      return this.user.user.name;
+    }
+    const email = this.getUserEmail();
+    return email ? email.split('@')[0] : 'User';
+  }
+
+  getUserEmail(): string {
+    return this.user?.user?.email || this.authService.getUserEmail() || '';
+  }
+
+  getUserRole(): string {
+    return this.user?.user?.role || this.authService.getUserRole() || '';
+  }
+
+  getUserAvatar(): string {
+    return 'assets/default-avatar.png';
+  }
+
+  isAdmin(): boolean {
+    return this.getUserRole() === 'ADMIN';
+  }
+
+  isUser(): boolean {
+    return this.getUserRole() === 'USER';
   }
 
   toggleDropdown(): void {
@@ -87,12 +111,21 @@ export class NavigationComponent implements OnInit {
 
   navigateToProfile(): void {
     this.closeDropdown();
-    this.router.navigate(['/profile']);
+    this.router.navigate(['/user/profile']);
   }
 
   navigateToSettings(): void {
     this.closeDropdown();
-    this.router.navigate(['/settings']);
+    this.router.navigate(['/user/settings']);
+  }
+
+  navigateToDashboard(): void {
+    this.closeDropdown();
+    if (this.isAdmin()) {
+      this.router.navigate(['/admin/dashboard']);
+    } else {
+      this.router.navigate(['/user/dashboard']);
+    }
   }
 
   login(): void {
@@ -100,18 +133,8 @@ export class NavigationComponent implements OnInit {
   }
 
   signOut(): void {
-    localStorage.removeItem('jwt');
-    localStorage.removeItem('token');
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user');
-    
-    this.isLoggedIn = false;
-    this.user = null;
     this.closeDropdown();
-    
-    this.router.navigate(['/login']);
+    this.authService.logout('/login');
   }
 
   private updateActiveSection(): void {
@@ -137,7 +160,7 @@ export class NavigationComponent implements OnInit {
     if (element) {
       const yOffset = -70;
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      
+
       window.scrollTo({
         top: y,
         behavior: 'smooth'
