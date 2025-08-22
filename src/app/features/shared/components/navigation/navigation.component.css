@@ -234,6 +234,7 @@
   font-weight: 500;
   transition: background-color 0.2s ease;
   border-radius: 0;
+  cursor: pointer;
 }
 
 .dropdown-item:hover {

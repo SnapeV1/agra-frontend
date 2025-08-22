@@ -1,0 +1,116 @@
+<app-navigation></app-navigation>
+<div class="feed-container">
+  <div class="feed-header">
+    <h2>Feed</h2>
+  </div>
+
+  <div class="posts-container">
+    <article class="post" *ngFor="let post of posts; ">
+      <div class="post-header">
+        <div class="user-info">
+          <img [src]="post.user.avatar" [alt]="post.user.name" class="user-avatar">
+          <div class="user-details">
+            <h3 class="user-name">{{ post.user.name }}</h3>
+            <span class="username">{{ post.user.username }}</span>
+            <span class="timestamp">{{ getTimeAgo(post.timestamp) }}</span>
+          </div>
+        </div>
+        <button class="more-options" aria-label="More options">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Post Content -->
+      <div class="post-content">
+        <p class="post-text">{{ post.content }}</p>
+        <img *ngIf="post.image" [src]="post.image" alt="Post image" class="post-image">
+      </div>
+
+      <!-- Post Actions -->
+      <div class="post-actions">
+        <button 
+          class="action-btn like-btn" 
+          [class.liked]="post.isLiked"
+          (click)="toggleLike(post)"
+          [attr.aria-label]="post.isLiked ? 'Unlike post' : 'Like post'">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <span>{{ post.likes }}</span>
+        </button>
+
+        <button 
+          class="action-btn comment-btn"
+          (click)="toggleComments(post)"
+          [attr.aria-label]="'View comments'">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span>{{ post.comments.length }}</span>
+        </button>
+
+        <button class="action-btn share-btn" aria-label="Share post">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+            <polyline points="16,6 12,2 8,6"/>
+            <line x1="12" y1="2" x2="12" y2="15"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Comments Section -->
+      <div class="comments-section" *ngIf="post.showComments">
+        <div class="comments-list" *ngIf="post.comments.length > 0">
+          <div class="comment" *ngFor="let comment of post.comments;">
+            <img [src]="comment.user.avatar" [alt]="comment.user.name" class="comment-avatar">
+            <div class="comment-content">
+              <div class="comment-header">
+                <span class="comment-user">{{ comment.user.name }}</span>
+                <span class="comment-username">{{ comment.user.username }}</span>
+                <span class="comment-timestamp">{{ getTimeAgo(comment.timestamp) }}</span>
+              </div>
+              <p class="comment-text">{{ comment.content }}</p>
+              <div class="comment-actions">
+                <button 
+                  class="comment-like-btn" 
+                  [class.liked]="comment.isLiked"
+                  (click)="toggleCommentLike(comment)"
+                  [attr.aria-label]="comment.isLiked ? 'Unlike comment' : 'Like comment'">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                  <span *ngIf="comment.likes > 0">{{ comment.likes }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Comment Form -->
+        <div class="add-comment">
+          <img [src]="currentUser.avatar" [alt]="currentUser.name" class="comment-avatar">
+          <div class="comment-input-container">
+            <textarea
+              [(ngModel)]="post.newComment"
+              (keydown)="onCommentKeyPress($event, post)"
+              placeholder="Write a comment..."
+              class="comment-input"
+              rows="1"></textarea>
+            <button 
+              class="send-comment-btn"
+              (click)="addComment(post)"
+              [disabled]="!post.newComment.trim()"
+              aria-label="Post comment">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22,2 15,22 11,13 2,9 22,2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div></div>
+<app-footer></app-footer>

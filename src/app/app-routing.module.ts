@@ -1,16 +1,14 @@
-// app-routing.module.ts - Updated with guards
+
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './features/home/components/home/home.component';
-import { UserProfileComponent } from './features/user/components/user-profile/user-profile.component';
 import { AuthGuard } from './features/auth/guards/authguards.guard';
 import { AdminGuard } from './features/auth/guards/admin.guard';
-import { UserGuard } from './features/auth/guards/user-guard.guard';
+import { FeedComponent } from './features/feed/feed.component';
 
 
 
 const routes: Routes = [
-  // Public routes (protected by GuestGuard to prevent authenticated users from accessing)
   {
     path: '',
     loadChildren: () =>
@@ -21,7 +19,6 @@ const routes: Routes = [
   { 
     path: 'home', 
     component: HomeComponent,
-    canActivate: [AuthGuard]
   },
 
   // Courses - accessible to authenticated users
@@ -32,6 +29,8 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     canActivateChild: [AuthGuard]
   },
+{ path: 'feed', component: FeedComponent },
+
 
   // Admin routes - only for ADMIN role
   {
@@ -42,7 +41,6 @@ const routes: Routes = [
     canActivateChild: [AdminGuard]
   },
 
-  // User routes - for USER and ADMIN roles
   {
     path: 'user',
     loadChildren: () =>
@@ -68,8 +66,8 @@ const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forRoot(routes, {
-    enableTracing: false, // Set to true for debugging
-    preloadingStrategy: PreloadAllModules // Optional: preload lazy modules
+    enableTracing: false,
+    preloadingStrategy: PreloadAllModules 
   })],
   exports: [RouterModule]
 })

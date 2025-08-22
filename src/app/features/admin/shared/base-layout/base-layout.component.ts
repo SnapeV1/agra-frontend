@@ -11,10 +11,6 @@ export class BaseLayoutComponent implements OnInit, OnDestroy {
   isSidebarCollapsed = false;
   private subscription: Subscription = new Subscription();
 
-  userName = 'John Doe';
-  userInitials = 'JD';
-  notificationCount = 3;
-
   constructor(private sidebarService: SidebarService) {}
 
   ngOnInit() {

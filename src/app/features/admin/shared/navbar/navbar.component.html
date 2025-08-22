@@ -1,57 +1,48 @@
-<header class="navbar">
+<nav class="navbar">
   <div class="navbar-left">
-    <!--<button class="toggle-btn" (click)="onToggleSidebar()">
-      <i class="fas fa-bars"></i>
-    </button>-->
-    
-    <div class="page-info">
-      <h1 class="page-title">{{ pageTitle }}</h1>
-      <div class="breadcrumb" *ngIf="breadcrumbs.length > 0">
-        <ng-container *ngFor="let crumb of breadcrumbs; let last = last">
-          <a *ngIf="!last && crumb.route" [routerLink]="crumb.route">{{ crumb.label }}</a>
-          <span *ngIf="!last && !crumb.route">{{ crumb.label }}</span>
-          <span *ngIf="!last" class="breadcrumb-separator">•</span>
-          <span *ngIf="last">{{ crumb.label }}</span>
-        </ng-container>
-      </div>
+    <h1 class="page-title">{{ pageTitle }}</h1>
+    <div class="breadcrumbs">
+      <ng-container *ngFor="let breadcrumb of breadcrumbs; let last = last">
+        <a *ngIf="!last" [routerLink]="breadcrumb.route">{{ breadcrumb.label }}</a>
+        <span *ngIf="last">{{ breadcrumb.label }}</span>
+        <span *ngIf="!last"> / </span>
+      </ng-container>
     </div>
   </div>
-  
+
+  <div class="navbar-search">
+    <input
+      class="search-input"
+      [(ngModel)]="searchQuery"
+      (keyup.enter)="onSearch()"
+      placeholder="Search..."
+    />
+    <span class="material-symbols-outlined search-icon"></span>
+  </div>
   <div class="navbar-right">
-    <div class="search-box">
-      <i class="fas fa-search search-icon"></i>
-      <input 
-        type="text" 
-        class="search-input" 
-        placeholder="Search anything..."
-        [(ngModel)]="searchQuery"
-        (keypress)="$event.key === 'Enter' && onSearch()"
-      >
-    </div>
-    
-    <div class="quick-actions">
-      <button class="action-btn" (click)="onSettingsClick()" title="Settings">
-        <i class="fas fa-cog"></i>
-      </button>
-      
-      <button class="action-btn" (click)="onNotificationClick()" title="Notifications">
-        <i class="fas fa-bell"></i>
-        <span class="notification-badge" *ngIf="notificationCount > 0">
-          {{ notificationCount > 99 ? '99+' : notificationCount }}
-        </span>
-      </button>
-    </div>
-    
-    <div class="profile-dropdown" (click)="onProfileClick()">
-      <div class="profile-avatar">
-        {{ userInitials }}
-        <div class="status-indicator" [class.online]="isUserOnline"></div>
-      </div>
+    <button class="action-btn" (click)="notificationClick.emit()">
+      <span class="material-symbols-outlined"></span>
+      <span class="notification-badge" *ngIf="notificationCount > 0">
+        {{ notificationCount > 99 ? '99+' : notificationCount }}
+      </span>
+    </button>
+
+    <button class="action-btn" (click)="settingsClick.emit()">
+      <span class="material-symbols-outlined"></span>
+    </button>
+
+    <div class="profile" (click)="toggleDropdown()">
+      <div class="profile-avatar">{{ userInitials }}</div>
       <div class="profile-info">
-        <span class="profile-name">{{ userName }}</span>
-        <span class="profile-role">{{ userRole }}</span>
+        <div class="profile-name">{{ userName }}</div>
+        <div class="profile-role">{{ userRole }}</div>
       </div>
-      <i class="fas fa-chevron-down chevron-icon"></i>
+      <span class="material-symbols-outlined chevron-icon"></span>
+    </div>
+
+    <div class="dropdown-menu" [class.show]="isDropdownOpen">
+      <button class="dropdown-item" (click)="profileClick.emit()">Profile</button>
+      <button class="dropdown-item danger" (click)="logout()">Logout</button>
     </div>
   </div>
-</header>
+</nav>

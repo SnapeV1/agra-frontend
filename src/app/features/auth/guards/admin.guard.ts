@@ -22,7 +22,7 @@ export class AdminGuard implements CanActivate, CanActivateChild {
       take(1),
       map(isAuthenticated => {
         if (!isAuthenticated) {
-          this.router.navigate(['/login']);
+          this.router.navigate(['/login']); 
           return false;
         }
 

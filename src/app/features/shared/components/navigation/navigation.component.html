@@ -23,7 +23,6 @@
                 Se connecter
             </button>
             
-            <!-- User menu for authenticated users -->
             <div *ngIf="isLoggedIn" class="user-menu">
                 <div class="profile-dropdown" (click)="toggleDropdown()">
                     <img 
@@ -31,9 +30,7 @@
                         [alt]="getUserDisplayName()" 
                         class="profile-avatar">
                     <span class="profile-name">{{ getUserDisplayName() }}</span>
-                    <span class="profile-role" *ngIf="getUserRole()" [ngClass]="getUserRole().toLowerCase()">
-                        {{ getUserRole() }}
-                    </span>
+                  
                     <span class="dropdown-arrow" [class.open]="isDropdownOpen">▼</span>
                 </div>
                 
@@ -63,7 +60,7 @@
                     </a>
                     
                     <!-- Profile link -->
-                    <a href="#" class="dropdown-item" (click)="navigateToProfile()">
+                    <a class="dropdown-item" (click)="navigateToProfile()">
                         <span class="dropdown-icon">👤</span>
                         Profil
                     </a>

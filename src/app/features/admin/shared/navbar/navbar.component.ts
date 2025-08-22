@@ -1,8 +1,17 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
-import { SidebarService } from '../../services/sidebar.service';
+import {
+  Component,
+  Output,
+  EventEmitter,
+  OnInit,
+  OnDestroy,
+  HostListener,
+  ElementRef
+} from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { AuthUser } from 'src/app/features/auth/models/auth-user.model';
+import { AuthService } from 'src/app/services/auth/auth.service';
 
 export interface BreadcrumbItem {
   label: string;
@@ -15,97 +24,101 @@ export interface BreadcrumbItem {
   styleUrls: ['./navbar.component.css']
 })
 export class NavbarComponent implements OnInit, OnDestroy {
-  @Input() userName: string = 'John Doe';
-  @Input() userInitials: string = 'JD';
-  @Input() userRole: string = 'Administrator';
-  @Input() notificationCount: number = 3;
-  @Input() isUserOnline: boolean = true;
-  @Input() pageTitle: string = 'Dashboard';
-  @Input() breadcrumbs: BreadcrumbItem[] = [
-    { label: 'Home', route: '/dashboard' },
-    { label: 'Dashboard' }
-  ];
+  user: AuthUser | null = null;
+  notificationCount: number = 3;
+  pageTitle: string = 'Dashboard';
+  breadcrumbs: BreadcrumbItem[] = [];
+  searchQuery: string = '';
+  isDropdownOpen = false;
 
   @Output() search = new EventEmitter<string>();
   @Output() notificationClick = new EventEmitter<void>();
   @Output() profileClick = new EventEmitter<void>();
   @Output() settingsClick = new EventEmitter<void>();
 
-  searchQuery: string = '';
-  private routerSubscription: Subscription = new Subscription();
+  private routerSubscription!: Subscription;
+  private userSubscription!: Subscription;
 
   constructor(
-    private sidebarService: SidebarService,
-    private router: Router
+    private authService: AuthService,
+    private router: Router,
+    private eRef: ElementRef
   ) {}
 
   ngOnInit() {
+    // ✅ Subscribe to user updates
+    this.userSubscription = this.authService.currentUser.subscribe((user) => {
+      this.user = user;
+    });
+
+    // ✅ Update breadcrumbs on navigation
     this.routerSubscription = this.router.events
-      .pipe(
-        filter((event): event is NavigationEnd => event instanceof NavigationEnd)
-      )
-      .subscribe((event) => {
-        this.updatePageInfo(event.url);
-      });
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => this.updatePageInfo(event.url));
   }
 
   ngOnDestroy() {
-    this.routerSubscription.unsubscribe();
+    if (this.routerSubscription) this.routerSubscription.unsubscribe();
+    if (this.userSubscription) this.userSubscription.unsubscribe();
   }
 
-  onToggleSidebar() {
-    this.sidebarService.toggle();
+  /** ✅ Get user's name */
+  get userName(): string {
+    return this.user?.user?.name || 'Guest';
+  }
+
+  /** ✅ Get user's email */
+  get userEmail(): string {
+    return this.user?.user?.email || '';
+  }
+
+  /** ✅ Get user's role */
+  get userRole(): string {
+    return this.user?.user?.role || 'User';
+  }
+
+  /** ✅ Generate initials for avatar */
+  get userInitials(): string {
+    const name = this.user?.user?.name || '';
+    if (!name.trim()) return 'G';
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase();
   }
 
   onSearch() {
     if (this.searchQuery.trim()) {
       this.search.emit(this.searchQuery);
-      console.log('Searching for:', this.searchQuery);
     }
   }
 
-  onNotificationClick() {
-    this.notificationClick.emit();
+  toggleDropdown() {
+    this.isDropdownOpen = !this.isDropdownOpen;
   }
 
-  onProfileClick() {
-    this.profileClick.emit();
+  logout() {
+    this.authService.logout();
   }
 
-  onSettingsClick() {
-    this.settingsClick.emit();
-  }
-
+  // ✅ Update breadcrumbs dynamically
   private updatePageInfo(url: string) {
-    const routeTitleMap: { [key: string]: { title: string, breadcrumbs: BreadcrumbItem[] } } = {
-      '/dashboard': {
-        title: 'Dashboard',
-        breadcrumbs: [{ label: 'Home', route: '/dashboard' }, { label: 'Dashboard' }]
-      },
-      '/users': {
-        title: 'Users',
-        breadcrumbs: [{ label: 'Home', route: '/dashboard' }, { label: 'Users' }]
-      },
-      '/orders': {
-        title: 'Orders',
-        breadcrumbs: [{ label: 'Home', route: '/dashboard' }, { label: 'Orders' }]
-      },
-      '/products': {
-        title: 'Products',
-        breadcrumbs: [{ label: 'Home', route: '/dashboard' }, { label: 'Products' }]
-      },
-      '/analytics': {
-        title: 'Analytics',
-        breadcrumbs: [{ label: 'Home', route: '/dashboard' }, { label: 'Analytics' }]
-      },
-      '/settings': {
-        title: 'Settings',
-        breadcrumbs: [{ label: 'Home', route: '/dashboard' }, { label: 'Settings' }]
-      }
-    };
+    const parts = url.split('/').filter(Boolean);
+    this.pageTitle =
+      parts.length > 0
+        ? parts[parts.length - 1].replace(/-/g, ' ').toUpperCase()
+        : 'Dashboard';
+    this.breadcrumbs = parts.map((part, index) => ({
+      label: part.charAt(0).toUpperCase() + part.slice(1),
+      route: '/' + parts.slice(0, index + 1).join('/')
+    }));
+  }
 
-    const routeInfo = routeTitleMap[url] || { title: 'Dashboard', breadcrumbs: [] };
-    this.pageTitle = routeInfo.title;
-    this.breadcrumbs = routeInfo.breadcrumbs;
+  @HostListener('document:click', ['$event'])
+  clickOutside(event: MouseEvent) {
+    if (this.isDropdownOpen && !this.eRef.nativeElement.contains(event.target)) {
+      this.isDropdownOpen = false;
+    }
   }
 }

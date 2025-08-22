@@ -2,12 +2,8 @@
   <app-sidebar [class.collapsed]="isSidebarCollapsed"></app-sidebar>
 
   <div class="main-content">
-    <app-navbar 
-      [userName]="userName"
-      [userInitials]="userInitials"
-      [notificationCount]="notificationCount">
-    </app-navbar>
-    
+    <app-navbar></app-navbar>
+
     <main class="content-area">
       <ng-content></ng-content>
     </main>

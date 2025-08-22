@@ -10,6 +10,8 @@ import { SharedModule } from "src/app/features/shared/shared.module";
 import { AdminModule } from './features/admin/admin.module';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from './services/auth/auth.service';
+import { FeedComponent } from './features/feed/feed.component';
+import { FeedModule } from './features/feed/feed.module';
 export function initializeAuth(authService: AuthService) {
   return () => {
     authService.refreshAuthState();
@@ -31,7 +33,9 @@ export function initializeAuth(authService: AuthService) {
     AuthModule,
     SharedModule,
     AdminModule,
-    FormsModule
+    FormsModule,
+    FeedModule
+  
 ],
   providers: [
     {

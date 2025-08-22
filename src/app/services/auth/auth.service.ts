@@ -37,7 +37,7 @@ export class AuthService implements OnDestroy {
   private readonly EMAIL_KEY = 'user_email';
   private readonly ROLE_KEY = 'user_role';
   private readonly NAME_KEY = 'user_name';
-  private readonly TOKEN_REFRESH_THRESHOLD = 5 * 60; // 5 minutes
+  private readonly TOKEN_REFRESH_THRESHOLD = 5 * 60; 
 
   constructor(private http: HttpClient, private router: Router) {
     this.currentUserSubject = new BehaviorSubject<AuthUser | null>(null);
@@ -227,7 +227,6 @@ export class AuthService implements OnDestroy {
     } catch {}
   }
 
-  // Optional: check if token will expire soon
   isTokenExpiringSoon(): boolean {
     const token = this.getStoredItem(this.TOKEN_KEY);
     if (!token) return false;
@@ -256,11 +255,12 @@ public refreshAuthState(): void {
   this.initializeAuthState();
 }
 isAdmin(): boolean {
-  const role = localStorage.getItem('role');
+  const role = localStorage.getItem('user_role');
+
   return role === 'ADMIN'; 
 }
 isUser(): boolean {
-  const role = localStorage.getItem('role');
+  const role = localStorage.getItem('user_role');
   return role === 'USER'; 
 }
 }
