@@ -22,6 +22,8 @@ export interface RefreshTokenResponse {
 })
 export class AuthService implements OnDestroy {
   private apiUrl = 'http://localhost:8080/api/auth';
+  private readonly USER_ME_URL = 'http://localhost:8080/api/users/me';
+
   
   private currentUserSubject: BehaviorSubject<AuthUser | null>;
   public currentUser: Observable<AuthUser | null>;
@@ -37,6 +39,7 @@ export class AuthService implements OnDestroy {
   private readonly EMAIL_KEY = 'user_email';
   private readonly ROLE_KEY = 'user_role';
   private readonly NAME_KEY = 'user_name';
+  private readonly PICTURE_KEY = 'user_picture';
   private readonly TOKEN_REFRESH_THRESHOLD = 5 * 60; 
 
   constructor(private http: HttpClient, private router: Router) {
@@ -55,24 +58,26 @@ export class AuthService implements OnDestroy {
   }
 
   private initializeAuthState(): void {
-    const token = this.getStoredItem(this.TOKEN_KEY);
-    const refreshToken = this.getStoredItem(this.REFRESH_TOKEN_KEY);
-    const email = this.getStoredItem(this.EMAIL_KEY);
-    const role = this.getStoredItem(this.ROLE_KEY);
-    const name = this.getStoredItem(this.NAME_KEY);
+  const token = this.getStoredItem(this.TOKEN_KEY);
+  const refreshToken = this.getStoredItem(this.REFRESH_TOKEN_KEY);
+  const email = this.getStoredItem(this.EMAIL_KEY);
+  const role = this.getStoredItem(this.ROLE_KEY);
+  const name = this.getStoredItem(this.NAME_KEY);
+  const picture = this.getStoredItem(this.PICTURE_KEY); 
 
-    if (token && email && role && this.isTokenValid()) {
-      const authUser: AuthUser = {
-        token,
-        user: { email, role, name: name || '' } as User,
-        refreshToken: refreshToken || undefined
-      };
-      this.currentUserSubject.next(authUser);
-      this.isAuthenticatedSubject.next(true);
-    } else {
-      this.clearAuthData();
-    }
+  if (token && email && role && this.isTokenValid()) {
+    const authUser: AuthUser = {
+      token,
+      user: { email, role, name: name || '', picture } as User, 
+      refreshToken: refreshToken || undefined
+    };
+    this.currentUserSubject.next(authUser);
+    this.isAuthenticatedSubject.next(true);
+  } else {
+    this.clearAuthData();
   }
+}
+
 
   login(credentials: any): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
@@ -82,24 +87,26 @@ export class AuthService implements OnDestroy {
   }
 
   private handleSuccessfulAuth(response: LoginResponse): void {
-    this.setStoredItem(this.TOKEN_KEY, response.token);
-    this.setStoredItem(this.EMAIL_KEY, response.user.email);
-    this.setStoredItem(this.ROLE_KEY, response.user.role);
-    if (response.user.name) this.setStoredItem(this.NAME_KEY, response.user.name);
-    if (response.refreshToken) this.setStoredItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
+  this.setStoredItem(this.TOKEN_KEY, response.token);
+  this.setStoredItem(this.EMAIL_KEY, response.user.email);
+  this.setStoredItem(this.ROLE_KEY, response.user.role);
+  if (response.user.name) this.setStoredItem(this.NAME_KEY, response.user.name);
+  if (response.user.picture) this.setStoredItem(this.PICTURE_KEY, response.user.picture); 
+  if (response.refreshToken) this.setStoredItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
 
-    const authUser: AuthUser = {
-      token: response.token,
-      user: response.user,
-      refreshToken: response.refreshToken
-    };
+  const authUser: AuthUser = {
+    token: response.token,
+    user: response.user,
+    refreshToken: response.refreshToken
+  };
 
-    this.currentUserSubject.next(authUser);
-    this.isAuthenticatedSubject.next(true);
-    this.setupTokenRefreshTimer();
-    this.router.navigate([this.redirectUrl || '/home']);
-    this.redirectUrl = '/home';
-  }
+  this.currentUserSubject.next(authUser);
+  this.isAuthenticatedSubject.next(true);
+  this.setupTokenRefreshTimer();
+  this.router.navigate([this.redirectUrl || '/home']);
+  this.redirectUrl = '/home';
+}
+
 
   logout(redirectTo: string = '/login'): void {
     this.clearAuthData();
@@ -117,6 +124,10 @@ export class AuthService implements OnDestroy {
   getUserRole(): string | null {
     return this.getStoredItem(this.ROLE_KEY);
   }
+  getUserPicture(): string | null {
+  return this.getStoredItem(this.PICTURE_KEY);
+}
+
 
   refreshToken(): Observable<RefreshTokenResponse> {
     const refreshToken = this.getStoredItem(this.REFRESH_TOKEN_KEY);
@@ -144,16 +155,18 @@ export class AuthService implements OnDestroy {
     );
   }
 
-  private clearAuthData(): void {
-    this.removeStoredItem(this.TOKEN_KEY);
-    this.removeStoredItem(this.REFRESH_TOKEN_KEY);
-    this.removeStoredItem(this.EMAIL_KEY);
-    this.removeStoredItem(this.ROLE_KEY);
-    this.removeStoredItem(this.NAME_KEY);
-    this.currentUserSubject.next(null);
-    this.isAuthenticatedSubject.next(false);
-    if (this.refreshTokenTimeout) clearTimeout(this.refreshTokenTimeout);
-  }
+private clearAuthData(): void {
+  this.removeStoredItem(this.TOKEN_KEY);
+  this.removeStoredItem(this.REFRESH_TOKEN_KEY);
+  this.removeStoredItem(this.EMAIL_KEY);
+  this.removeStoredItem(this.ROLE_KEY);
+  this.removeStoredItem(this.NAME_KEY);
+  this.removeStoredItem(this.PICTURE_KEY); 
+  this.currentUserSubject.next(null);
+  this.isAuthenticatedSubject.next(false);
+  if (this.refreshTokenTimeout) clearTimeout(this.refreshTokenTimeout);
+}
+
 
   private setStoredItem(key: string, value: string) {
     localStorage.setItem(key, value);
@@ -263,4 +276,29 @@ isUser(): boolean {
   const role = localStorage.getItem('user_role');
   return role === 'USER'; 
 }
+
+ getCurrentUserFromBackend(): Observable<User> {
+    const token = this.getStoredItem(this.TOKEN_KEY);
+    if (!token) return throwError(() => new Error('No auth token found'));
+
+    return this.http.get<User>(this.USER_ME_URL, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }).pipe(
+      tap(user => {
+        const currentAuthUser = this.currentUserSubject.value;
+        if (currentAuthUser) {
+          currentAuthUser.user = user;
+          this.currentUserSubject.next(currentAuthUser);
+        }
+      }),
+      catchError(err => {
+        console.error('Failed to fetch current user', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+
 }

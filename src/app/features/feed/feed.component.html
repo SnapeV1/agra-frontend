@@ -2,10 +2,23 @@
 <div class="feed-container">
   <div class="feed-header">
     <h2>Feed</h2>
+    <div class="auth-status" *ngIf="!isAuthenticated" class="login-prompt">
+      <p>Please <a routerLink="/login">log in</a> to interact with posts</p>
+    </div>
   </div>
 
-  <div class="posts-container">
-    <article class="post" *ngFor="let post of posts; ">
+  <!-- Loading state -->
+  <div *ngIf="loading" class="loading-container">
+    <p>Loading posts...</p>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="errorMessage" class="error-container">
+    <p class="error-message">{{ errorMessage }}</p>
+  </div>
+
+  <div class="posts-container" *ngIf="!loading">
+    <article class="post" *ngFor="let post of posts">
       <div class="post-header">
         <div class="user-info">
           <img [src]="post.user.avatar" [alt]="post.user.name" class="user-avatar">
@@ -15,7 +28,7 @@
             <span class="timestamp">{{ getTimeAgo(post.timestamp) }}</span>
           </div>
         </div>
-        <button class="more-options" aria-label="More options">
+        <button class="more-options" aria-label="More options" *ngIf="canInteract()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
           </svg>
@@ -33,6 +46,7 @@
         <button 
           class="action-btn like-btn" 
           [class.liked]="post.isLiked"
+          [class.disabled]="!canInteract()"
           (click)="toggleLike(post)"
           [attr.aria-label]="post.isLiked ? 'Unlike post' : 'Like post'">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -51,7 +65,9 @@
           <span>{{ post.comments.length }}</span>
         </button>
 
-        <button class="action-btn share-btn" aria-label="Share post">
+        <button class="action-btn share-btn" 
+                aria-label="Share post" 
+                [class.disabled]="!canInteract()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
             <polyline points="16,6 12,2 8,6"/>
@@ -63,7 +79,7 @@
       <!-- Comments Section -->
       <div class="comments-section" *ngIf="post.showComments">
         <div class="comments-list" *ngIf="post.comments.length > 0">
-          <div class="comment" *ngFor="let comment of post.comments;">
+          <div class="comment" *ngFor="let comment of post.comments">
             <img [src]="comment.user.avatar" [alt]="comment.user.name" class="comment-avatar">
             <div class="comment-content">
               <div class="comment-header">
@@ -76,6 +92,7 @@
                 <button 
                   class="comment-like-btn" 
                   [class.liked]="comment.isLiked"
+                  [class.disabled]="!canInteract()"
                   (click)="toggleCommentLike(comment)"
                   [attr.aria-label]="comment.isLiked ? 'Unlike comment' : 'Like comment'">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -88,8 +105,8 @@
           </div>
         </div>
 
-        <!-- Add Comment Form -->
-        <div class="add-comment">
+        <!-- Add Comment Form - Only show if authenticated -->
+        <div class="add-comment" *ngIf="canInteract() && currentUser">
           <img [src]="currentUser.avatar" [alt]="currentUser.name" class="comment-avatar">
           <div class="comment-input-container">
             <textarea
@@ -110,7 +127,20 @@
             </button>
           </div>
         </div>
+
+        <!-- Login prompt for non-authenticated users -->
+        <div class="login-to-comment" *ngIf="!canInteract()">
+          <p class="login-message">
+            <a routerLink="/login">Log in</a> to comment on this post
+          </p>
+        </div>
       </div>
     </article>
-  </div></div>
+
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="posts.length === 0 && !loading">
+      <p>No posts available at the moment.</p>
+    </div>
+  </div>
+</div>
 <app-footer></app-footer>

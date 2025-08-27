@@ -24,16 +24,7 @@
   overflow: hidden;
 }
 
-.profile-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="rgba(255,255,255,0.05)"><polygon points="0,0 1000,100 1000,0"/></svg>');
-  pointer-events: none;
-}
+
 
 @media (max-width: 768px) {
   .profile-header {
@@ -65,7 +56,7 @@
 }
 
 .profile-image-container:hover .image-overlay {
-  opacity: 1;
+  opacity: 0.8;
 }
 
 .profile-image {

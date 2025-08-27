@@ -62,7 +62,6 @@ export class NavigationComponent implements OnInit, OnDestroy {
         this.user = user;
       });
 
-    // Initialize immediately
     this.isLoggedIn = this.authService.isAuthenticated();
     this.user = this.authService.currentUserValue;
   }
@@ -90,7 +89,9 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   getUserAvatar(): string {
-    return 'assets/default-avatar.png';
+    console.log("user picture : ", this.user?.user)
+  return this.user?.user?.picture || 'assets/default-avatar.png';
+
   }
 
   isAdmin(): boolean {

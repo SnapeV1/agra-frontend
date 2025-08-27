@@ -8,13 +8,13 @@
         <div class="nav-menu">
             <a href="home" (click)="scrollToSection('overview')" [class.active]="isSectionActive('overview')">Home</a>
             <a href="courses" (click)="scrollToSection('courses')" [class.active]="isSectionActive('courses')">Courses</a>
-            <a href="#technical" (click)="scrollToSection('technical')" [class.active]="isSectionActive('technical')">Technique</a>
+            <a href="feed" [class.active]="isSectionActive('technical')">Feed</a>
             <a href="#pricing" (click)="scrollToSection('pricing')" [class.active]="isSectionActive('pricing')">Tarification</a>
             <a href="#timeline" (click)="scrollToSection('timeline')" [class.active]="isSectionActive('timeline')">Planning</a>
         </div>
 
         <div class="nav-auth">
-            <!-- Login button for unauthenticated users -->
+
             <button 
                 *ngIf="!isLoggedIn" 
                 class="auth-btn login-btn" 
