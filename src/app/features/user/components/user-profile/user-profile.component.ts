@@ -1,134 +1,257 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+
+import { Subject, takeUntil } from 'rxjs';
 import { User } from '../../models/user.model';
 import { AuthService } from 'src/app/services/auth/auth.service';
+
+interface ProfileStats {
+  icon: string;
+  label: string;
+  value: string | number;
+  color: string;
+}
+
+interface Course {
+  id: string;
+  title: string;
+  category: string;
+  progress: number;
+  status: 'not-started' | 'in-progress' | 'completed';
+}
 
 @Component({
   selector: 'app-user-profile',
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.css']
 })
-export class UserProfileComponent implements OnInit {
-  user: User | null = null;
+export class UserProfileComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+  
+  userProfile: User | null = null;
   isEditing = false;
+  isLoading = true;
   editForm: Partial<User> = {};
-  loading = true;
-  error: string | null = null;
+  
+  stats: ProfileStats[] = [
+    {
+      icon: '📚',
+      label: 'Courses Completed',
+      value: 0,
+      color: 'bg-green-50 text-green-700'
+    },
+    {
+      icon: '⭐',
+      label: 'Average Score',
+      value: '0%',
+      color: 'bg-blue-50 text-blue-700'
+    },
+    {
+      icon: '🕐',
+      label: 'Hours Studied',
+      value: 0,
+      color: 'bg-purple-50 text-purple-700'
+    },
+    {
+      icon: '🏆',
+      label: 'Certificates Earned',
+      value: 0,
+      color: 'bg-amber-50 text-amber-700'
+    }
+  ];
+
+  courses: Course[] = [
+    {
+      id: '1',
+      title: 'Sustainable Agriculture Fundamentals',
+      category: 'Agriculture Basics',
+      progress: 75,
+      status: 'in-progress'
+    },
+    {
+      id: '2',
+      title: 'Crop Management Techniques',
+      category: 'Advanced Farming',
+      progress: 100,
+      status: 'completed'
+    },
+    {
+      id: '3',
+      title: 'Soil Health and Nutrition',
+      category: 'Soil Science',
+      progress: 0,
+      status: 'not-started'
+    }
+  ];
 
   constructor(private authService: AuthService) {}
 
-  ngOnInit() {
-    this.loadCurrentUser();
+  ngOnInit(): void {
+    this.loadUserProfile();
+    this.subscribeToUserChanges();
+    this.updateStats();
   }
 
-  private loadCurrentUser(): void {
-    this.loading = true;
-    this.authService.getCurrentUserFromBackend().subscribe({
-      next: userData => {
-        this.user = { ...userData };
-        this.editForm = { ...this.user };
-        this.loading = false;
-        console.log('Loaded user:', this.user);
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private subscribeToUserChanges(): void {
+    this.authService.currentUser
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(authUser => {
+        if (authUser?.user) {
+          this.userProfile = authUser.user;
+          this.isLoading = false;
+        }
+      });
+  }
+
+  private loadUserProfile(): void {
+    this.isLoading = true;
+    
+    // First check if we have user data in the auth service
+    const currentAuthUser = this.authService.currentUserValue;
+    if (currentAuthUser?.user) {
+      this.userProfile = currentAuthUser.user;
+      this.isLoading = false;
+      
+    }
+
+    this.authService.getCurrentUserFromBackend()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (user: User) => {
+          this.userProfile = user;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error loading user profile:', error);
+          this.isLoading = false;
+        }
+      });
+      console.log(this.userProfile)
+  }
+
+  private updateStats(): void {
+    const completedCourses = this.courses.filter(course => course.status === 'completed').length;
+    const totalProgress = this.courses.reduce((sum, course) => sum + course.progress, 0);
+    const averageScore = this.courses.length > 0 ? Math.round(totalProgress / this.courses.length) : 0;
+    
+    this.stats = [
+      {
+        ...this.stats[0],
+        value: completedCourses
       },
-      error: err => {
-        this.error = 'Failed to load user';
-        this.loading = false;
-        console.error(err);
+      {
+        ...this.stats[1],
+        value: `${averageScore}%`
+      },
+      {
+        ...this.stats[2],
+        value: Math.floor(completedCourses * 8.5) // Estimate hours based on completed courses
+      },
+      {
+        ...this.stats[3],
+        value: completedCourses
       }
-    });
+    ];
   }
 
-  toggleEdit() {
+  toggleEdit(): void {
+    if (!this.userProfile) return;
+    
     this.isEditing = !this.isEditing;
-    if (!this.isEditing && this.user) {
-      this.editForm = { ...this.user };
+    if (this.isEditing) {
+      this.editForm = { ...this.userProfile };
     }
   }
 
-  saveProfile() {
-    if (!this.user) return;
-    this.user = { ...this.user, ...this.editForm };
+  saveProfile(): void {
+    if (!this.userProfile || !this.editForm) return;
+
+    const updateData = { ...this.editForm };
+    
+    // Call the auth service to update profile
+  /*  this.authService.updateUserProfile(updateData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updatedUser: User) => {
+          this.userProfile = updatedUser;
+          this.isEditing = false;
+          this.editForm = {};
+          console.log('Profile updated successfully');
+          // You could add a success toast notification here
+        },
+        error: (error) => {
+          console.error('Error updating profile:', error);
+          // You could add an error toast notification here
+        }
+      });*/
+  }
+
+  cancelEdit(): void {
     this.isEditing = false;
-    console.log('Profile saved:', this.user);
-
-    // Optionally, send updated user to backend here
-    // this.authService.updateUser(this.user).subscribe(...);
+    this.editForm = {};
   }
 
-  getProgressColor(progress: number): string {
-    if (progress >= 90) return '#10b981';
-    if (progress >= 70) return '#22c55e';
-    if (progress >= 50) return '#f59e0b';
-    if (progress >= 30) return '#f97316';
-    return '#ef4444';
-  }
-
-  getProgressGradient(progress: number): string {
-    if (progress >= 90) return 'linear-gradient(90deg, #10b981, #22c55e)';
-    if (progress >= 70) return 'linear-gradient(90deg, #22c55e, #84cc16)';
-    if (progress >= 50) return 'linear-gradient(90deg, #f59e0b, #f97316)';
-    if (progress >= 30) return 'linear-gradient(90deg, #f97316, #ea580c)';
-    return 'linear-gradient(90deg, #ef4444, #dc2626)';
-  }
-
-  getRegistrationDate(): string {
-    if (!this.user) return '';
-    const date = new Date(this.user.registeredAt);
-    return date.toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  }
-
-  getCompletedCourses(): number {
-    return this.user?.progress?.filter(p => p.status === 'completed').length || 0;
-  }
-
-  getInProgressCourses(): number {
-    return this.user?.progress?.filter(p => p.status === 'in-progress').length || 0;
-  }
-
-  getAverageProgress(): number {
-    if (!this.user?.progress || this.user.progress.length === 0) return 0;
-    const total = this.user.progress.reduce((sum, course) => sum + course.progress, 0);
-    return Math.round(total / this.user.progress.length);
-  }
-
-  getTotalCourses(): number {
-    return this.user?.progress?.length || 0;
-  }
-
-  continueCourse(courseId: string) {
-    console.log('Navigating to course:', courseId);
-    // this.router.navigate(['/courses', courseId]);
-  }
-
-  viewCertificate(courseId: string) {
-    console.log('Viewing certificate for course:', courseId);
-    // this.certificateService.downloadCertificate(courseId);
-  }
-
-  onImageUpload(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.editForm.picture = e.target?.result as string;
-      };
-      reader.readAsDataURL(file);
+  getStatusColor(status: string): string {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-100 text-green-800';
+      case 'in-progress':
+        return 'bg-blue-100 text-blue-800';
+      case 'not-started':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   }
 
-  isPremiumUser(): boolean {
-    return this.user?.role === 'Premium User';
+  continueCourse(courseId: string): void {
+    console.log('Continue course:', courseId);
+    // Implement navigation to course
   }
 
-  formatCompletionDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+  startCourse(courseId: string): void {
+    console.log('Start course:', courseId);
+    // Implement course start logic
+  }
+
+  viewCertificate(courseId: string): void {
+    console.log('View certificate for course:', courseId);
+    // Implement certificate viewing
+  }
+
+  getUserDisplayName(): string {
+    if (!this.userProfile) return 'User';
+    return this.userProfile.name || this.userProfile.email.split('@')[0] || 'User';
+  }
+
+  getUserRole(): string {
+    if (!this.userProfile) return 'Member';
+    return this.userProfile.role === 'ADMIN' ? 'Administrator' : 'Member';
+  }
+
+  getUserStatus(): string {
+    return this.authService.isAuthenticated() ? 'Active' : 'Inactive';
+  }
+
+  getMemberSince(): string {
+    // This should come from user data, for now we'll use a placeholder
+    return '2023';
+  }
+
+  getLocation(): string {
+    // This should come from user profile, for now we'll use a placeholder
+    return  'Agriculture';
+  }
+
+  getUserEmail(): string {
+    return this.userProfile?.email || '';
+  }
+
+  getUserPhone(): string {
+    return this.userProfile?.phone || '+33 1 23 45 67 89';
   }
 }

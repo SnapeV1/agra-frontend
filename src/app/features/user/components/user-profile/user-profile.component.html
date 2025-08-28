@@ -1,204 +1,242 @@
 <app-navigation></app-navigation>
-
-<div class="profile-container" *ngIf="!loading; else loadingTemplate">
-  
-  <div class="profile-header" *ngIf="user">
-    <div class="profile-hero">
-      <div class="profile-image-container">
-        <img [src]="user.picture || 'assets/default-avatar.png'" alt="Profile Picture" class="profile-image">
-        <div class="image-overlay">
-          <i class="edit-icon"></i>
-        </div>
-      </div>
-      
-      <div class="profile-info">
-        <h1 class="profile-name">{{ user.name }}</h1>
-        <div class="profile-meta">
-          <span class="role-badge" [class.premium]="user.role === 'Premium User'">
-            {{ user.role }}
-          </span>
-          <span class="registration-date">
-            Member since {{ getRegistrationDate() }}
-          </span>
-        </div>
-        <p class="profile-email">{{ user.email }}</p>
-      </div>
-
-      <div class="profile-actions">
-        <button class="btn btn-primary" 
-                [class.btn-secondary]="isEditing"
-                (click)="toggleEdit()">
-          {{ isEditing ? 'Annuler' : 'Modifier le Profil' }}
-        </button>
-        <button *ngIf="isEditing" 
-                class="btn btn-success" 
-                (click)="saveProfile()">
-          Enregistrer
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Stats Section -->
-  <div class="stats-section" *ngIf="user">
-    <h2 class="stats-title">
-      <span class="title-icon">📈</span>
-      Aperçu de vos Performances
-    </h2>
+<div class="profile">
+<div class="min-h-screen bg-gradient-to-br from-green-50 to-amber-50 p-4">
+  <div class="max-w-6xl mx-auto space-y-6">
     
-    <div class="stats-grid">
-      <div class="stat-card total">
-        <div class="stat-icon">🌱</div>
-        <div class="stat-content">
-          <h3>{{ getTotalCourses() }}</h3>
-          <p>Cours Total</p>
-          <span class="stat-subtitle">Formations inscrites</span>
-        </div>
-      </div>
-      
-      <div class="stat-card completed">
-        <div class="stat-icon">🏆</div>
-        <div class="stat-content">
-          <h3>{{ getCompletedCourses() }}</h3>
-          <p>Terminés</p>
-          <span class="stat-subtitle">Certificats obtenus</span>
-        </div>
-      </div>
-      
-      <div class="stat-card progress">
-        <div class="stat-icon">⚡</div>
-        <div class="stat-content">
-          <h3>{{ getInProgressCourses() }}</h3>
-          <p>En Cours</p>
-          <span class="stat-subtitle">Formations actives</span>
-        </div>
-      </div>
-      
-      <div class="stat-card average">
-        <div class="stat-icon">🎯</div>
-        <div class="stat-content">
-          <h3>{{ getAverageProgress() }}%</h3>
-          <p>Progression</p>
-          <span class="stat-subtitle">Moyenne générale</span>
-        </div>
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="bg-white rounded-2xl p-8 shadow-lg">
+      <div class="animate-pulse">
+        <div class="h-6 bg-gray-200 rounded mb-4 w-1/3"></div>
+        <div class="h-4 bg-gray-200 rounded mb-2 w-1/2"></div>
+        <div class="h-4 bg-gray-200 rounded w-1/4"></div>
       </div>
     </div>
-  </div>
 
-  <!-- Personal Info Section -->
-  <div class="profile-content" *ngIf="user">
-    <div class="info-section">
-      <h2 class="section-title">
-        <span class="section-icon">👤</span>
-        Informations Personnelles
-      </h2>
-      
-      <!-- Display Info -->
-      <div class="info-grid" *ngIf="!isEditing">
-        <div class="info-item">
-          <label>Nom Complet</label>
-          <span>{{ user.name }}</span>
+    <!-- Profile Header -->
+    <div *ngIf="!isLoading && userProfile" class="bg-gradient-to-r from-green-700 to-green-600 rounded-2xl p-8 text-white shadow-xl">
+      <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+        
+        <!-- Avatar Section -->
+        <div class="relative">
+          <div class="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center text-4xl backdrop-blur-sm">
+            <img *ngIf="userProfile.picture" [src]="userProfile.picture" [alt]="getUserDisplayName()" 
+                 class="w-full h-full rounded-full object-cover">
+            <span *ngIf="!userProfile.picture">🌱</span>
+          </div>
+          <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-2 border-white"></div>
         </div>
-        <div class="info-item">
-          <label>Email</label>
-          <span>{{ user.email }}</span>
-        </div>
-        <div class="info-item" *ngIf="user.phone">
-          <label>Téléphone</label>
-          <span>{{ user.phone }}</span>
-        </div>
-        <div class="info-item" *ngIf="user.country">
-          <label>Pays</label>
-          <span>{{ user.country }}</span>
-        </div>
-        <div class="info-item" *ngIf="user.language">
-          <label>Langue</label>
-          <span>{{ user.language }}</span>
-        </div>
-        <div class="info-item" *ngIf="user.domain">
-          <label>Domaine</label>
-          <span>{{ user.domain }}</span>
-        </div>
-      </div>
 
-      <!-- Edit Form -->
-      <form class="edit-form" *ngIf="isEditing" (ngSubmit)="saveProfile()">
-        <div class="form-group">
-          <label for="name">Nom Complet</label>
-          <input type="text" id="name" [(ngModel)]="editForm.name" name="name">
-        </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" [(ngModel)]="editForm.email" name="email">
-        </div>
-        <div class="form-group">
-          <label for="phone">Téléphone</label>
-          <input type="tel" id="phone" [(ngModel)]="editForm.phone" name="phone">
-        </div>
-        <div class="form-group">
-          <label for="country">Pays</label>
-          <input type="text" id="country" [(ngModel)]="editForm.country" name="country">
-        </div>
-        <div class="form-group">
-          <label for="language">Langue</label>
-          <input type="text" id="language" [(ngModel)]="editForm.language" name="language">
-        </div>
-        <div class="form-group">
-          <label for="domain">Domaine</label>
-          <input type="text" id="domain" [(ngModel)]="editForm.domain" name="domain">
-        </div>
-      </form>
-    </div>
-
-    <!-- Course Progress Section -->
-    <div class="progress-section" >
-      <h2 class="section-title">
-        <span class="section-icon">📊</span>
-        Progression des Cours
-      </h2>
-      <div class="progress-list">
-        <div class="progress-item" *ngFor="let course of user.progress; let i = index">
-          <div class="progress-header">
-            <div class="course-info">
-              <h3>{{ course.courseName }}</h3>
-              <span>Module #{{ i + 1 }}</span>
-            </div>
-            <div class="progress-stats">
-              <span>{{ course.progress }}%</span>
+        <!-- Profile Info -->
+        <div class="flex-1 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+            <h1 class="text-3xl font-bold text-balance">{{ getUserDisplayName() }}</h1>
+            <div class="flex gap-2">
+              <span class="px-3 py-1 bg-white/20 rounded-full text-sm font-medium backdrop-blur-sm">
+                {{ getUserRole() }}
+              </span>
+              <span class="px-3 py-1 bg-green-400 text-green-900 rounded-full text-sm font-medium">
+                ✓ {{ getUserStatus() }}
+              </span>
             </div>
           </div>
-          
-          <div class="progress-bar-container">
-            <div class="progress-bar">
-              <div class="progress-fill" [style.width.%]="course.progress" 
-                   [style.background]="getProgressGradient(course.progress)"></div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+            <div class="flex items-center gap-2">
+              <span class="text-green-200">📧</span>
+              <span>{{ getUserEmail() }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-green-200">📱</span>
+              <span>{{ getUserPhone() }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-green-200">📅</span>
+              <span>Member since {{ getMemberSince() }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-green-200">🏢</span>
+              <span>{{ getLocation() }}</span>
             </div>
           </div>
-          
-          <div class="progress-meta">
-            <span *ngIf="course.completedAt">
-              🎉 Terminé le {{ course.completedAt | date:'dd/MM/yyyy' }}
-            </span>
-            <button *ngIf="course.status === 'in-progress'" (click)="continueCourse(course.courseId)">
-              Continuer
+        </div>
+
+        <!-- Action Button -->
+        <div class="flex gap-3">
+          <button 
+            *ngIf="!isEditing"
+            (click)="toggleEdit()"
+            class="px-6 py-3 bg-white text-green-700 rounded-xl font-semibold hover:bg-green-50 transition-colors shadow-lg">
+            ✏️ Edit Profile
+          </button>
+          <div *ngIf="isEditing" class="flex gap-2">
+            <button 
+              (click)="saveProfile()"
+              class="px-4 py-2 bg-white text-green-700 rounded-lg font-semibold hover:bg-green-50 transition-colors">
+              Save
             </button>
-            <button *ngIf="course.status === 'completed'" (click)="viewCertificate(course.courseId)">
-              Certificat
+            <button 
+              (click)="cancelEdit()"
+              class="px-4 py-2 bg-white/20 text-white rounded-lg font-semibold hover:bg-white/30 transition-colors">
+              Cancel
             </button>
           </div>
         </div>
       </div>
     </div>
 
-  </div>
+    <!-- Performance Overview -->
+    <div class="bg-white rounded-2xl p-6 shadow-lg">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+          📊
+        </div>
+        <h2 class="text-xl font-bold text-gray-900">Performance Overview</h2>
+      </div>
 
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div 
+          *ngFor="let stat of stats"
+          class="p-4 rounded-xl border border-gray-100 hover:shadow-md transition-shadow"
+          [ngClass]="stat.color">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-2xl">{{ stat.icon }}</span>
+            <span class="text-2xl font-bold">{{ stat.value }}</span>
+          </div>
+          <p class="text-sm font-medium opacity-80">{{ stat.label }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personal Information -->
+    <div *ngIf="userProfile" class="bg-white rounded-2xl p-6 shadow-lg">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+          👤
+        </div>
+        <h2 class="text-xl font-bold text-gray-900">Personal Information</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-4">
+          <div class="p-4 bg-gray-50 rounded-xl">
+            <label class="block text-sm font-medium text-gray-600 mb-1">Full Name</label>
+            <input 
+              *ngIf="isEditing"
+              [(ngModel)]="editForm.name"
+              class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              type="text">
+            <p *ngIf="!isEditing" class="text-gray-900 font-medium">{{ getUserDisplayName() }}</p>
+          </div>
+
+          <div class="p-4 bg-gray-50 rounded-xl">
+            <label class="block text-sm font-medium text-gray-600 mb-1">Phone</label>
+            <input 
+              *ngIf="isEditing"
+              [(ngModel)]="editForm.phone"
+              class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              type="tel">
+            <p *ngIf="!isEditing" class="text-gray-900 font-medium">{{ getUserPhone() }}</p>
+          </div>
+
+          <div class="p-4 bg-gray-50 rounded-xl">
+            <label class="block text-sm font-medium text-gray-600 mb-1">Language</label>
+            <p class="text-gray-900 font-medium">English</p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div class="p-4 bg-gray-50 rounded-xl">
+            <label class="block text-sm font-medium text-gray-600 mb-1">Email</label>
+            <input 
+              *ngIf="isEditing"
+              [(ngModel)]="editForm.email"
+              class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              type="email">
+            <p *ngIf="!isEditing" class="text-gray-900 font-medium">{{ userProfile.email }}</p>
+          </div>
+
+          <div class="p-4 bg-gray-50 rounded-xl">
+            <label class="block text-sm font-medium text-gray-600 mb-1">Country</label>
+            <p class="text-gray-900 font-medium">Tunisia</p>
+          </div>
+
+          <div class="p-4 bg-gray-50 rounded-xl">
+            <label class="block text-sm font-medium text-gray-600 mb-1">Role</label>
+            <p class="text-gray-900 font-medium">{{ getUserRole() }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Course Progress -->
+    <div class="bg-white rounded-2xl p-6 shadow-lg">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
+          📚
+        </div>
+        <h2 class="text-xl font-bold text-gray-900">Course Progress</h2>
+      </div>
+
+      <div *ngIf="courses.length === 0" class="text-center py-12">
+        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          🎓
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">No courses in progress</h3>
+        <p class="text-gray-600 mb-6">Start your agricultural learning journey today!</p>
+        <button class="px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors">
+          Browse Courses
+        </button>
+      </div>
+
+      <div *ngIf="courses.length > 0" class="space-y-4">
+        <div 
+          *ngFor="let course of courses"
+          class="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-2">
+                <h3 class="font-semibold text-gray-900">{{ course.title }}</h3>
+              
+              </div>
+              <p class="text-sm text-gray-600 mb-3">{{ course.category }}</p>
+              
+              <div class="flex items-center gap-3">
+                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                  <div 
+                    class="bg-green-500 h-2 rounded-full transition-all duration-300"
+                    [style.width.%]="course.progress">
+                  </div>
+                </div>
+                <span class="text-sm font-medium text-gray-700">{{ course.progress }}%</span>
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <button 
+                *ngIf="course.status === 'in-progress'"
+                (click)="continueCourse(course.id)"
+                class="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+                Continue
+              </button>
+              <button 
+                *ngIf="course.status === 'not-started'"
+                (click)="startCourse(course.id)"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                Start Course
+              </button>
+              <button 
+                *ngIf="course.status === 'completed'"
+                (click)="viewCertificate(course.id)"
+                class="px-4 py-2 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 transition-colors">
+                View Certificate
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
-
-<ng-template #loadingTemplate>
-  <div class="loading">
-    <p *ngIf="error">{{ error }}</p>
-    <p *ngIf="!error">Chargement du profil...</p>
-  </div>
-</ng-template>
-
+</div>
 <app-footer></app-footer>

@@ -22,7 +22,7 @@ export interface RefreshTokenResponse {
 })
 export class AuthService implements OnDestroy {
   private apiUrl = 'http://localhost:8080/api/auth';
-  private readonly USER_ME_URL = 'http://localhost:8080/api/users/me';
+  private readonly USER_ME_URL = 'http://localhost:8080/api/auth/me';
 
   
   private currentUserSubject: BehaviorSubject<AuthUser | null>;
