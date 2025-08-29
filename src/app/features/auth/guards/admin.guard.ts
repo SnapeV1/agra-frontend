@@ -30,6 +30,7 @@ export class AdminGuard implements CanActivate, CanActivateChild {
           return true;
         }
 
+        // Redirect non-admin users to home page
         this.router.navigate(['/home']);
         console.warn('Access denied: Admin privileges required');
         return false;

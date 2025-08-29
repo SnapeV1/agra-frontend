@@ -5,6 +5,8 @@
   --bg-color: #fff;
   --shadow-color: rgba(0, 0, 0, 0.1);
   --hover-bg: #f5f5f5;
+  --admin-color: #ff6b35;
+  --admin-hover: #ff8c69;
 }
 
 .navbar {
@@ -62,7 +64,8 @@
   border-radius: 4px;
 }
 
-.nav-menu a:hover, .nav-auth:hover {
+/* ✅ Keep underline only for nav links */
+.nav-menu a:hover {
   text-decoration: underline;
   text-decoration-color: rgba(47, 102, 50, 0.737);
   text-underline-offset: 6px;
@@ -128,10 +131,12 @@
   border-radius: 8px;
   transition: background-color 0.2s ease;
   user-select: none;
+  text-decoration: none !important; /* ✅ Prevent underline */
 }
 
 .profile-dropdown:hover {
   background-color: var(--hover-bg);
+  text-decoration: none !important; /* ✅ Still safe */
 }
 
 .profile-avatar {
@@ -212,8 +217,7 @@
 .dropdown-email {
   font-size: 0.75rem;
   opacity: 0.9;
-    color: #333;
-
+  color: #333;
 }
 
 .dropdown-divider {
@@ -277,6 +281,33 @@
   background-color: var(--primary-color);
 }
 
+/* ✅ Fixed admin button class */
+.admin-view-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  text-decoration: none !important;
+}
+
+.admin-view-btn:hover {
+  background: rgba(47, 102, 50, 0.08);
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+  text-decoration: none !important;
+}
+
+.admin-view-btn .material-symbols-outlined {
+  color: var(--primary-color);
+  font-size: 22px;
+}
+
 @media (max-width: 768px) {
   .nav-menu {
     display: none;
@@ -296,7 +327,6 @@
 
   .profile-name {
     display: none;
-    
   }
 
   .dropdown-menu {

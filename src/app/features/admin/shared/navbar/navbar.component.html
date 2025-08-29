@@ -1,11 +1,11 @@
 <nav class="navbar">
   <div class="navbar-left">
     <h1 class="page-title">{{ pageTitle }}</h1>
-    <div class="breadcrumbs">
-      <ng-container *ngFor="let breadcrumb of breadcrumbs; let last = last">
-        <a *ngIf="!last" [routerLink]="breadcrumb.route">{{ breadcrumb.label }}</a>
-        <span *ngIf="last">{{ breadcrumb.label }}</span>
-        <span *ngIf="!last"> / </span>
+    <div class="breadcrumbs" *ngIf="breadcrumbs.length > 0">
+      <ng-container *ngFor="let crumb of breadcrumbs; let last = last">
+        <a *ngIf="crumb.route && !last" [routerLink]="crumb.route">{{ crumb.label }}</a>
+        <span *ngIf="!crumb.route || last">{{ crumb.label }}</span>
+        <span *ngIf="!last">/</span>
       </ng-container>
     </div>
   </div>
@@ -13,21 +13,39 @@
   <div class="navbar-search">
     <input
       class="search-input"
-      [(ngModel)]="searchQuery"
-      (keyup.enter)="onSearch()"
       placeholder="Search..."
+      [(ngModel)]="searchQuery"
+      (keyup)="onSearchKeyup($event)"
     />
     <span class="material-symbols-outlined search-icon"></span>
   </div>
+
   <div class="navbar-right">
-    <button class="action-btn" (click)="notificationClick.emit()">
+    <button 
+      class="action-btn" 
+      (click)="onNotificationClick()" 
+      title="Notifications"
+      type="button"
+    >
       <span class="material-symbols-outlined"></span>
-      <span class="notification-badge" *ngIf="notificationCount > 0">
-        {{ notificationCount > 99 ? '99+' : notificationCount }}
-      </span>
+      <span class="notification-badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
     </button>
 
-    <button class="action-btn" (click)="settingsClick.emit()">
+    <button 
+      class="action-btn" 
+      (click)="onSettingsClick()" 
+      title="Settings"
+      type="button"
+    >
+      <span class="material-symbols-outlined"></span>
+    </button>
+
+    <button 
+      class="action-btn" 
+      (click)="navigateToHome()" 
+      title="View as User"
+      type="button"
+    >
       <span class="material-symbols-outlined"></span>
     </button>
 
@@ -41,8 +59,12 @@
     </div>
 
     <div class="dropdown-menu" [class.show]="isDropdownOpen">
-      <button class="dropdown-item" (click)="profileClick.emit()">Profile</button>
-      <button class="dropdown-item danger" (click)="logout()">Logout</button>
+      <button class="dropdown-item" (click)="onProfileClick()" type="button">
+        Profile
+      </button>
+      <button class="dropdown-item danger" (click)="logout()" type="button">
+        Logout
+      </button>
     </div>
   </div>
 </nav>

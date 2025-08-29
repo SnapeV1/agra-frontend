@@ -1,52 +1,93 @@
 <app-base-layout>
-  <h1 style="margin-bottom: 30px; color: #333; font-size: 28px;">Dashboard Overview</h1>
-  
-  <div class="dashboard-cards">
-    <div class="card">
-      <div class="card-title">Total Users</div>
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div class="card-value">24,580</div>
-        <div class="card-icon users">
-          <i class="fas fa-users"></i>
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <h1>Educational Platform Dashboard</h1>
+    <p>Comprehensive analytics for your learning platform</p>
+  </div>
+
+  <!-- Metrics Grid -->
+  <div class="metrics-grid">
+    <div class="metric-card" *ngFor="let metric of metrics">
+      <div class="metric-header">
+        <span class="metric-title">{{ metric.title }}</span>
+        <div class="metric-icon" [ngClass]="metric.iconClass">
+          <i [class]="metric.icon"></i>
+        </div>
+      </div>
+      <div class="metric-value">{{ metric.value }}</div>
+      <div class="metric-change" [ngClass]="metric.changeClass">
+        <i [class]="metric.changeIcon"></i>
+        {{ metric.change }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts and Analytics Section -->
+  <div class="analytics-section">
+    <!-- Student Distribution Map -->
+    <div class="analytics-card map-card">
+      <h3>Student Distribution by Country</h3>
+      <div class="country-list">
+        <div class="country-item" *ngFor="let country of studentDistribution">
+          <div class="country-info">
+            <span class="country-flag">{{ country.flag }}</span>
+            <span class="country-name">{{ country.name }}</span>
+          </div>
+          <div class="country-stats">
+            <span class="country-count">{{ country.students }}</span>
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="country.percentage"></div>
+            </div>
+            <span class="country-percentage">{{ country.percentage }}%</span>
+          </div>
         </div>
       </div>
     </div>
-    
-    <div class="card">
-      <div class="card-title">Revenue</div>
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div class="card-value">${{ revenue | number:'1.0-0' }}</div>
-        <div class="card-icon revenue">
-          <i class="fas fa-dollar-sign"></i>
-        </div>
-      </div>
-    </div>
-    
-    <div class="card">
-      <div class="card-title">Orders</div>
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div class="card-value">{{ orders | number }}</div>
-        <div class="card-icon orders">
-          <i class="fas fa-shopping-cart"></i>
-        </div>
-      </div>
-    </div>
-    
-    <div class="card">
-      <div class="card-title">Growth</div>
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div class="card-value">+{{ growth }}%</div>
-        <div class="card-icon growth">
-          <i class="fas fa-chart-line"></i>
+
+    <!-- Top Courses -->
+    <div class="analytics-card courses-card">
+      <h3>Top Performing Courses</h3>
+      <div class="course-list">
+        <div class="course-item" *ngFor="let course of topCourses">
+          <div class="course-info">
+            <div class="course-icon" [ngClass]="course.iconClass">
+              <i [class]="course.icon"></i>
+            </div>
+            <div class="course-details">
+              <h4>{{ course.name }}</h4>
+              <p>{{ course.students }} students enrolled</p>
+            </div>
+          </div>
+          <div class="course-stats">
+            <div class="completion-rate">
+              <span>{{ course.completion }}% completion</span>
+              <div class="completion-bar">
+                <div class="completion-fill" [style.width.%]="course.completion"></div>
+              </div>
+            </div>
+            <div class="course-rating">
+              <span class="rating-stars">
+                <i class="fas fa-star" *ngFor="let star of getStars(course.rating)"></i>
+              </span>
+              <span class="rating-value">{{ course.rating }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  
-  <div class="card" style="padding: 40px; text-align: center;">
-    <h2 style="color: #667eea; margin-bottom: 20px;">Welcome to your Admin Dashboard</h2>
-    <p style="color: #666; font-size: 16px; line-height: 1.6;">
-      This is a fully responsive Angular admin dashboard with reusable sidebar functionality.
-    </p>
+
+  <div class="welcome-section">
+    <div class="welcome-content">
+      <h2>Welcome to your Educational Dashboard</h2>
+      <p>Monitor student progress, track course performance, and analyze learning outcomes across your platform.</p>
+      <div class="quick-actions">
+        <button class="action-btn primary">Add New Course</button>
+        <button class="action-btn secondary">View Reports</button>
+      </div>
+    </div>
   </div>
+</div>
+
 </app-base-layout>

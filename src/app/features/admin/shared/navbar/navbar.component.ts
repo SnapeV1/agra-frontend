@@ -46,15 +46,18 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // ✅ Subscribe to user updates
+    // Subscribe to user updates
     this.userSubscription = this.authService.currentUser.subscribe((user) => {
       this.user = user;
     });
 
-    // ✅ Update breadcrumbs on navigation
+    // Update breadcrumbs on navigation
     this.routerSubscription = this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe((event) => this.updatePageInfo(event.url));
+    
+    // Initialize page info for current route
+    this.updatePageInfo(this.router.url);
   }
 
   ngOnDestroy() {
@@ -62,22 +65,22 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (this.userSubscription) this.userSubscription.unsubscribe();
   }
 
-  /** ✅ Get user's name */
+  /** Get user's name */
   get userName(): string {
     return this.user?.user?.name || 'Guest';
   }
 
-  /** ✅ Get user's email */
+  /** Get user's email */
   get userEmail(): string {
     return this.user?.user?.email || '';
   }
 
-  /** ✅ Get user's role */
+  /** Get user's role */
   get userRole(): string {
     return this.user?.user?.role || 'User';
   }
 
-  /** ✅ Generate initials for avatar */
+  /** Generate initials for avatar */
   get userInitials(): string {
     const name = this.user?.user?.name || '';
     if (!name.trim()) return 'G';
@@ -88,21 +91,53 @@ export class NavbarComponent implements OnInit, OnDestroy {
       .toUpperCase();
   }
 
+  /** Handle search input */
   onSearch() {
     if (this.searchQuery.trim()) {
       this.search.emit(this.searchQuery);
     }
   }
 
+  /** Handle search on Enter key */
+  onSearchKeyup(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      this.onSearch();
+    }
+  }
+
+  /** Toggle dropdown menu */
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
   }
 
-  logout() {
-    this.authService.logout();
+  /** Handle notifications click */
+  onNotificationClick() {
+    this.notificationClick.emit();
   }
 
-  // ✅ Update breadcrumbs dynamically
+  /** Handle settings click */
+  onSettingsClick() {
+    this.settingsClick.emit();
+  }
+
+  /** Handle profile click */
+  onProfileClick() {
+    this.profileClick.emit();
+    this.toggleDropdown();
+  }
+
+  /** Navigate to home/user view */
+  navigateToHome() {
+    this.router.navigate(['/home']);
+  }
+
+  /** Logout user */
+  logout() {
+    this.authService.logout();
+    this.isDropdownOpen = false;
+  }
+
+  /** Update breadcrumbs dynamically */
   private updatePageInfo(url: string) {
     const parts = url.split('/').filter(Boolean);
     this.pageTitle =
@@ -115,6 +150,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }));
   }
 
+  /** Handle clicks outside dropdown to close it */
   @HostListener('document:click', ['$event'])
   clickOutside(event: MouseEvent) {
     if (this.isDropdownOpen && !this.eRef.nativeElement.contains(event.target)) {

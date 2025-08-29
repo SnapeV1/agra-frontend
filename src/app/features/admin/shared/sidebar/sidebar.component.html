@@ -1,10 +1,10 @@
-<nav class="sidebar" [class.collapsed]="isCollapsed" id="sidebar"(click)="onSidebarClick($event)">
-  <div class="sidebar-header" 
-     >
-    <div class="logo"  [class.clickable]="isCollapsed"
-       (click)="isCollapsed ? toggleSidebar() : null"
-       [attr.aria-label]="isCollapsed ? 'Expand sidebar' : null"
-       [attr.title]="isCollapsed ? 'Click to expand sidebar' : null">
+<nav class="sidebar" [class.collapsed]="isCollapsed" id="sidebar" (click)="onSidebarClick($event)">
+  <div class="sidebar-header">
+    <div class="logo" 
+         [class.clickable]="isCollapsed"
+         (click)="isCollapsed ? toggleSidebar() : null"
+         [attr.aria-label]="isCollapsed ? 'Expand sidebar' : null"
+         [attr.title]="isCollapsed ? 'Click to expand sidebar' : null">
       <i class="fas fa-chart-line"></i>
     </div>
     <h3 class="sidebar-title">AdminPro</h3>
@@ -14,7 +14,6 @@
        *ngIf="!isCollapsed"
        (click)="toggleSidebar()" 
        [attr.aria-label]="'Collapse sidebar'">
-    
     <div class="hamburger-container">
       <div class="hamburger-bar"></div>
       <div class="hamburger-bar"></div>
@@ -23,16 +22,58 @@
   </div>
   
   <div class="sidebar-menu">
-    <a 
-      *ngFor="let item of menuItems" 
-      [routerLink]="item.route"
-      class="menu-item" 
-      [class.active]="activeMenuItem === item.id"
-      [attr.data-tooltip]="item.text"
-      (click)="setActiveMenuItem(item.id)"
-    >
-      <i [class]="item.icon"></i>
-      <span class="menu-text">{{ item.text }}</span>
+    <a routerLink="/admin/dashboard"
+       class="menu-item" 
+       [class.active]="activeMenuItem === 'dashboard'"
+       data-tooltip="Dashboard"
+       (click)="setActiveMenuItem('dashboard')">
+      <i class="fas fa-home"></i>
+      <span class="menu-text">Dashboard</span>
+    </a>
+
+    <a routerLink="/admin/users"
+       class="menu-item" 
+       [class.active]="activeMenuItem === 'users'"
+       data-tooltip="Users"
+       (click)="setActiveMenuItem('users')">
+      <i class="fas fa-users"></i>
+      <span class="menu-text">Users</span>
+    </a>
+
+    <a routerLink="/admin/posts"
+       class="menu-item" 
+       [class.active]="activeMenuItem === 'posts'"
+       data-tooltip="Posts"
+       (click)="setActiveMenuItem('posts')">
+      <i class="fas fa-shopping-cart"></i>
+      <span class="menu-text">Posts</span>
+    </a>
+
+    <a routerLink="/admin/courses"
+       class="menu-item" 
+       [class.active]="activeMenuItem === 'courses'"
+       data-tooltip="Courses"
+       (click)="setActiveMenuItem('courses')">
+      <i class="fas fa-box"></i>
+      <span class="menu-text">Courses</span>
+    </a>
+
+    <a routerLink="/analytics"
+       class="menu-item" 
+       [class.active]="activeMenuItem === 'analytics'"
+       data-tooltip="Analytics"
+       (click)="setActiveMenuItem('analytics')">
+      <i class="fas fa-chart-bar"></i>
+      <span class="menu-text">Analytics</span>
+    </a>
+
+    <a routerLink="/settings"
+       class="menu-item" 
+       [class.active]="activeMenuItem === 'settings'"
+       data-tooltip="Settings"
+       (click)="setActiveMenuItem('settings')">
+      <i class="fas fa-cog"></i>
+      <span class="menu-text">Settings</span>
     </a>
   </div>
 </nav>

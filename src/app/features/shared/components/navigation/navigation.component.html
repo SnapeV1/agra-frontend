@@ -14,6 +14,11 @@
         </div>
 
         <div class="nav-auth">
+          
+               <a href="/admin/dashboard" class="admin-view-btn" title="View as Admin" *ngIf="isLoggedIn && isAdmin()">
+    <span class="material-symbols-outlined">visibility</span>
+</a>
+
 
             <button 
                 *ngIf="!isLoggedIn" 
@@ -35,7 +40,6 @@
                 </div>
                 
                 <div class="dropdown-menu" [class.show]="isDropdownOpen">
-                    <!-- User info header -->
                     <div class="dropdown-header">
                         <img 
                             [src]="getUserAvatar()" 

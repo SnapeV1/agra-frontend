@@ -90,8 +90,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   getUserAvatar(): string {
     console.log("user picture : ", this.user?.user)
-  return this.user?.user?.picture || 'assets/default-avatar.png';
-
+    return this.user?.user?.picture || 'assets/default-avatar.png';
   }
 
   isAdmin(): boolean {
@@ -127,6 +126,11 @@ export class NavigationComponent implements OnInit, OnDestroy {
     } else {
       this.router.navigate(['/user/dashboard']);
     }
+  }
+
+  // New method for admin view navigation
+  navigateToAdminView(): void {
+    this.router.navigate(['/admin']);
   }
 
   login(): void {
