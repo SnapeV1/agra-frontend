@@ -29,20 +29,42 @@
             #contentTextarea></textarea>
         </div>
 
-        <div class="image-input-container" *ngIf="createForm.image || showImageInput">
-          <input 
-            type="url" 
-            class="image-input" 
-            placeholder="Add image URL"
-            [(ngModel)]="createForm.image">
-          <button class="remove-image-btn" (click)="removeImage()" *ngIf="createForm.image">
-            ✕
+        <!-- Image Preview -->
+        <div class="image-preview-container" *ngIf="createForm.imagePreview">
+          <img [src]="createForm.imagePreview" alt="Image preview" class="image-preview">
+          <div class="image-info">
+            <span class="file-name">{{ createForm.imageFile?.name }}</span>
+            <span class="file-size">{{ getFileSize(createForm.imageFile?.size || 0) }}</span>
+          </div>
+          <button class="remove-image-btn" (click)="removeImage()">
+            ✕ Remove
           </button>
+        </div>
+
+        <!-- File Upload -->
+        <div class="file-upload-container" *ngIf="showImageInput && !createForm.imagePreview">
+          <input 
+            #fileInput
+            type="file" 
+            accept="image/*"
+            class="file-input" 
+            (change)="onFileSelect($event)"
+            style="display: none;">
+          
+          <div class="upload-area" (click)="triggerFileInput()">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">
+              <p>Click to select an image</p>
+              <small>Supports JPG, PNG, GIF (max 5MB)</small>
+            </div>
+          </div>
         </div>
 
         <div class="post-actions">
           <div class="media-options">
-            <button class="media-btn" (click)="toggleImageInput()">Photo</button>
+            <button class="media-btn" (click)="toggleImageInput()">
+              📷 Photo
+            </button>
           </div>
           <div class="form-buttons">
             <button class="cancel-btn" (click)="toggleCreateForm()">Cancel</button>
@@ -100,11 +122,40 @@
             [(ngModel)]="editingPost.content"
             placeholder="Edit your post..."></textarea>
           
-          <input 
-            type="url" 
-            class="image-input" 
-            placeholder="Add image URL (optional)"
-            [(ngModel)]="editingPost.imageUrl">
+          <!-- Current Image Display -->
+          <div class="current-image" *ngIf="editingPost.imageUrl && !editingImagePreview">
+            <img [src]="editingPost.imageUrl" alt="Current image" class="edit-current-image">
+            <button class="remove-current-image" (click)="editingPost.imageUrl = undefined">
+              ✕ Remove current image
+            </button>
+          </div>
+
+          <!-- New Image Preview -->
+          <div class="image-preview-container" *ngIf="editingImagePreview">
+            <img [src]="editingImagePreview" alt="New image preview" class="image-preview">
+            <div class="image-info">
+              <span class="file-name">{{ editingImageFile?.name }}</span>
+              <span class="file-size">{{ getFileSize(editingImageFile?.size || 0) }}</span>
+            </div>
+            <button class="remove-image-btn" (click)="removeEditImage()">
+              ✕ Remove
+            </button>
+          </div>
+
+          <!-- File Upload for Edit -->
+          <div class="file-upload-container edit-upload" *ngIf="!editingImagePreview">
+            <input 
+              #editFileInput
+              type="file" 
+              accept="image/*"
+              class="file-input" 
+              (change)="onEditFileSelect($event)"
+              style="display: none;">
+            
+            <button class="upload-btn" (click)="triggerEditFileInput()">
+              📷 {{ editingPost.imageUrl ? 'Change Image' : 'Add Image' }}
+            </button>
+          </div>
           
           <div class="edit-actions">
             <button class="cancel-btn" (click)="cancelEdit()">Cancel</button>
@@ -115,8 +166,11 @@
         <!-- Post Content -->
         <div class="post-content" *ngIf="!isEditing(post)">
           <div class="post-text">{{ post.content }}</div>
-<img *ngIf="!post.imageLoadFailed"[src]="post.imageUrl" alt="Post image" class="post-image"
-(error)="onImageError(post)">
+          <img *ngIf="post.imageUrl && !post.imageLoadFailed" 
+               [src]="post.imageUrl" 
+               alt="Post image" 
+               class="post-image"
+               (error)="onImageError(post)">
           <button *ngIf="post.isCoursePost" class="view-course-btn" [routerLink]="['/courses', post.courseId]">View Course</button>
         </div>
 

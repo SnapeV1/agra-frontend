@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { Subscription, forkJoin } from 'rxjs';
 import { CourseService } from 'src/app/services/course/course.service';
 import { AuthService } from 'src/app/services/auth/auth.service';
@@ -11,7 +11,8 @@ import { PostComment } from '../../feed/post-comment/post-comment.module';
 
 interface CreatePostForm {
   content: string;
-  image: string;
+  imageFile: File | null;
+  imagePreview: string;
 }
 
 @Component({
@@ -20,6 +21,9 @@ interface CreatePostForm {
   styleUrls: ['./admin-posts.component.css']
 })
 export class AdminPostsComponent implements OnInit, OnDestroy {
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('editFileInput') editFileInput!: ElementRef<HTMLInputElement>;
+
   posts: Post[] = [];
   courses: Course[] = [];
   loading = false;
@@ -33,7 +37,9 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
   showCreateForm = false;
   showImageInput = false;
   editingPost: Post | null = null;
-  createForm: CreatePostForm = { content: '', image: '' };
+  editingImageFile: File | null = null;
+  editingImagePreview: string = '';
+  createForm: CreatePostForm = { content: '', imageFile: null, imagePreview: '' };
 
   showDeleteModal = false;
   postToDelete: Post | null = null;
@@ -55,6 +61,13 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+    // Clean up object URLs to prevent memory leaks
+    if (this.createForm.imagePreview) {
+      URL.revokeObjectURL(this.createForm.imagePreview);
+    }
+    if (this.editingImagePreview) {
+      URL.revokeObjectURL(this.editingImagePreview);
+    }
   }
 
   private initializeAuthentication(): void {
@@ -220,42 +233,148 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
   }
 
   resetCreateForm(): void {
-    this.createForm = { content: '', image: '' };
+    // Clean up previous image preview URL
+    if (this.createForm.imagePreview) {
+      URL.revokeObjectURL(this.createForm.imagePreview);
+    }
+    this.createForm = { content: '', imageFile: null, imagePreview: '' };
     this.showImageInput = false;
+    
+    // Reset file input
+    if (this.fileInput) {
+      this.fileInput.nativeElement.value = '';
+    }
   }
 
   toggleImageInput(): void {
     this.showImageInput = !this.showImageInput;
-    if (!this.showImageInput) this.createForm.image = '';
+    if (!this.showImageInput) {
+      this.removeImage();
+    }
+  }
+
+  onFileSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file.');
+        input.value = '';
+        return;
+      }
+      
+      // Validate file size (e.g., max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        alert('File size must be less than 5MB.');
+        input.value = '';
+        return;
+      }
+
+      // Clean up previous preview
+      if (this.createForm.imagePreview) {
+        URL.revokeObjectURL(this.createForm.imagePreview);
+      }
+
+      this.createForm.imageFile = file;
+      this.createForm.imagePreview = URL.createObjectURL(file);
+    }
+  }
+
+  onEditFileSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file.');
+        input.value = '';
+        return;
+      }
+      
+      // Validate file size (e.g., max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        alert('File size must be less than 5MB.');
+        input.value = '';
+        return;
+      }
+
+      // Clean up previous preview
+      if (this.editingImagePreview) {
+        URL.revokeObjectURL(this.editingImagePreview);
+      }
+
+      this.editingImageFile = file;
+      this.editingImagePreview = URL.createObjectURL(file);
+    }
   }
 
   removeImage(): void {
-    this.createForm.image = '';
+    if (this.createForm.imagePreview) {
+      URL.revokeObjectURL(this.createForm.imagePreview);
+    }
+    this.createForm.imageFile = null;
+    this.createForm.imagePreview = '';
+    
+    if (this.fileInput) {
+      this.fileInput.nativeElement.value = '';
+    }
   }
 
-  createPost(): void {
-    if (!this.currentUser || !this.createForm.content.trim()) return;
+  removeEditImage(): void {
+    if (this.editingImagePreview) {
+      URL.revokeObjectURL(this.editingImagePreview);
+    }
+    this.editingImageFile = null;
+    this.editingImagePreview = '';
+    
+    if (this.editingPost) {
+      this.editingPost.imageUrl = undefined;
+    }
+    
+    if (this.editFileInput) {
+      this.editFileInput.nativeElement.value = '';
+    }
+  }
 
-    const newPost: Post = {
-      id: '', // let backend generate
-      userId: this.currentUser.id,
-      userInfo: this.currentUser,
+  async createPost(): Promise<void> {
+  if (!this.currentUser || !this.createForm.content.trim()) {
+    return;
+  }
+
+  // Clear any previous error messages
+  this.errorMessage = '';
+
+  try {
+    const formData = new FormData();
+    
+    // Create post payload matching backend expectations
+    const postPayload = {
+      username: this.currentUser.name,
       content: this.createForm.content.trim(),
-      imageUrl: this.createForm.image.trim() || undefined,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      likesCount: 0,
-      isLikedByCurrentUser: false,
-      comments: [],
-      commentsCount: 0,
-      showComments: false,
-      newComment: '',
-      showDropdown: false
+      isCoursePost: false, // Set to true if this is a course-related post
+      courseId: null // Set courseId if this is a course post
     };
     
-    this.postsService.createPostOnServer(newPost).subscribe({
-      next: () => {
+    // Add the post data as JSON string
+    formData.append('post', JSON.stringify(postPayload));
+    
+    // Add image file if one is selected
+    if (this.createForm.imageFile) {
+      formData.append('imageFile', this.createForm.imageFile);
+    }
+
+    // Send to backend
+    this.postsService.createPostOnServer(formData).subscribe({
+      next: (createdPost: Post) => {
+        console.log('Post created successfully:', createdPost);
         this.refreshPosts();
+        this.resetCreateForm();
+        this.showCreateForm = false;
       },
       error: (error) => {
         console.error('Error creating post:', error);
@@ -263,9 +382,11 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
       }
     });
     
-    this.resetCreateForm();
-    this.showCreateForm = false;
+  } catch (error) {
+    console.error('Error preparing post data:', error);
+    this.errorMessage = 'Failed to prepare post data. Please try again.';
   }
+}
 
   // Dropdown Methods
   toggleDropdown(event: Event, post: Post): void {
@@ -282,27 +403,52 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
       return;
     }
     this.editingPost = { ...post };
+    this.editingImageFile = null;
+    this.editingImagePreview = '';
     post.showDropdown = false;
   }
 
   cancelEdit(): void { 
-    this.editingPost = null; 
+    // Clean up edit image preview
+    if (this.editingImagePreview) {
+      URL.revokeObjectURL(this.editingImagePreview);
+    }
+    this.editingPost = null;
+    this.editingImageFile = null;
+    this.editingImagePreview = '';
+    
+    if (this.editFileInput) {
+      this.editFileInput.nativeElement.value = '';
+    }
   }
 
-  saveEdit(): void {
+  async saveEdit(): Promise<void> {
     if (!this.editingPost || !this.editingPost.content.trim()) return;
+
+    let imageUrl = this.editingPost.imageUrl;
+
+    // Upload new image if one is selected
+    if (this.editingImageFile) {
+      try {
+       // imageUrl = await this.postsService.sa(this.editingImageFile).toPromise();
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        this.errorMessage = 'Failed to upload image. Please try again.';
+        return;
+      }
+    }
 
     const updatedPost: Post = {
       ...this.editingPost,
       content: this.editingPost.content.trim(),
-      imageUrl: this.editingPost.imageUrl?.trim() || undefined,
+      imageUrl: imageUrl,
       updatedAt: new Date().toISOString()
     };
 
     this.postsService.editPost(updatedPost);
     // Sort after editing to maintain proper order
     this.sortPostsByDate();
-    this.editingPost = null;
+    this.cancelEdit();
   }
 
   // Delete Post Methods
@@ -379,6 +525,26 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
       event.preventDefault(); 
       this.addComment(post); 
     }
+  }
+
+  // File handling helper methods
+  triggerFileInput(): void {
+    this.fileInput.nativeElement.click();
+  }
+
+  triggerEditFileInput(): void {
+    this.editFileInput.nativeElement.click();
+  }
+
+  getFileSize(bytes: number): string {
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    if (bytes === 0) return '0 Bytes';
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  isImageFile(file: File): boolean {
+    return file.type.startsWith('image/');
   }
 
   // Utility Methods

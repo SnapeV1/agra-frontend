@@ -15,10 +15,9 @@ export class PostsService {
   posts$ = this.postsSubject.asObservable();
 
   private readonly apiUrl = 'http://localhost:8080/api/posts/sorted';
-
   constructor(private http: HttpClient,private authService: AuthService,
   ) {}
-
+private token=this.authService.getToken();
   /** Fetch all posts from backend */
   fetchPosts(): void {
     this.http.get<Post[]>(this.apiUrl)
@@ -110,31 +109,16 @@ export class PostsService {
   }
 
 
-createPostOnServer(newPost: Post): Observable<Post> {
-  const authUser = this.authService.currentUserValue;
-  const token = authUser?.token;
-  
-  const payload = {
-    username: newPost.userInfo.name, 
-    content: newPost.content,
-    imageUrl: newPost.imageUrl,
-    isCoursePost: newPost.isCoursePost,
-    courseId: newPost.courseId
-  };
 
-  return this.http.post<Post>('http://localhost:8080/api/posts/CreatePost', payload, {
+createPostOnServer(formData: FormData): Observable<Post> {
+        console.log("this.token",this.token)
+
+  return this.http.post<Post>(`http://localhost:8080/api/posts/CreatePost`, formData, {
     headers: {
-      Authorization: `Bearer ${token}`
+      'Authorization': `Bearer ${this.token}`
     }
-  }).pipe(
-    tap(() => {
-      this.fetchPosts();
-    }),
-    catchError((error) => {
-      console.error('Error creating post:', error);
-      throw error;
-    })
-  );
+  });
+
 }
 
 
