@@ -1,206 +1,163 @@
-<app-navbar></app-navbar>
-<div class="admin-container">
-  <div class="admin-header">
-    <h2>Posts Management</h2>
-    <button class="create-btn" (click)="toggleCreateForm()" [class.active]="showCreateForm">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <line x1="12" y1="5" x2="12" y2="19"/>
-        <line x1="5" y1="12" x2="19" y2="12"/>
-      </svg>
-      {{ showCreateForm ? 'Cancel' : 'Create Post' }}
-    </button>
-  </div>
+<app-base-layout>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>Posts</h1>
+      <p>Manage your community posts and course announcements</p>
+    </div>
 
-  <!-- Create Post Form -->
-  <div class="create-form-container" [class.show]="showCreateForm">
-    <div class="create-form">
-      <div class="form-header">
-        <h3>Create New Post</h3>
+    <!-- Post Creator -->
+    <div class="post-creator">
+      <div class="creator-header" *ngIf="!showCreateForm">
+        <div class="avatar">
+          {{ currentUser?.name?.charAt(0) || 'A' }}
+        </div>
+        <div class="post-input" (click)="toggleCreateForm()">
+          What's on your mind?
+        </div>
       </div>
-      
-      <div class="form-content">
-        <div class="form-group">
-          <label for="content">Post Content</label>
-          <textarea
-            id="content"
-            [(ngModel)]="createForm.content"
+
+      <div class="post-form" [class.active]="showCreateForm">
+        <div class="form-header">
+          <div class="avatar">
+            {{ currentUser?.name?.charAt(0) || 'A' }}
+          </div>
+          <textarea 
+            class="post-textarea" 
             placeholder="What's on your mind?"
-            class="form-textarea"
-            rows="4"></textarea>
+            [(ngModel)]="createForm.content"
+            #contentTextarea></textarea>
         </div>
-        
-        <div class="form-group">
-          <label for="image">Image URL (optional)</label>
-          <input
-            id="image"
-            type="url"
-            [(ngModel)]="createForm.image"
-            placeholder="https://example.com/image.jpg"
-            class="form-input">
+
+        <div class="image-input-container" *ngIf="createForm.image || showImageInput">
+          <input 
+            type="url" 
+            class="image-input" 
+            placeholder="Add image URL"
+            [(ngModel)]="createForm.image">
+          <button class="remove-image-btn" (click)="removeImage()" *ngIf="createForm.image">
+            ✕
+          </button>
         </div>
-        
-        <div class="form-actions">
-          <button type="button" class="btn-secondary" (click)="toggleCreateForm()">
-            Cancel
-          </button>
-          <button 
-            type="button" 
-            class="btn-primary" 
-            (click)="createPost()"
-            [disabled]="!createForm.content.trim()">
-            Create Post
-          </button>
+
+        <div class="post-actions">
+          <div class="media-options">
+            <button class="media-btn" (click)="toggleImageInput()">Photo</button>
+          </div>
+          <div class="form-buttons">
+            <button class="cancel-btn" (click)="toggleCreateForm()">Cancel</button>
+            <button 
+              class="post-btn" 
+              (click)="createPost()" 
+              [disabled]="!createForm.content.trim()">
+              Post
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Loading State -->
-  <div *ngIf="loading" class="loading-container">
-    <div class="loading-spinner"></div>
-    <p>Loading posts...</p>
-  </div>
+    <!-- Loading State -->
+    <div class="loading" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Loading posts...</p>
+    </div>
 
-  <!-- Error State -->
-  <div *ngIf="errorMessage" class="error-container">
-    <p class="error-message">{{ errorMessage }}</p>
-  </div>
+    <!-- Error State -->
+    <div class="error" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
 
-  <!-- Posts List -->
-  <div class="posts-container" *ngIf="!loading">
-    <div class="post-card" *ngFor="let post of posts">
-      <!-- Post Header -->
-      <div class="post-header">
-        <div class="user-info">
-          <img [src]="post.user.avatar" [alt]="post.user.name" class="user-avatar">
-          <div class="user-details">
-            <h3 class="user-name">{{ post.user.name }}</h3>
-            <span class="username">{{ post.user.username }}</span>
-            <span class="timestamp">{{ getTimeAgo(post.timestamp) }}</span>
+    <!-- Posts List -->
+    <div class="posts-list" *ngIf="!loading && posts.length">
+      <div class="post" *ngFor="let post of posts" [ngClass]="{'course-post': post.isCoursePost}">
+        <!-- Post Header -->
+        <div class="post-header">
+          <div class="post-user-info">
+            <img [src]="post.userInfo.picture" [alt]="post.userInfo.name" class="post-avatar">
+            <div class="post-user-details">
+              <h3>
+                {{ post.userInfo.name }}
+                <span *ngIf="post.isCoursePost" class="badge"> (*)</span>
+              </h3>
+              <div class="post-meta">{{ post.userInfo.name }} • {{ getTimeAgo(post.createdAt) }}</div>
+            </div>
+          </div>
+
+          <div class="post-menu" *ngIf="!isEditing(post)">
+            <button class="menu-btn" (click)="toggleDropdown($event, post)">⋮</button>
+            <div class="dropdown" [class.show]="post.showDropdown">
+              <button class="dropdown-item" (click)="startEdit(post)" [disabled]="post.isCoursePost">Edit</button>
+              <button class="dropdown-item danger" (click)="confirmDelete(post)" [disabled]="post.isCoursePost">Delete</button>
+            </div>
           </div>
         </div>
-        
-        <div class="post-actions">
-          <button class="action-btn edit-btn" (click)="startEdit(post)" *ngIf="!isEditing(post)">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
-            Edit
-          </button>
-          <button class="action-btn delete-btn" (click)="confirmDelete(post)">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <polyline points="3,6 5,6 21,6"/>
-              <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"/>
-            </svg>
-            Delete
-          </button>
-        </div>
-      </div>
 
-      <!-- Edit Form -->
-      <div class="edit-form" *ngIf="isEditing(post) && editingPost">
-        <div class="form-group">
-          <label>Edit Content</label>
-          <textarea
+        <!-- Edit Form -->
+        <div class="edit-form" *ngIf="isEditing(post) && editingPost">
+          <textarea 
+            class="edit-textarea"
             [(ngModel)]="editingPost.content"
-            class="form-textarea"
-            rows="4"></textarea>
+            placeholder="Edit your post..."></textarea>
+          
+          <input 
+            type="url" 
+            class="image-input" 
+            placeholder="Add image URL (optional)"
+            [(ngModel)]="editingPost.imageUrl">
+          
+          <div class="edit-actions">
+            <button class="cancel-btn" (click)="cancelEdit()">Cancel</button>
+            <button class="post-btn" (click)="saveEdit()" [disabled]="!editingPost.content.trim()">Save</button>
+          </div>
         </div>
-        
-        <div class="form-group">
-          <label>Image URL (optional)</label>
-          <input
-            type="url"
-            [(ngModel)]="editingPost.image"
-            placeholder="https://example.com/image.jpg"
-            class="form-input">
-        </div>
-        
-        <div class="form-actions">
-          <button type="button" class="btn-secondary" (click)="cancelEdit()">
-            Cancel
-          </button>
-          <button 
-            type="button" 
-            class="btn-primary" 
-            (click)="saveEdit()"
-            [disabled]="!editingPost.content.trim()">
-            Save Changes
-          </button>
-        </div>
-      </div>
 
-      <!-- Post Content (View Mode) -->
-      <div class="post-content" *ngIf="!isEditing(post)">
-        <p class="post-text">{{ post.content }}</p>
-        <img *ngIf="post.image" [src]="post.image" alt="Post image" class="post-image">
-      </div>
-
-      <!-- Post Stats -->
-      <div class="post-stats" *ngIf="!isEditing(post)">
-        <div class="stat-item">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-          </svg>
-          <span>{{ post.likes }} likes</span>
+        <!-- Post Content -->
+        <div class="post-content" *ngIf="!isEditing(post)">
+          <div class="post-text">{{ post.content }}</div>
+<img *ngIf="!post.imageLoadFailed"[src]="post.imageUrl" alt="Post image" class="post-image"
+(error)="onImageError(post)">
+          <button *ngIf="post.isCoursePost" class="view-course-btn" [routerLink]="['/courses', post.courseId]">View Course</button>
         </div>
-        
-        <div class="stat-item">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-          <span>{{ post.comments.length }} comments</span>
+
+        <!-- Post Stats -->
+        <div class="post-stats" *ngIf="!isEditing(post)">
+          <div class="stat" (click)="toggleLike(post)">
+            ❤️ {{ post.likesCount }} likes
+          </div>
+          <div class="stat" (click)="toggleComments(post)">
+            💬 {{ post.commentsCount }} comments
+          </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="comments" *ngIf="post.showComments">
+          <div class="comment" *ngFor="let comment of post.comments">
+            <div class="comment-user">{{ comment.userInfo?.name }}:</div>
+            <div class="comment-text">{{ comment.content }}</div>
+            <button (click)="toggleCommentLike(comment)">Like ({{ comment.likesCount }})</button>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Empty State -->
-    <div class="empty-state" *ngIf="posts.length === 0">
-      <div class="empty-icon">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14,2 14,8 20,8"/>
-          <line x1="16" y1="13" x2="8" y2="13"/>
-          <line x1="16" y1="17" x2="8" y2="17"/>
-          <polyline points="10,9 9,9 8,9"/>
-        </svg>
-      </div>
+    <div class="empty-state" *ngIf="!loading && posts.length === 0">
       <h3>No posts yet</h3>
-      <p>Create your first post to get started!</p>
+      <p>Create your first post or check available courses!</p>
     </div>
   </div>
-</div>
 
-<!-- Delete Confirmation Modal -->
-<div class="modal-overlay" *ngIf="showDeleteModal" (click)="cancelDelete()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3>Delete Post</h3>
-      <button class="modal-close" (click)="cancelDelete()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <line x1="18" y1="6" x2="6" y2="18"/>
-          <line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-    </div>
-    
-    <div class="modal-body">
-      <p>Are you sure you want to delete this post? This action cannot be undone.</p>
-      <div class="preview-post" *ngIf="postToDelete">
-        <p class="preview-content">{{ postToDelete.content }}</p>
+  <!-- Delete Modal -->
+  <div class="modal" [class.show]="showDeleteModal" (click)="cancelDelete()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3>Delete Post?</h3>
+      <p>This post will be permanently deleted. You can't undo this action.</p>
+      <div class="preview-post" *ngIf="postToDelete">{{ postToDelete.content }}</div>
+      <div class="modal-actions">
+        <button class="cancel-btn" (click)="cancelDelete()">Cancel</button>
+        <button class="btn-danger" (click)="deletePost()">Delete</button>
       </div>
     </div>
-    
-    <div class="modal-actions">
-      <button type="button" class="btn-secondary" (click)="cancelDelete()">
-        Cancel
-      </button>
-      <button type="button" class="btn-danger" (click)="deletePost()">
-        Delete Post
-      </button>
-    </div>
   </div>
-</div>
-
-<app-footer></app-footer>
+</app-base-layout>
