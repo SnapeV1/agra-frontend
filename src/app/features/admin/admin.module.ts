@@ -9,12 +9,14 @@ import { SharedModule } from './shared/shared.module';
 import { DashboardAdminComponent } from './dashboard-admin/dashboard-admin.component';
 import { RouterModule } from '@angular/router';
 import { UserManagementComponent } from './user-management/user-management.component';
+import { AdminPostsComponent } from './admin-posts/admin-posts.component';
 
 
 @NgModule({
   declarations: [
     DashboardAdminComponent,
     UserManagementComponent,
+    AdminPostsComponent,
     
   ],
   imports: [

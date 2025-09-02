@@ -3,11 +3,13 @@ import { RouterModule, Routes } from '@angular/router';
 import { CourseManagementComponent } from './courses/course-management/course-management.component';
 import { DashboardAdminComponent } from './dashboard-admin/dashboard-admin.component';
 import { UserManagementComponent } from './user-management/user-management.component';
+import { AdminPostsComponent } from './admin-posts/admin-posts.component';
 
 const routes: Routes = [
   {
     path: '',
     children: [
+      { path: 'posts', component: AdminPostsComponent }, 
       { path: 'courses', component: CourseManagementComponent },
       { path: 'dashboard', component: DashboardAdminComponent },
       { path: 'users', component: UserManagementComponent },

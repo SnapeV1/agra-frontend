@@ -7,12 +7,10 @@
     </div>
   </div>
 
-  <!-- Loading state -->
   <div *ngIf="loading" class="loading-container">
     <p>Loading posts...</p>
   </div>
 
-  <!-- Error state -->
   <div *ngIf="errorMessage" class="error-container">
     <p class="error-message">{{ errorMessage }}</p>
   </div>
