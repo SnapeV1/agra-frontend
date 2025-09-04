@@ -3,16 +3,16 @@
     <!-- Header -->
     <div class="header">
       <h1>Posts</h1>
-      <p>Manage your community posts and course announcements</p>
+      <p>Manage your community posts</p>
     </div>
 
     <!-- Post Creator -->
-    <div class="post-creator">
+    <div class="post-creator" [class.creating]="isCreatingPost">
       <div class="creator-header" *ngIf="!showCreateForm">
         <div class="avatar">
           {{ currentUser?.name?.charAt(0) || 'A' }}
         </div>
-        <div class="post-input" (click)="toggleCreateForm()">
+        <div class="post-input" (click)="toggleCreateForm()" [class.disabled]="isCreatingPost">
           What's on your mind?
         </div>
       </div>
@@ -26,17 +26,22 @@
             class="post-textarea" 
             placeholder="What's on your mind?"
             [(ngModel)]="createForm.content"
+            [disabled]="isCreatingPost"
             #contentTextarea></textarea>
         </div>
 
         <!-- Image Preview -->
-        <div class="image-preview-container" *ngIf="createForm.imagePreview">
+        <div class="image-preview-container" 
+             *ngIf="createForm.imagePreview" 
+             [class.uploading]="isCreatingPost">
           <img [src]="createForm.imagePreview" alt="Image preview" class="image-preview">
           <div class="image-info">
             <span class="file-name">{{ createForm.imageFile?.name }}</span>
             <span class="file-size">{{ getFileSize(createForm.imageFile?.size || 0) }}</span>
           </div>
-          <button class="remove-image-btn" (click)="removeImage()">
+          <button class="remove-image-btn" 
+                  (click)="removeImage()" 
+                  [disabled]="isCreatingPost">
             ✕ Remove
           </button>
         </div>
@@ -49,9 +54,12 @@
             accept="image/*"
             class="file-input" 
             (change)="onFileSelect($event)"
+            [disabled]="isCreatingPost"
             style="display: none;">
           
-          <div class="upload-area" (click)="triggerFileInput()">
+          <div class="upload-area" 
+               (click)="triggerFileInput()" 
+               [class.disabled]="isCreatingPost">
             <div class="upload-icon">📷</div>
             <div class="upload-text">
               <p>Click to select an image</p>
@@ -62,18 +70,45 @@
 
         <div class="post-actions">
           <div class="media-options">
-            <button class="media-btn" (click)="toggleImageInput()">
+            <button class="media-btn" 
+                    (click)="toggleImageInput()" 
+                    [disabled]="isCreatingPost">
               📷 Photo
             </button>
           </div>
           <div class="form-buttons">
-            <button class="cancel-btn" (click)="toggleCreateForm()">Cancel</button>
+            <button class="cancel-btn" 
+                    (click)="toggleCreateForm()" 
+                    [disabled]="isCreatingPost">
+              Cancel
+            </button>
             <button 
               class="post-btn" 
               (click)="createPost()" 
-              [disabled]="!createForm.content.trim()">
-              Post
+              [disabled]="!createForm.content.trim() || isCreatingPost">
+              
+              <!-- Loading State -->
+              <span *ngIf="isCreatingPost" class="btn-loading">
+                <div class="btn-spinner"></div>
+                <span>{{ createForm.imageFile ? 'Uploading...' : 'Posting...' }}</span>
+              </span>
+              
+              <!-- Normal State -->
+              <span *ngIf="!isCreatingPost">Post</span>
             </button>
+          </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="post-form-overlay" *ngIf="isCreatingPost">
+          <div class="overlay-content">
+            <div class="upload-spinner"></div>
+            <p class="upload-text">
+              {{ createForm.imageFile ? 'Uploading image and creating post...' : 'Creating your post...' }}
+            </p>
+            <div class="upload-progress" *ngIf="createForm.imageFile">
+              <small>This may take a moment for image uploads</small>
+            </div>
           </div>
         </div>
       </div>
@@ -92,16 +127,13 @@
 
     <!-- Posts List -->
     <div class="posts-list" *ngIf="!loading && posts.length">
-      <div class="post" *ngFor="let post of posts" [ngClass]="{'course-post': post.isCoursePost}">
+      <div class="post" *ngFor="let post of posts">
         <!-- Post Header -->
         <div class="post-header">
           <div class="post-user-info">
             <img [src]="post.userInfo.picture" [alt]="post.userInfo.name" class="post-avatar">
             <div class="post-user-details">
-              <h3>
-                {{ post.userInfo.name }}
-                <span *ngIf="post.isCoursePost" class="badge"> (*)</span>
-              </h3>
+              <h3>{{ post.userInfo.name }}</h3>
               <div class="post-meta">{{ post.userInfo.name }} • {{ getTimeAgo(post.createdAt) }}</div>
             </div>
           </div>
@@ -109,8 +141,8 @@
           <div class="post-menu" *ngIf="!isEditing(post)">
             <button class="menu-btn" (click)="toggleDropdown($event, post)">⋮</button>
             <div class="dropdown" [class.show]="post.showDropdown">
-              <button class="dropdown-item" (click)="startEdit(post)" [disabled]="post.isCoursePost">Edit</button>
-              <button class="dropdown-item danger" (click)="confirmDelete(post)" [disabled]="post.isCoursePost">Delete</button>
+              <button class="dropdown-item" (click)="startEdit(post)">Edit</button>
+              <button class="dropdown-item danger" (click)="confirmDelete(post)">Delete</button>
             </div>
           </div>
         </div>
@@ -171,7 +203,6 @@
                alt="Post image" 
                class="post-image"
                (error)="onImageError(post)">
-          <button *ngIf="post.isCoursePost" class="view-course-btn" [routerLink]="['/courses', post.courseId]">View Course</button>
         </div>
 
         <!-- Post Stats -->
@@ -198,7 +229,7 @@
     <!-- Empty State -->
     <div class="empty-state" *ngIf="!loading && posts.length === 0">
       <h3>No posts yet</h3>
-      <p>Create your first post or check available courses!</p>
+      <p>Create your first post to get started!</p>
     </div>
   </div>
 

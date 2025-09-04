@@ -1,8 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { Subscription, forkJoin } from 'rxjs';
-import { CourseService } from 'src/app/services/course/course.service';
+import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { Course } from 'src/app/features/courses/models/course';
 import { AuthUser } from 'src/app/features/auth/models/auth-user.model';
 import { User } from '../../user/models/user.model';
 import { PostsService } from '../services/posts.service';
@@ -25,10 +23,9 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
   @ViewChild('editFileInput') editFileInput!: ElementRef<HTMLInputElement>;
 
   posts: Post[] = [];
-  courses: Course[] = [];
   loading = false;
   errorMessage = '';
-
+  isCreatingPost = false; 
   currentAuthUser: AuthUser | null = null;
   currentUser: User | null = null;
   isAuthenticated = false;
@@ -44,19 +41,14 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
   showDeleteModal = false;
   postToDelete: Post | null = null;
 
-  // Add flags to track loading states
-  private postsLoaded = false;
-  private coursesLoaded = false;
-
   constructor(
     private authService: AuthService,
-    private courseService: CourseService,
     private postsService: PostsService
   ) {}
 
   ngOnInit(): void {
     this.initializeAuthentication();
-    this.loadInitialData();
+    this.loadPosts();
   }
 
   ngOnDestroy(): void {
@@ -92,41 +84,17 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
     );
   }
 
-  // Load posts and courses simultaneously with proper synchronization
-  private loadInitialData(): void {
+  private loadPosts(): void {
     this.loading = true;
     this.errorMessage = '';
-    this.postsLoaded = false;
-    this.coursesLoaded = false;
 
-    // Load posts and courses in parallel
-    const posts$ = this.postsService.posts$;
-    const courses$ = this.courseService.getAllCourses();
-
+    // Subscribe to posts
     this.subscriptions.add(
-      forkJoin({
-        courses: courses$
-      }).subscribe({
-        next: ({ courses }) => {
-          this.courses = courses;
-          this.coursesLoaded = true;
-          this.checkAndIntegratePosts();
-        },
-        error: error => {
-          console.error('Error loading courses:', error);
-          this.errorMessage = 'Failed to load courses. Please try again later.';
-          this.loading = false;
-        }
-      })
-    );
-
-    // Subscribe to posts separately to handle real-time updates
-    this.subscriptions.add(
-      posts$.subscribe({
+      this.postsService.posts$.subscribe({
         next: posts => {
           this.posts = posts;
-          this.postsLoaded = true;
-          this.checkAndIntegratePosts();
+          this.sortPostsByDate();
+          this.loading = false;
         },
         error: error => {
           console.error('Error loading posts:', error);
@@ -140,90 +108,12 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
     this.postsService.fetchPosts();
   }
 
-  // Only integrate when both posts and courses are loaded
-  private checkAndIntegratePosts(): void {
-    if (this.postsLoaded && this.coursesLoaded) {
-      this.integrateCoursePosts();
-      this.sortPostsByDate(); // Always sort after integration
-      this.loading = false;
-    }
-  }
-
-  // Improved course integration with better duplicate handling
-  private integrateCoursePosts(): void {
-    if (!this.courses.length) return;
-
-    const coursePosts: Post[] = this.courses.map((course, index) => {
-      const randomHoursAgo = Math.floor(Math.random() * 24) + 1;
-      const randomLikes = Math.floor(Math.random() * 50) + 5;
-
-      return {
-        id: (1000 + index).toString(),
-        userId: '0',
-        userInfo: {
-          id: '0',
-          name: 'Course System',
-          username: '@system',
-          avatar: '',
-          email: 'system@course.com',   
-          role: 'system',               
-          registeredAt: new Date().toISOString(), 
-          archived: false
-        },
-        content: `🎓 New course available: ${course.description}`,
-        imageUrl: course.imageUrl,
-        createdAt: new Date(Date.now() - randomHoursAgo * 60 * 60 * 1000).toISOString(),
-        updatedAt: new Date().toISOString(),
-        likesCount: randomLikes,
-        isLikedByCurrentUser: Math.random() > 0.7,
-        comments: [],
-        commentsCount: 0,
-        isCoursePost: true,
-        courseId: course.id,
-        showComments: false,
-        newComment: '',
-        showDropdown: false
-      };
-    });
-
-    // Remove existing course posts and add new ones
-    const nonCoursePosts = this.posts.filter(p => !p.isCoursePost);
-    this.posts = [...nonCoursePosts, ...coursePosts];
-  }
-
-  // NEW: Centralized sorting method for consistent date sorting
   private sortPostsByDate(): void {
     this.posts = this.posts.sort((a, b) => {
       const dateA = new Date(a.createdAt!).getTime();
       const dateB = new Date(b.createdAt!).getTime();
       return dateB - dateA; // Newest first (descending order)
     });
-  }
-
-  // Separate method to fetch courses with retry logic
-  private fetchCourses(): void {
-    this.subscriptions.add(
-      this.courseService.getAllCourses().subscribe({
-        next: data => {
-          this.courses = data;
-          this.coursesLoaded = true;
-          this.checkAndIntegratePosts();
-        },
-        error: err => {
-          console.error('Error fetching courses:', err);
-          this.errorMessage = 'Failed to load courses. Please try again later.';
-          this.loading = false;
-          
-          // Optional: Retry logic
-          setTimeout(() => {
-            if (!this.coursesLoaded) {
-              console.log('Retrying course fetch...');
-              this.fetchCourses();
-            }
-          }, 2000);
-        }
-      })
-    );
   }
 
   // Create Post Methods
@@ -233,14 +123,13 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
   }
 
   resetCreateForm(): void {
-    // Clean up previous image preview URL
     if (this.createForm.imagePreview) {
       URL.revokeObjectURL(this.createForm.imagePreview);
     }
     this.createForm = { content: '', imageFile: null, imagePreview: '' };
     this.showImageInput = false;
+    this.isCreatingPost = false;
     
-    // Reset file input
     if (this.fileInput) {
       this.fileInput.nativeElement.value = '';
     }
@@ -342,51 +231,49 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
   }
 
   async createPost(): Promise<void> {
-  if (!this.currentUser || !this.createForm.content.trim()) {
-    return;
-  }
-
-  // Clear any previous error messages
-  this.errorMessage = '';
-
-  try {
-    const formData = new FormData();
-    
-    // Create post payload matching backend expectations
-    const postPayload = {
-      username: this.currentUser.name,
-      content: this.createForm.content.trim(),
-      isCoursePost: false, // Set to true if this is a course-related post
-      courseId: null // Set courseId if this is a course post
-    };
-    
-    // Add the post data as JSON string
-    formData.append('post', JSON.stringify(postPayload));
-    
-    // Add image file if one is selected
-    if (this.createForm.imageFile) {
-      formData.append('imageFile', this.createForm.imageFile);
+    if (!this.currentUser || !this.createForm.content.trim()) {
+      return;
     }
 
-    // Send to backend
-    this.postsService.createPostOnServer(formData).subscribe({
-      next: (createdPost: Post) => {
-        console.log('Post created successfully:', createdPost);
-        this.refreshPosts();
-        this.resetCreateForm();
-        this.showCreateForm = false;
-      },
-      error: (error) => {
-        console.error('Error creating post:', error);
-        this.errorMessage = 'Failed to create post. Please try again.';
+    // Set loading state
+    this.isCreatingPost = true;
+    this.errorMessage = '';
+
+    try {
+      const formData = new FormData();
+      
+      const postPayload = {
+        username: this.currentUser.name,
+        content: this.createForm.content.trim()
+      };
+      
+      formData.append('post', JSON.stringify(postPayload));
+      
+      if (this.createForm.imageFile) {
+        formData.append('imageFile', this.createForm.imageFile);
       }
-    });
-    
-  } catch (error) {
-    console.error('Error preparing post data:', error);
-    this.errorMessage = 'Failed to prepare post data. Please try again.';
+
+      this.postsService.createPostOnServer(formData).subscribe({
+        next: (createdPost: Post) => {
+          console.log('Post created successfully:', createdPost);
+          this.refreshPosts();
+          this.resetCreateForm();
+          this.showCreateForm = false;
+          this.isCreatingPost = false;
+        },
+        error: (error) => {
+          console.error('Error creating post:', error);
+          this.errorMessage = 'Failed to create post. Please try again.';
+          this.isCreatingPost = false;
+        }
+      });
+      
+    } catch (error) {
+      console.error('Error preparing post data:', error);
+      this.errorMessage = 'Failed to prepare post data. Please try again.';
+      this.isCreatingPost = false;
+    }
   }
-}
 
   // Dropdown Methods
   toggleDropdown(event: Event, post: Post): void {
@@ -397,11 +284,6 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
 
   // Edit Post Methods
   startEdit(post: Post): void {
-    if (post.isCoursePost) {
-      alert('Course posts cannot be edited here.');
-      post.showDropdown = false;
-      return;
-    }
     this.editingPost = { ...post };
     this.editingImageFile = null;
     this.editingImagePreview = '';
@@ -430,7 +312,7 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
     // Upload new image if one is selected
     if (this.editingImageFile) {
       try {
-       // imageUrl = await this.postsService.sa(this.editingImageFile).toPromise();
+        // Implement image upload logic here if needed
       } catch (error) {
         console.error('Error uploading image:', error);
         this.errorMessage = 'Failed to upload image. Please try again.';
@@ -446,18 +328,12 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
     };
 
     this.postsService.editPost(updatedPost);
-    // Sort after editing to maintain proper order
     this.sortPostsByDate();
     this.cancelEdit();
   }
 
   // Delete Post Methods
   confirmDelete(post: Post): void {
-    if (post.isCoursePost) {
-      alert('Course posts cannot be deleted from here.');
-      post.showDropdown = false;
-      return;
-    }
     this.postToDelete = post;
     this.showDeleteModal = true;
     post.showDropdown = false;
@@ -471,7 +347,6 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
   deletePost(): void {
     if (!this.postToDelete) return;
     this.postsService.deletePost(this.postToDelete.id);
-    // No need to sort after delete since we're removing an item
     this.cancelDelete();
   }
 
@@ -572,19 +447,32 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
 
   getTimeAgo(dateStr: string | undefined): string {
     if (!dateStr) return '';
+    
     const date = new Date(dateStr);
     const now = new Date();
     const diffInMs = now.getTime() - date.getTime();
-    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
     const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-
-    if (diffInMinutes < 1) return 'now';
-    if (diffInMinutes < 60) return `${diffInMinutes}m`;
-    if (diffInHours < 24) return `${diffInHours}h`;
-    if (diffInDays < 7) return `${diffInDays}d`;
-
-    return date.toLocaleDateString();
+    
+    if (diffInHours < 1) {
+      const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+      if (diffInMinutes < 1) return 'now';
+      return `${diffInMinutes}m`;
+    }
+    
+    if (diffInHours < 24) {
+      return `${diffInHours}h`;
+    }
+    
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    
+    return `${day}${month} ${year}`;
   }
 
   isEditing(post: Post): boolean { 
@@ -595,17 +483,10 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
     return this.isAuthenticated && !!this.currentUser; 
   }
 
-  canModifyPost(post: Post): boolean { 
-    return !post.isCoursePost; 
-  }
-
   refreshPosts(): void { 
     this.loading = true;
-    this.postsLoaded = false;
-    this.coursesLoaded = false;
     this.errorMessage = '';
-    
-    this.loadInitialData();
+    this.loadPosts();
   }
 
   public sortPosts(): void {
