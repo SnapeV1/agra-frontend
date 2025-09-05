@@ -1,6 +1,6 @@
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
+import { LucideAngularModule, Mail, Phone, Calendar, MapPin, BarChart2, User, Globe, Briefcase } from 'lucide-angular';
 import { AppComponent } from './app.component';
 import { AuthRoutingModule } from './features/auth/auth-routing.module';
 import { AuthModule } from './features/auth/auth.module';
@@ -35,7 +35,9 @@ export function initializeAuth(authService: AuthService) {
     AdminModule,
     FormsModule,
     FeedModule,
-    RouterModule
+    RouterModule,
+    LucideAngularModule.pick({ Mail, Phone, Calendar, MapPin, BarChart2, User, Globe, Briefcase })
+
   
 ],
   providers: [

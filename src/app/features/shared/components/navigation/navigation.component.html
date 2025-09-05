@@ -9,8 +9,7 @@
             <a href="home" (click)="scrollToSection('overview')" [class.active]="isSectionActive('overview')">Home</a>
             <a href="courses" (click)="scrollToSection('courses')" [class.active]="isSectionActive('courses')">Courses</a>
             <a href="feed" [class.active]="isSectionActive('technical')">Feed</a>
-            <a href="#pricing" (click)="scrollToSection('pricing')" [class.active]="isSectionActive('pricing')">Tarification</a>
-            <a href="#timeline" (click)="scrollToSection('timeline')" [class.active]="isSectionActive('timeline')">Planning</a>
+            <a href="#footer" (click)="scrollToSection('footer')" [class.active]="isSectionActive('footer')">Contact us</a>
         </div>
 
         <div class="nav-auth">
@@ -58,20 +57,20 @@
                     
                     <!-- Dashboard link -->
                     <a href="#" class="dropdown-item" (click)="navigateToDashboard()">
-                        <span class="dropdown-icon">📊</span>
+            <lucide-icon name="bar-chart-2" class="w-4 h-4"></lucide-icon>
                         <span *ngIf="isAdmin()">Admin Dashboard</span>
                         <span *ngIf="!isAdmin()">Dashboard</span>
                     </a>
                     
                     <!-- Profile link -->
                     <a class="dropdown-item" (click)="navigateToProfile()">
-                        <span class="dropdown-icon">👤</span>
+            <lucide-icon name="user" class="w-4 h-4"></lucide-icon>
                         Profil
                     </a>
                     
                     <!-- Settings link -->
                     <a href="#" class="dropdown-item" (click)="navigateToSettings()">
-                        <span class="dropdown-icon">⚙️</span>
+            <lucide-icon name="settings" class="w-4 h-4"></lucide-icon>
                         Paramètres
                     </a>
                     
@@ -79,7 +78,7 @@
                     <div *ngIf="isAdmin()">
                         <div class="dropdown-divider"></div>
                         <a href="#" class="dropdown-item admin" (click)="router.navigate(['/admin']); closeDropdown()">
-                            <span class="dropdown-icon">🔧</span>
+<lucide-icon name="wrench" class="w-4 h-4"></lucide-icon>
                             Administration
                         </a>
                     </div>
@@ -88,7 +87,7 @@
                     
                     <!-- Logout -->
                     <a href="#" class="dropdown-item logout" (click)="signOut()">
-                        <span class="dropdown-icon">🚪</span>
+            <lucide-icon name="log-out" class="w-4 h-4"></lucide-icon>
                         Se déconnecter
                     </a>
                 </div>

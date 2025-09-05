@@ -23,7 +23,7 @@
       <!-- Post Header -->
       <div class="post-header">
         <div class="user-info">
-          <img [src]="post.userInfo.picture || 'https://via.placeholder.com/40x40/cccccc/666666?text=?'"
+          <img [src]="post.userInfo.picture"
                [alt]="post.userInfo.name || 'User'"
                class="user-avatar">
           <div class="user-details">
@@ -118,7 +118,7 @@
 
         <!-- Add Comment Form (Authenticated Users) -->
         <div class="add-comment" *ngIf="canInteract() && currentUser">
-          <img [src]="currentUser.avatar" [alt]="currentUser.name" class="comment-avatar">
+          <img [src]="currentUser.picture" [alt]="currentUser.name" class="comment-avatar">
           <div class="comment-input-container">
             <textarea
               [(ngModel)]="post.newComment"

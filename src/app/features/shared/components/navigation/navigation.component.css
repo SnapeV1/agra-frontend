@@ -205,6 +205,8 @@
 
 .dropdown-user-info {
   flex: 1;
+  min-width: 0; 
+  overflow: hidden;
 }
 
 .dropdown-name {
@@ -218,6 +220,12 @@
   font-size: 0.75rem;
   opacity: 0.9;
   color: #333;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  white-space: nowrap; 
+  text-overflow: ellipsis; 
+  overflow: hidden;
+  max-width: 100%; 
 }
 
 .dropdown-divider {
@@ -281,7 +289,6 @@
   background-color: var(--primary-color);
 }
 
-/* ✅ Fixed admin button class */
 .admin-view-btn {
   display: flex;
   align-items: center;
@@ -292,12 +299,11 @@
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
-  backdrop-filter: blur(8px);
   text-decoration: none !important;
 }
 
 .admin-view-btn:hover {
-  background: rgba(47, 102, 50, 0.08);
+
   border-color: var(--primary-color);
   transform: translateY(-1px);
   text-decoration: none !important;
@@ -333,11 +339,17 @@
     right: -1rem;
     min-width: 200px;
   }
+  .dropdown-menu {
+    right: -1rem;
+    min-width: 220px;
+    max-width: 280px; 
+  }
 }
 
 @media (max-width: 480px) {
   .dropdown-menu {
     right: -2rem;
-    min-width: 180px;
+     min-width: 200px;
+    max-width: 250px;
   }
 }

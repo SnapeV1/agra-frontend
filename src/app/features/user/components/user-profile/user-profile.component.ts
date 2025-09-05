@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-
 import { Subject, takeUntil } from 'rxjs';
 import { User } from '../../models/user.model';
 import { AuthService } from 'src/app/services/auth/auth.service';
+import { ProfileService } from 'src/app/services/profile.service';
 
 interface ProfileStats {
   icon: string;
@@ -30,29 +30,33 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   userProfile: User | null = null;
   isEditing = false;
   isLoading = true;
+  isSaving = false;
   editForm: Partial<User> = {};
-  
+  originalProfile: User | null = null;
+  selectedFile: File | null = null;
+  previewUrl: string | null = null;
+
   stats: ProfileStats[] = [
     {
-      icon: '📚',
+      icon: 'book',
       label: 'Courses Completed',
       value: 0,
       color: 'bg-green-50 text-green-700'
     },
     {
-      icon: '⭐',
+      icon: 'star',
       label: 'Average Score',
       value: '0%',
       color: 'bg-blue-50 text-blue-700'
     },
     {
-      icon: '🕐',
+      icon: 'clock',
       label: 'Hours Studied',
       value: 0,
       color: 'bg-purple-50 text-purple-700'
     },
     {
-      icon: '🏆',
+      icon: 'trophy',
       label: 'Certificates Earned',
       value: 0,
       color: 'bg-amber-50 text-amber-700'
@@ -83,7 +87,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     }
   ];
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private profileService: ProfileService) {}
 
   ngOnInit(): void {
     this.loadUserProfile();
@@ -110,12 +114,10 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   private loadUserProfile(): void {
     this.isLoading = true;
     
-    // First check if we have user data in the auth service
     const currentAuthUser = this.authService.currentUserValue;
     if (currentAuthUser?.user) {
       this.userProfile = currentAuthUser.user;
       this.isLoading = false;
-      
     }
 
     this.authService.getCurrentUserFromBackend()
@@ -130,7 +132,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         }
       });
-      console.log(this.userProfile)
   }
 
   private updateStats(): void {
@@ -149,7 +150,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       },
       {
         ...this.stats[2],
-        value: Math.floor(completedCourses * 8.5) // Estimate hours based on completed courses
+        value: Math.floor(completedCourses * 8.5)
       },
       {
         ...this.stats[3],
@@ -160,39 +161,124 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
   toggleEdit(): void {
     if (!this.userProfile) return;
-    
+
     this.isEditing = !this.isEditing;
     if (this.isEditing) {
+      this.originalProfile = JSON.parse(JSON.stringify(this.userProfile));
       this.editForm = { ...this.userProfile };
+      this.selectedFile = null;
+      this.previewUrl = null;
+    } else {
+      this.resetEditState();
     }
   }
 
   saveProfile(): void {
-    if (!this.userProfile || !this.editForm) return;
+    if (!this.userProfile || !this.editForm || this.isSaving) return;
 
-    const updateData = { ...this.editForm };
+    this.isSaving = true;
     
-    // Call the auth service to update profile
-  /*  this.authService.updateUserProfile(updateData)
+    const updateData: any = {};
+    
+    if (this.editForm.name && this.editForm.name !== this.originalProfile?.name) {
+      updateData.name = this.editForm.name;
+    }
+    if (this.editForm.email && this.editForm.email !== this.originalProfile?.email) {
+      updateData.email = this.editForm.email;
+    }
+    if (this.editForm.phone && this.editForm.phone !== this.originalProfile?.phone) {
+      updateData.phone = this.editForm.phone;
+    }
+    if (this.editForm.country && this.editForm.country !== this.originalProfile?.country) {
+      updateData.country = this.editForm.country;
+    }
+    if (this.editForm.language && this.editForm.language !== this.originalProfile?.language) {
+      updateData.language = this.editForm.language;
+    }
+    if (this.editForm.domain && this.editForm.domain !== this.originalProfile?.domain) {
+      updateData.domain = this.editForm.domain;
+    }
+
+    this.profileService.updateUserProfile(updateData, this.selectedFile || undefined)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updatedUser: User) => {
           this.userProfile = updatedUser;
+          
+          this.authService.updateCurrentUser(updatedUser);
+          
+          this.resetEditState();
           this.isEditing = false;
-          this.editForm = {};
-          console.log('Profile updated successfully');
-          // You could add a success toast notification here
+          this.isSaving = false;
+          
+      
         },
         error: (error) => {
           console.error('Error updating profile:', error);
-          // You could add an error toast notification here
+          this.isSaving = false;
+          
+          if (error.status === 401) {
+            console.error('Unauthorized: Please login again');
+            this.authService.logout('/login');
+          } else if (error.status === 400) {
+            console.error('Bad request: Please check your input data');
+          } else {
+            console.error('Server error: Please try again later');
+          }
+          
+         
         }
-      });*/
+      });
+  }
+
+  onProfilePictureChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || !input.files[0] || !this.isEditing) return;
+
+    const file = input.files[0];
+    
+    if (!file.type.startsWith('image/')) {
+      console.error('Please select a valid image file');
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      console.error('File size must be less than 5MB');
+      return;
+    }
+
+    this.selectedFile = file;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.previewUrl = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   }
 
   cancelEdit(): void {
+    if (!this.originalProfile) return;
+
+    this.userProfile = JSON.parse(JSON.stringify(this.originalProfile));
+    
+    this.resetEditState();
     this.isEditing = false;
+  }
+
+  private resetEditState(): void {
     this.editForm = {};
+    this.originalProfile = null;
+    this.selectedFile = null;
+    this.previewUrl = null;
+    this.isSaving = false;
+  }
+
+  getDisplayPicture(): string {
+    if (this.isEditing && this.previewUrl) {
+      return this.previewUrl;
+    }
+    return this.userProfile?.picture || '';
   }
 
   getStatusColor(status: string): string {
@@ -224,6 +310,9 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   }
 
   getUserDisplayName(): string {
+    if (this.isEditing && this.editForm.name) {
+      return this.editForm.name;
+    }
     if (!this.userProfile) return 'User';
     return this.userProfile.name || this.userProfile.email.split('@')[0] || 'User';
   }
@@ -237,21 +326,41 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     return this.authService.isAuthenticated() ? 'Active' : 'Inactive';
   }
 
-  getMemberSince(): string {
-    // This should come from user data, for now we'll use a placeholder
-    return '2023';
-  }
+getMemberSince(): string {
+  const date = this.userProfile?.registeredAt ? new Date(this.userProfile.registeredAt) : null;
+  return date ? date.toLocaleString('default', { month: 'long', year: 'numeric' }) : '';
+}
+
 
   getLocation(): string {
-    // This should come from user profile, for now we'll use a placeholder
-    return  'Agriculture';
+    return 'Agriculture';
   }
 
   getUserEmail(): string {
+    if (this.isEditing && this.editForm.email) {
+      return this.editForm.email;
+    }
     return this.userProfile?.email || '';
   }
 
   getUserPhone(): string {
+    if (this.isEditing && this.editForm.phone) {
+      return this.editForm.phone;
+    }
     return this.userProfile?.phone || '+33 1 23 45 67 89';
+  }
+
+  hasFormChanges(): boolean {
+    if (!this.originalProfile || !this.isEditing) return false;
+    
+    return (
+      this.selectedFile !== null ||
+      this.editForm.name !== this.originalProfile.name ||
+      this.editForm.email !== this.originalProfile.email ||
+      this.editForm.phone !== this.originalProfile.phone ||
+      this.editForm.country !== this.originalProfile.country ||
+      this.editForm.language !== this.originalProfile.language ||
+      this.editForm.domain !== this.originalProfile.domain
+    );
   }
 }

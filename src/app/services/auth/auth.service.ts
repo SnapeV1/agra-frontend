@@ -300,6 +300,35 @@ isUser(): boolean {
     );
   }
 
+  updateCurrentUser(updatedUser: User): void {
+  const currentAuthUser = this.currentUserValue;
+  
+  if (currentAuthUser) {
+    const updatedAuthUser = {
+      ...currentAuthUser,
+      user: updatedUser
+    };
+    
+    this.currentUserSubject.next(updatedAuthUser);
+    
+    this.setStoredItem(this.EMAIL_KEY, updatedUser.email);
+    this.setStoredItem(this.ROLE_KEY, updatedUser.role);
+    
+    if (updatedUser.name) {
+      this.setStoredItem(this.NAME_KEY, updatedUser.name);
+    } else {
+      this.removeStoredItem(this.NAME_KEY);
+    }
+    
+    if (updatedUser.picture) {
+      this.setStoredItem(this.PICTURE_KEY, updatedUser.picture);
+    } else {
+      this.removeStoredItem(this.PICTURE_KEY);
+    }
+    
+    console.log('Current user updated in AuthService:', updatedUser);
+  }
+  }
 getToken(): string | null {
   return localStorage.getItem('auth_token');
 }

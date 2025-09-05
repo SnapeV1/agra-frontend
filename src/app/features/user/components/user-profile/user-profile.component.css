@@ -1,17 +1,134 @@
-/* Component-specific styles */
-.profile{
-    margin-top: 5%;
-
-}
-.user-profile-container {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+.profile-container {
+  font-family: "Inter", sans-serif;
+  margin-top: 3%;
 }
 
-/* Custom animations */
+/* General Cards */
+.card-section {
+    background: #ffffff;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-section:hover {
+    transform: translateY(-4px) scale(1.005);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Section Header */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.section-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.icon-box {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary {
+    padding: 0.75rem 1.75rem;
+    background-color: #22c55e;
+    color: #fff;
+    border-radius: 9999px; /* More pill-like shape */
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+
+.btn-primary:hover {
+    background-color: #1a964a;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+
+.btn-secondary {
+  padding: 0.7rem 1.5rem;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Input Boxes */
+.input-box {
+    background: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid transparent; /* Start with a transparent border */
+    transition: all 0.3s ease;
+}
+
+.input-box.active {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.input-box label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+
+.input-box input {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  background-color: #fff;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.input-box input:focus {
+    border-color: #6366f1; 
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+/* Role Badge */
+.role-badge {
+  padding: 0.4rem 0.8rem;
+  background-color: #bbf7d0;
+  color: #166534;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Animations */
+.fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -19,89 +136,62 @@
   }
 }
 
-.fade-in {
-  animation: fadeIn 0.3s ease-out;
+
+/* Custom Edit Button - From Uiverse.io by aaronross1 */
+.edit-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgb(20, 20, 20);
+  border: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.164);
+  cursor: pointer;
+  transition-duration: 0.3s;
+  overflow: hidden;
+  position: relative;
+  text-decoration: none !important;
 }
 
-/* Custom focus styles */
-input:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+.edit-svgIcon {
+  width: 17px;
+  transition-duration: 0.3s;
 }
 
-/* Hover effects */
-.stat-card:hover {
-  transform: translateY(-2px);
-  transition: transform 0.2s ease-out;
+.edit-svgIcon path {
+  fill: white;
 }
 
-/* Progress bar animation */
-.progress-bar {
-  transition: width 0.5s ease-out;
+.edit-button:hover {
+  width: 120px;
+  border-radius: 50px;
+  transition-duration: 0.3s;
+  background-color: rgb(82, 201, 118);
+  align-items: center;
 }
 
-/* Loading skeleton animation */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+.edit-button:hover .edit-svgIcon {
+  width: 20px;
+  transition-duration: 0.3s;
+  transform: translateY(10%) rotate(360deg);
 }
 
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.edit-button::before {
+  display: none;
+  content: "Edit";
+  color: rgb(25, 19, 19);
+  transition-duration: 0.3s;
+  font-size: 2px;
 }
 
-/* Custom scrollbar for mobile */
-@media (max-width: 768px) {
-  .overflow-x-auto::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  .overflow-x-auto::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 2px;
-  }
-
-  .overflow-x-auto::-webkit-scrollbar-thumb {
-    background: #10b981;
-    border-radius: 2px;
-  }
-}
-
-/* Profile specific styles using your agricultural theme variables */
-.profile-header-gradient {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-chart-1));
-}
-
-.profile-card-shadow {
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.05);
-}
-
-.profile-input:focus {
-  border-color: var(--color-ring);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ring) 15%, transparent);
-}
-
-/* Status badge colors using your theme */
-.status-active {
-  background-color: var(--color-chart-1);
-  color: var(--color-primary-foreground);
-}
-
-.status-completed {
-  background-color: var(--color-accent);
-  color: var(--color-accent-foreground);
-}
-
-.status-in-progress {
-  background-color: var(--color-chart-3);
-  color: var(--color-primary-foreground);
-}
-
-.status-not-started {
-  background-color: var(--color-muted);
-  color: var(--color-muted-foreground);
+.edit-button:hover::before {
+  display: block;
+  padding-right: 10px;
+  font-size: 18px;
+  opacity: 1;
+  transform: translateY(0px);
+  transition-duration: 0.3s;
 }

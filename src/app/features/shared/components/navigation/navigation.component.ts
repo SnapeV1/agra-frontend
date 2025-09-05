@@ -89,7 +89,6 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   getUserAvatar(): string {
-    console.log("user picture : ", this.user?.user)
     return this.user?.user?.picture || 'assets/default-avatar.png';
   }
 

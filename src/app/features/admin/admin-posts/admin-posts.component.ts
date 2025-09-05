@@ -445,35 +445,40 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
     }
   }
 
-  getTimeAgo(dateStr: string | undefined): string {
-    if (!dateStr) return '';
-    
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffInMs = now.getTime() - date.getTime();
-    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) {
-      const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-      if (diffInMinutes < 1) return 'now';
-      return `${diffInMinutes}m`;
-    }
-    
-    if (diffInHours < 24) {
-      return `${diffInHours}h`;
-    }
-    
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    
-    return `${day}${month} ${year}`;
+  getTimeAgo(dateInput: string | Date | null | undefined): string {
+  if (!dateInput) return 'Unknown time';
+
+  let date: Date;
+  if (typeof dateInput === 'string') {
+    date = new Date(dateInput);
+    if (isNaN(date.getTime())) return 'Invalid date';
+  } else if (dateInput instanceof Date) {
+    date = dateInput;
+    if (isNaN(date.getTime())) return 'Invalid date';
+  } else {
+    return 'Unknown time';
   }
+
+  const nowUtc = Date.now();
+
+  // ✅ Subtract 1 hour (3600000 ms) to fix Tunisia offset issue
+  let diffInMilliseconds = nowUtc - date.getTime() - 3600000;
+
+  // Prevent negative diffs in edge cases
+  if (diffInMilliseconds < 0) diffInMilliseconds = 0;
+
+  const diffInSeconds = Math.floor(diffInMilliseconds / 1000);
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  const diffInDays = Math.floor(diffInHours / 24);
+
+  if (diffInSeconds < 60) return diffInSeconds <= 1 ? 'Just now' : `${diffInSeconds}s ago`;
+  if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+  if (diffInHours < 24) return `${diffInHours}h ago`;
+  if (diffInDays < 7) return `${diffInDays}d ago`;
+
+  return date.toLocaleDateString();
+}
 
   isEditing(post: Post): boolean { 
     return this.editingPost?.id === post.id; 
