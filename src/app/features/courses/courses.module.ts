@@ -5,8 +5,8 @@ import { CoursesRoutingModule } from './courses-routing.module';
 import { CoursesComponent } from './components/courses/courses.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { AppModule } from 'src/app/app.module';
 import { SharedModule } from "src/app/features/shared/shared.module";
+import { LucideAngularModule, AlertTriangle, RefreshCw, Search, X, BookOpen, Globe, Users, Clock, Eye, Plus } from 'lucide-angular';
 
 
 @NgModule({
@@ -18,7 +18,19 @@ import { SharedModule } from "src/app/features/shared/shared.module";
     FormsModule,
     HttpClientModule,
     CoursesRoutingModule,
-    SharedModule
+    SharedModule,
+       LucideAngularModule.pick({
+      AlertTriangle,
+      RefreshCw,
+      Search,
+      X,
+      BookOpen,
+      Globe,
+      Users,
+      Clock,
+      Eye,
+      Plus
+    })
 ]
 })
 export class CoursesModule { }

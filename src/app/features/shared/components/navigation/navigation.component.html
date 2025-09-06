@@ -5,12 +5,12 @@
             <span class="nav-title">AGRA Platform</span>
         </div>
         
-        <div class="nav-menu">
-            <a href="home" (click)="scrollToSection('overview')" [class.active]="isSectionActive('overview')">Home</a>
-            <a href="courses" (click)="scrollToSection('courses')" [class.active]="isSectionActive('courses')">Courses</a>
-            <a href="feed" [class.active]="isSectionActive('technical')">Feed</a>
-            <a href="#footer" (click)="scrollToSection('footer')" [class.active]="isSectionActive('footer')">Contact us</a>
-        </div>
+<div class="nav-menu">
+    <a [routerLink]="'/home'" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
+    <a [routerLink]="'/courses'" routerLinkActive="active">Courses</a>
+    <a [routerLink]="'/feed'" routerLinkActive="active">Feed</a>
+    <a [routerLink]="'/contact'" routerLinkActive="active">Contact us</a>
+</div>
 
         <div class="nav-auth">
           

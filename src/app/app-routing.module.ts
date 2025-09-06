@@ -5,6 +5,7 @@ import { HomeComponent } from './features/home/components/home/home.component';
 import { AuthGuard } from './features/auth/guards/authguards.guard';
 import { AdminGuard } from './features/auth/guards/admin.guard';
 import { FeedComponent } from './features/feed/feed.component';
+import { ContactComponent } from './features/contact/contact.component';
 
 
 
@@ -20,6 +21,10 @@ const routes: Routes = [
     path: 'home', 
     component: HomeComponent,
   },
+   { 
+    path: 'contact', 
+    component: ContactComponent,
+  },
 
   // Courses - accessible to authenticated users
   {
@@ -32,7 +37,6 @@ const routes: Routes = [
 { path: 'feed', component: FeedComponent },
 
 
-  // Admin routes - only for ADMIN role
   {
     path: 'admin',
     loadChildren: () =>

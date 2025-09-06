@@ -14,6 +14,7 @@ import {
   AlertTriangle,
   Eye
 } from 'lucide-angular';
+import { RouterModule } from '@angular/router';
 @NgModule({
   declarations: [
     NavigationComponent,
@@ -30,7 +31,8 @@ import {
       LogOut,
       AlertTriangle,
       Eye
-    })
+    }),
+    RouterModule
   ],
   exports: [
     NavigationComponent,

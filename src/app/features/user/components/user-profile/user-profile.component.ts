@@ -322,14 +322,15 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     return this.userProfile.role === 'ADMIN' ? 'Administrator' : 'Member';
   }
 
-  getUserStatus(): string {
-    return this.authService.isAuthenticated() ? 'Active' : 'Inactive';
-  }
 
 getMemberSince(): string {
   const date = this.userProfile?.registeredAt ? new Date(this.userProfile.registeredAt) : null;
-  return date ? date.toLocaleString('default', { month: 'long', year: 'numeric' }) : '';
+  if (!date) return '';
+
+  const formatted = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }
+
 
 
   getLocation(): string {

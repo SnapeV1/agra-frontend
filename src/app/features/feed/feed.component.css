@@ -4,18 +4,19 @@
   padding: 24px;
   background-color: #ffffff;
   min-height: 100vh;
+  margin-top: 2%;
 }
-
 .feed-header {
   position: sticky;
   top: 0;
-  background: rgba(248, 250, 252, 0.9);
+  background: #ffffff;
   backdrop-filter: blur(20px);
   border-bottom: 1px solid #e2e8f0;
-  padding: 20px 0;
+  padding: 20px;
   margin-bottom: 24px;
   z-index: 100;
-  border-radius: 12px 12px 0 0;
+
+
 }
 
 .feed-header h2 {
@@ -24,7 +25,10 @@
   font-weight: 800;
   color: #1e293b;
   letter-spacing: -0.025em;
+
 }
+
+
 
 .posts-container {
   display: flex;

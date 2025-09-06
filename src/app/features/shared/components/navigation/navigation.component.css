@@ -13,7 +13,7 @@
   position: fixed;
   top: 0;
   width: 100%;
-  background-color: var(--bg-color);
+  background-color: #fff;
   color: var(--text-color);
   box-shadow: none;
   z-index: 1000;
@@ -64,7 +64,6 @@
   border-radius: 4px;
 }
 
-/* ✅ Keep underline only for nav links */
 .nav-menu a:hover {
   text-decoration: underline;
   text-decoration-color: rgba(47, 102, 50, 0.737);
@@ -131,12 +130,12 @@
   border-radius: 8px;
   transition: background-color 0.2s ease;
   user-select: none;
-  text-decoration: none !important; /* ✅ Prevent underline */
+  text-decoration: none !important; 
 }
 
 .profile-dropdown:hover {
   background-color: var(--hover-bg);
-  text-decoration: none !important; /* ✅ Still safe */
+  text-decoration: none !important; 
 }
 
 .profile-avatar {
