@@ -1,5 +1,5 @@
-import { User } from "../../user/models/user.model";
-import { PostComment } from "../post-comment/post-comment.module";
+import { User } from "./user.model";
+import { PostComment } from "./post-comment.module";
 
 export interface Post {
   id: string;

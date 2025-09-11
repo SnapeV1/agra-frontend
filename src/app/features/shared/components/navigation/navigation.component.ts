@@ -1,8 +1,8 @@
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { AuthUser } from 'src/app/features/auth/models/auth-user.model';
-import { AuthService } from 'src/app/services/auth/auth.service';
+import { AuthUser } from 'src/app/core/models/auth-user.model';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
 
 @Component({
   selector: 'app-navigation',

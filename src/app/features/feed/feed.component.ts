@@ -1,11 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { AuthService } from 'src/app/services/auth/auth.service';
-import { Post } from './post/post.module';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { Post } from '../../core/models/post.module';
 import { PostsService } from '../admin/services/posts.service';
-import { AuthUser } from '../auth/models/auth-user.model';
-import { PostComment } from './post-comment/post-comment.module';
-import { User } from '../user/models/user.model';
+import { AuthUser } from '../../core/models/auth-user.model';
+import { PostComment } from '../../core/models/post-comment.module';
+import { User } from '../../core/models/user.model';
 
 @Component({
   selector: 'app-feed',

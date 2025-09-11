@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { CourseManagementComponent } from './courses/course-management/course-management.component';
+import { CourseManagementComponent } from './course-management/course-management.component';
 import { DashboardAdminComponent } from './dashboard-admin/dashboard-admin.component';
 import { UserManagementComponent } from './user-management/user-management.component';
 import { AdminPostsComponent } from './admin-posts/admin-posts.component';

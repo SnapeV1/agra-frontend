@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
-import { User } from '../../models/user.model';
-import { AuthService } from 'src/app/services/auth/auth.service';
-import { ProfileService } from 'src/app/services/profile.service';
+import { User } from '../../../../core/models/user.model';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { ProfileService } from 'src/app/core/services/profile/profile.service';
 
 interface ProfileStats {
   icon: string;

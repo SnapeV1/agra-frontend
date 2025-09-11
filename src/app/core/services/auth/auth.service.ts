@@ -3,8 +3,8 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { AuthUser } from 'src/app/features/auth/models/auth-user.model';
-import { User } from 'src/app/features/user/models/user.model';
+import { AuthUser } from 'src/app/core/models/auth-user.model';
+import { User } from 'src/app/core/models/user.model';
 
 export interface LoginResponse {
   token: string;

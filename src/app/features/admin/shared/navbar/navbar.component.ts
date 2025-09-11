@@ -10,8 +10,8 @@ import {
 import { Router, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { AuthUser } from 'src/app/features/auth/models/auth-user.model';
-import { AuthService } from 'src/app/services/auth/auth.service';
+import { AuthUser } from 'src/app/core/models/auth-user.model';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
 
 export interface BreadcrumbItem {
   label: string;

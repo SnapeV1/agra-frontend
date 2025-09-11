@@ -1,11 +1,11 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { AuthService } from 'src/app/services/auth/auth.service';
-import { AuthUser } from 'src/app/features/auth/models/auth-user.model';
-import { User } from '../../user/models/user.model';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { AuthUser } from 'src/app/core/models/auth-user.model';
+import { User } from '../../../core/models/user.model';
 import { PostsService } from '../services/posts.service';
-import { Post } from '../../feed/post/post.module';
-import { PostComment } from '../../feed/post-comment/post-comment.module';
+import { Post } from '../../../core/models/post.module';
+import { PostComment } from '../../../core/models/post-comment.module';
 
 interface CreatePostForm {
   content: string;

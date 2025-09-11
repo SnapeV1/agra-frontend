@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Course } from 'src/app/features/courses/models/course';
+import { Course } from 'src/app/core/models/course';
 
 @Component({
   selector: 'app-course-management',

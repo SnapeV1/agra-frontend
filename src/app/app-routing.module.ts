@@ -1,9 +1,9 @@
 
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from './features/home/components/home/home.component';
-import { AuthGuard } from './features/auth/guards/authguards.guard';
-import { AdminGuard } from './features/auth/guards/admin.guard';
+import { HomeComponent } from './features/home/home.component';
+import { AuthGuard } from './core/guards/authguards.guard';
+import { AdminGuard } from './core/guards/admin.guard';
 import { FeedComponent } from './features/feed/feed.component';
 import { ContactComponent } from './features/contact/contact.component';
 
@@ -26,13 +26,11 @@ const routes: Routes = [
     component: ContactComponent,
   },
 
-  // Courses - accessible to authenticated users
   {
     path: 'courses',
     loadChildren: () =>
       import('./features/courses/courses.module').then(m => m.CoursesModule),
-    canActivate: [AuthGuard],
-    canActivateChild: [AuthGuard]
+  
   },
 { path: 'feed', component: FeedComponent },
 
@@ -53,7 +51,7 @@ const routes: Routes = [
     canActivateChild: [AuthGuard]
   },
 
-  // Alternative: Using RoleGuard with data
+  //
   // {
   //   path: 'admin',
   //   loadChildren: () =>
@@ -63,7 +61,6 @@ const routes: Routes = [
   //   data: { roles: ['ADMIN'] }
   // },
 
-  // Default redirects
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' }
 ];

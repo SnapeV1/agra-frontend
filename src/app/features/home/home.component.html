@@ -148,50 +148,252 @@
                 </ul>
             </div>
 
-            <div class="feature-card" 
-                 (mouseenter)="onFeatureHover(3, true)" 
-                 (mouseleave)="onFeatureHover(3, false)">
-                <div class="feature-icon">📊</div>
-                <h3>Base de Données</h3>
-                <ul class="feature-list">
-                    <li>Classification par pays et régions</li>
-                    <li>Segmentation par domaines agricoles</li>
-                    <li>Suivi des filières spécialisées</li>
-                    <li>Analytics et rapports détaillés</li>
-                </ul>
-            </div>
+            
+        </div>
+    </div>
+</section>
 
-            <div class="feature-card" 
-                 (mouseenter)="onFeatureHover(4, true)" 
-                 (mouseleave)="onFeatureHover(4, false)">
-                <div class="feature-icon">📚</div>
-                <h3>Ressources Pédagogiques</h3>
-                <ul class="feature-list">
-                    <li>Bibliothèque de kits de formation</li>
-                    <li>Guides pratiques téléchargeables</li>
-                    <li>Vidéos démonstration techniques</li>
-                    <li>Mise à jour continue du contenu</li>
-                </ul>
-            </div>
+<!-- Featured Courses Section -->
+<section id="courses" class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Formations Populaires</h2>
+            <p class="section-subtitle">Découvrez nos cours les plus appréciés par les agriculteurs</p>
+        </div>
 
-            <div class="feature-card" 
-                 (mouseenter)="onFeatureHover(5, true)" 
-                 (mouseleave)="onFeatureHover(5, false)">
-                <div class="feature-icon">📱</div>
-                <h3>Accessibilité Mobile</h3>
-                <ul class="feature-list">
-                    <li>Application mobile native</li>
-                    <li>Mode hors-ligne intelligent</li>
-                    <li>Interface responsive adaptative</li>
-                    <li>Optimisation bande passante faible</li>
-                </ul>
+        <!-- Loading State -->
+        <div *ngIf="coursesLoading" class="courses-loading">
+            <div class="courses-grid">
+                <div class="course-skeleton" *ngFor="let item of [1,2,3,4]">
+                    <div class="skeleton-image"></div>
+                    <div class="skeleton-content">
+                        <div class="skeleton-line skeleton-title"></div>
+                        <div class="skeleton-line skeleton-text"></div>
+                        <div class="skeleton-line skeleton-text short"></div>
+                        <div class="skeleton-line skeleton-button"></div>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="coursesError" class="courses-error">
+            <div class="error-message">
+                <p>{{ coursesError }}</p>
+                <button class="retry-btn" (click)="loadFeaturedCourses()">Réessayer</button>
+            </div>
+        </div>
+
+        <!-- Courses Grid -->
+      <div *ngIf="!coursesLoading && !coursesError" class="courses-grid">
+  <div class="course-card" 
+       *ngFor="let course of featuredCourses | slice:0:3" 
+       (click)="onCourseSelect(course)">
+    <div class="course-image">
+      <img [src]="course.imageUrl || '/assets/images/course-placeholder.jpg'" 
+           [alt]="course.title" 
+           onerror="this.src='/assets/images/course-placeholder.jpg'">
+      <div class="course-duration">{{ '4 semaines' }}</div>
+    </div>
+  
+
+
+                
+                <div class="course-content">
+                    <div class="course-meta">
+                        <span class="course-domain">{{ course.domain || 'Agriculture' }}</span>
+                        <span class="course-country">{{ course.country || 'Maroc' }}</span>
+                    </div>
+                    
+                    <h3 class="course-title">{{ course.title }}</h3>
+                    
+                    <p class="course-description">
+                        {{ course.description || 'Description du cours non disponible' }}
+                    </p>
+                    
+                    <div class="course-rating" *ngIf="getCourseRating(course) as rating">
+                        <div class="stars">
+                            <span class="star" 
+                                  *ngFor="let filled of generateStarArray(rating)" 
+                                  [class.filled]="filled">★</span>
+                        </div>
+                        <span class="rating-value">({{ rating }}/5)</span>
+                    </div>
+                    
+                    <div class="course-stats">
+                        <div class="stat">
+                            <span class="stat-icon">👥</span>
+                            <span class="stat-value">{{  0}}</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-icon">📖</span>
+                            <span class="stat-value">{{  12 }} leçons</span>
+                        </div>
+                    </div>
+                    
+                    <div class="course-actions">
+                        <button class="btn-primary" 
+                                (click)="enrollInCourse(course, $event)"
+                                >
+                             Enroll
+                        </button>
+                    
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View More Button -->
+        <div class="courses-actions">
+            <button class="btn-view-more" (click)="viewAllCourses()">
+                Voir tous les cours
+                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</section>
+<section id="posts" class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Actualités de la Communauté</h2>
+            <p class="section-subtitle">Découvrez les dernières discussions et partages de notre communauté agricole</p>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="postsLoading" class="posts-loading">
+            <div class="posts-grid">
+                <div class="post-skeleton" *ngFor="let item of [1,2,3]">
+                    <div class="skeleton-header">
+                        <div class="skeleton-avatar"></div>
+                        <div class="skeleton-user-info">
+                            <div class="skeleton-line skeleton-username"></div>
+                            <div class="skeleton-line skeleton-date"></div>
+                        </div>
+                    </div>
+                    <div class="skeleton-content">
+                        <div class="skeleton-line skeleton-text"></div>
+                        <div class="skeleton-line skeleton-text"></div>
+                        <div class="skeleton-line skeleton-text short"></div>
+                    </div>
+                    <div class="skeleton-image"></div>
+                    <div class="skeleton-actions">
+                        <div class="skeleton-line skeleton-button"></div>
+                        <div class="skeleton-line skeleton-button"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="postsError" class="posts-error">
+            <div class="error-message">
+                <p>{{ postsError }}</p>
+                <button class="retry-btn" (click)="loadFeaturedPosts()">Réessayer</button>
+            </div>
+        </div>
+
+        <!-- Posts Grid -->
+        <div *ngIf="!postsLoading && !postsError" class="posts-grid">
+            <div class="post-card" 
+                 *ngFor="let post of featuredPosts | slice:0:3" 
+                 (click)="onPostClick(post)">
+                
+                <!-- Post Header -->
+                <div class="post-header">
+                    <div class="post-avatar">
+                        <img [src]="post.user?.picture || '/assets/images/default-avatar.png'" 
+                             [alt]="post.user?.name || 'Utilisateur'"
+                             onerror="this.src='/assets/images/default-avatar.png'">
+                    </div>
+                    <div class="post-user-info">
+                        <h4 class="post-username">{{ post.user?.name || 'Utilisateur anonyme' }}</h4>
+                        <span class="post-date">{{ getTimeAgo(post.timestamp) }}</span>
+                    </div>
+                    <div class="post-menu">
+                        <button class="menu-btn" (click)="onPostMenuClick(post, $event)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="1"/>
+                                <circle cx="12" cy="5" r="1"/>
+                                <circle cx="12" cy="19" r="1"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Post Content -->
+                <div class="post-content">
+                    <p class="post-text">{{ post.content }}</p>
+                    
+                    <!-- Post Image -->
+                    <div class="post-image" *ngIf="post.image">
+                        <img [src]="post.image" 
+                             [alt]="'Image du post'"
+                             onerror="this.parentElement.style.display='none'">
+                    </div>
+                </div>
+
+                <!-- Post Actions -->
+                <div class="post-actions">
+                    <button class="action-btn like-btn" 
+                            [class.liked]="post.isLiked"
+                            (click)="togglePostLike(post, $event)">
+                        <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                        <span class="action-count">{{ formatNumber(post.likes) }}</span>
+                    </button>
+
+                    <button class="action-btn comment-btn" 
+                            (click)="onCommentClick(post, $event)">
+                        <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <span class="action-count">{{ formatNumber(post.comments?.length || 0) }}</span>
+                    </button>
+
+                    <button class="action-btn share-btn" 
+                            >
+                        <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="18" cy="5" r="3"/>
+                            <circle cx="6" cy="12" r="3"/>
+                            <circle cx="18" cy="19" r="3"/>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Post Preview Comments -->
+                <div class="post-comments-preview" *ngIf="post.comments && post.comments.length > 0">
+                    <div class="comment-preview" 
+                         *ngFor="let comment of post.comments | slice:0:2">
+                        
+                    </div>
+                    <button class="view-all-comments" 
+                            *ngIf="post.comments.length > 2"
+                            (click)="onViewAllComments(post, $event)">
+                        Voir les {{ post.comments.length - 2 }} autres commentaires
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- View More Button -->
+        <div class="posts-actions">
+            <button class="btn-view-more" (click)="viewAllPosts()">
+                Voir toutes les actualités
+                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </button>
         </div>
     </div>
 </section>
 
 <!-- Technical Section -->
-<section id="technical" class="section">
+<section id="technical" class="section alt-bg">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Architecture Technique</h2>
@@ -262,7 +464,7 @@
 </section>
 
 <!-- Pricing Section -->
-<section id="pricing" class="section alt-bg">
+<section id="pricing" class="section">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Proposition Financière</h2>
@@ -285,8 +487,6 @@
                     <div class="feature">✓ Applications mobile natives</div>
                     <div class="feature">✓ Tests et validation utilisateur</div>
                     <div class="feature">✓ Formation équipe technique</div>
-                    <div class="feature">✓ Documentation complète</div>
-                    <div class="feature">✓ Garantie 6 mois post-livraison</div>
                 </div>
             </div>
 
@@ -305,39 +505,6 @@
                     <div class="feature">✓ Monitoring et sécurité</div>
                     <div class="feature">✓ Évolutions fonctionnelles</div>
                     <div class="feature">✓ Formation continue staff</div>
-                    <div class="feature">✓ Rapports de performance</div>
-                    <div class="feature">✓ Sauvegarde et récupération</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="cost-breakdown">
-            <h3>Répartition des Coûts de Développement</h3>
-            <div class="breakdown-items">
-                <div class="breakdown-item">
-                    <span class="item-name">Conception & UX/UI</span>
-                    <span class="item-cost">€85,000</span>
-                    <span class="item-percent">10%</span>
-                </div>
-                <div class="breakdown-item">
-                    <span class="item-name">Développement Backend</span>
-                    <span class="item-cost">€340,000</span>
-                    <span class="item-percent">40%</span>
-                </div>
-                <div class="breakdown-item">
-                    <span class="item-name">Développement Frontend</span>
-                    <span class="item-cost">€255,000</span>
-                    <span class="item-percent">30%</span>
-                </div>
-                <div class="breakdown-item">
-                    <span class="item-name">Infrastructure & DevOps</span>
-                    <span class="item-cost">€85,000</span>
-                    <span class="item-percent">10%</span>
-                </div>
-                <div class="breakdown-item">
-                    <span class="item-name">Tests & Déploiement</span>
-                    <span class="item-cost">€85,000</span>
-                    <span class="item-percent">10%</span>
                 </div>
             </div>
         </div>
@@ -345,7 +512,7 @@
 </section>
 
 <!-- Timeline Section -->
-<section id="timeline" class="section">
+<section id="timeline" class="section alt-bg">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Planning de Réalisation</h2>
@@ -360,10 +527,7 @@
                 <div class="timeline-content">
                     <h3>Analyse & Conception</h3>
                     <div class="timeline-duration">Mois 1-2</div>
-                    <p>Analyse détaillée des besoins, conception UX/UI, architecture technique, validation avec AGRA et définition de la charte graphique.</p>
-                    <div class="timeline-deliverables">
-                        <span>Livrables:</span> Spécifications, Maquettes, Architecture
-                    </div>
+                    <p>Analyse détaillée des besoins, conception UX/UI, architecture technique, validation avec AGRA.</p>
                 </div>
             </div>
 
@@ -375,51 +539,17 @@
                     <h3>Développement Core</h3>
                     <div class="timeline-duration">Mois 3-6</div>
                     <p>Développement des fonctionnalités principales : authentification, gestion utilisateurs, base de données, API backend.</p>
-                    <div class="timeline-deliverables">
-                        <span>Livrables:</span> MVP, API Backend, Base de données
-                    </div>
                 </div>
             </div>
 
-            <div class="timeline-item" (click)="onTimelineItemClick({phase: 3, title: 'Fonctionnalités Avancées', duration: 'Mois 7-9'})">
+            <div class="timeline-item" (click)="onTimelineItemClick({phase: 3, title: 'Tests & Déploiement', duration: 'Mois 7-12'})">
                 <div class="timeline-marker">
                     <div class="marker-content">3</div>
                 </div>
                 <div class="timeline-content">
-                    <h3>Fonctionnalités Avancées</h3>
-                    <div class="timeline-duration">Mois 7-9</div>
-                    <p>Système de formation, streaming vidéo, interactions, publication contenu, certifications, applications mobiles.</p>
-                    <div class="timeline-deliverables">
-                        <span>Livrables:</span> Plateforme complète, Apps mobiles
-                    </div>
-                </div>
-            </div>
-
-            <div class="timeline-item" (click)="onTimelineItemClick({phase: 4, title: 'Tests & Optimisation', duration: 'Mois 10-11'})">
-                <div class="timeline-marker">
-                    <div class="marker-content">4</div>
-                </div>
-                <div class="timeline-content">
-                    <h3>Tests & Optimisation</h3>
-                    <div class="timeline-duration">Mois 10-11</div>
-                    <p>Tests de charge, optimisation performance, tests utilisateurs pilotes, sécurité, corrections et ajustements.</p>
-                    <div class="timeline-deliverables">
-                        <span>Livrables:</span> Version finalisée, Rapports de tests
-                    </div>
-                </div>
-            </div>
-
-            <div class="timeline-item" (click)="onTimelineItemClick({phase: 5, title: 'Déploiement & Formation', duration: 'Mois 12'})">
-                <div class="timeline-marker">
-                    <div class="marker-content">5</div>
-                </div>
-                <div class="timeline-content">
-                    <h3>Déploiement & Formation</h3>
-                    <div class="timeline-duration">Mois 12</div>
-                    <p>Déploiement production, formation équipe technique, documentation, migration données, lancement officiel.</p>
-                    <div class="timeline-deliverables">
-                        <span>Livrables:</span> Plateforme en production, Formation
-                    </div>
+                    <h3>Tests & Déploiement</h3>
+                    <div class="timeline-duration">Mois 7-12</div>
+                    <p>Tests de charge, optimisation performance, déploiement production et formation équipe technique.</p>
                 </div>
             </div>
         </div>

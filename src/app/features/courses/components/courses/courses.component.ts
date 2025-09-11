@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { CourseService } from '../../../../services/course/course.service';
-import { Course } from '../../models/course';
+import { CourseService } from '../../../../core/services/course/course.service';
+import { Course } from '../../../../core/models/course';
 
 type CountItem = { value: string; count: number };
 
@@ -18,7 +18,6 @@ export class CoursesComponent implements OnInit {
   selectedDomain = '';
   selectedCountry = '';
 
-  // counts for chips
   domainListWithCounts: CountItem[] = [];
   countryListWithCounts: CountItem[] = [];
 
@@ -70,7 +69,6 @@ export class CoursesComponent implements OnInit {
       .map(([value, count]) => ({ value, count }));
   }
 
-  // Search / Filters
   onSearch(): void { this.applyFilters(); }
 
   selectDomain(value: string): void {
@@ -115,7 +113,6 @@ export class CoursesComponent implements OnInit {
     console.log('Enrolling in course:', course);
   }
 
-  // UI helpers (rating/students/duration are optional fields on backend)
   getCourseRating(course: any): number | null {
     const r = course?.rating;
     return typeof r === 'number' ? r : null;

@@ -5,14 +5,15 @@ import { AppComponent } from './app.component';
 import { AuthRoutingModule } from './features/auth/auth-routing.module';
 import { AuthModule } from './features/auth/auth.module';
 import { AppRoutingModule } from './app-routing.module';
-import { HomeComponent } from './features/home/components/home/home.component';
+import { HomeComponent } from './features/home/home.component';
 import { SharedModule } from "src/app/features/shared/shared.module";
 import { AdminModule } from './features/admin/admin.module';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from './services/auth/auth.service';
+import { AuthService } from './core/services/auth/auth.service';
 import { FeedModule } from './features/feed/feed.module';
 import { RouterModule } from '@angular/router';
 import { ContactModule } from './features/contact/contact.module';
+import { CourseDetailsComponent } from './features/courses/components/course-details/course-details.component';
 export function initializeAuth(authService: AuthService) {
   return () => {
     authService.refreshAuthState();
@@ -23,6 +24,7 @@ export function initializeAuth(authService: AuthService) {
   declarations: [
     AppComponent,
     HomeComponent,
+    CourseDetailsComponent,
 
     
   

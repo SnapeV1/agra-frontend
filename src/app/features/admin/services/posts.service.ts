@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
-import { Post } from '../../feed/post/post.module';
-import { PostComment } from '../../feed/post-comment/post-comment.module';
-import { AuthService } from 'src/app/services/auth/auth.service';
+import { Post } from '../../../core/models/post.module';
+import { PostComment } from '../../../core/models/post-comment.module';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
