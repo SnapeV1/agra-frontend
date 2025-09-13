@@ -226,14 +226,12 @@
       </div>
     </div>
 
-    <!-- Empty State -->
     <div class="empty-state" *ngIf="!loading && posts.length === 0">
       <h3>No posts yet</h3>
       <p>Create your first post to get started!</p>
     </div>
   </div>
 
-  <!-- Delete Modal -->
   <div class="modal" [class.show]="showDeleteModal" (click)="cancelDelete()">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <h3>Delete Post?</h3>

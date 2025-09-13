@@ -13,7 +13,6 @@ import { AuthService } from './core/services/auth/auth.service';
 import { FeedModule } from './features/feed/feed.module';
 import { RouterModule } from '@angular/router';
 import { ContactModule } from './features/contact/contact.module';
-import { CourseDetailsComponent } from './features/courses/components/course-details/course-details.component';
 export function initializeAuth(authService: AuthService) {
   return () => {
     authService.refreshAuthState();
@@ -24,7 +23,6 @@ export function initializeAuth(authService: AuthService) {
   declarations: [
     AppComponent,
     HomeComponent,
-    CourseDetailsComponent,
 
     
   

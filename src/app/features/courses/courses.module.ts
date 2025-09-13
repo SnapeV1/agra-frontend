@@ -7,11 +7,13 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { SharedModule } from "src/app/features/shared/shared.module";
 import { LucideAngularModule, AlertTriangle, RefreshCw, Search, X, BookOpen, Globe, Users, Clock, Eye, Plus } from 'lucide-angular';
+import { CourseDetailsComponent } from './components/course-details/course-details.component';
 
 
 @NgModule({
   declarations: [
-    CoursesComponent
+    CoursesComponent,
+    CourseDetailsComponent  
   ],
   imports: [
     CommonModule,

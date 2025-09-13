@@ -103,10 +103,10 @@ export class CoursesComponent implements OnInit {
     this.selectedCountry = '';
     this.filteredCourses = [...this.courses];
   }
-
-  onCourseSelect(course: Course): void {
-    this.router.navigate(['/course-details', course.id]);
-  }
+onCourseSelect(course: Course): void {
+  console.log('Navigating to course:', course.id); 
+  this.router.navigate(['/courses/course-details', course.id]);
+}
 
   enrollInCourse(course: Course, event: Event): void {
     event.stopPropagation();

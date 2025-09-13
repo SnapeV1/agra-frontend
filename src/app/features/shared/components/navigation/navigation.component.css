@@ -36,15 +36,20 @@
 .nav-brand {
   display: flex;
   align-items: center;
-  font-weight: bold;
-  font-size: 1.25rem;
+  padding: 0.5rem 1rem; 
 }
 
-.nav-logo {
-  font-size: 1.6rem;
-  margin-right: 0.5rem;
+.nav-logo img {
+  height: 60px;  
+  width: auto;  
+  object-fit: contain;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
 }
 
+.nav-logo img:hover {
+  transform: scale(1.05); 
+}
 .nav-title {
   font-size: 1.2rem;
   color: var(--primary-color);

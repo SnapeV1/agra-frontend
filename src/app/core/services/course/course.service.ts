@@ -1,4 +1,3 @@
-// src/app/services/course/course.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -30,5 +29,38 @@ export class CourseService {
 
   searchCourses(searchTerm: string): Observable<Course[]> {
     return this.http.get<Course[]>(`${this.apiUrl}/search?q=${searchTerm}`);
+  }
+
+addCourse(course: Course, image?: File): Observable<Course> {
+  const formData = new FormData();
+  console.log(image)
+  formData.append('course', new Blob([JSON.stringify(course)], {
+    type: 'application/json'
+  }));
+  
+  if (image) {
+    formData.append('image', image);
+  }
+  
+  return this.http.post<Course>(`${this.apiUrl}/addCourse`, formData);
+}
+updateCourse(id: string, course: Course, image?: File): Observable<Course> {
+  const formData = new FormData();
+  formData.append('course', new Blob([JSON.stringify(course)], { type: 'application/json' }));
+  
+  if (image) {
+    formData.append('image', image);
+  }
+  
+  return this.http.put<Course>(`${this.apiUrl}/updateCourse/${id}`, formData);
+}
+
+
+  archiveCourse(id: string|null): Observable<any> {
+    return this.http.put(`${this.apiUrl}/ArchiveCourse/${id}`, {});
+  }
+
+  deleteCourse(id: string|null): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }

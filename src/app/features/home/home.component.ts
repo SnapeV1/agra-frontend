@@ -34,7 +34,6 @@ import { PostsService } from 'src/app/features/admin/services/posts.service';
 export class HomeComponent implements OnInit, OnDestroy {
   @ViewChild('navbar', { static: true }) navbar!: ElementRef;
 
-  // Authentication state
   isLoggedIn: boolean = false;
 
   // Component state
@@ -70,13 +69,15 @@ featuredPosts: any[] = [];
     }
   }
 
- 
+
   checkAuthStatus(): void {
     const token = localStorage.getItem('jwt') || 
                   localStorage.getItem('token') || 
-                  localStorage.getItem('authToken') ||
+                  localStorage.getItem('auth_token') ||
                   localStorage.getItem('access_token');
-    this.isLoggedIn = !!token;
+    this.isLoggedIn =!!token;
+  
+    
   }
 
   /**
@@ -86,11 +87,7 @@ featuredPosts: any[] = [];
     this.router.navigate(['/login']);
   }
 
-  /**
-   * Handle user sign out
-   */
   signOut(): void {
-    // Remove all possible JWT token keys
     localStorage.removeItem('jwt');
     localStorage.removeItem('token');
     localStorage.removeItem('authToken');
@@ -101,9 +98,7 @@ featuredPosts: any[] = [];
     console.log('User signed out successfully');
   }
 
-  /**
-   * Load featured courses (first 4)
-   */
+
   loadFeaturedCourses(): void {
     this.coursesLoading = true;
     this.coursesError = '';
@@ -121,48 +116,34 @@ featuredPosts: any[] = [];
     });
   }
 
-  /**
-   * Navigate to courses page
-   */
   viewAllCourses(): void {
     this.router.navigate(['/courses']);
   }
 
-  /**
-   * Navigate to course details
-   */
+ 
   onCourseSelect(course: Course): void {
     this.router.navigate(['/course-details', course.id]);
   }
 
-  /**
-   * Handle course enrollment
-   */
+  
   enrollInCourse(course: Course, event: Event): void {
     event.stopPropagation();
     console.log('Enrolling in course:', course);
-    // Add your enrollment logic here
   }
 
-  /**
-   * Get course rating as number
-   */
+  
   getCourseRating(course: any): number | null {
     const r = course?.rating;
     return typeof r === 'number' ? r : null;
   }
 
-  /**
-   * Generate star array for rating display
-   */
+  
   generateStarArray(rating: number): boolean[] {
     const full = Math.floor(rating);
     return Array.from({ length: 5 }, (_, i) => i < full);
   }
 
-  /**
-   * Format number with locale
-   */
+  
   formatNumber(num: number): string {
     if (typeof num !== 'number') return '';
     return num.toLocaleString();
@@ -175,9 +156,6 @@ featuredPosts: any[] = [];
     this.updateActiveSection();
   }
 
-  /**
-   * Setup intersection observer for scroll animations
-   */
   private setupScrollObserver(): void {
     const options = {
       threshold: 0.1,
@@ -192,16 +170,13 @@ featuredPosts: any[] = [];
       });
     }, options);
 
-    // Observe all sections
     setTimeout(() => {
       const sections = document.querySelectorAll('.section');
       sections.forEach(section => observer.observe(section));
     }, 100);
   }
 
-  /**
-   * Update active navigation section based on scroll position
-   */
+
   private updateActiveSection(): void {
     const sections = ['overview', 'features', 'courses', 'technical', 'pricing', 'timeline'];
     const scrollPosition = window.pageYOffset + 100;
@@ -220,13 +195,11 @@ featuredPosts: any[] = [];
     }
   }
 
-  /**
-   * Smooth scroll to section
-   */
+
   scrollToSection(sectionId: string): void {
     const element = document.getElementById(sectionId);
     if (element) {
-      const yOffset = -70; // Account for fixed navbar
+      const yOffset = -70; 
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       
       window.scrollTo({
@@ -236,17 +209,13 @@ featuredPosts: any[] = [];
     }
   }
 
-  /**
-   * Handle CTA button click
-   */
+ 
   onContactClick(): void {
     console.log('Contact button clicked');
     window.location.href = 'mailto:contact@agra-platform.com?subject=Projet AGRA - Demande d\'information';
   }
 
-  /**
-   * Handle feature card hover effects
-   */
+
   onFeatureHover(index: number, isEntering: boolean): void {
     const card = document.querySelector(`.feature-card:nth-child(${index + 1})`);
     if (card) {
@@ -258,9 +227,7 @@ featuredPosts: any[] = [];
     }
   }
 
-  /**
-   * Handle pricing card selection
-   */
+
   onPricingCardClick(cardIndex: number): void {
     console.log(`Pricing card ${cardIndex} selected`);
   }

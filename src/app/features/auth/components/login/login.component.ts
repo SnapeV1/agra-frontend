@@ -25,10 +25,8 @@ export class LoginComponent {
 
     this.authService.login(this.loginData).subscribe({
       next: (response) => {
-        console.log('Login successful:', response);
         this.isLoading = false;
         
-        // Redirect based on user role
         this.redirectBasedOnRole();
       },
       error: (error) => {
@@ -39,12 +37,9 @@ export class LoginComponent {
   }
 
   private redirectBasedOnRole() {
-    // Check if user is admin
     if (this.authService.isAdmin()) {
-      // Redirect to external admin dashboard
       this.router.navigate(['/admin/dashboard']);
     } else {
-      // Redirect regular users to home page
       this.router.navigate(['/home']);
     }
   }

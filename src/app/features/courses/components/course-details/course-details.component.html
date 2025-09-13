@@ -1,1 +1,160 @@
-<p>course-details works!</p>
+<app-navigation></app-navigation>
+<div class="course-details">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading course details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!loading && error" class="error-container">
+    <h2>Error Loading Course</h2>
+    <p>{{ error }}</p>
+    <button class="btn btn-primary" (click)="loadCourse()">Try Again</button>
+    <button class="btn btn-secondary" (click)="goBack()">Go Back</button>
+  </div>
+
+  <!-- Course Details -->
+  <div *ngIf="!loading && course" class="course-content">
+    <!-- Header -->
+    <div class="course-header">
+      <button class="back-btn" (click)="goBack()">
+        ← Back to Courses
+      </button>
+      
+      <div class="course-hero">
+        <img [src]="course.imageUrl" [alt]="course.title" class="course-image">
+        <div class="course-info">
+          <div class="badges">
+            <span class="badge domain">{{ course.domain }}</span>
+            <span class="badge country">{{ course.country }}</span>
+          </div>
+          <h1>{{ course.title }}</h1>
+          <p class="instructor">by instructor1</p>
+          
+          <!-- Rating -->
+          <div class="rating" *ngIf="getCourseRating() !== null">
+            <span class="stars">
+              <span *ngFor="let filled of generateStarArray(getCourseRating()!)" 
+                    [class]="filled ? 'star filled' : 'star'">★</span>
+            </span>
+            <span class="rating-value">{{ getCourseRating() }}</span>
+            <span class="review-count">(245 reviews)</span>
+          </div>
+
+          <!-- Stats -->
+          <div class="stats">
+            <div class="stat">
+              <span class="stat-icon">👥</span>
+              <span>1,234 students</span>
+            </div>
+            <div class="stat">
+              <span class="stat-icon">⏱️</span>
+              <span>8 hours</span>
+            </div>
+            <div class="stat">
+              <span class="stat-icon">📈</span>
+              <span>Intermediate</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Left Column -->
+      <div class="content-left">
+        <!-- Description -->
+        <section class="section">
+          <h2>About This Course</h2>
+          <p>{{ course.description }}</p>
+        </section>
+
+        <!-- What You'll Learn -->
+        <section class="section">
+          <h2>What You'll Learn</h2>
+          <ul class="learning-objectives">
+            <li>Master the fundamentals of the subject</li>
+            <li>Apply theoretical knowledge to practical scenarios</li>
+            <li>Develop problem-solving skills</li>
+            <li>Build confidence in the domain</li>
+            <li>Create real-world projects</li>
+            <li>Understand best practices and industry standards</li>
+          </ul>
+        </section>
+
+        <!-- Course Content -->
+        <section class="section">
+          <h2>Course Content</h2>
+          <p class="content-summary">5 sections • 23 lectures • 8h total length</p>
+          <div class="curriculum">
+            <div class="curriculum-item">
+              <h3>1. Introduction and Setup</h3>
+              <p>5 lectures • 45min</p>
+            </div>
+            <div class="curriculum-item">
+              <h3>2. Core Concepts</h3>
+              <p>8 lectures • 2h 30min</p>
+            </div>
+            <div class="curriculum-item">
+              <h3>3. Practical Applications</h3>
+              <p>6 lectures • 2h 15min</p>
+            </div>
+            <div class="curriculum-item">
+              <h3>4. Advanced Topics</h3>
+              <p>3 lectures • 1h 45min</p>
+            </div>
+            <div class="curriculum-item">
+              <h3>5. Final Project</h3>
+              <p>1 lecture • 45min</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Column -->
+      <div class="content-right">
+        <!-- Enrollment Card -->
+        <div class="enrollment-card">
+          <div class="price">
+            <span class="price-value">Free</span>
+            <p class="price-note">Full access to course content</p>
+          </div>
+          
+          <button class="btn btn-enroll" (click)="enrollInCourse()">
+            Enroll Now
+          </button>
+          
+          <div class="features">
+            <div class="feature">✓ Lifetime access</div>
+            <div class="feature">✓ Certificate of completion</div>
+            <div class="feature">✓ Mobile and TV access</div>
+          </div>
+        </div>
+
+        <!-- Requirements -->
+        <div class="info-card">
+          <h3>Requirements</h3>
+          <ul>
+            <li>Basic computer literacy</li>
+            <li>Access to a computer with internet connection</li>
+            <li>No prior experience required</li>
+            <li>Enthusiasm to learn</li>
+          </ul>
+        </div>
+
+        <!-- Tags -->
+        <div class="info-card">
+          <h3>Tags</h3>
+          <div class="tags">
+            <span class="tag">Beginner Friendly</span>
+            <span class="tag">Hands-on</span>
+            <span class="tag">Certificate</span>
+            <span class="tag">Self-paced</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
