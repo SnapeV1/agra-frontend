@@ -1,5 +1,6 @@
 <app-base-layout>
 <div class="course-management">
+  <!-- Header -->
   <div class="header">
     <div class="title-section">
       <h1>Course Management</h1>
@@ -11,6 +12,7 @@
     </button>
   </div>
 
+  <!-- Controls: Search + Filter -->
   <div class="controls-section">
     <div class="search-box">
       <i class="icon-search"></i>
@@ -32,23 +34,22 @@
     </div>
   </div>
 
+  <!-- Loading -->
   <div *ngIf="loading" class="loading">
     <div class="spinner"></div>
     <p>Loading courses...</p>
   </div>
 
+  <!-- Courses Grid -->
   <div *ngIf="!loading && filteredCourses.length > 0" class="courses-grid">
     <div 
       *ngFor="let course of filteredCourses" 
       class="course-card"
       [class.archived]="course.archived"
+      (click)="goToCourseDetails(course)"  
     >
       <div class="course-image">
-        <img 
-          [src]="course.imageUrl" 
-          [alt]="course.title"
-         
-        />
+        <img [src]="course.imageUrl" [alt]="course.title" />
         <div *ngIf="course.archived" class="archived-badge">Archived</div>
       </div>
       
@@ -82,24 +83,10 @@
           </div>
         </div>
       </div>
-      
-      <div class="course-actions">
-        <button class="btn-action btn-edit" (click)="openEditModal(course)" title="Edit Course">
-          <i class="icon-edit"></i>
-        </button>
-        <button 
-          class="btn-action btn-archive" 
-          (click)="toggleArchiveCourse(course)" 
-          [title]="course.archived ? 'Restore Course' : 'Archive Course'">
-          <i [class]="course.archived ? 'icon-undo' : 'icon-archive'"></i>
-        </button>
-        <button class="btn-action btn-delete" (click)="deleteCourse(course)" title="Delete Course">
-          <i class="icon-trash"></i>
-        </button>
-      </div>
     </div>
   </div>
 
+  <!-- Empty State -->
   <div *ngIf="!loading && filteredCourses.length === 0" class="empty-state">
     <div class="empty-icon">📚</div>
     <h3>No courses found</h3>
@@ -110,61 +97,40 @@
   </div>
 </div>
 
+<!-- Add Course Modal -->
 <div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>{{ modalMode === 'add' ? 'Add New Course' : 'Edit Course' }}</h2>
+      <h2>Add New Course</h2>
       <button class="modal-close" (click)="closeModal()">×</button>
     </div>
     
-    <form class="modal-content" (ngSubmit)="saveCourse()" #courseFormRef="ngForm" enctype="multipart/form-data">
+    <form class="modal-content" (ngSubmit)="saveCourse()" #courseFormRef="ngForm">
       <div class="form-grid">
         <div class="form-group">
           <label for="title">Course Title *</label>
           <input 
             type="text" 
             id="title" 
-            name="title"
-            [(ngModel)]="courseForm.title"
+            name="title" 
+            [(ngModel)]="courseForm.title" 
             required
-            placeholder="Enter course title"
             class="form-input"
           >
         </div>
 
-        <div class="form-group">
-          <label for="trainerId">Trainer ID *</label>
-          <input 
-            type="text" 
-            id="trainerId" 
-            name="trainerId"
-            [(ngModel)]="courseForm.trainerId"
-            required
-            placeholder="Enter trainer ID"
-            class="form-input"
-          >
-        </div>
+      
 
         <div class="form-group">
           <label for="domain">Domain *</label>
-          <select 
+          <input 
+            type="text" 
             id="domain" 
-            name="domain"
-            [(ngModel)]="courseForm.domain"
+            name="domain" 
+            [(ngModel)]="courseForm.domain" 
             required
-            class="form-select"
+            class="form-input"
           >
-            <option value="">Select domain</option>
-            <option value="Web Development">Web Development</option>
-            <option value="Data Science">Data Science</option>
-            <option value="Mobile Development">Mobile Development</option>
-            <option value="DevOps">DevOps</option>
-            <option value="Machine Learning">Machine Learning</option>
-            <option value="Cybersecurity">Cybersecurity</option>
-            <option value="UI/UX Design">UI/UX Design</option>
-            <option value="Cloud Computing">Cloud Computing</option>
-            <option value="Other">Other</option>
-          </select>
         </div>
 
         <div class="form-group">
@@ -172,88 +138,88 @@
           <input 
             type="text" 
             id="country" 
-            name="country"
-            [(ngModel)]="courseForm.country"
+            name="country" 
+            [(ngModel)]="courseForm.country" 
             required
-            placeholder="Enter country"
             class="form-input"
           >
         </div>
       </div>
-      
+
       <div class="form-group">
         <label for="description">Description</label>
         <textarea 
           id="description" 
-          name="description"
+          name="description" 
           [(ngModel)]="courseForm.description"
-          rows="4"
-          placeholder="Enter a detailed course description..."
           class="form-textarea"
+          placeholder="Enter course description..."
         ></textarea>
       </div>
-      
+
+      <!-- Custom Image Upload -->
       <div class="form-group image-upload-section">
-        <label for="courseImage">Course Image</label>
-        <div class="image-upload-area" [class.has-image]="selectedImagePreview">
-          <div *ngIf="!selectedImagePreview" class="upload-placeholder" (click)="fileInput.click()">
-            <i class="icon-upload"></i>
-            <p>Click to upload course image</p>
-            <small>Recommended: 800x600px, max 5MB</small>
-          </div>
-          
+        <label>Course Image</label>
+        
+        <div class="image-upload-container">
+          <!-- Show upload area when no image is selected -->
+          <label *ngIf="!selectedImagePreview" class="custum-file-upload" for="file">
+            <div class="icon">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="" viewBox="0 0 24 24">
+                <g stroke-width="0" id="SVGRepo_bgCarrier"></g>
+                <g stroke-linejoin="round" stroke-linecap="round" id="SVGRepo_tracerCarrier"></g>
+                <g id="SVGRepo_iconCarrier">
+                  <path fill="" d="M10 1C9.73478 1 9.48043 1.10536 9.29289 1.29289L3.29289 7.29289C3.10536 7.48043 3 7.73478 3 8V20C3 21.6569 4.34315 23 6 23H7C7.55228 23 8 22.5523 8 22C8 21.4477 7.55228 21 7 21H6C5.44772 21 5 20.5523 5 20V9H10C10.5523 9 11 8.55228 11 8V3H18C18.5523 3 19 3.44772 19 4V9C19 9.55228 19.4477 10 20 10C20.5523 10 21 9.55228 21 9V4C21 2.34315 19.6569 1 18 1H10ZM9 7H6.41421L9 4.41421V7ZM14 15.5C14 14.1193 15.1193 13 16.5 13C17.8807 13 19 14.1193 19 15.5V16V17H20C21.1046 17 22 17.8954 22 19C22 20.1046 21.1046 21 20 21H13C11.8954 21 11 20.1046 11 19C11 17.8954 11.8954 17 13 17H14V16V15.5ZM16.5 11C14.142 11 12.2076 12.8136 12.0156 15.122C10.2825 15.5606 9 17.1305 9 19C9 21.2091 10.7909 23 13 23H20C22.2091 23 24 21.2091 24 19C24 17.1305 22.7175 15.5606 20.9844 15.122C20.7924 12.8136 18.858 11 16.5 11Z" clip-rule="evenodd" fill-rule="evenodd"></path>
+                </g>
+              </svg>
+            </div>
+            <div class="text">
+              <span>Click to upload image</span>
+            </div>
+            <input type="file" id="file" (change)="onFileSelect($event)" accept="image/*">
+          </label>
+
+          <!-- Show image preview when an image is selected -->
           <div *ngIf="selectedImagePreview" class="image-preview">
-            <img [src]="selectedImagePreview" alt="Course preview">
+            <img [src]="selectedImagePreview" alt="Course image preview" />
             <div class="image-overlay">
-              <button type="button" class="btn-change" (click)="fileInput.click()">Change</button>
-              <button type="button" class="btn-remove"(click)="removeImage()">Remove</button>
+              <button 
+                type="button" 
+                class="overlay-btn btn-change-image" 
+                (click)="fileInput.click()"
+              >
+                Change Image
+              </button>
+              <button 
+                type="button" 
+                class="overlay-btn btn-remove-image" 
+                (click)="removeImage()"
+              >
+                Remove
+              </button>
             </div>
           </div>
           
+          <!-- Hidden file input for changing image -->
           <input 
-            #fileInput
             type="file" 
-            id="courseImage" 
-            name="courseImage"
-            
+            #fileInput 
+            style="display: none;" 
+            (change)="onFileSelect($event)" 
             accept="image/*"
-            hidden
-            (change)="onFileSelect($event)"
           >
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="languagesAvailable">Languages Available</label>
-        <input 
-          type="text" 
-          id="languagesAvailable" 
-          name="languagesAvailable"
-          [(ngModel)]="languagesString"
-          placeholder="e.g., English, French, Arabic"
-          class="form-input"
-        >
-        <small class="form-hint">Separate multiple languages with commas</small>
-      </div>
+    
 
-      <div class="form-group">
-        <label for="sessionIds">Session IDs</label>
-        <input 
-          type="text" 
-          id="sessionIds" 
-          name="sessionIds"
-          [(ngModel)]="sessionIdsString"
-          placeholder="e.g., session1, session2, session3"
-          class="form-input"
-        >
-        <small class="form-hint">Separate multiple session IDs with commas</small>
-      </div>
+ 
       
       <div class="modal-actions">
         <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
         <button type="submit" class="btn-primary" [disabled]="loading || !courseFormRef.form.valid">
           <span *ngIf="loading" class="spinner-small"></span>
-          {{ loading ? 'Saving...' : (modalMode === 'add' ? 'Add Course' : 'Update Course') }}
+          {{ loading ? 'Saving...' : 'Add Course' }}
         </button>
       </div>
     </form>

@@ -12,15 +12,12 @@
     <p>Loading posts...</p>
   </div>
 
-  <!-- Error State -->
   <div *ngIf="errorMessage" class="error-container">
     <p class="error-message">{{ errorMessage }}</p>
   </div>
 
-  <!-- Posts Container -->
   <div class="posts-container" *ngIf="!loading">
     <article class="post" *ngFor="let post of posts">
-      <!-- Post Header -->
       <div class="post-header">
         <div class="user-info">
           <img [src]="post.userInfo.picture"

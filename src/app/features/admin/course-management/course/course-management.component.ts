@@ -1,0 +1,170 @@
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { Course } from 'src/app/core/models/course';
+import { CourseService } from 'src/app/core/services/course/course.service';
+
+@Component({
+  selector: 'app-course-management',
+  templateUrl: './course-management.component.html',
+  styleUrls: ['./course-management.component.css']
+})
+export class CourseManagementComponent {
+  courses: Course[] = [];
+  loading = false;
+  showModal = false;
+  searchTerm = '';
+  filterStatus: 'all' | 'archived' | 'active' = 'all';
+
+  selectedImagePreview: string | null = null;
+  selectedImageFile: File | null = null;
+
+  languagesString = '';
+  sessionIdsString = '';
+
+  courseForm: Course = {
+    title: '',
+    description: '',
+    imageUrl: '',
+    domain: '',
+    country: '',
+    trainerId: '',
+    sessionIds: [],
+    languagesAvailable: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    archived: false,
+    files: [],
+    textContent: []
+  };
+
+  constructor(private courseService: CourseService, private router: Router) {}
+
+  ngOnInit(): void {
+    this.loadCourses();
+  }
+
+  loadCourses(): void {
+    this.loading = true;
+    this.courseService.getAllCourses().subscribe({
+      next: (courses) => {
+        this.courses = courses;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading courses:', error);
+        alert('Failed to load courses.');
+        this.courses = [];
+        this.loading = false;
+      }
+    });
+  }
+
+  get filteredCourses(): Course[] {
+    return this.courses
+      .filter(course => {
+        if (this.filterStatus === 'archived') return course.archived;
+        if (this.filterStatus === 'active') return !course.archived;
+        return true;
+      })
+      .filter(course =>
+        course.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        course.trainerId.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        course.domain.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+  }
+
+  goToCourseDetails(course: Course): void {
+    this.router.navigate(['/admin/coursedetails', course.id]); 
+  }
+
+  openAddModal(): void {
+    this.resetForm();
+    this.showModal = true;
+  }
+
+  closeModal(): void {
+    this.showModal = false;
+    this.resetForm();
+  }
+
+  resetForm(): void {
+    this.courseForm = {
+      title: '',
+      description: '',
+      imageUrl: '',
+      domain: '',
+      country: '',
+      trainerId: '',
+      archived: false,
+      sessionIds: [],
+      languagesAvailable: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      files: [],
+      textContent: []
+    };
+    this.languagesString = '';
+    this.sessionIdsString = '';
+    this.selectedImageFile = null;
+    this.selectedImagePreview = null;
+  }
+
+  saveCourse(): void {
+    if (!this.validateForm()) return;
+
+    this.loading = true;
+    this.courseForm.createdAt = new Date();
+    this.courseForm.updatedAt = new Date();
+
+    this.courseForm.languagesAvailable = this.languagesString
+      ? this.languagesString.split(',').map(lang => lang.trim())
+      : [];
+    this.courseForm.sessionIds = this.sessionIdsString
+      ? this.sessionIdsString.split(',').map(id => id.trim())
+      : [];
+
+    this.courseService.addCourse(this.courseForm, this.selectedImageFile || undefined)
+      .subscribe({
+        next: (course) => {
+          this.courses.push(course);
+          this.goToCourseDetails(course)
+          this.closeModal();
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error adding course:', error);
+          alert('Error saving course. Please try again.');
+          this.loading = false;
+        }
+      });
+  }
+
+
+  private validateForm(): boolean {
+    if (!this.courseForm.title.trim()) {
+      alert('Course title is required');
+      return false;
+    }
+    return true;
+  }
+
+  onFileSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.selectedImageFile = file;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.selectedImagePreview = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  removeImage(): void {
+    this.selectedImageFile = null;
+    this.selectedImagePreview = null;
+    this.courseForm.imageUrl = '';
+  }
+}

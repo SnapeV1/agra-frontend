@@ -1,0 +1,452 @@
+<app-base-layout>
+<div class="course-management-container">
+  <!-- Header -->
+  <div class="header-section">
+    <div class="container">
+      <div class="header-content">
+        <div class="header-info">
+          <div class="header-icon">
+            <i class="icon-book-open"></i>
+          </div>
+          <div class="header-text">
+            <h1 class="header-title">
+              {{ courseId === 'new' ? 'Create New Course' : 'Edit Course' }}
+            </h1>
+            <p class="header-subtitle">Manage course content, media, and settings</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button 
+            type="button" 
+            class="btn btn-outline" 
+            (click)="handlePreview()" 
+            [disabled]="!isFormValid()">
+            <i class="icon-eye"></i>
+            Preview
+          </button>
+          <button 
+            *ngIf="courseId !== 'new'" 
+            type="button" 
+            class="btn btn-outline" 
+            (click)="handleDuplicate()">
+            <i class="icon-copy"></i>
+            Duplicate
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container main-content">
+    <div class="content-grid">
+      <!-- Main Content -->
+      <div class="main-column">
+        <!-- Basic Information -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Basic Information</h2>
+            <p class="card-description">Essential course details and metadata</p>
+          </div>
+          <div class="card-content">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="title">Course Title *</label>
+                <input
+                  id="title"
+                  type="text"
+                  class="form-input"
+                  [class.error]="formErrors['title']"
+                  [(ngModel)]="formData['title']"
+                  (input)="updateField('title', $event)"
+                  placeholder="Enter course title">
+                <div *ngIf="formErrors['title']" class="error-message">{{ formErrors['title'] }}</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="trainerId">Trainer ID *</label>
+                <input
+                  id="trainerId"
+                  type="text"
+                  class="form-input"
+                  [class.error]="formErrors['trainerId']"
+                  [(ngModel)]="formData['trainerId']"
+                  (input)="updateField('trainerId', $event)"
+                  placeholder="Enter trainer ID">
+                <div *ngIf="formErrors['trainerId']" class="error-message">{{ formErrors['trainerId'] }}</div>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="domain">Domain *</label>
+                <select
+                  id="domain"
+                  class="form-select"
+                  [class.error]="formErrors['domain']"
+                  [(ngModel)]="formData['domain']"
+                  (change)="updateField('domain', $event)">
+                  <option value="">Select domain</option>
+                  <option *ngFor="let domain of domains" [value]="domain">{{ domain }}</option>
+                </select>
+                <div *ngIf="formErrors['domain']" class="error-message">{{ formErrors['domain'] }}</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="country">Country *</label>
+                <select
+                  id="country"
+                  class="form-select"
+                  [class.error]="formErrors['country']"
+                  [(ngModel)]="formData['country']"
+                  (change)="updateField('country', $event)">
+                  <option value="">Select country</option>
+                  <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
+                </select>
+                <div *ngIf="formErrors['country']" class="error-message">{{ formErrors['country'] }}</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="description">Description *</label>
+              <textarea
+                id="description"
+                class="form-textarea"
+                [class.error]="formErrors['description']"
+                [(ngModel)]="formData['description']"
+                (input)="updateField('description', $event)"
+                placeholder="Provide a detailed description of the course"
+                rows="4"></textarea>
+              <div *ngIf="formErrors['description']" class="error-message">{{ formErrors['description'] }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Media Section -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Course Media</h2>
+            <p class="card-description">Upload images and videos for your course</p>
+          </div>
+          <div class="card-content">
+            <div class="media-grid">
+              <!-- Image Upload -->
+              <div class="media-group">
+                <label class="form-label">Course Image</label>
+                <div *ngIf="!formData['imageUrl']" class="upload-area">
+                  <input type="file" accept="image/*" (change)="handleImageUpload($event)" class="file-input" id="image-upload">
+                  <label for="image-upload" class="upload-label">
+                    <div *ngIf="uploadingImage" class="upload-loading">
+                      <div class="spinner"></div>
+                      <p>Uploading...</p>
+                    </div>
+                    <div *ngIf="!uploadingImage" class="upload-content">
+                      <i class="icon-image"></i>
+                      <p class="upload-title">Upload Image</p>
+                      <p class="upload-subtitle">PNG, JPG up to 10MB</p>
+                    </div>
+                  </label>
+                </div>
+                <div *ngIf="formData['imageUrl']" class="media-preview">
+                  <img [src]="formData['imageUrl']" alt="Course" class="preview-image">
+                  <button type="button" class="remove-btn" (click)="removeImage()">
+                    <i class="icon-x"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Video Upload -->
+              <div class="media-group">
+                <label class="form-label">Course Video</label>
+                <div *ngIf="!formData['videoUrl']" class="upload-area">
+                  <input type="file" accept="video/*" (change)="handleVideoUpload($event)" class="file-input" id="video-upload">
+                  <label for="video-upload" class="upload-label">
+                    <div *ngIf="uploadingVideo" class="upload-loading">
+                      <div class="spinner"></div>
+                      <p>Uploading...</p>
+                    </div>
+                    <div *ngIf="!uploadingVideo" class="upload-content">
+                      <i class="icon-video"></i>
+                      <p class="upload-title">Upload Video</p>
+                      <p class="upload-subtitle">MP4, MOV up to 100MB</p>
+                    </div>
+                  </label>
+                </div>
+                <div *ngIf="formData['videoUrl']" class="media-preview">
+                  <video [src]="formData['videoUrl']" class="preview-video" controls></video>
+                  <button type="button" class="remove-btn" (click)="removeVideo()">
+                    <i class="icon-x"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Languages -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Available Languages</h2>
+            <p class="card-description">Select the languages this course is available in</p>
+          </div>
+          <div class="card-content">
+            <div class="language-grid">
+              <div *ngFor="let language of languages" class="language-item">
+                <label class="switch">
+                  <input
+                    type="checkbox"
+                    [checked]="formData['languagesAvailable'].includes(language)"
+                    (change)="handleLanguageToggle(language)">
+                  <span class="slider"></span>
+                </label>
+                <span class="language-label">{{ language }}</span>
+              </div>
+            </div>
+            <div *ngIf="formData.languagesAvailable.length > 0" class="selected-languages">
+              <span *ngFor="let language of formData['languagesAvailable']" class="language-badge">
+                {{ language }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sessions -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-content">
+              <div>
+                <h2 class="card-title">Sessions</h2>
+                <p class="card-description">Manage course session IDs</p>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" (click)="addSession()">
+                <i class="icon-plus"></i>
+                Add Session
+              </button>
+            </div>
+          </div>
+          <div class="card-content">
+            <div *ngIf="formData['sessionIds'].length === 0" class="empty-state">
+              <p>No sessions added yet. Click "Add Session" to get started.</p>
+            </div>
+            <div *ngIf="formData['sessionIds'].length > 0" class="session-list">
+              <div *ngFor="let sessionId of formData['sessionIds']; let i = index" class="session-item">
+                <input
+                  type="text"
+                  class="form-input"
+                  [value]="sessionId"
+                  (input)="updateSession(i, $event)"
+                  placeholder="Enter session ID">
+                <button type="button" class="btn btn-danger btn-sm" (click)="removeSession(i)">
+                  <i class="icon-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Files -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-content">
+              <div>
+                <h2 class="card-title">Course Files</h2>
+                <p class="card-description">Upload supporting materials and resources</p>
+              </div>
+              <div>
+                <input type="file" multiple (change)="handleFileUpload($event)" class="file-input" id="file-upload">
+                <label for="file-upload" class="btn btn-primary btn-sm" [class.loading]="uploadingFiles">
+                  <i *ngIf="!uploadingFiles" class="icon-upload"></i>
+                  <div *ngIf="uploadingFiles" class="spinner"></div>
+                  {{ uploadingFiles ? 'Uploading...' : 'Upload Files' }}
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="card-content">
+            <div *ngIf="formData['files'].length === 0" class="empty-state">
+              <p>No files uploaded yet. Click "Upload Files" to add course materials.</p>
+            </div>
+            <div *ngIf="formData['files'].length > 0" class="file-list">
+              <div *ngFor="let file of formData['files']; let i = index" class="file-item">
+                <div class="file-info">
+                  <i class="icon-file"></i>
+                  <div class="file-details">
+                    <p class="file-name">{{ file.name }}</p>
+                    <p class="file-size">{{ formatFileSize(file.size) }}</p>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm" (click)="removeFile(i)">
+                  <i class="icon-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text Content -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-content">
+              <div>
+                <h2 class="card-title">Text Content</h2>
+                <p class="card-description">Create lessons, assignments, and other text-based content</p>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" (click)="addTextContent()">
+                <i class="icon-plus"></i>
+                Add Content
+              </button>
+            </div>
+          </div>
+          <div class="card-content">
+            <div *ngIf="formData['textContent'].length === 0" class="empty-state">
+              <p>No text content added yet. Click "Add Content" to create lessons, assignments, or readings.</p>
+            </div>
+            <div *ngIf="formData['textContent'].length > 0" class="content-list">
+              <div *ngFor="let content of formData['textContent']; let i = index" class="content-item">
+                <div class="content-header">
+                  <div class="content-badges">
+                    <span class="content-number">#{{ i + 1 }}</span>
+                    <span class="content-type">{{ content.type | titlecase }}</span>
+                  </div>
+                  <div class="content-actions">
+                    <button
+                      type="button"
+                      class="btn btn-icon"
+                      (click)="moveTextContent(i, 'up')"
+                      [disabled]="i === 0">
+                      <i class="icon-arrow-up"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-icon"
+                      (click)="moveTextContent(i, 'down')"
+                      [disabled]="i === formData['textContent'].length - 1">
+                      <i class="icon-arrow-down"></i>
+                    </button>
+                    <button type="button" class="btn btn-icon btn-danger" (click)="removeTextContent(i)">
+                      <i class="icon-trash"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="content-form">
+                  <div class="content-form-row">
+                    <div class="form-group flex-2">
+                      <label class="form-label">Title</label>
+                      <input
+                        type="text"
+                        class="form-input"
+                        [value]="content.title"
+                        (input)="updateTextContent(i, 'title', $event)"
+                        placeholder="Content title">
+                    </div>
+                    <div class="form-group flex-1">
+                      <label class="form-label">Type</label>
+                      <select
+                        class="form-select"
+                        [value]="content.type"
+                        (change)="updateTextContent(i, 'type', $event)">
+                        <option *ngFor="let type of textContentTypes" [value]="type">
+                          {{ type | titlecase }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Content</label>
+                    <textarea
+                      class="form-textarea"
+                      [value]="content.content"
+                      (input)="updateTextContent(i, 'content', $event)"
+                      placeholder="Enter content"
+                      rows="4"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="sidebar-column">
+        <!-- Status Card -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Course Status</h3>
+          </div>
+          <div class="card-content">
+            <div class="status-item">
+              <label class="switch">
+                <input type="checkbox" [(ngModel)]="formData['archived']" (change)="toggleArchived()">
+                <span class="slider"></span>
+              </label>
+              <span class="status-label">Archived</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions Card -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Actions</h3>
+          </div>
+          <div class="card-content">
+            <div class="action-buttons">
+              <button
+                type="button"
+                class="btn btn-primary btn-block"
+                (click)="handleSave()"
+                [disabled]="!isFormValid() || loading">
+                <div *ngIf="loading" class="spinner"></div>
+                <i *ngIf="!loading" class="icon-save"></i>
+                Save Course
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline btn-block"
+                (click)="handlePreview()"
+                [disabled]="!isFormValid()">
+                <i class="icon-eye"></i>
+                Preview
+              </button>
+              <button
+                *ngIf="courseId !== 'new'"
+                type="button"
+                class="btn btn-outline btn-block"
+                (click)="handleDuplicate()">
+                <i class="icon-copy"></i>
+                Duplicate
+              </button>
+              <div *ngIf="courseId !== 'new'" class="separator"></div>
+              <button
+                *ngIf="courseId !== 'new'"
+                type="button"
+                class="btn btn-danger btn-block"
+                (click)="handleDelete()">
+                <i class="icon-trash"></i>
+                Delete Course
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Validation Summary -->
+        <div *ngIf="hasValidationErrors()" class="card error-card">
+          <div class="card-header">
+            <h3 class="card-title error-title">
+              <i class="icon-alert-circle"></i>
+              Validation Errors
+            </h3>
+          </div>
+          <div class="card-content">
+            <div class="validation-list">
+              <div *ngFor="let error of getValidationErrors()" class="validation-item">
+                <i class="icon-alert-circle"></i>
+                {{ error }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</app-base-layout>
