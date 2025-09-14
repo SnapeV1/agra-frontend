@@ -17,6 +17,11 @@ export class AdminCourseDetailsComponent implements OnInit {
   uploadingVideo = false;
   uploadingFiles = false;
 
+  // Store actual files
+  selectedImageFile: File | null = null;
+  selectedVideoFile: File | null = null;
+  selectedFiles: File[] = [];
+
   formData: Course = {
     id: "",
     title: "",
@@ -56,7 +61,13 @@ export class AdminCourseDetailsComponent implements OnInit {
     this.courseService.getCourseById(id).subscribe({
       next: (course) => {
         this.course = course;
-        this.formData = { ...course };
+        this.formData = {
+          ...course,
+          sessionIds: course.sessionIds || [],
+          languagesAvailable: course.languagesAvailable || [],
+          files: course.files || [],
+          textContent: course.textContent || []
+        };
         this.loading = false;
       },
       error: (err) => {
@@ -73,12 +84,6 @@ export class AdminCourseDetailsComponent implements OnInit {
         return !value || value.length < 3 ? "Title is required (min 3 characters)" : "";
       case "description":
         return !value || value.length < 10 ? "Description is required (min 10 characters)" : "";
-      case "domain":
-        return !value ? "Domain is required" : "";
-      case "country":
-        return !value ? "Country is required" : "";
-      case "trainerId":
-        return !value ? "Trainer ID is required" : "";
       default:
         return "";
     }
@@ -89,55 +94,74 @@ export class AdminCourseDetailsComponent implements OnInit {
     this.formData = { ...this.formData, [field]: value };
     const error = this.validateField(field, value);
     this.formErrors = { ...this.formErrors, [field]: error };
+    
+    if (!error) {
+      const { [field]: removedError, ...restErrors } = this.formErrors;
+      this.formErrors = restErrors;
+    }
   }
 
   handleLanguageToggle(language: string): void {
-    if (this.formData.languagesAvailable.includes(language)) {
-      this.formData.languagesAvailable = this.formData.languagesAvailable.filter((l) => l !== language);
+    const currentLanguages = this.formData.languagesAvailable || [];
+    
+    if (currentLanguages.includes(language)) {
+      this.formData.languagesAvailable = currentLanguages.filter((l) => l !== language);
     } else {
-      this.formData.languagesAvailable = [...this.formData.languagesAvailable, language];
+      this.formData.languagesAvailable = [...currentLanguages, language];
     }
   }
 
   addSession(): void {
-    this.formData.sessionIds = [...this.formData.sessionIds, ""];
+    const currentSessions = this.formData.sessionIds || [];
+    this.formData.sessionIds = [...currentSessions, ""];
   }
 
   updateSession(index: number, event: any): void {
     const value = event.target.value;
-    this.formData.sessionIds = this.formData.sessionIds.map((s, i) => (i === index ? value : s));
+    const currentSessions = this.formData.sessionIds || [];
+    this.formData.sessionIds = currentSessions.map((s, i) => (i === index ? value : s));
   }
 
   removeSession(index: number): void {
-    this.formData.sessionIds = this.formData.sessionIds.filter((_, i) => i !== index);
+    const currentSessions = this.formData.sessionIds || [];
+    this.formData.sessionIds = currentSessions.filter((_, i) => i !== index);
   }
 
-  // Missing text content functions
   addTextContent(): void {
-    this.formData.textContent = [...this.formData.textContent, { title: "", type: "lesson", content: "",order:1 }];
+    const currentContent = this.formData.textContent || [];
+    this.formData.textContent = [...currentContent, { 
+      title: "", 
+      type: "lesson", 
+      content: "", 
+      order: currentContent.length + 1 
+    }];
   }
 
   updateTextContent(index: number, field: string, event: any): void {
     const value = event.target.value;
-    this.formData.textContent = this.formData.textContent.map((content, i) =>
+    const currentContent = this.formData.textContent || [];
+    this.formData.textContent = currentContent.map((content, i) =>
       i === index ? { ...content, [field]: value } : content,
     );
   }
 
   removeTextContent(index: number): void {
-    this.formData.textContent = this.formData.textContent.filter((_, i) => i !== index);
+    const currentContent = this.formData.textContent || [];
+    this.formData.textContent = currentContent.filter((_, i) => i !== index);
   }
 
   moveTextContent(index: number, direction: "up" | "down"): void {
+    const currentContent = this.formData.textContent || [];
+    
     if (
       (direction === "up" && index === 0) ||
-      (direction === "down" && index === this.formData.textContent.length - 1)
+      (direction === "down" && index === currentContent.length - 1)
     ) {
       return;
     }
 
     const newIndex = direction === "up" ? index - 1 : index + 1;
-    const newContent = [...this.formData.textContent];
+    const newContent = [...currentContent];
     const temp = newContent[index];
     newContent[index] = newContent[newIndex];
     newContent[newIndex] = temp;
@@ -147,22 +171,51 @@ export class AdminCourseDetailsComponent implements OnInit {
   handleImageUpload(event: any): void {
     const file = event.target.files?.[0];
     if (!file) return;
+    
     this.uploadingImage = true;
 
-    // Simulate upload
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file');
+      this.uploadingImage = false;
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) { 
+      alert('Image file must be less than 10MB');
+      this.uploadingImage = false;
+      return;
+    }
+
+    // Store the actual file
+    this.selectedImageFile = file;
+    
     setTimeout(() => {
       this.formData.imageUrl = URL.createObjectURL(file);
       this.uploadingImage = false;
     }, 2000);
   }
 
-  // Missing video upload functions
   handleVideoUpload(event: any): void {
     const file = event.target.files?.[0];
     if (!file) return;
 
     this.uploadingVideo = true;
-    // Simulate upload
+
+    if (!file.type.startsWith('video/')) {
+      alert('Please select a valid video file');
+      this.uploadingVideo = false;
+      return;
+    }
+
+    if (file.size > 100 * 1024 * 1024) { 
+      alert('Video file must be less than 100MB');
+      this.uploadingVideo = false;
+      return;
+    }
+
+    // Store the actual file
+    this.selectedVideoFile = file;
+
     setTimeout(() => {
       this.formData.videoUrl = URL.createObjectURL(file);
       this.uploadingVideo = false;
@@ -171,29 +224,39 @@ export class AdminCourseDetailsComponent implements OnInit {
 
   removeVideo(): void {
     this.formData.videoUrl = "";
+    this.selectedVideoFile = null;
   }
 
-  // Missing file upload functions
   handleFileUpload(event: any): void {
     const files = Array.from(event.target.files || []) as File[];
     if (files.length === 0) return;
 
     this.uploadingFiles = true;
-    // Simulate upload
+    
     setTimeout(() => {
+      // Store actual files
+      this.selectedFiles = [...this.selectedFiles, ...files];
+      
       const newFiles = files.map((file) => ({
         name: file.name,
         size: file.size,
         url: URL.createObjectURL(file),
-        type:""
+        type: file.type || ""
       }));
-      this.formData.files = [...this.formData.files, ...newFiles];
+      
+      const currentFiles = this.formData.files || [];
+      this.formData.files = [...currentFiles, ...newFiles];
       this.uploadingFiles = false;
+      
+      event.target.value = '';
     }, 2000);
   }
 
   removeFile(index: number): void {
-    this.formData.files = this.formData.files.filter((_, i) => i !== index);
+    const currentFiles = this.formData.files || [];
+    this.formData.files = currentFiles.filter((_, i) => i !== index);
+    // Also remove from selectedFiles array
+    this.selectedFiles = this.selectedFiles.filter((_, i) => i !== index);
   }
 
   formatFileSize(bytes: number): string {
@@ -206,6 +269,7 @@ export class AdminCourseDetailsComponent implements OnInit {
 
   removeImage(): void {
     this.formData.imageUrl = "";
+    this.selectedImageFile = null;
   }
 
   isFormValid(): boolean {
@@ -213,7 +277,6 @@ export class AdminCourseDetailsComponent implements OnInit {
     return requiredFields.every((f) => !this.validateField(f, this.formData[f]));
   }
 
-  // Missing validation helper functions
   hasValidationErrors(): boolean {
     return Object.values(this.formErrors).some((error) => error);
   }
@@ -223,23 +286,47 @@ export class AdminCourseDetailsComponent implements OnInit {
   }
 
   handleSave(): void {
-    if (!this.isFormValid()) {
+    if (!this.isFormValid() || this.hasValidationErrors()) {
       alert("Please fix validation errors before saving.");
       return;
     }
 
     this.loading = true;
+    this.formData.updatedAt = new Date();
+    
+    if (this.courseId === "new") {
+      this.formData.createdAt = new Date();
+    }
 
     const saveCall = this.courseId === "new"
-      ? this.courseService.addCourse(this.formData)
-      : this.courseService.updateCourse(this.formData.id!, this.formData);
+      ? this.courseService.addCourse(this.formData, this.selectedImageFile ?? undefined)
+      : this.courseService.updateCourse(this.formData.id!, this.formData, this.selectedImageFile ?? undefined);
 
     saveCall.subscribe({
       next: (savedCourse) => {
         this.course = savedCourse;
-        this.formData = { ...savedCourse };
+        this.formData = {
+          ...savedCourse,
+          sessionIds: savedCourse.sessionIds || [],
+          languagesAvailable: savedCourse.languagesAvailable || [],
+          files: savedCourse.files || [],
+          textContent: savedCourse.textContent || []
+        };
         this.loading = false;
         alert("Course saved successfully!");
+        
+        // Log other files for future implementation
+        if (this.selectedVideoFile || this.selectedFiles.length > 0) {
+          console.log('Additional files not yet supported by service:', {
+            video: this.selectedVideoFile,
+            attachments: this.selectedFiles
+          });
+        }
+        
+        // Clear selected files after successful save
+        this.selectedImageFile = null;
+        this.selectedVideoFile = null;
+        this.selectedFiles = [];
       },
       error: (err) => {
         console.error(err);
@@ -253,20 +340,56 @@ export class AdminCourseDetailsComponent implements OnInit {
     this.formData.archived = !this.formData.archived;
   }
 
-  // Missing action functions
   handlePreview(): void {
+    if (!this.isFormValid()) {
+      alert("Please complete all required fields before previewing.");
+      return;
+    }
     alert("Opening course preview...");
   }
 
   handleDuplicate(): void {
+    if (!this.course) {
+      alert("Cannot duplicate course - original course data not loaded.");
+      return;
+    }
+    
     this.courseId = "new";
-    this.formData.id = "";
-    this.formData.title = `${this.formData.title} (Copy)`;
+    this.formData = {
+      ...this.formData,
+      id: "",
+      title: `${this.formData.title} (Copy)`,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    this.formErrors = {};
+    
+    // Clear selected files when duplicating
+    this.selectedImageFile = null;
+    this.selectedVideoFile = null;
+    this.selectedFiles = [];
   }
 
   handleDelete(): void {
-    if (confirm("Are you sure you want to delete this course?")) {
-      alert("Course deleted!");
+    if (!this.courseId || this.courseId === "new") {
+      alert("Cannot delete a new course.");
+      return;
+    }
+    
+    if (confirm("Are you sure you want to delete this course? This action cannot be undone.")) {
+      this.loading = true;
+      this.courseService.deleteCourse(this.courseId).subscribe({
+        next: () => {
+          alert("Course deleted successfully!");
+          // this.router.navigate(['/admin/courses']);
+        },
+        error: (err) => {
+          console.error(err);
+          alert("Failed to delete course.");
+          this.loading = false;
+        }
+      });
     }
   }
 }

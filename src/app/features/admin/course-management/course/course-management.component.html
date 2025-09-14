@@ -106,46 +106,51 @@
     </div>
     
     <form class="modal-content" (ngSubmit)="saveCourse()" #courseFormRef="ngForm">
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="title">Course Title *</label>
-          <input 
-            type="text" 
-            id="title" 
-            name="title" 
-            [(ngModel)]="courseForm.title" 
-            required
-            class="form-input"
-          >
-        </div>
+      <!-- Essential Course Info -->
+      <div class="form-section">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="title">Course Title *</label>
+            <input 
+              type="text" 
+              id="title" 
+              name="title" 
+              [(ngModel)]="courseForm.title" 
+              required
+              class="form-input"
+              placeholder="Enter course title"
+            >
+          </div>
 
-      
+          <div class="form-group">
+            <label for="domain">Domain *</label>
+            <input 
+              type="text" 
+              id="domain" 
+              name="domain" 
+              [(ngModel)]="courseForm.domain" 
+              required
+              class="form-input"
+              placeholder="e.g. Programming, Design, Business"
+            >
+          </div>
 
-        <div class="form-group">
-          <label for="domain">Domain *</label>
-          <input 
-            type="text" 
-            id="domain" 
-            name="domain" 
-            [(ngModel)]="courseForm.domain" 
-            required
-            class="form-input"
-          >
-        </div>
-
-        <div class="form-group">
-          <label for="country">Country *</label>
-          <input 
-            type="text" 
-            id="country" 
-            name="country" 
-            [(ngModel)]="courseForm.country" 
-            required
-            class="form-input"
-          >
+          <div class="form-group">
+            <label for="country">Country *</label>
+            <input 
+              type="text" 
+              id="country" 
+              name="country" 
+              [(ngModel)]="courseForm.country" 
+              required
+              class="form-input"
+              placeholder="Country of origin"
+            >
+          </div>
         </div>
       </div>
 
+      <!-- Course Description -->
       <div class="form-group">
         <label for="description">Description</label>
         <textarea 
@@ -216,9 +221,12 @@
  
       
       <div class="modal-actions">
-        <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
+        <button type="button" class="btn-secondary" (click)="closeModal()">
+          <i class="icon-close"></i> Cancel
+        </button>
         <button type="submit" class="btn-primary" [disabled]="loading || !courseFormRef.form.valid">
           <span *ngIf="loading" class="spinner-small"></span>
+          <i *ngIf="!loading" class="icon-check"></i>
           {{ loading ? 'Saving...' : 'Add Course' }}
         </button>
       </div>

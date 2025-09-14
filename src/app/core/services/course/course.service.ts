@@ -31,9 +31,12 @@ export class CourseService {
     return this.http.get<Course[]>(`${this.apiUrl}/search?q=${searchTerm}`);
   }
 
-addCourse(course: Course, image?: File): Observable<Course> {
+// Optional: Extended version of your CourseService to support more file types
+
+addCourse(course: Course, image?: File, video?: File, attachments?: File[]): Observable<Course> {
   const formData = new FormData();
-  console.log(image)
+  console.log('Files:', { image, video, attachments });
+  
   formData.append('course', new Blob([JSON.stringify(course)], {
     type: 'application/json'
   }));
@@ -42,14 +45,38 @@ addCourse(course: Course, image?: File): Observable<Course> {
     formData.append('image', image);
   }
   
+  if (video) {
+    formData.append('video', video);
+  }
+  
+  if (attachments && attachments.length > 0) {
+    attachments.forEach((file) => {
+      formData.append('attachments', file);
+    });
+  }
+  
   return this.http.post<Course>(`${this.apiUrl}/addCourse`, formData);
 }
-updateCourse(id: string, course: Course, image?: File): Observable<Course> {
+
+updateCourse(id: string, course: Course, image?: File, video?: File, attachments?: File[]): Observable<Course> {
   const formData = new FormData();
-  formData.append('course', new Blob([JSON.stringify(course)], { type: 'application/json' }));
+  
+  formData.append('course', new Blob([JSON.stringify(course)], { 
+    type: 'application/json' 
+  }));
   
   if (image) {
     formData.append('image', image);
+  }
+  
+  if (video) {
+    formData.append('video', video);
+  }
+  
+  if (attachments && attachments.length > 0) {
+    attachments.forEach((file) => {
+      formData.append('attachments', file);
+    });
   }
   
   return this.http.put<Course>(`${this.apiUrl}/updateCourse/${id}`, formData);
