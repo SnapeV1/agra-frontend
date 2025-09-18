@@ -86,8 +86,12 @@ updateCourse(id: string, course: Course, image?: File, video?: File, attachments
     return this.http.put(`${this.apiUrl}/ArchiveCourse/${id}`, {});
   }
 
+  unarchiveCourse(id: string|null): Observable<any> {
+    return this.http.put(`${this.apiUrl}/UnarchiveCourse/${id}`, {});
+  }
+
   deleteCourse(id: string|null): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.http.put(`${this.apiUrl}/ArchiveCourse/${id}`, {});
   }
 
 

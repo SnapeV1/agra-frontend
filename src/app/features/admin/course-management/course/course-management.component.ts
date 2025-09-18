@@ -14,7 +14,7 @@ export class CourseManagementComponent {
   loading = false;
   showModal = false;
   searchTerm = '';
-  filterStatus: 'all' | 'archived' | 'active' = 'all';
+  filterStatus: 'all' | 'archived' | 'active' = 'active';
 
   selectedImagePreview: string | null = null;
   selectedImageFile: File | null = null;
@@ -26,20 +26,79 @@ export class CourseManagementComponent {
   languagesString = '';
   sessionIdsString = '';
 
+  countries: string[] = [
+    "Algeria",
+    "Angola",
+    "Benin",
+    "Botswana",
+    "Burkina Faso",
+    "Burundi",
+    "Cabo Verde",
+    "Cameroon",
+    "Central African Republic",
+    "Chad",
+    "Comoros",
+    "Congo",
+    "Democratic Republic of the Congo",
+    "Djibouti",
+    "Egypt",
+    "Equatorial Guinea",
+    "Eritrea",
+    "Eswatini",
+    "Ethiopia",
+    "Gabon",
+    "Gambia",
+    "Ghana",
+    "Guinea",
+    "Guinea-Bissau",
+    "Ivory Coast",
+    "Kenya",
+    "Lesotho",
+    "Liberia",
+    "Libya",
+    "Madagascar",
+    "Malawi",
+    "Mali",
+    "Mauritania",
+    "Mauritius",
+    "Morocco",
+    "Mozambique",
+    "Namibia",
+    "Niger",
+    "Nigeria",
+    "Rwanda",
+    "Sao Tome and Principe",
+    "Senegal",
+    "Seychelles",
+    "Sierra Leone",
+    "Somalia",
+    "South Africa",
+    "South Sudan",
+    "Sudan",
+    "Tanzania",
+    "Togo",
+    "Tunisia",
+    "Uganda",
+    "Zambia",
+    "Zimbabwe"
+  ];
+
   courseForm: Course = {
     title: '',
     description: '',
-    imageUrl: '',
+    imageUrl: 'https://res.cloudinary.com/dmumvupow/image/upload/v1758218323/defaultCourse_qqgiil.png',
     domain: '',
     country: '',
-    trainerId: '',
+    trainerId: 'UMNAGRI',
     sessionIds: [],
     languagesAvailable: [],
     createdAt: new Date(),
     updatedAt: new Date(),
     archived: false,
     files: [],
-    textContent: []
+    textContent: [],
+    goals: []
+
   };
 
   constructor(private courseService: CourseService, private router: Router) {}
@@ -95,18 +154,19 @@ export class CourseManagementComponent {
   resetForm(): void {
     this.courseForm = {
       title: '',
-      imageUrl: '',
+      imageUrl: 'https://res.cloudinary.com/dmumvupow/image/upload/v1758218323/defaultCourse_qqgiil.png',
       description: '',
       domain: '',
       country: '',
-      trainerId: '',
+      trainerId: 'UMNAGRI',
       archived: false,
       sessionIds: [],
       languagesAvailable: [],
       createdAt: new Date(),
       updatedAt: new Date(),
       files: [],
-      textContent: []
+      textContent: [],
+       goals: []
     };
     this.languagesString = '';
     this.sessionIdsString = '';

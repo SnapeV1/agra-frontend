@@ -18,6 +18,7 @@ export interface Course {
   imagePublicId?: string; 
   thumbnailUrl?: string;
   detailImageUrl?: string;
+  goals: string[];
   
 }
 export interface CourseFile {

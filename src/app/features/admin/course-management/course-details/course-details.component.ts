@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { Course } from "src/app/core/models/course";
 import { CourseService } from "src/app/core/services/course/course.service";
 
@@ -28,8 +28,8 @@ export class AdminCourseDetailsComponent implements OnInit {
     description: "",
     domain: "",
     country: "",
-    trainerId: "",
-    imageUrl: "",
+    trainerId: "UMNAGRI",
+    imageUrl: "https://res.cloudinary.com/dmumvupow/image/upload/v1758218323/defaultCourse_qqgiil.png",
     videoUrl: "",
     sessionIds: [],
     languagesAvailable: [],
@@ -37,17 +37,73 @@ export class AdminCourseDetailsComponent implements OnInit {
     updatedAt: new Date(),
     archived: false,
     files: [],
-    textContent: []
+    textContent: [],
+    goals: []
   };
 
   formErrors: Record<string, string> = {};
 
   domains: string[] = ["Technology", "Business", "Design", "Marketing", "Healthcare", "Education"];
-  countries: string[] = ["United States", "United Kingdom", "Canada", "Australia", "Germany", "France"];
-  languages: string[] = ["English", "Spanish", "French", "German", "Italian", "Portuguese", "Chinese", "Japanese"];
+  countries: string[] = [
+    "Algeria",
+    "Angola",
+    "Benin",
+    "Botswana",
+    "Burkina Faso",
+    "Burundi",
+    "Cabo Verde",
+    "Cameroon",
+    "Central African Republic",
+    "Chad",
+    "Comoros",
+    "Congo",
+    "Democratic Republic of the Congo",
+    "Djibouti",
+    "Egypt",
+    "Equatorial Guinea",
+    "Eritrea",
+    "Eswatini",
+    "Ethiopia",
+    "Gabon",
+    "Gambia",
+    "Ghana",
+    "Guinea",
+    "Guinea-Bissau",
+    "Ivory Coast",
+    "Kenya",
+    "Lesotho",
+    "Liberia",
+    "Libya",
+    "Madagascar",
+    "Malawi",
+    "Mali",
+    "Mauritania",
+    "Mauritius",
+    "Morocco",
+    "Mozambique",
+    "Namibia",
+    "Niger",
+    "Nigeria",
+    "Rwanda",
+    "Sao Tome and Principe",
+    "Senegal",
+    "Seychelles",
+    "Sierra Leone",
+    "Somalia",
+    "South Africa",
+    "South Sudan",
+    "Sudan",
+    "Tanzania",
+    "Togo",
+    "Tunisia",
+    "Uganda",
+    "Zambia",
+    "Zimbabwe"
+  ];
+  languages: string[] = ["Arabic", "English", "French"];
   textContentTypes: string[] = ["lesson", "assignment", "reading", "quiz", "project"];
 
-  constructor(private route: ActivatedRoute, private courseService: CourseService) {}
+  constructor(private route: ActivatedRoute, private courseService: CourseService, private router: Router) {}
 
   ngOnInit(): void {
     this.courseId = this.route.snapshot.paramMap.get("id");
@@ -66,7 +122,8 @@ export class AdminCourseDetailsComponent implements OnInit {
           sessionIds: course.sessionIds || [],
           languagesAvailable: course.languagesAvailable || [],
           files: course.files || [],
-          textContent: course.textContent || []
+          textContent: course.textContent || [],
+          goals: course.goals || []
         };
         this.loading = false;
       },
@@ -116,15 +173,23 @@ export class AdminCourseDetailsComponent implements OnInit {
     this.formData.sessionIds = [...currentSessions, ""];
   }
 
-  updateSession(index: number, event: any): void {
-    const value = event.target.value;
-    const currentSessions = this.formData.sessionIds || [];
-    this.formData.sessionIds = currentSessions.map((s, i) => (i === index ? value : s));
-  }
-
   removeSession(index: number): void {
     const currentSessions = this.formData.sessionIds || [];
     this.formData.sessionIds = currentSessions.filter((_, i) => i !== index);
+  }
+
+  addGoal(): void {
+    const currentGoals = this.formData.goals || [];
+    this.formData.goals = [...currentGoals, ""];
+  }
+
+  removeGoal(index: number): void {
+    const currentGoals = this.formData.goals || [];
+    this.formData.goals = currentGoals.filter((_, i) => i !== index);
+  }
+
+  trackByIndex(index: number, item: any): number {
+    return index;
   }
 
   addTextContent(): void {
@@ -137,13 +202,7 @@ export class AdminCourseDetailsComponent implements OnInit {
     }];
   }
 
-  updateTextContent(index: number, field: string, event: any): void {
-    const value = event.target.value;
-    const currentContent = this.formData.textContent || [];
-    this.formData.textContent = currentContent.map((content, i) =>
-      i === index ? { ...content, [field]: value } : content,
-    );
-  }
+
 
   removeTextContent(index: number): void {
     const currentContent = this.formData.textContent || [];
@@ -272,6 +331,20 @@ export class AdminCourseDetailsComponent implements OnInit {
     this.selectedImageFile = null;
   }
 
+  triggerImageUpload(): void {
+    const fileInput = document.getElementById('image-change') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
+
+  triggerVideoUpload(): void {
+    const fileInput = document.getElementById('video-change') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
+
   isFormValid(): boolean {
     const requiredFields: (keyof Course)[] = ["title", "description", "domain", "country", "trainerId"];
     return requiredFields.every((f) => !this.validateField(f, this.formData[f]));
@@ -297,10 +370,17 @@ export class AdminCourseDetailsComponent implements OnInit {
     if (this.courseId === "new") {
       this.formData.createdAt = new Date();
     }
-console.log("selected video   ",this.selectedVideoFile)
+
+    // Filter out empty goals before saving
+    const filteredGoals = this.formData.goals.filter(goal => goal.trim() !== "");
+    const courseDataToSave = {
+      ...this.formData,
+      goals: filteredGoals
+    };
+
     const saveCall = this.courseId === "new"
-      ? this.courseService.addCourse(this.formData, this.selectedImageFile ?? undefined, this.selectedVideoFile ?? undefined)
-      : this.courseService.updateCourse(this.formData.id!, this.formData, this.selectedImageFile ?? undefined, this.selectedVideoFile ?? undefined);
+      ? this.courseService.addCourse(courseDataToSave, this.selectedImageFile ?? undefined, this.selectedVideoFile ?? undefined)
+      : this.courseService.updateCourse(this.formData.id!, courseDataToSave, this.selectedImageFile ?? undefined, this.selectedVideoFile ?? undefined);
 
 
     saveCall.subscribe({
@@ -311,9 +391,12 @@ console.log("selected video   ",this.selectedVideoFile)
           sessionIds: savedCourse.sessionIds || [],
           languagesAvailable: savedCourse.languagesAvailable || [],
           files: savedCourse.files || [],
-          textContent: savedCourse.textContent || []
-          
+          textContent: savedCourse.textContent || [],
+          goals: savedCourse.goals || []
         };
+
+        // Also update local formData to remove any empty goals that might still be in the UI
+        this.formData.goals = this.formData.goals.filter(goal => goal.trim() !== "");
 
 
         this.loading = false;
@@ -331,10 +414,13 @@ console.log("selected video   ",this.selectedVideoFile)
         this.selectedImageFile = null;
         this.selectedVideoFile = null;
         this.selectedFiles = [];
+
+        // Redirect to courses page after successful save
+        this.router.navigate(['/admin/courses']);
       },
       error: (err) => {
         console.error(err);
-        alert("Failed to save course.");
+        alert("Failed to save course.");  
         this.loading = false;
       },
     });
@@ -345,36 +431,7 @@ console.log("selected video   ",this.selectedVideoFile)
     this.formData.archived = !this.formData.archived;
   }
 
-  handlePreview(): void {
-    if (!this.isFormValid()) {
-      alert("Please complete all required fields before previewing.");
-      return;
-    }
-    alert("Opening course preview...");
-  }
 
-  handleDuplicate(): void {
-    if (!this.course) {
-      alert("Cannot duplicate course - original course data not loaded.");
-      return;
-    }
-    
-    this.courseId = "new";
-    this.formData = {
-      ...this.formData,
-      id: "",
-      title: `${this.formData.title} (Copy)`,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    
-    this.formErrors = {};
-    
-    // Clear selected files when duplicating
-    this.selectedImageFile = null;
-    this.selectedVideoFile = null;
-    this.selectedFiles = [];
-  }
 
   handleDelete(): void {
     if (!this.courseId || this.courseId === "new") {
@@ -386,12 +443,34 @@ console.log("selected video   ",this.selectedVideoFile)
       this.loading = true;
       this.courseService.deleteCourse(this.courseId).subscribe({
         next: () => {
-          alert("Course deleted successfully!");
-          // this.router.navigate(['/admin/courses']);
+          this.loading = false;
+          this.router.navigate(['/admin/courses']);
         },
         error: (err) => {
           console.error(err);
           alert("Failed to delete course.");
+          this.loading = false;
+        }
+      });
+    }
+  }
+
+  handleRetrieve(): void {
+    if (!this.courseId || this.courseId === "new") {
+      alert("Cannot retrieve a new course.");
+      return;
+    }
+    
+    if (confirm("Are you sure you want to retrieve this course? It will be unarchived and made available again.")) {
+      this.loading = true;
+      this.courseService.unarchiveCourse(this.courseId).subscribe({
+        next: () => {
+          this.formData.archived = false;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error(err);
+          alert("Failed to retrieve course.");
           this.loading = false;
         }
       });

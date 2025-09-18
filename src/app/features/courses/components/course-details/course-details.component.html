@@ -181,39 +181,18 @@ You need to be Enrolled in order to participate in the course        </div>
 
         <!-- Course Content -->
         <section class="section">
-          <h2>Course Content</h2>
-          <p class="content-summary">5 sections • 23 lectures • 8h total length</p>
-          <div class="curriculum">
-            <div class="curriculum-item">
-              <div class="curriculum-header">
-                <h3>1. Introduction and Setup</h3>
-                <span class="curriculum-meta">5 lectures • 45min</span>
-              </div>
+          <h2>Course Goals</h2>
+          <p class="content-summary" *ngIf="course?.goals && course.goals.length > 0">
+            What you'll learn in this course
+          </p>
+          <div class="goals-content" *ngIf="course?.goals && course.goals.length > 0">
+            <div class="goal-item" *ngFor="let goal of course.goals; let i = index">
+              <div class="goal-bullet">•</div>
+              <span class="goal-text">{{ goal }}</span>
             </div>
-            <div class="curriculum-item">
-              <div class="curriculum-header">
-                <h3>2. Core Concepts</h3>
-                <span class="curriculum-meta">8 lectures • 2h 30min</span>
-              </div>
-            </div>
-            <div class="curriculum-item">
-              <div class="curriculum-header">
-                <h3>3. Practical Applications</h3>
-                <span class="curriculum-meta">6 lectures • 2h 15min</span>
-              </div>
-            </div>
-            <div class="curriculum-item">
-              <div class="curriculum-header">
-                <h3>4. Advanced Topics</h3>
-                <span class="curriculum-meta">3 lectures • 1h 45min</span>
-              </div>
-            </div>
-            <div class="curriculum-item">
-              <div class="curriculum-header">
-                <h3>5. Final Project</h3>
-                <span class="curriculum-meta">1 lecture • 45min</span>
-              </div>
-            </div>
+          </div>
+          <div class="no-goals" *ngIf="!course?.goals || course.goals.length === 0">
+            <p>No learning goals have been defined for this course yet.</p>
           </div>
         </section>
       </div>

@@ -10,11 +10,10 @@ body, html {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden;
 }
 
 .register-container {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -23,8 +22,7 @@ body, html {
   padding-bottom: 2rem;
   position: relative;
   font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
   box-sizing: border-box;
 }
 
@@ -61,33 +59,19 @@ body, html {
   backdrop-filter: blur(25px);
   border-radius: 32px;
   padding: 0;
-  box-shadow: 
-    0 32px 64px -12px rgba(0, 0, 0, 0.15),
-    0 8px 32px -8px rgba(16, 185, 129, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
   width: 100%;
   max-width: 1100px;
-  min-height: 600px;
+  height: calc(100vh - 200px);
   max-height: 750px;
   position: relative;
   z-index: 1;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid #e5e7eb;
   display: grid;
   grid-template-columns: 1fr 1fr;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: translateY(0);
 }
 
-.register-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 
-    0 40px 80px -12px rgba(0, 0, 0, 0.2),
-    0 12px 40px -8px rgba(16, 185, 129, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-}
+
 
 .register-left {
   padding: 2.5rem;
@@ -186,6 +170,36 @@ body, html {
   background: white;
   border-radius: 0 24px 24px 0;
   overflow-y: auto;
+  height: 100%;
+  max-height: 100%;
+}
+
+/* Modern scrollbar styling */
+.register-right::-webkit-scrollbar {
+  width: 8px;
+}
+
+.register-right::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  margin: 10px 0;
+}
+
+.register-right::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #9ca3af, #6b7280);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.register-right::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  transform: scale(1.1);
+}
+
+/* Firefox scrollbar styling */
+.register-right {
+  scrollbar-width: thin;
+  scrollbar-color: #9ca3af rgba(0, 0, 0, 0.05);
 }
 
 .register-header {
@@ -228,6 +242,12 @@ body, html {
   font-size: 0.875rem;
   font-weight: 600;
   margin-bottom: 0.4rem;
+}
+
+.form-group label .optional {
+  color: #9ca3af;
+  font-weight: 400;
+  font-size: 0.8rem;
 }
 
 .input-wrapper {
@@ -278,6 +298,180 @@ body, html {
 
 .input-wrapper input::placeholder {
   color: #9ca3af;
+}
+
+/* Phone input with country code styling */
+.phone-input-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.country-code-wrapper {
+  flex-shrink: 0;
+  position: relative;
+}
+
+.custom-select {
+  position: relative;
+  width: 140px;
+}
+
+.select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  color: #111827;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  min-height: 52px;
+}
+
+.select-trigger:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.custom-select.open .select-trigger,
+.custom-select:focus .select-trigger {
+  border-color: #10b981;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 0 0 4px rgba(16, 185, 129, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.custom-select:focus {
+  outline: none;
+}
+
+.selected-country {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dropdown-arrow {
+  transition: transform 0.2s ease;
+  color: #6b7280;
+}
+
+.custom-select.open .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.select-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+
+.select-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f3f4f6;
+  justify-content: flex-start;
+}
+
+.select-option:last-child {
+  border-bottom: none;
+}
+
+.select-option:hover {
+  background-color: #f9fafb;
+}
+
+.select-option.selected {
+  background-color: #ecfdf5;
+  color: #10b981;
+}
+
+.select-option.highlighted {
+  background: rgba(16, 185, 129, 0.05);
+  border-left: 3px solid #10b981;
+  padding-left: 9px;
+}
+
+.country-code {
+  font-weight: 500;
+  min-width: 60px;
+  font-size: 15px;
+  color: #10b981;
+}
+
+/* Flag icon styling */
+.fi {
+  width: 20px;
+  height: 15px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.phone-input-wrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.phone-input-wrapper input {
+  width: 100%;
+  padding: 0.875rem 1.125rem 0.875rem 3rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  color: #111827;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.phone-input-wrapper input:focus {
+  outline: none;
+  border-color: #10b981;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 0 0 4px rgba(16, 185, 129, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.phone-input-wrapper input:hover:not(:focus) {
+  border-color: #d1d5db;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.phone-input-wrapper input::placeholder {
+  color: #9ca3af;
+}
+
+.phone-input-wrapper .input-icon {
+  position: absolute;
+  left: 1rem;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .input-icon {
@@ -559,9 +753,8 @@ body, html {
   .register-card {
     grid-template-columns: 1fr;
     max-width: 500px;
-    height: auto;
-    max-height: calc(100vh - 1rem);
-    overflow-y: auto;
+    height: calc(100vh - 120px);
+    max-height: calc(100vh - 120px);
   }
   
   .register-left {
@@ -571,6 +764,8 @@ body, html {
   .register-right {
     border-radius: 24px;
     padding: 2rem 1.5rem;
+    height: 100%;
+    overflow-y: auto;
   }
   
   .register-header h2 {
@@ -593,7 +788,8 @@ body, html {
   }
   
   .register-card {
-    max-height: calc(100vh - 1rem);
+    height: calc(100vh - 100px);
+    max-height: calc(100vh - 100px);
   }
   
   .register-right {
@@ -653,3 +849,20 @@ body, html {
     margin-bottom: 0.75rem;
   }
 }
+
+  
+  .features-list li {
+    margin-bottom: 0.75rem;
+  }
+  
+  .register-header {
+    margin-bottom: 1rem;
+  }
+  
+  .form-group {
+    margin-bottom: 0.75rem;
+  }
+  
+  .form-row {
+    margin-bottom: 0.75rem;
+  }

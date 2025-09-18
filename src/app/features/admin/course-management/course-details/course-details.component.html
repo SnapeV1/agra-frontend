@@ -16,22 +16,6 @@
           </div>
         </div>
         <div class="header-actions">
-          <button 
-            type="button" 
-            class="btn btn-outline" 
-            (click)="handlePreview()" 
-            [disabled]="!isFormValid()">
-            <i class="icon-eye"></i>
-            Preview
-          </button>
-          <button 
-            *ngIf="courseId !== 'new'" 
-            type="button" 
-            class="btn btn-outline" 
-            (click)="handleDuplicate()">
-            <i class="icon-copy"></i>
-            Duplicate
-          </button>
         </div>
       </div>
     </div>
@@ -97,7 +81,7 @@
                   [class.error]="formErrors['country']"
                   [(ngModel)]="formData['country']"
                   (change)="updateField('country', $event)">
-                  <option value="">Select country</option>
+                  <option value="" selected>Select country</option>
                   <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
                 </select>
                 <div *ngIf="formErrors['country']" class="error-message">{{ formErrors['country'] }}</div>
@@ -115,6 +99,40 @@
                 placeholder="Provide a detailed description of the course"
                 rows="4"></textarea>
               <div *ngIf="formErrors['description']" class="error-message">{{ formErrors['description'] }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Course Goals -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-content">
+              <div>
+                <h2 class="card-title">Course Goals</h2>
+                <p class="card-description">Define what students will achieve by completing this course</p>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" (click)="addGoal()">
+                <i class="icon-plus"></i>
+                Add Goal
+              </button>
+            </div>
+          </div>
+          <div class="card-content">
+            <div *ngIf="formData['goals'].length === 0" class="empty-state">
+              <p>No goals added yet. Click "Add Goal" to define what students will learn.</p>
+            </div>
+            <div *ngIf="formData['goals'].length > 0" class="goals-list">
+              <div *ngFor="let goal of formData['goals']; let i = index; trackBy: trackByIndex" class="goal-item">
+                <div class="goal-bullet">•</div>
+                <input
+                  type="text"
+                  class="form-input goal-input"
+                  [(ngModel)]="formData['goals'][i]"
+                  placeholder="Enter a course goal (e.g., Master advanced JavaScript concepts)">
+                <button type="button" class="btn btn-danger btn-sm" (click)="removeGoal(i)">
+                  <i class="icon-trash"></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -145,8 +163,15 @@
                   </label>
                 </div>
                 <div *ngIf="formData['imageUrl']" class="media-preview">
-                  <img [src]="formData['imageUrl']" alt="Course" class="preview-image">
-                  <button type="button" class="remove-btn" (click)="removeImage()">
+                  <input type="file" accept="image/*" (change)="handleImageUpload($event)" class="file-input" id="image-change">
+                  <div class="image-container" (click)="triggerImageUpload()">
+                    <img [src]="formData['imageUrl']" alt="Course" class="preview-image">
+                    <div class="image-overlay">
+                      <i class="icon-camera"></i>
+                      <span>Change Image</span>
+                    </div>
+                  </div>
+                  <button type="button" class="remove-btn-small" (click)="removeImage()" title="Remove Image">
                     <i class="icon-x"></i>
                   </button>
                 </div>
@@ -170,8 +195,15 @@
                   </label>
                 </div>
                 <div *ngIf="formData['videoUrl']" class="media-preview">
-                  <video [src]="formData['videoUrl']" class="preview-video" controls></video>
-                  <button type="button" class="remove-btn" (click)="removeVideo()">
+                  <input type="file" accept="video/*" (change)="handleVideoUpload($event)" class="file-input" id="video-change">
+                  <div class="video-container" (click)="triggerVideoUpload()">
+                    <video [src]="formData['videoUrl']" class="preview-video" controls></video>
+                    <div class="video-overlay">
+                      <i class="icon-video"></i>
+                      <span>Change Video</span>
+                    </div>
+                  </div>
+                  <button type="button" class="remove-btn-small" (click)="removeVideo()" title="Remove Video">
                     <i class="icon-x"></i>
                   </button>
                 </div>
@@ -226,12 +258,11 @@
               <p>No sessions added yet. Click "Add Session" to get started.</p>
             </div>
             <div *ngIf="formData['sessionIds'].length > 0" class="session-list">
-              <div *ngFor="let sessionId of formData['sessionIds']; let i = index" class="session-item">
+              <div *ngFor="let sessionId of formData['sessionIds']; let i = index; trackBy: trackByIndex" class="session-item">
                 <input
                   type="text"
                   class="form-input"
-                  [value]="sessionId"
-                  (input)="updateSession(i, $event)"
+                  [(ngModel)]="formData['sessionIds'][i]"
                   placeholder="Enter session ID">
                 <button type="button" class="btn btn-danger btn-sm" (click)="removeSession(i)">
                   <i class="icon-trash"></i>
@@ -299,7 +330,7 @@
               <p>No text content added yet. Click "Add Content" to create lessons, assignments, or readings.</p>
             </div>
             <div *ngIf="formData['textContent'].length > 0" class="content-list">
-              <div *ngFor="let content of formData['textContent']; let i = index" class="content-item">
+              <div *ngFor="let content of formData['textContent']; let i = index; trackBy: trackByIndex" class="content-item">
                 <div class="content-header">
                   <div class="content-badges">
                     <span class="content-number">#{{ i + 1 }}</span>
@@ -332,16 +363,14 @@
                       <input
                         type="text"
                         class="form-input"
-                        [value]="content.title"
-                        (input)="updateTextContent(i, 'title', $event)"
+                        [(ngModel)]="formData['textContent'][i].title"
                         placeholder="Content title">
                     </div>
                     <div class="form-group flex-1">
                       <label class="form-label">Type</label>
                       <select
                         class="form-select"
-                        [value]="content.type"
-                        (change)="updateTextContent(i, 'type', $event)">
+                        [(ngModel)]="formData['textContent'][i].type">
                         <option *ngFor="let type of textContentTypes" [value]="type">
                           {{ type | titlecase }}
                         </option>
@@ -352,8 +381,7 @@
                     <label class="form-label">Content</label>
                     <textarea
                       class="form-textarea"
-                      [value]="content.content"
-                      (input)="updateTextContent(i, 'content', $event)"
+                      [(ngModel)]="formData['textContent'][i].content"
                       placeholder="Enter content"
                       rows="4"></textarea>
                   </div>
@@ -398,30 +426,23 @@
                 <i *ngIf="!loading" class="icon-save"></i>
                 Save Course
               </button>
-              <button
-                type="button"
-                class="btn btn-outline btn-block"
-                (click)="handlePreview()"
-                [disabled]="!isFormValid()">
-                <i class="icon-eye"></i>
-                Preview
-              </button>
-              <button
-                *ngIf="courseId !== 'new'"
-                type="button"
-                class="btn btn-outline btn-block"
-                (click)="handleDuplicate()">
-                <i class="icon-copy"></i>
-                Duplicate
-              </button>
+
               <div *ngIf="courseId !== 'new'" class="separator"></div>
               <button
-                *ngIf="courseId !== 'new'"
+                *ngIf="courseId !== 'new' && !formData.archived"
                 type="button"
                 class="btn btn-danger btn-block"
                 (click)="handleDelete()">
                 <i class="icon-trash"></i>
                 Delete Course
+              </button>
+              <button
+                *ngIf="courseId !== 'new' && formData.archived"
+                type="button"
+                class="btn btn-success btn-block"
+                (click)="handleRetrieve()">
+                <i class="icon-refresh-cw"></i>
+                Retrieve Course
               </button>
             </div>
           </div>

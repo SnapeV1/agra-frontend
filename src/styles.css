@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Flag Icons CSS */
+@import 'flag-icons/css/flag-icons.min.css';
+
 /* Modern Color Palette based on #a4c552 */
 :root {
   /* Primary Colors */

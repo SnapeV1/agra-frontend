@@ -77,67 +77,65 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="phone">Phone Number</label>
-          <div class="input-wrapper">
-            <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <input 
-              type="tel" 
-              id="phone" 
-              name="phone" 
-              [(ngModel)]="registerData.phone"
-              placeholder="+1 (555) 123-4567"
-              required
-              #phone="ngModel">
-          </div>
-          <div class="error-message" *ngIf="phone.invalid && phone.touched">
-            Phone number is required
+       <div class="form-group">
+  <label for="phone">Phone Number</label>
+  <div class="phone-input-container">
+    <div class="country-code-wrapper">
+      <div class="custom-select" [class.open]="isCountryDropdownOpen" (keydown)="onDropdownKeydown($event)" tabindex="0">
+         <div class="select-trigger" (click)="toggleCountryDropdown()">
+          <span class="selected-country">
+             <span class="fi fi-{{ getSelectedCountry().country.toLowerCase() }}"></span>
+             {{ registerData.selectedCountryCode || 'Select' }}
+           </span>
+          <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="select-options" *ngIf="isCountryDropdownOpen">
+          <div 
+            class="select-option country-option" 
+            *ngFor="let country of countryCodes" 
+            (click)="selectCountry(country)"
+            [class.selected]="registerData.selectedCountryCode === country.code"
+            [class.highlighted]="highlightedCountry && highlightedCountry.code === country.code">
+            <span class="fi fi-{{ country.country.toLowerCase() }}"></span>
+            <span class="country-code">{{ country.code }}</span>
           </div>
         </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="country">Country</label>
-            <div class="input-wrapper">
-              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="10" stroke="#6b7280" stroke-width="2"/>
-                <line x1="2" y1="12" x2="22" y2="12" stroke="#6b7280" stroke-width="2"/>
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="#6b7280" stroke-width="2"/>
-              </svg>
-              <select 
-                id="country" 
-                name="country" 
-                [(ngModel)]="registerData.country"
-                required
-                #country="ngModel">
-                <option value="">Select country</option>
-                <option value="US">United States</option>
-                <option value="CA">Canada</option>
-                <option value="GB">United Kingdom</option>
-                <option value="AU">Australia</option>
-                <option value="IN">India</option>
-                <option value="BR">Brazil</option>
-                <option value="AR">Argentina</option>
-                <option value="MX">Mexico</option>
-                <option value="DE">Germany</option>
-                <option value="FR">France</option>
-                <option value="IT">Italy</option>
-                <option value="ES">Spain</option>
-                <option value="NL">Netherlands</option>
-                <option value="KE">Kenya</option>
-                <option value="NG">Nigeria</option>
-                <option value="ZA">South Africa</option>
-                <option value="CN">China</option>
-                <option value="JP">Japan</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div class="error-message" *ngIf="country.invalid && country.touched">
-              Please select a country
-            </div>
-          </div>
+      </div>
+    </div>
+    <div class="phone-input-wrapper">
+      <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+        xmlns="http://www.w3.org/2000/svg">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2
+          19.79 19.79 0 0 1-8.63-3.07
+          19.5 19.5 0 0 1-6-6
+          19.79 19.79 0 0 1-3.07-8.67
+          A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72
+          12.84 12.84 0 0 0 .7 2.81
+          2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6
+          l1.27-1.27a2 2 0 0 1 2.11-.45
+          12.84 12.84 0 0 0 2.81.7
+          A2 2 0 0 1 22 16.92z"
+          stroke="#6b7280" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round"/>
+      </svg>
+      <input 
+        type="tel" 
+        id="phone" 
+        name="phone" 
+        [(ngModel)]="registerData.phone"
+        (input)="onPhoneInput($event)"
+        (keydown)="onPhoneKeydown($event)"
+        placeholder="123-456-7890"
+        required
+        #phone="ngModel">
+    </div>
+  </div>
+  <div class="error-message" *ngIf="phone.invalid && phone.touched">
+    Phone number is required
+  </div>
+</div>
 
           <div class="form-group">
             <label for="language">Preferred Language</label>
@@ -158,61 +156,20 @@
                 #language="ngModel">
                 <option value="">Select language</option>
                 <option value="en">English</option>
-                <option value="es">Spanish</option>
                 <option value="fr">French</option>
-                <option value="de">German</option>
-                <option value="it">Italian</option>
-                <option value="pt">Portuguese</option>
-                <option value="zh">Chinese</option>
-                <option value="ja">Japanese</option>
                 <option value="ar">Arabic</option>
-                <option value="hi">Hindi</option>
-                <option value="sw">Swahili</option>
-                <option value="other">Other</option>
               </select>
             </div>
             <div class="error-message" *ngIf="language.invalid && language.touched">
               Please select a language
             </div>
           </div>
-        </div>
+       
+
+
 
         <div class="form-group">
-          <label for="domain">Farm/Agricultural Domain</label>
-          <div class="input-wrapper">
-            <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2v20M2 7l10 5 10-5M2 17l10 5 10-5" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <select 
-              id="domain" 
-              name="domain" 
-              [(ngModel)]="registerData.domain"
-              required
-              #domain="ngModel">
-              <option value="">Select domain</option>
-              <option value="crop-production">Crop Production</option>
-              <option value="livestock">Livestock</option>
-              <option value="dairy">Dairy Farming</option>
-              <option value="poultry">Poultry</option>
-              <option value="aquaculture">Aquaculture</option>
-              <option value="horticulture">Horticulture</option>
-              <option value="organic">Organic Farming</option>
-              <option value="greenhouse">Greenhouse</option>
-              <option value="agroforestry">Agroforestry</option>
-              <option value="mixed">Mixed Farming</option>
-              <option value="research">Agricultural Research</option>
-              <option value="consulting">Agricultural Consulting</option>
-              <option value="education">Agricultural Education</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          <div class="error-message" *ngIf="domain.invalid && domain.touched">
-            Please select your agricultural domain
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="role">Role</label>
+          <label for="profession">Profession <span class="optional">(Optional)</span></label>
           <div class="input-wrapper">
             <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -220,27 +177,13 @@
               <line x1="20" y1="8" x2="20" y2="14" stroke="#6b7280" stroke-width="2" stroke-linecap="round"/>
               <line x1="23" y1="11" x2="17" y2="11" stroke="#6b7280" stroke-width="2" stroke-linecap="round"/>
             </svg>
-            <select 
-              id="role" 
-              name="role" 
-              [(ngModel)]="registerData.role"
-              required
-              #role="ngModel">
-              <option value="">Select role</option>
-              <option value="farmer">Farmer</option>
-              <option value="agricultural-expert">Agricultural Expert</option>
-              <option value="researcher">Researcher</option>
-              <option value="consultant">Consultant</option>
-              <option value="educator">Educator</option>
-              <option value="student">Student</option>
-              <option value="agribusiness-owner">Agribusiness Owner</option>
-              <option value="cooperative-member">Cooperative Member</option>
-              <option value="extension-officer">Extension Officer</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          <div class="error-message" *ngIf="role.invalid && role.touched">
-            Please select your role
+            <input 
+              type="text" 
+              id="profession" 
+              name="profession" 
+              [(ngModel)]="registerData.profession"
+              placeholder="e.g., Agricultural Engineer, Farm Manager, etc."
+              #profession="ngModel">
           </div>
         </div>
 
