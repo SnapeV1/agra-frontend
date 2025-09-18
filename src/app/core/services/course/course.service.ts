@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Course } from 'src/app/core/models/course';
 
@@ -61,9 +61,8 @@ addCourse(course: Course, image?: File, video?: File, attachments?: File[]): Obs
 updateCourse(id: string, course: Course, image?: File, video?: File, attachments?: File[]): Observable<Course> {
   const formData = new FormData();
   
-  formData.append('course', new Blob([JSON.stringify(course)], { 
-    type: 'application/json' 
-  }));
+ formData.append('course', new Blob([JSON.stringify(course)], { type: 'application/json' }));
+
   
   if (image) {
     formData.append('image', image);
@@ -89,5 +88,17 @@ updateCourse(id: string, course: Course, image?: File, video?: File, attachments
 
   deleteCourse(id: string|null): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
+
+  uploadCourseVideo(courseId: string, videoFile: File, videoName?: string): Observable<any> {
+    const formData = new FormData();
+    formData.append('video', videoFile);
+    console.log("uploadCourseVideo:   ", courseId, videoFile, videoName);
+    if (videoName) {
+      formData.append('videoName', videoName);
+    }
+    
+    return this.http.post<any>(`${this.apiUrl}/${courseId}/upload-video`, formData);
   }
 }

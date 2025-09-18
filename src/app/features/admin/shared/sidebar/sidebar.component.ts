@@ -9,15 +9,22 @@ import { SidebarService } from '../../services/sidebar.service';
 })
 export class SidebarComponent implements OnInit, OnDestroy {
   isCollapsed = false;
+  isMobileOpen = false;
   activeMenuItem = 'dashboard';
   private subscription: Subscription = new Subscription();
 
-  constructor(private sidebarService: SidebarService, private elementRef: ElementRef) {}
+  constructor(public sidebarService: SidebarService, private elementRef: ElementRef) {}
 
   ngOnInit() {
     this.subscription.add(
       this.sidebarService.isCollapsed$.subscribe(collapsed => {
         this.isCollapsed = !collapsed;
+      })
+    );
+
+    this.subscription.add(
+      this.sidebarService.isMobileOpen$.subscribe(mobileOpen => {
+        this.isMobileOpen = mobileOpen;
       })
     );
   }
@@ -38,10 +45,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
   onDocumentClick(event: MouseEvent): void {
     const clickedElement = event.target as HTMLElement;
     const sidebarElement = this.elementRef.nativeElement.querySelector('.sidebar');
+    const toggleButton = document.querySelector('.mobile-sidebar-toggle');
     
-    // Only collapse if sidebar is expanded and click is outside
-    if (!this.isCollapsed && sidebarElement && !sidebarElement.contains(clickedElement)) {
-      this.isCollapsed = true;
+    // Close mobile sidebar if clicking outside and not on toggle button
+    if (this.isMobileOpen && sidebarElement && !sidebarElement.contains(clickedElement) && 
+        toggleButton && !toggleButton.contains(clickedElement)) {
+      this.sidebarService.closeMobile();
     }
   }
 

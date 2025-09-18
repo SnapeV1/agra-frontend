@@ -14,6 +14,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
   isLoggedIn = false;
   activeSection = 'overview';
   isDropdownOpen = false;
+  isMobileMenuOpen = false;
   user: AuthUser | null = null;
 
   private destroy$ = new Subject<void>();
@@ -43,8 +44,15 @@ export class NavigationComponent implements OnInit, OnDestroy {
   onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;
     const dropdown = target.closest('.user-menu');
+    const mobileToggle = target.closest('.mobile-toggle');
+    const mobileMenu = target.closest('.nav-menu');
+    
     if (!dropdown && this.isDropdownOpen) {
       this.closeDropdown();
+    }
+    
+    if (!mobileToggle && !mobileMenu && this.isMobileMenuOpen) {
+      this.closeMobileMenu();
     }
   }
 
@@ -170,6 +178,14 @@ export class NavigationComponent implements OnInit, OnDestroy {
         behavior: 'smooth'
       });
     }
+    
+    // Close mobile menu after navigation
+    this.closeMobileMenu();
+  }
+
+  onNavLinkClick(): void {
+    // Close mobile menu when any navigation link is clicked
+    this.closeMobileMenu();
   }
 
   isSectionActive(sectionId: string): boolean {
@@ -177,9 +193,41 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
     const mobileMenu = document.querySelector('.nav-menu');
-    if (mobileMenu) {
-      mobileMenu.classList.toggle('mobile-active');
+    const mobileToggle = document.querySelector('.mobile-toggle');
+    const body = document.body;
+    
+    if (mobileMenu && mobileToggle) {
+      mobileMenu.classList.toggle('mobile-active', this.isMobileMenuOpen);
+      mobileToggle.classList.toggle('active', this.isMobileMenuOpen);
     }
+    
+    // Prevent body scroll when mobile menu is open
+    if (this.isMobileMenuOpen) {
+      body.classList.add('mobile-menu-open');
+    } else {
+      body.classList.remove('mobile-menu-open');
+    }
+    
+    // Close dropdown if open
+    if (this.isMobileMenuOpen && this.isDropdownOpen) {
+      this.closeDropdown();
+    }
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen = false;
+    const mobileMenu = document.querySelector('.nav-menu');
+    const mobileToggle = document.querySelector('.mobile-toggle');
+    const body = document.body;
+    
+    if (mobileMenu && mobileToggle) {
+      mobileMenu.classList.remove('mobile-active');
+      mobileToggle.classList.remove('active');
+    }
+    
+    // Remove body scroll prevention
+    body.classList.remove('mobile-menu-open');
   }
 }

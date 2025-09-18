@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Course } from 'src/app/core/models/course';
 import { CourseService } from 'src/app/core/services/course/course.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-course-management',
@@ -17,6 +18,10 @@ export class CourseManagementComponent {
 
   selectedImagePreview: string | null = null;
   selectedImageFile: File | null = null;
+  selectedVideoFile: File | null = null;
+  videoUploadProgress = 0;
+  videoUploading = false;
+  videoUploadError: string | null = null;
 
   languagesString = '';
   sessionIdsString = '';
@@ -90,8 +95,8 @@ export class CourseManagementComponent {
   resetForm(): void {
     this.courseForm = {
       title: '',
-      description: '',
       imageUrl: '',
+      description: '',
       domain: '',
       country: '',
       trainerId: '',
@@ -107,6 +112,10 @@ export class CourseManagementComponent {
     this.sessionIdsString = '';
     this.selectedImageFile = null;
     this.selectedImagePreview = null;
+    this.selectedVideoFile = null;
+    this.videoUploadProgress = 0;
+    this.videoUploading = false;
+    this.videoUploadError = null;
   }
 
   saveCourse(): void {
@@ -123,11 +132,11 @@ export class CourseManagementComponent {
       ? this.sessionIdsString.split(',').map(id => id.trim())
       : [];
 
-    this.courseService.addCourse(this.courseForm, this.selectedImageFile || undefined)
+    this.courseService.addCourse(this.courseForm, this.selectedImageFile || undefined, this.selectedVideoFile || undefined)
       .subscribe({
         next: (course) => {
           this.courses.push(course);
-          this.goToCourseDetails(course)
+          this.goToCourseDetails(course);
           this.closeModal();
           this.loading = false;
         },
@@ -166,5 +175,82 @@ export class CourseManagementComponent {
     this.selectedImageFile = null;
     this.selectedImagePreview = null;
     this.courseForm.imageUrl = '';
+  }
+
+
+  onVideoSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      
+      if (!file.type.startsWith('video/')) {
+        this.videoUploadError = 'Please select a valid video file';
+        return;
+      }
+      
+      this.selectedVideoFile = file;
+      this.videoUploadError = null;
+    }
+  }
+
+
+  uploadCourseVideo(courseId: string, videoName?: string): void {
+    if (!this.selectedVideoFile) {
+      this.videoUploadError = 'Please select a video file first';
+      return;
+    }
+
+    this.videoUploading = true;
+    this.videoUploadProgress = 0;
+    this.videoUploadError = null;
+
+    this.courseService.uploadCourseVideo(courseId, this.selectedVideoFile, videoName)
+      .subscribe({
+        next: (response) => {
+          if (response && response.videoUrl) {
+            const courseIndex = this.courses.findIndex(c => c.id === courseId);
+            if (courseIndex !== -1) {
+              this.courses[courseIndex].videoUrl = response.videoUrl;
+              this.courses[courseIndex].videoPublicId = response.publicId;
+            }
+
+            if (this.courseForm.id === courseId) {
+              this.courseForm.videoUrl = response.videoUrl;
+              this.courseForm.videoPublicId = response.publicId;
+            }
+          }
+          
+          this.videoUploading = false;
+          this.videoUploadProgress = 100;
+          this.selectedVideoFile = null;
+          
+          alert('Video uploaded successfully!');
+        },
+        error: (error: HttpErrorResponse) => {
+          this.videoUploading = false;
+          this.videoUploadProgress = 0;
+          
+          // Extract error message from response if available
+          let errorMessage = 'Failed to upload video';
+          if (error.error && error.error.error) {
+            errorMessage = error.error.error;
+          } else if (error.message) {
+            errorMessage = error.message;
+          }
+          
+          this.videoUploadError = errorMessage;
+          console.error('Error uploading video:', error);
+        }
+      });
+  }
+
+  /**
+   * Removes the selected video file and resets upload state
+   */
+  removeVideo(): void {
+    this.selectedVideoFile = null;
+    this.videoUploadProgress = 0;
+    this.videoUploading = false;
+    this.videoUploadError = null;
   }
 }

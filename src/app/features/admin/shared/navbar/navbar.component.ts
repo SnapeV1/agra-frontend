@@ -12,6 +12,7 @@ import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthUser } from 'src/app/core/models/auth-user.model';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { SidebarService } from '../../services/sidebar.service';
 
 export interface BreadcrumbItem {
   label: string;
@@ -40,9 +41,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private userSubscription!: Subscription;
 
   constructor(
-    private authService: AuthService,
     private router: Router,
-    private eRef: ElementRef
+    private authService: AuthService,
+    private eRef: ElementRef,
+    public sidebarService: SidebarService
   ) {}
 
   ngOnInit() {
@@ -108,6 +110,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
   /** Toggle dropdown menu */
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
+  }
+
+  /** Toggle mobile sidebar */
+  toggleMobileSidebar(): void {
+    this.sidebarService.toggleMobile();
   }
 
   /** Handle notifications click */

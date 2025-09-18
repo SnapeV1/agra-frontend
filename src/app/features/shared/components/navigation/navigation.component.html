@@ -5,10 +5,10 @@
         </div>
         
 <div class="nav-menu">
-    <a [routerLink]="'/home'" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
-    <a [routerLink]="'/courses'" routerLinkActive="active">Courses</a>
-    <a [routerLink]="'/feed'" routerLinkActive="active">Feed</a>
-    <a [routerLink]="'/contact'" routerLinkActive="active">Contact us</a>
+    <a [routerLink]="'/home'" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="onNavLinkClick()">Home</a>
+    <a [routerLink]="'/courses'" routerLinkActive="active" (click)="onNavLinkClick()">Courses</a>
+    <a [routerLink]="'/feed'" routerLinkActive="active" (click)="onNavLinkClick()">Feed</a>
+    <a [routerLink]="'/contact'" routerLinkActive="active" (click)="onNavLinkClick()">Contact us</a>
 </div>
 
         <div class="nav-auth">
@@ -98,10 +98,15 @@
             </div>
         </div>
 
-        <button class="mobile-toggle" (click)="toggleMobileMenu()">
-            <span></span>
-            <span></span>
-            <span></span>
+        <button class="mobile-toggle" 
+                [class.active]="isMobileMenuOpen"
+                (click)="toggleMobileMenu()"
+                aria-label="Toggle mobile menu">
+            <div class="hamburger-container">
+                <div class="hamburger-bar"></div>
+                <div class="hamburger-bar"></div>
+                <div class="hamburger-bar"></div>
+            </div>
         </button>
     </div>
 </nav>

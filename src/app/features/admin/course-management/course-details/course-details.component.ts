@@ -297,10 +297,11 @@ export class AdminCourseDetailsComponent implements OnInit {
     if (this.courseId === "new") {
       this.formData.createdAt = new Date();
     }
-
+console.log("selected video   ",this.selectedVideoFile)
     const saveCall = this.courseId === "new"
-      ? this.courseService.addCourse(this.formData, this.selectedImageFile ?? undefined)
-      : this.courseService.updateCourse(this.formData.id!, this.formData, this.selectedImageFile ?? undefined);
+      ? this.courseService.addCourse(this.formData, this.selectedImageFile ?? undefined, this.selectedVideoFile ?? undefined)
+      : this.courseService.updateCourse(this.formData.id!, this.formData, this.selectedImageFile ?? undefined, this.selectedVideoFile ?? undefined);
+
 
     saveCall.subscribe({
       next: (savedCourse) => {
@@ -311,14 +312,17 @@ export class AdminCourseDetailsComponent implements OnInit {
           languagesAvailable: savedCourse.languagesAvailable || [],
           files: savedCourse.files || [],
           textContent: savedCourse.textContent || []
+          
         };
+
+
         this.loading = false;
         alert("Course saved successfully!");
-        
+        console.log("course   ",this.course)
+
         // Log other files for future implementation
-        if (this.selectedVideoFile || this.selectedFiles.length > 0) {
+        if (this.selectedFiles.length > 0) {
           console.log('Additional files not yet supported by service:', {
-            video: this.selectedVideoFile,
             attachments: this.selectedFiles
           });
         }
@@ -335,6 +339,7 @@ export class AdminCourseDetailsComponent implements OnInit {
       },
     });
   }
+  
 
   toggleArchived(): void {
     this.formData.archived = !this.formData.archived;

@@ -166,12 +166,20 @@ body {
   background: linear-gradient(135deg, #4a7c22, #6bb033);
   color: white;
   box-shadow: 0 4px 15px rgba(74, 124, 34, 0.3);
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
 }
 
 .cta-primary:hover,
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(74, 124, 34, 0.4);
+  background: linear-gradient(135deg, #3d6a1b, #5c9a29);
 }
 
 .btn-primary:disabled {
@@ -186,6 +194,15 @@ body {
   background: transparent;
   color: #4a7c22;
   border: 2px solid #4a7c22;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .cta-secondary:hover,
@@ -193,6 +210,7 @@ body {
   background: #4a7c22;
   color: white;
   transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(74, 124, 34, 0.2);
 }
 
 .btn-success {
@@ -1506,10 +1524,13 @@ body {
   width: 20px;
   height: 20px;
   transition: transform 0.3s ease;
+  stroke-width: 2;
+  margin-left: 5px;
 }
 
 .btn-view-more:hover .arrow-icon {
   transform: translateX(5px);
+  stroke-width: 2.5;
 }
 
 .courses-actions,

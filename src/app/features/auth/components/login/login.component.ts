@@ -26,22 +26,14 @@ export class LoginComponent {
     this.authService.login(this.loginData).subscribe({
       next: (response) => {
         this.isLoading = false;
-        
-        this.redirectBasedOnRole();
+        // AuthService handles the redirect based on redirectUrl
+        // No manual redirect needed here
       },
       error: (error) => {
         console.error('Login failed:', error);
         this.isLoading = false;
       }
     });
-  }
-
-  private redirectBasedOnRole() {
-    if (this.authService.isAdmin()) {
-      this.router.navigate(['/admin/dashboard']);
-    } else {
-      this.router.navigate(['/home']);
-    }
   }
 
   togglePassword() {

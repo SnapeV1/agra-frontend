@@ -1,4 +1,7 @@
-<nav class="sidebar" [class.collapsed]="isCollapsed" id="sidebar" (click)="onSidebarClick($event)">
+<!-- Mobile overlay -->
+<div class="mobile-overlay" [class.active]="isMobileOpen" (click)="sidebarService.closeMobile()"></div>
+
+<nav class="sidebar" [class.collapsed]="isCollapsed" [class.mobile-open]="isMobileOpen" id="sidebar" (click)="onSidebarClick($event)">
   <div class="sidebar-header">
     <div class="logo" 
          [class.clickable]="isCollapsed"

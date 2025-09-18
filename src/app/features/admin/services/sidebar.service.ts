@@ -6,7 +6,10 @@ import { BehaviorSubject, Observable } from 'rxjs';
 })
 export class SidebarService {
   private isCollapsedSubject = new BehaviorSubject<boolean>(false);
+  private isMobileOpenSubject = new BehaviorSubject<boolean>(false);
+  
   public isCollapsed$: Observable<boolean> = this.isCollapsedSubject.asObservable();
+  public isMobileOpen$: Observable<boolean> = this.isMobileOpenSubject.asObservable();
 
   constructor() {
     // Check initial screen size
@@ -27,14 +30,31 @@ export class SidebarService {
     this.isCollapsedSubject.next(false);
   }
 
+  toggleMobile(): void {
+    this.isMobileOpenSubject.next(!this.isMobileOpenSubject.value);
+  }
+
+  closeMobile(): void {
+    this.isMobileOpenSubject.next(false);
+  }
+
+  openMobile(): void {
+    this.isMobileOpenSubject.next(true);
+  }
+
   getCurrentState(): boolean {
     return this.isCollapsedSubject.value;
   }
 
+  getMobileState(): boolean {
+    return this.isMobileOpenSubject.value;
+  }
+
   private checkScreenSize(): void {
-    const shouldCollapse = window.innerWidth <= 768;
-    if (shouldCollapse !== this.isCollapsedSubject.value) {
-      this.isCollapsedSubject.next(shouldCollapse);
+    const isMobile = window.innerWidth <= 768;
+    // Close mobile sidebar when switching to desktop
+    if (!isMobile && this.isMobileOpenSubject.value) {
+      this.isMobileOpenSubject.next(false);
     }
   }
 }
