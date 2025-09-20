@@ -1,10 +1,4 @@
-export interface CourseProgress {
-courseId: string;
-  courseName: string;
-  progress: number;
-  completedAt?: string;
-  status: 'in-progress' | 'completed' | 'not-started';
-}
+import { CourseProgress } from "./course";
 
 export interface User {
   id: string;

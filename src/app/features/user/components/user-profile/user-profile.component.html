@@ -218,6 +218,236 @@
       </div>
     </div>
 
+    <!-- Enrolled Courses Section -->
+    <div *ngIf="!isLoading" class="bg-white rounded-2xl p-8 shadow-card">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+            <lucide-icon name="BookOpen" class="w-5 h-5 text-white"></lucide-icon>
+          </div>
+          My Enrolled Courses
+        </h2>
+        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+          {{ enrolledCourses.length }} Course{{ enrolledCourses.length !== 1 ? 's' : '' }}
+        </span>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="coursesLoading" class="space-y-4">
+        <div *ngFor="let i of [1,2,3]" class="animate-pulse">
+          <div class="bg-gray-200 rounded-xl h-32"></div>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="coursesError && !coursesLoading" class="text-center py-12">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <lucide-icon name="AlertTriangle" class="w-8 h-8 text-red-600"></lucide-icon>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Failed to Load Courses</h3>
+        <p class="text-gray-600 mb-4">{{ coursesError }}</p>
+        <button (click)="loadEnrolledCourses()" 
+                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
+          Try Again
+        </button>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!coursesLoading && !coursesError && enrolledCourses.length === 0" class="text-center py-12">
+        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <lucide-icon name="BookOpen" class="w-8 h-8 text-gray-400"></lucide-icon>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">No Enrolled Courses</h3>
+        <p class="text-gray-600 mb-4">Start your learning journey by enrolling in courses</p>
+        <a href="/courses" 
+           class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
+          <lucide-icon name="Plus" class="w-4 h-4"></lucide-icon>
+          Browse Courses
+        </a>
+      </div>
+
+      <!-- Courses Grid -->
+      <div *ngIf="!coursesLoading && !coursesError && enrolledCourses.length > 0" 
+           class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngFor="let enrolledCourse of enrolledCourses" 
+             class="group bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 hover:border-green-300 hover:shadow-lg transition-all duration-300 overflow-hidden">
+          
+          <!-- Course Image -->
+          <div class="relative h-48 overflow-hidden">
+            <img [src]="enrolledCourse.course?.imageUrl || 'https://res.cloudinary.com/dmumvupow/image/upload/v1758218323/defaultCourse_qqgiil.png'" 
+                 [alt]="enrolledCourse.course?.title || 'Course'"
+                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            
+            <!-- Status Badge -->
+            <div class="absolute top-3 right-3">
+              <span [ngClass]="{
+                'bg-green-500 text-white': enrolledCourse.status === 'completed',
+                'bg-blue-500 text-white': enrolledCourse.status === 'in-progress',
+                'bg-gray-500 text-white': enrolledCourse.status === 'not-started'
+              }" class="px-2 py-1 rounded-full text-xs font-medium capitalize">
+                {{ enrolledCourse.status === 'not-started' ? 'Not Started' : 
+                   enrolledCourse.status === 'in-progress' ? 'In Progress' : 'Completed' }}
+              </span>
+            </div>
+
+            <!-- Progress Overlay -->
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+              <div class="flex items-center gap-2 text-white text-sm">
+                <lucide-icon name="Clock" class="w-4 h-4"></lucide-icon>
+                <span>{{ getHoursFromMinutes(enrolledCourse.progress.totalTimeSpent || 0) }}h studied</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Course Content -->
+          <div class="p-6">
+            <div class="mb-4">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                {{ enrolledCourse.course?.title || 'Course Title' }}
+              </h3>
+              <p class="text-sm text-gray-600 mb-3 line-clamp-2">
+                {{ enrolledCourse.course?.description || 'Course description' }}
+              </p>
+              
+              <!-- Course Meta -->
+              <div class="flex items-center gap-4 text-xs text-gray-500 mb-4">
+                <div class="flex items-center gap-1">
+                  <lucide-icon name="Globe" class="w-3 h-3"></lucide-icon>
+                  <span>{{ enrolledCourse.course?.country || 'N/A' }}</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <lucide-icon name="Tag" class="w-3 h-3"></lucide-icon>
+                  <span>{{ enrolledCourse.course?.domain || 'N/A' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Enhanced Progress Section -->
+            <div class="mb-4 space-y-3">
+              <!-- Overall Progress -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-sm font-medium text-gray-700">Overall Progress</span>
+                  <span class="text-sm font-bold text-green-600">
+                    {{ enrolledCourse.progress.completionPercentage || 0 }}%
+                  </span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500"
+                       [style.width.%]="enrolledCourse.progress.completionPercentage || 0">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Session Progress -->
+              <div *ngIf="getSessionProgress(enrolledCourse).total > 0">
+                <div class="flex items-center justify-between mb-2">
+                  <button class="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+                          (click)="enrolledCourse.showSessionDetails = !enrolledCourse.showSessionDetails">
+                    <span>Sessions</span>
+                    <svg class="w-4 h-4 transition-transform duration-200"
+                         [class.rotate-180]="enrolledCourse.showSessionDetails"
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </button>
+                  <span class="text-sm text-gray-600">
+                    {{ getSessionProgress(enrolledCourse).completed }} / {{ getSessionProgress(enrolledCourse).total }}
+                  </span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-1.5 mb-2">
+                  <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full transition-all duration-500"
+                       [style.width.%]="getSessionProgress(enrolledCourse).percentage">
+                  </div>
+                </div>
+                
+                <!-- Detailed Session Progress -->
+                <div *ngIf="enrolledCourse.showSessionDetails" class="mt-3 space-y-2 bg-gray-50 p-3 rounded-lg">
+                  <div class="text-xs font-medium text-gray-600 mb-2">Session Progress Details</div>
+                  <div class="grid grid-cols-5 gap-2" *ngIf="enrolledCourse.progress.totalSessions">
+                    <div *ngFor="let session of getSessionArray(enrolledCourse.progress.totalSessions); let i = index"
+                         class="flex items-center justify-center w-8 h-8 rounded-full text-xs font-medium transition-all duration-200"
+                         [ngClass]="{
+                           'bg-green-500 text-white': isSessionCompleted(enrolledCourse, i + 1),
+                           'bg-blue-500 text-white': isCurrentSession(enrolledCourse, i + 1),
+                           'bg-gray-300 text-gray-600': !isSessionCompleted(enrolledCourse, i + 1) && !isCurrentSession(enrolledCourse, i + 1)
+                         }"
+                         [title]="getSessionTooltip(enrolledCourse, i + 1)">
+                      {{ i + 1 }}
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between text-xs text-gray-500 mt-2">
+                    <div class="flex items-center space-x-4">
+                      <div class="flex items-center space-x-1">
+                        <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <span>Completed</span>
+                      </div>
+                      <div class="flex items-center space-x-1">
+                        <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                        <span>Current</span>
+                      </div>
+                      <div class="flex items-center space-x-1">
+                        <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                        <span>Upcoming</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Progress Milestone -->
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                  <span class="text-lg">{{ getProgressMilestone(enrolledCourse.progress.completionPercentage || 0).icon }}</span>
+                  <span class="text-sm font-medium" 
+                        [ngClass]="getProgressMilestone(enrolledCourse.progress.completionPercentage || 0).color">
+                    {{ getProgressMilestone(enrolledCourse.progress.completionPercentage || 0).label }}
+                  </span>
+                </div>
+                <span class="text-xs text-gray-500" *ngIf="enrolledCourse.status !== 'completed'">
+                  {{ getEstimatedTimeToComplete(enrolledCourse) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-2">
+              <button *ngIf="enrolledCourse.status === 'not-started'" 
+                      (click)="startCourse(enrolledCourse.courseId)"
+                      class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
+                <lucide-icon name="Play" class="w-4 h-4"></lucide-icon>
+                <span>Start Course</span>
+              </button>
+              
+              <button *ngIf="enrolledCourse.status === 'in-progress'" 
+                      (click)="continueCourse(enrolledCourse.courseId)"
+                      class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                <lucide-icon name="ArrowRight" class="w-4 h-4"></lucide-icon>
+                <span>Continue</span>
+              </button>
+              
+              <button *ngIf="enrolledCourse.status === 'completed'" 
+                      (click)="viewCertificate(enrolledCourse.courseId)"
+                      [disabled]="!enrolledCourse.progress.certificateUrl"
+                      class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200">
+                <lucide-icon name="Award" class="w-4 h-4"></lucide-icon>
+                <span>Certificate</span>
+              </button>
+            </div>
+
+            <!-- Additional Info for Completed Courses -->
+            <div *ngIf="enrolledCourse.status === 'completed' && enrolledCourse.progress.completedAt" 
+                 class="mt-3 pt-3 border-t border-gray-200">
+              <div class="flex items-center gap-2 text-xs text-gray-500">
+                <lucide-icon name="CheckCircle" class="w-3 h-3 text-green-500"></lucide-icon>
+                <span>Completed on {{ enrolledCourse.progress.completedAt | date:'mediumDate' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 <app-footer></app-footer>

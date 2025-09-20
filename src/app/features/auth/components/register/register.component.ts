@@ -207,21 +207,6 @@ constructor(private router: Router, private authService: AuthService) {}
     // });
   }
 
-  onFacebookRegister() {
-    console.log('Facebook registration clicked');
-    // To Implement Facebook OAuth registration
-  
-    // this.authService.facebookSignUp().subscribe({
-    //   next: (response) => {
-    //     console.log('Facebook registration successful:', response);
-    //     this.router.navigate(['/dashboard']);
-    //   },
-    //   error: (error) => {
-    //     console.error('Facebook registration failed:', error);
-    //   }
-    // });
-  }
-
   // Helper method to validate form before submission
   isFormValid(): boolean {
     return !!(

@@ -338,9 +338,8 @@
 }
 
 .social-login {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  display: flex;
+  justify-content: center;
   margin-bottom: 2rem;
 }
 
@@ -370,11 +369,6 @@
 .google-btn:hover {
   border-color: #4285f4;
   box-shadow: 0 4px 12px -2px rgba(66, 133, 244, 0.2);
-}
-
-.facebook-btn:hover {
-  border-color: #1877f2;
-  box-shadow: 0 4px 12px -2px rgba(24, 119, 242, 0.2);
 }
 
 .signup-link {
@@ -414,7 +408,7 @@
   }
   
   .social-login {
-    grid-template-columns: 1fr;
+    justify-content: center;
   }
   
   .form-options {

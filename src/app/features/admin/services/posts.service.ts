@@ -17,7 +17,6 @@ export class PostsService {
   private readonly apiUrl = 'http://localhost:8080/api/posts/sorted';
   constructor(private http: HttpClient,private authService: AuthService,
   ) {}
-private token=this.authService.getToken();
   /** Fetch all posts from backend */
   fetchPosts(): void {
     this.http.get<Post[]>(this.apiUrl)
@@ -70,27 +69,134 @@ private token=this.authService.getToken();
     this.updatePosts();
   }
 
-  /** Toggle like on a post locally */
+  /** Toggle like on a post */
   toggleLike(post: Post): void {
+    console.log('🔧 PostsService - toggleLike called for post:', post.id);
+    console.log('📊 Initial state - isLiked:', post.isLikedByCurrentUser, 'likesCount:', post.likesCount);
+    
+    // Ensure likesCount has a default value
+    if (post.likesCount === undefined || post.likesCount === null) {
+      post.likesCount = 0;
+    }
+    
+    // Update local state immediately for optimistic UI
     post.isLikedByCurrentUser = !post.isLikedByCurrentUser;
-    post.likesCount = (post.likesCount || 0) + (post.isLikedByCurrentUser ? 1 : -1);
+    post.likesCount += post.isLikedByCurrentUser ? 1 : -1;
+    console.log('🔄 Local state updated - isLiked:', post.isLikedByCurrentUser, 'likesCount:', post.likesCount);
+
+    // Notify subscribers of the optimistic update
     this.updatePosts();
+    console.log('📢 Notified subscribers of optimistic update');
+
+    const token = this.authService.getToken();
+    console.log('🔑 Token retrieved:', token ? 'Present' : 'Missing');
+    
+    if (token) {
+      const url = `http://localhost:8080/api/posts/${post.id}/like`;
+      console.log('🌐 Making API call to:', url);
+      
+      this.http.post(url, {}, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).subscribe({
+        next: (response) => {
+          console.log('✅ API response received:', response);
+          // Update the post with the response from server
+          if (response && typeof response === 'object') {
+            Object.assign(post, response);
+            console.log('🔄 Post updated with server response');
+            this.updatePosts();
+            console.log('📢 Notified subscribers of server update');
+          }
+        },
+        error: (error) => {
+          console.error('❌ API error:', error);
+          // Revert optimistic update on error
+          post.isLikedByCurrentUser = !post.isLikedByCurrentUser;
+          post.likesCount = (post.likesCount || 0) + (post.isLikedByCurrentUser ? 1 : -1);
+          console.log('↩️ Reverted local state due to error');
+          this.updatePosts();
+          console.log('📢 Notified subscribers of error revert');
+        }
+      });
+    } else {
+      console.log('❌ No token available, reverting local state');
+      // Revert if no token
+      post.isLikedByCurrentUser = !post.isLikedByCurrentUser;
+      post.likesCount = (post.likesCount || 0) + (post.isLikedByCurrentUser ? 1 : -1);
+      this.updatePosts();
+      console.log('📢 Notified subscribers of no-token revert');
+    }
   }
 
-  /** Toggle like on a comment locally */
+  /** Toggle like on a comment */
   toggleCommentLike(comment: PostComment): void {
+    // Update local state immediately for better UX
+    const wasLiked = comment.isLikedByCurrentUser;
     comment.isLikedByCurrentUser = !comment.isLikedByCurrentUser;
     comment.likesCount = (comment.likesCount || 0) + (comment.isLikedByCurrentUser ? 1 : -1);
     this.updatePosts();
+
+    // Make API call to persist the change
+    const token = this.authService.getToken();
+    if (token) {
+      this.http.post(`http://localhost:8080/api/comments/${comment.id}/like`, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }).subscribe({
+        next: (response: any) => {
+          // Update the like state based on server response
+          if (response && typeof response.isLiked === 'boolean') {
+            comment.isLikedByCurrentUser = response.isLiked;
+            this.updatePosts();
+          }
+        },
+        error: (error) => {
+          console.error('Error toggling comment like:', error);
+          // Revert local state on error
+          comment.isLikedByCurrentUser = wasLiked;
+          comment.likesCount = (comment.likesCount || 0) + (wasLiked ? 1 : -1);
+          this.updatePosts();
+        }
+      });
+    }
   }
 
-  /** Add a comment to a post locally */
+  /** Add a comment to a post */
   addComment(post: Post, comment: PostComment): void {
+    // Update local state immediately for better UX
     post.comments = post.comments || [];
     post.comments.push(comment);
     post.commentsCount = (post.commentsCount || 0) + 1;
-    //post.showComments = true;
     this.updatePosts();
+
+    // Make API call to persist the comment
+    const token = this.authService.getToken();
+    if (token) {
+      this.http.post(`http://localhost:8080/api/posts/${post.id}/comments`, {
+        content: comment.content
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }).subscribe({
+        next: (response: any) => {
+          // Update the comment with the server response if needed
+          if (response && response.id) {
+            comment.id = response.id;
+            this.updatePosts();
+          }
+        },
+        error: (error) => {
+          console.error('Error adding comment:', error);
+          // Remove the comment from local state on error
+          post.comments = post.comments?.filter(c => c.id !== comment.id) || [];
+          post.commentsCount = Math.max(0, (post.commentsCount || 1) - 1);
+          this.updatePosts();
+        }
+      });
+    }
   }
 
   /** Update BehaviorSubject */
@@ -111,11 +217,12 @@ private token=this.authService.getToken();
 
 
 createPostOnServer(formData: FormData): Observable<Post> {
-        console.log("this.token",this.token)
+  const token = this.authService.getToken();
+  console.log("token", token);
 
   return this.http.post<Post>(`http://localhost:8080/api/posts/CreatePost`, formData, {
     headers: {
-      'Authorization': `Bearer ${this.token}`
+      'Authorization': `Bearer ${token}`
     }
   });
 

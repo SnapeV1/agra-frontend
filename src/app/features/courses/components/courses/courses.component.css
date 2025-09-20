@@ -55,24 +55,55 @@
   box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
 }
 
-.filters-block { text-align: center; }
-.filters-title { font-weight: 600; margin-bottom: 0.5rem; color: #374151; }
+.filters-row {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
 
-.category-btn {
-  display: inline-flex;
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 200px;
+}
+
+.filter-label {
+  display: flex;
   align-items: center;
-  padding: 0.5rem 1rem;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.filter-select {
+  padding: 0.75rem 1rem;
   border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
   background-color: #fff;
   color: #374151;
   font-size: 0.875rem;
-  font-weight: 500;
   cursor: pointer;
-  border-radius: 9999px;
-  transition: background 0.2s, transform 0.15s, border-color 0.2s;
+  transition: all 0.2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
 }
-.category-btn:hover { background-color: #f9fafb; border-color: #d1d5db; }
-.category-btn.active { background-color: #3b82f6; color: #fff; border-color: #3b82f6; }
+
+.filter-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+
+.filter-select:hover {
+  border-color: #d1d5db;
+}
 
 .badge {
   display: inline-flex;
@@ -114,18 +145,26 @@
 .text-yellow-400 { color: #fbbf24; }
 .text-muted-foreground { color: #6b7280; }
 
-/* Badges for domain/country */
-.badge-domain {
-  background: #eaf3ff;
-  color: #0077c2;
+/* Badges for country/language */
+.badge-country {
+  background: #e8f5e8;
+  color: #27ae60;
   padding: 4px 10px;
   border-radius: 8px;
   font-size: 0.75rem;
   font-weight: 500;
 }
-.badge-country {
-  background: #e8f5e8;
-  color: #27ae60;
+.badge-language {
+  background: #f3e8ff;
+  color: #7c3aed;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.badge-more {
+  background: #f1f5f9;
+  color: #64748b;
   padding: 4px 10px;
   border-radius: 8px;
   font-size: 0.75rem;

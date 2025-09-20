@@ -38,51 +38,52 @@
         />
       </div>
 
-      <div class="filters-block">
-        <div class="filters-title">Domains</div>
-        <div class="flex flex-wrap justify-center gap-2">
-          <button
-            class="category-btn rounded-full"
-            [class.active]="selectedDomain === ''"
-            (click)="selectDomain('')"
+      <div class="filters-row">
+        <div class="filter-group">
+          <label for="languageFilter" class="filter-label">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+            </svg>
+            Language
+          </label>
+          <select 
+            id="languageFilter"
+            class="filter-select"
+            [(ngModel)]="selectedLanguage"
+            (change)="onLanguageChange($event)"
           >
-            All Domains
-            <span class="badge badge-secondary ml-2 text-xs">{{ courses.length }}</span>
-          </button>
-
-          <button
-            *ngFor="let d of domainListWithCounts"
-            class="category-btn rounded-full"
-            [class.active]="selectedDomain === d.value"
-            (click)="selectDomain(d.value)"
-          >
-            {{ d.value }}
-            <span class="badge badge-secondary ml-2 text-xs">{{ d.count }}</span>
-          </button>
+            <option value="">All Languages ({{ courses.length }})</option>
+            <option 
+              *ngFor="let lang of languageListWithCounts" 
+              [value]="lang.value"
+            >
+              {{ lang.value }} ({{ lang.count }})
+            </option>
+          </select>
         </div>
-      </div>
 
-      <div class="filters-block">
-        <div class="filters-title">Countries</div>
-        <div class="flex flex-wrap justify-center gap-2">
-          <button
-            class="category-btn rounded-full"
-            [class.active]="selectedCountry === ''"
-            (click)="selectCountry('')"
+        <div class="filter-group">
+          <label for="countryFilter" class="filter-label">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            Country
+          </label>
+          <select 
+            id="countryFilter"
+            class="filter-select"
+            [(ngModel)]="selectedCountry"
+            (change)="onCountryChange($event)"
           >
-            All Countries
-            <span class="badge badge-secondary ml-2 text-xs">{{ courses.length }}</span>
-          </button>
-
-          <button
-            *ngFor="let c of countryListWithCounts"
-            class="category-btn rounded-full"
-            [class.active]="selectedCountry === c.value"
-            (click)="selectCountry(c.value)"
-          >
-            {{ c.value }}
-            <span class="badge badge-secondary ml-2 text-xs">{{ c.count }}</span>
-          </button>
+            <option value="">All Countries ({{ courses.length }})</option>
+            <option 
+              *ngFor="let country of countryListWithCounts" 
+              [value]="country.value"
+            >
+              {{ country.value }} ({{ country.count }})
+            </option>
+          </select>
         </div>
       </div>
 
@@ -171,8 +172,11 @@
           </div>
 
           <div class="flex items-center gap-2 mt-3 flex-wrap">
-            <span class="badge badge-domain">{{ course.domain }}</span>
             <span class="badge badge-country">{{ course.country }}</span>
+            <span class="badge badge-language" *ngFor="let lang of course.languagesAvailable?.slice(0, 2)">{{ lang }}</span>
+            <span class="badge badge-more" *ngIf="course.languagesAvailable && course.languagesAvailable.length > 2">
+              +{{ course.languagesAvailable.length - 2 }} more
+            </span>
           </div>
         </div>
 

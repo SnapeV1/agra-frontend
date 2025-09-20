@@ -50,9 +50,4 @@ export class LoginComponent {
     console.log('Google login clicked');
     // TO DO
   }
-
-  onFacebookLogin() {
-    console.log('Facebook login clicked');
-    // TO DO
-  }
 }

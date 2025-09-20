@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { AdminRoutingModule } from './admin-routing.module';
 import { FormsModule } from '@angular/forms';
-import { CoursesModule } from '../courses/courses.module';
+// import { CoursesModule } from '../courses/courses.module';
 import { SharedModule } from './shared/shared.module';
 import { DashboardAdminComponent } from './dashboard-admin/dashboard-admin.component';
 import { RouterModule } from '@angular/router';
@@ -22,7 +22,7 @@ import { CourseManagementModule } from './course-management/course-management.mo
   imports: [
     CommonModule,
     FormsModule,
-    CoursesModule,
+    // CoursesModule,
     CourseManagementModule,
     SharedModule,
     RouterModule,

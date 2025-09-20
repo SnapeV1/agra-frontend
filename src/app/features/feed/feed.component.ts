@@ -65,26 +65,36 @@ export class FeedComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.postsService.posts$.subscribe({
         next: posts => {
-          this.posts = posts.map(post => ({
-            ...post,
-            user: post.userInfo,
-            content: post.content || '',
-            image: post.imageUrl,
-            timestamp: post.createdAt ? new Date(post.createdAt) : new Date(),
-            likes: post.likesCount || 0,
-            isLiked: post.isLikedByCurrentUser || false,
-            comments: (post.comments || []).map(comment => ({
-              id: comment.id,
-              user: comment.userInfo ? comment.userInfo : this.getDefaultUser(),
-              content: comment.content,
-              timestamp: comment.createdAt ? new Date(comment.createdAt) : new Date(),
-              likes: comment.likesCount || 0,
-              isLiked: comment.isLikedByCurrentUser || false
-            })),
-            showComments: post.showComments || false,
-            newComment: post.newComment || ''
-          }));
+          // Update existing posts or create new ones, preserving UI state
+          const updatedPosts = posts.map(servicePost => {
+            // Find existing post to preserve UI state like showComments, newComment
+            const existingPost = this.posts.find(p => p.id === servicePost.id);
+            
+            return {
+              ...servicePost,
+              user: servicePost.userInfo,
+              content: servicePost.content || '',
+              image: servicePost.imageUrl,
+              timestamp: servicePost.createdAt ? new Date(servicePost.createdAt) : new Date(),
+              likes: servicePost.likesCount || 0,
+              isLiked: servicePost.isLikedByCurrentUser || false,
+              comments: (servicePost.comments || []).map(comment => ({
+                id: comment.id,
+                user: comment.userInfo ? comment.userInfo : this.getDefaultUser(),
+                content: comment.content,
+                timestamp: comment.createdAt ? new Date(comment.createdAt) : new Date(),
+                likes: comment.likesCount || 0,
+                isLiked: comment.isLikedByCurrentUser || false
+              })),
+              // Preserve UI state from existing post
+              showComments: existingPost?.showComments || servicePost.showComments || false,
+              newComment: existingPost?.newComment || servicePost.newComment || ''
+            };
+          });
+          
+          this.posts = updatedPosts;
           this.loading = false;
+          console.log('🔄 Feed component updated posts from service');
         },
         error: error => {
           console.error('Error loading posts:', error);
@@ -110,18 +120,30 @@ export class FeedComponent implements OnInit, OnDestroy {
   }
 
   toggleLike(post: any): void {
+    console.log('🎯 Feed Component - toggleLike called for post:', post.id);
+    console.log('🔐 Authentication status:', this.isAuthenticated);
+    
     if (!this.isAuthenticated) {
+      console.log('❌ User not authenticated, showing alert');
       alert('Please log in to like posts');
       return;
     }
 
+    console.log('📋 Looking for post in posts array...');
     const postIndex = this.posts.findIndex(p => p.id === post.id);
+    console.log('📍 Post index found:', postIndex);
+    
     if (postIndex !== -1) {
       const originalPost = this.posts[postIndex];
+      console.log('📄 Original post found:', originalPost.id, 'isLiked:', originalPost.isLikedByCurrentUser);
+      console.log('🎯 Calling postsService.toggleLike...');
+      
       this.postsService.toggleLike(originalPost);
       
-      post.isLiked = !post.isLiked;
-      post.likes += post.isLiked ? 1 : -1;
+      console.log('✅ Service will handle state updates via subscription');
+      // Remove local state updates - let the service handle it via subscription
+    } else {
+      console.log('❌ Post not found in posts array');
     }
   }
 
@@ -133,8 +155,8 @@ export class FeedComponent implements OnInit, OnDestroy {
 
     for (const post of this.posts) {
       const commentIndex = post.comments?.findIndex(c => c.id === comment.id);
-      if (commentIndex !== -1 && post.comments) {
-        const originalComment = post.comments[2];
+      if (commentIndex !== undefined && commentIndex !== -1 && post.comments) {
+        const originalComment = post.comments[commentIndex];
         this.postsService.toggleCommentLike(originalComment);
         
         comment.isLiked = !comment.isLiked;

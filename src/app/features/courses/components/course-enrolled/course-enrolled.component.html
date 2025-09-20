@@ -1,0 +1,259 @@
+<!-- Loading State -->
+<div *ngIf="loading" class="loading-container">
+  <div class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Loading course content...</p>
+  </div>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error && !loading" class="error-container">
+  <div class="error-content">
+    <lucide-icon name="AlertTriangle" class="error-icon"></lucide-icon>
+    <h2>Error Loading Course</h2>
+    <p>{{ error }}</p>
+    <button class="btn-primary" (click)="goBack()">
+      <lucide-icon name="ArrowLeft" class="btn-icon"></lucide-icon>
+      Back to Courses
+    </button>
+  </div>
+</div>
+
+<!-- Main Course Interface -->
+<div *ngIf="!loading && !error && course && courseEnrollment" 
+     class="course-player" 
+     [class.fullscreen]="isFullscreen"
+     [class.sidebar-hidden]="!showSidebar">
+  
+  <!-- Header -->
+  <header class="course-header">
+    <div class="header-left">
+      <button class="btn-icon" (click)="goBack()" title="Back to Courses">
+        <lucide-icon name="ArrowLeft"></lucide-icon>
+      </button>
+      <button class="btn-icon" (click)="toggleSidebar()" title="Toggle Sidebar">
+        <lucide-icon name="Menu"></lucide-icon>
+      </button>
+      <div class="course-info">
+        <h1 class="course-title">{{ course.title }}</h1>
+        <div class="progress-info">
+          <span class="progress-text">{{ getOverallProgress() }}% Complete</span>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="getOverallProgress()"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <div class="time-spent">
+        <lucide-icon name="Clock" class="time-icon"></lucide-icon>
+        <span>{{ formatTime(getTotalTimeSpent()) }}</span>
+      </div>
+      <button class="btn-icon" (click)="toggleFullscreen()" title="Toggle Fullscreen">
+        <lucide-icon [name]="isFullscreen ? 'Minimize2' : 'Maximize2'"></lucide-icon>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <div class="course-content">
+    
+    <!-- Sidebar -->
+    <aside class="course-sidebar" [class.hidden]="!showSidebar">
+      <div class="sidebar-header">
+        <h3>Course Content</h3>
+        <div class="lesson-count">
+          {{ course.textContent.length }} Lessons
+        </div>
+      </div>
+      
+      <div class="lessons-list">
+        <div *ngFor="let lesson of course.textContent; let i = index" 
+             class="lesson-item"
+             [class.active]="currentLesson?.id === lesson.id"
+             [class.completed]="getLessonProgress(lesson.id || '')?.completed"
+             (click)="selectLesson(lesson, i)">
+          
+          <div class="lesson-number">{{ i + 1 }}</div>
+          
+          <div class="lesson-content">
+            <h4 class="lesson-title">{{ lesson.title }}</h4>
+            <div class="lesson-meta">
+              <span class="lesson-type" [class]="lesson.type">{{ lesson.type }}</span>
+              <span *ngIf="getLessonProgress(lesson.id || '')?.timeSpent" class="lesson-time">
+                {{ formatTime(getLessonProgress(lesson.id || '')?.timeSpent || 0) }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="lesson-status">
+            <lucide-icon *ngIf="getLessonProgress(lesson.id || '')?.completed" 
+                        name="CheckCircle" 
+                        class="completed-icon"></lucide-icon>
+            <lucide-icon *ngIf="currentLesson?.id === lesson.id && !getLessonProgress(lesson.id || '')?.completed" 
+                        name="Play" 
+                        class="current-icon"></lucide-icon>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Lesson Content -->
+    <main class="lesson-content">
+      <div *ngIf="currentLesson" class="lesson-container">
+        
+        <!-- Lesson Header -->
+        <div class="lesson-header">
+          <div class="lesson-meta-info">
+            <span class="lesson-type-badge" [class]="currentLesson.type">
+              {{ currentLesson.type }}
+            </span>
+            <h2 class="lesson-title">{{ currentLesson.title }}</h2>
+          </div>
+          
+          <div class="lesson-actions">
+            <button *ngIf="!getLessonProgress(currentLesson.id || '')?.completed" 
+                    class="btn-complete" 
+                    (click)="markLessonComplete()">
+              <lucide-icon name="CheckCircle" class="btn-icon"></lucide-icon>
+              Mark Complete
+            </button>
+            <span *ngIf="getLessonProgress(currentLesson.id || '')?.completed" 
+                  class="completed-badge">
+              <lucide-icon name="CheckCircle" class="completed-icon"></lucide-icon>
+              Completed
+            </span>
+          </div>
+        </div>
+
+        <!-- Lesson Content -->
+        <div class="lesson-body">
+          <div class="lesson-text" [innerHTML]="currentLesson.content"></div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="lesson-navigation">
+          <button class="btn-nav" 
+                  [disabled]="currentLessonIndex === 0"
+                  (click)="previousLesson()">
+            <lucide-icon name="ChevronLeft" class="btn-icon"></lucide-icon>
+            Previous Lesson
+          </button>
+          
+          <div class="nav-info">
+            Lesson {{ currentLessonIndex + 1 }} of {{ course.textContent.length }}
+          </div>
+          
+          <button class="btn-nav" 
+                  [disabled]="currentLessonIndex === course.textContent.length - 1"
+                  (click)="nextLesson()">
+            Next Lesson
+            <lucide-icon name="ChevronRight" class="btn-icon"></lucide-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- No Lesson Selected -->
+      <div *ngIf="!currentLesson" class="no-lesson">
+        <lucide-icon name="BookOpen" class="no-lesson-icon"></lucide-icon>
+        <h3>Select a lesson to begin</h3>
+        <p>Choose a lesson from the sidebar to start learning</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- Course Files Section (if any) -->
+  <div *ngIf="course.files && course.files.length > 0" class="course-files">
+    <div class="resources-header" (click)="toggleResources()">
+      <h3>Course Resources</h3>
+    </div>
+    <div class="files-list" [class.collapsed]="!showResources">
+      <a *ngFor="let file of course.files" 
+         [href]="file.url" 
+         target="_blank" 
+         class="file-item">
+        <lucide-icon name="FileText" class="file-icon"></lucide-icon>
+        <span class="file-name">{{ file.name }}</span>
+        <span class="file-size">{{ (file.size / 1024 / 1024).toFixed(1) }} MB</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Course Completion Modal -->
+<div *ngIf="showCompletionModal" class="modal-overlay" (click)="closeCompletionModal()">
+  <div class="completion-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <button class="close-btn" (click)="closeCompletionModal()">
+        <lucide-icon name="X"></lucide-icon>
+      </button>
+    </div>
+    
+    <div class="modal-content">
+      <div class="celebration-icon">
+        <lucide-icon name="Award" class="award-icon"></lucide-icon>
+      </div>
+      
+      <h2 class="congratulations-title">Congratulations!</h2>
+      <p class="completion-message">
+        You have successfully completed <strong>{{ course?.title }}</strong>
+      </p>
+      
+      <div class="completion-stats">
+        <div class="stat-item">
+          <lucide-icon name="CheckCircle" class="stat-icon"></lucide-icon>
+          <span class="stat-label">Lessons Completed</span>
+          <span class="stat-value">{{ courseEnrollment?.lessons?.length || 0 }}</span>
+        </div>
+        <div class="stat-item">
+          <lucide-icon name="Clock" class="stat-icon"></lucide-icon>
+          <span class="stat-label">Time Spent</span>
+          <span class="stat-value">{{ formatTime(getTotalTimeSpent()) }}</span>
+        </div>
+        <div class="stat-item">
+          <lucide-icon name="Award" class="stat-icon"></lucide-icon>
+          <span class="stat-label">Progress</span>
+          <span class="stat-value">100%</span>
+        </div>
+      </div>
+      
+      <div class="certificate-section">
+        <div *ngIf="isGeneratingCertificate" class="generating-certificate">
+          <div class="spinner"></div>
+          <p>Generating your certificate...</p>
+        </div>
+        
+        <div *ngIf="!isGeneratingCertificate && certificateUrl" class="certificate-ready">
+          <lucide-icon name="Award" class="certificate-icon"></lucide-icon>
+          <p class="certificate-text">Your certificate is ready!</p>
+          
+          <div class="certificate-actions">
+            <button class="btn-certificate primary" (click)="viewCertificate()">
+              <lucide-icon name="ExternalLink" class="btn-icon"></lucide-icon>
+              View Certificate
+            </button>
+            <button class="btn-certificate secondary" (click)="downloadCertificate()">
+              <lucide-icon name="Download" class="btn-icon"></lucide-icon>
+              Download
+            </button>
+          </div>
+        </div>
+        
+        <div *ngIf="!isGeneratingCertificate && !certificateUrl" class="certificate-error">
+          <p>Certificate generation failed. Please try again later.</p>
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn-share" (click)="shareAchievement()">
+          <lucide-icon name="Share2" class="btn-icon"></lucide-icon>
+          Share Achievement
+        </button>
+        <button class="btn-continue" (click)="closeCompletionModal()">
+          Continue Learning
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

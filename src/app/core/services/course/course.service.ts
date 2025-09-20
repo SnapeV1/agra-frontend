@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Course } from 'src/app/core/models/course';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,7 @@ import { Course } from 'src/app/core/models/course';
 export class CourseService {
   private apiUrl = 'http://localhost:8080/api/courses'; 
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
   getAllCourses(): Observable<Course[]> {
     return this.http.get<Course[]>(`${this.apiUrl}/getAllCourses`);
@@ -104,5 +105,62 @@ updateCourse(id: string, course: Course, image?: File, video?: File, attachments
     }
     
     return this.http.post<any>(`${this.apiUrl}/${courseId}/upload-video`, formData);
+  }
+
+  enrollInCourse(courseId: string): Observable<any> {
+    const token = this.authService.getToken();
+    
+    if (!token) {
+      throw new Error('Authentication required for enrollment');
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.post<any>(`${this.apiUrl}/${courseId}/enroll`, {}, { headers });
+  }
+
+  checkEnrollmentStatus(courseId: string): Observable<any> {
+    const token = this.authService.getToken();
+    
+    if (!token) {
+      throw new Error('Authentication required to check enrollment status');
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<any>(`${this.apiUrl}/${courseId}/enrollment-status`, { headers });
+  }
+
+  getUserEnrolledCourses(): Observable<any> {
+    const token = this.authService.getToken();
+    
+    if (!token) {
+      throw new Error('Authentication required to fetch enrolled courses');
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<any>(`${this.apiUrl}/enrolled`, { headers });
+  }
+
+  getCourseProgress(courseId: string): Observable<any> {
+    const token = this.authService.getToken();
+    
+    if (!token) {
+      throw new Error('Authentication required to fetch course progress');
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<any>(`${this.apiUrl}/${courseId}/progress`, { headers });
   }
 }

@@ -15,10 +15,10 @@ export class CoursesComponent implements OnInit {
   filteredCourses: Course[] = [];
 
   searchTerm = '';
-  selectedDomain = '';
+  selectedLanguage = '';
   selectedCountry = '';
 
-  domainListWithCounts: CountItem[] = [];
+  languageListWithCounts: CountItem[] = [];
   countryListWithCounts: CountItem[] = [];
 
   loading = true;
@@ -38,31 +38,41 @@ export class CoursesComponent implements OnInit {
 
     this.courseService.getAllCourses().subscribe({
       next: (courses) => {
-        this.courses = courses ?? [];
-        this.filteredCourses = [...this.courses];
-        this.computeCounts();
+        this.courses = courses;
+        this.filteredCourses = [...courses];
+        this.buildLanguageList();
+        this.buildCountryList();
         this.loading = false;
       },
-      error: (err) => {
-        console.error(err);
-        this.error = 'Failed to load courses. Please try again.';
+      error: (error) => {
+        console.error('Error loading courses:', error);
+        this.error = 'Failed to load courses. Please try again later.';
         this.loading = false;
       }
     });
   }
 
-  private computeCounts(): void {
-    const domainMap = new Map<string, number>();
+  private buildLanguageList(): void {
+    const languageCounts = new Map<string, number>();
+    this.courses.forEach(course => {
+      if (course.languagesAvailable && course.languagesAvailable.length > 0) {
+        course.languagesAvailable.forEach(language => {
+          languageCounts.set(language, (languageCounts.get(language) || 0) + 1);
+        });
+      }
+    });
+
+    this.languageListWithCounts = Array.from(languageCounts.entries())
+      .map(([value, count]) => ({ value, count }))
+      .sort((a, b) => a.value.localeCompare(b.value));
+  }
+
+  private buildCountryList(): void {
     const countryMap = new Map<string, number>();
 
     for (const c of this.courses) {
-      domainMap.set(c.domain, (domainMap.get(c.domain) ?? 0) + 1);
       countryMap.set(c.country, (countryMap.get(c.country) ?? 0) + 1);
     }
-
-    this.domainListWithCounts = Array.from(domainMap.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([value, count]) => ({ value, count }));
 
     this.countryListWithCounts = Array.from(countryMap.entries())
       .sort(([a], [b]) => a.localeCompare(b))
@@ -71,13 +81,13 @@ export class CoursesComponent implements OnInit {
 
   onSearch(): void { this.applyFilters(); }
 
-  selectDomain(value: string): void {
-    this.selectedDomain = value;
+  onLanguageChange(event: any): void {
+    this.selectedLanguage = event.target.value;
     this.applyFilters();
   }
 
-  selectCountry(value: string): void {
-    this.selectedCountry = value;
+  onCountryChange(event: any): void {
+    this.selectedCountry = event.target.value;
     this.applyFilters();
   }
 
@@ -90,16 +100,17 @@ export class CoursesComponent implements OnInit {
         course.title.toLowerCase().includes(term) ||
         (course.description ?? '').toLowerCase().includes(term);
 
-      const matchesDomain = !this.selectedDomain || course.domain === this.selectedDomain;
+      const matchesLanguage = !this.selectedLanguage || 
+        (course.languagesAvailable && course.languagesAvailable.includes(this.selectedLanguage));
       const matchesCountry = !this.selectedCountry || course.country === this.selectedCountry;
 
-      return matchesSearch && matchesDomain && matchesCountry;
+      return matchesSearch && matchesLanguage && matchesCountry;
     });
   }
 
   clearFilters(): void {
     this.searchTerm = '';
-    this.selectedDomain = '';
+    this.selectedLanguage = '';
     this.selectedCountry = '';
     this.filteredCourses = [...this.courses];
   }

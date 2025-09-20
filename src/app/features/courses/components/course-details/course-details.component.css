@@ -589,14 +589,51 @@
   margin-bottom: 2rem;
 }
 
-.btn-enroll:hover {
+.btn-enroll:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+}
+
+.btn-enroll:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.btn-enroll.btn-enrolled {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.btn-enroll.btn-loading {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
 }
 
 .enroll-icon {
   width: 20px;
   height: 20px;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.enrollment-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
 .features {

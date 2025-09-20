@@ -263,25 +263,33 @@ loadFeaturedPosts(): void {
 
     this.postsSubscription = this.postsService.posts$.subscribe({
       next: posts => {
-        // Transform posts for display (similar to feed component)
-        this.featuredPosts = posts.map(post => ({
-          ...post,
-          user: post.userInfo ,
-          content: post.content || '',
-          image: post.imageUrl,
-          timestamp: post.createdAt ? new Date(post.createdAt) : new Date(),
-          likes: post.likesCount || 0,
-          isLiked: post.isLikedByCurrentUser || false,
-          comments: (post.comments || []).map(comment => ({
-            id: comment.id,
-            user: comment.userInfo,
-            content: comment.content,
-            timestamp: comment.createdAt ? new Date(comment.createdAt) : new Date(),
-            likes: comment.likesCount || 0,
-            isLiked: comment.isLikedByCurrentUser || false
-          }))
-        }));
+        // Update existing posts or create new ones, preserving UI state
+        const updatedPosts = posts.map(servicePost => {
+          // Find existing post to preserve any UI state
+          const existingPost = this.featuredPosts.find(p => p.id === servicePost.id);
+          
+          return {
+            ...servicePost,
+            user: servicePost.userInfo,
+            content: servicePost.content || '',
+            image: servicePost.imageUrl,
+            timestamp: servicePost.createdAt ? new Date(servicePost.createdAt) : new Date(),
+            likes: servicePost.likesCount || 0,
+            isLiked: servicePost.isLikedByCurrentUser || false,
+            comments: (servicePost.comments || []).map(comment => ({
+              id: comment.id,
+              user: comment.userInfo,
+              content: comment.content,
+              timestamp: comment.createdAt ? new Date(comment.createdAt) : new Date(),
+              likes: comment.likesCount || 0,
+              isLiked: comment.isLikedByCurrentUser || false
+            }))
+          };
+        });
+        
+        this.featuredPosts = updatedPosts;
         this.postsLoading = false;
+        console.log('🏠 Home component updated posts from service');
       },
       error: error => {
         console.error('Error loading posts:', error);
@@ -297,19 +305,30 @@ loadFeaturedPosts(): void {
   }
 
   togglePostLike(post: any, event: Event): void {
+    console.log('🏠 Home Component - togglePostLike called for post:', post.id);
     event.stopPropagation();
     
+    console.log('🔐 Login status:', this.isLoggedIn);
     if (!this.isLoggedIn) {
-
+      console.log('❌ User not logged in, redirecting to login');
       this.login();
       return;
     }
-     const originalPost = this.featuredPosts.find(p => p.id === post.id);
+    
+    console.log('📋 Looking for post in featuredPosts array...');
+    const originalPost = this.featuredPosts.find(p => p.id === post.id);
+    console.log('📍 Original post found:', originalPost ? originalPost.id : 'Not found');
+    
     if (originalPost) {
+      console.log('📄 Original post state - isLiked:', originalPost.isLikedByCurrentUser, 'likesCount:', originalPost.likesCount);
+      console.log('🎯 Calling postsService.toggleLike...');
+      
       this.postsService.toggleLike(originalPost);
       
-      post.isLiked = !post.isLiked;
-      post.likes += post.isLiked ? 1 : -1;
+      console.log('✅ Service will handle state updates via subscription');
+      // Remove local state updates - let the service handle it via subscription
+    } else {
+      console.log('❌ Post not found in featuredPosts array');
     }
   }
   onCommentClick(post: any, event: Event): void {

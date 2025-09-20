@@ -38,3 +38,24 @@ export interface TextContent {
   order: number;
   type: 'lesson' | 'assignment' | 'reading';
 }
+
+export interface CourseProgress {
+  courseId: string;
+  enrolledAt: Date;
+  startedAt: Date;
+  lastAccessedAt: Date;
+  completedAt: Date;
+  completed: boolean;
+  completionPercentage: number;
+  certificateUrl?: string;
+
+  // Session-level progress tracking
+  completedSessionIds: string[];
+  currentSessionId?: string;
+  totalSessions: number;
+
+  // Additional tracking
+  totalTimeSpent: number; // in minutes
+  accessCount: number;
+}
+

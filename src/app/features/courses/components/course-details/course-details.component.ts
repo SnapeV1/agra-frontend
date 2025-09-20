@@ -16,6 +16,9 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
   error = '';
   courseId: string = '';
   isAuthenticated = false;
+  isEnrolling = false;
+  isEnrolled = false;
+  enrollmentError = '';
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -55,6 +58,11 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
       next: (course) => {
         this.course = course;
         this.loading = false;
+        
+        // Check enrollment status if user is authenticated
+        if (this.isAuthenticated && this.course?.id) {
+          this.checkEnrollmentStatus();
+        }
       },
       error: (err) => {
         console.error('Error loading course:', err);
@@ -65,22 +73,53 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
   }
 
   enrollInCourse(): void {
-    if (!this.course) return;
+    if (!this.course || !this.course.id) {
+      this.enrollmentError = 'Course information is not available.';
+      return;
+    }
     
     // Check authentication before enrollment
     if (!this.isAuthenticated) {
       this.handleEnrollment();
       return;
     }
+
+    // Prevent duplicate enrollment attempts
+    if (this.isEnrolling || this.isEnrolled) {
+      return;
+    }
     
-    // Implement enrollment logic here
-    console.log('Enrolling in course:', this.course);
+    this.isEnrolling = true;
+    this.enrollmentError = '';
     
-    // You might want to call an enrollment service
-    // this.enrollmentService.enrollInCourse(this.course.id).subscribe(...)
-    
-    // For now, just show an alert
-    alert(`Successfully enrolled in "${this.course.title}"!`);
+    const courseId = this.course.id; // Store in variable for type safety
+    this.courseService.enrollInCourse(courseId).subscribe({
+      next: (response) => {
+        console.log('Enrollment successful:', response);
+        this.isEnrolled = true;
+        this.isEnrolling = false;
+        
+        // Show success message
+        alert(`Successfully enrolled in "${this.course?.title || 'this course'}"!`);
+      },
+      error: (error) => {
+        console.error('Enrollment failed:', error);
+        this.isEnrolling = false;
+        
+        // Handle different error scenarios
+        if (error.status === 409 || error.status === 400) {
+          this.enrollmentError = 'You are already enrolled in this course.';
+          this.isEnrolled = true;
+        } else if (error.status === 401) {
+          this.enrollmentError = 'Authentication required. Please log in again.';
+          this.authService.logout('/login');
+        } else if (error.status === 404) {
+          this.enrollmentError = 'Course not found.';
+        } else {
+          this.enrollmentError = error.message || 'Failed to enroll in course. Please try again.';
+        }
+      }
+    });
   }
 
   goBack(): void {
@@ -121,5 +160,23 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
       // User is authenticated, proceed with enrollment
       this.enrollInCourse();
     }
+  }
+
+  checkEnrollmentStatus(): void {
+    if (!this.course?.id) return;
+
+    this.courseService.checkEnrollmentStatus(this.course.id).subscribe({
+      next: (response) => {
+        // Assuming the API returns { enrolled: boolean }
+        this.isEnrolled = response.enrolled || false;
+        this.enrollmentError = '';
+      },
+      error: (error) => {
+        console.error('Error checking enrollment status:', error);
+        // If there's an error checking status, assume not enrolled
+        this.isEnrolled = false;
+        // Don't show error to user for status check failures
+      }
+    });
   }
 }
