@@ -215,17 +215,35 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
   }
 
   selectLesson(lesson: TextContent, index: number): void {
-    if (this.currentLesson?.id === lesson.id) return;
+    console.log('🎯 selectLesson() called');
+    console.log('  lesson:', lesson);
+    console.log('  index:', index);
+    console.log('  currentLesson (before):', this.currentLesson);
+    console.log('  currentLessonIndex (before):', this.currentLessonIndex);
     
+    if (this.currentLesson?.id === lesson.id) {
+      console.log('📝 Same lesson selected - no change needed');
+      return;
+    }
+    
+    console.log('📝 Lesson change detected - stopping time tracking for previous lesson');
+    // IMPORTANT: Stop time tracking BEFORE changing currentLesson
+    // This ensures updateTimeSpent() uses the correct previous lesson
     this.stopTimeTracking();
+    
+    // Now update to the new lesson
     this.currentLesson = lesson;
     this.currentLessonIndex = index;
+    
+    console.log('  currentLesson (after):', this.currentLesson);
+    console.log('  currentLessonIndex (after):', this.currentLessonIndex);
     
     // Update current lesson in backend
     if (lesson.id) {
       this.progressService.setCurrentLesson(this.courseId, lesson.id).subscribe();
     }
     
+    console.log('⏱️ Starting time tracking for new lesson');
     this.startTimeTracking();
   }
 
@@ -242,27 +260,62 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
   }
 
   markLessonComplete(): void {
-    if (!this.currentLesson?.id || !this.courseEnrollment) return;
+    if (!this.currentLesson?.id || !this.courseEnrollment) {
+      console.warn('Cannot mark lesson complete: missing currentLesson or courseEnrollment');
+      return;
+    }
     
     const lessonProgress = this.courseEnrollment.lessons.find(l => l.lessonId === this.currentLesson!.id);
-    if (lessonProgress && !lessonProgress.completed) {
-      lessonProgress.completed = true;
-      lessonProgress.completedAt = new Date();
-      
-      // Update backend
-      this.progressService.markLessonComplete(this.courseId, this.currentLesson.id).subscribe({
-        next: () => {
-          // Check if course is complete
-          this.checkCourseCompletion();
-          
-          // Auto-advance to next lesson
-          setTimeout(() => {
-            this.nextLesson();
-          }, 1000);
-        },
-        error: (error) => console.error('Error marking lesson complete:', error)
-      });
+    if (!lessonProgress) {
+      console.error('Cannot find lesson progress for lesson:', this.currentLesson.id);
+      return;
     }
+    
+    if (lessonProgress.completed) {
+      console.log('Lesson already marked as completed');
+      return;
+    }
+
+    console.log('🎯 Marking lesson as complete:', {
+      courseId: this.courseId,
+      lessonId: this.currentLesson.id,
+      lessonTitle: this.currentLesson.title
+    });
+
+    // Store original state in case we need to rollback
+    const originalCompleted = lessonProgress.completed;
+    const originalCompletedAt = lessonProgress.completedAt;
+    
+    // Optimistically update UI
+    lessonProgress.completed = true;
+    lessonProgress.completedAt = new Date();
+    
+    // Update backend
+    this.progressService.markLessonComplete(this.courseId, this.currentLesson.id).subscribe({
+      next: (response) => {
+        console.log('✅ Lesson marked as complete successfully:', response);
+        
+        // Check if course is complete
+        this.checkCourseCompletion();
+        
+        // Auto-advance to next lesson
+        setTimeout(() => {
+          this.nextLesson();
+        }, 1000);
+      },
+      error: (error) => {
+        console.error('❌ Error marking lesson complete:', error);
+        console.error('Backend response:', error.error);
+        console.error('Status:', error.status);
+        
+        // Rollback optimistic update
+        lessonProgress.completed = originalCompleted;
+        lessonProgress.completedAt = originalCompletedAt;
+        
+        // Show user-friendly error message
+        alert('Failed to mark lesson as complete. Please try again.');
+      }
+    });
   }
 
   checkCourseCompletion(): void {
@@ -286,40 +339,140 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
   }
 
   startTimeTracking(): void {
+    console.log('⏱️ startTimeTracking() called');
     this.lessonStartTime = new Date();
+    console.log('  lessonStartTime set to:', this.lessonStartTime);
     
-    // Track time every minute
+    // Stop any existing subscription
+    if (this.timeTrackingSubscription) {
+      console.log('  Stopping existing time tracking subscription');
+      this.timeTrackingSubscription.unsubscribe();
+    }
+    
+    // Update time every minute
+    console.log('  Setting up interval to update time every 60 seconds');
     this.timeTrackingSubscription = interval(60000).subscribe(() => {
+      console.log('⏰ 60-second interval triggered - calling updateTimeSpent()');
       this.updateTimeSpent();
     });
   }
 
   stopTimeTracking(): void {
+    console.log('⏹️ stopTimeTracking() called');
     if (this.timeTrackingSubscription) {
+      console.log('  Unsubscribing from time tracking interval');
       this.timeTrackingSubscription.unsubscribe();
       this.timeTrackingSubscription = null;
+      console.log('  Time tracking subscription cleared');
+    } else {
+      console.log('  No active time tracking subscription to stop');
     }
     
+    // Update time spent for current lesson before stopping
+    console.log('  Calling updateTimeSpent() before stopping tracking');
     this.updateTimeSpent();
+    
+    // Clear the lesson start time
     this.lessonStartTime = null;
+    console.log('  lessonStartTime cleared');
   }
 
   updateTimeSpent(): void {
-    if (!this.lessonStartTime || !this.currentLesson?.id || !this.courseEnrollment) return;
+    console.log('=== updateTimeSpent() called ===');
+    console.log('lessonStartTime:', this.lessonStartTime);
+    console.log('currentLesson:', this.currentLesson);
+    console.log('courseId:', this.courseId);
+    console.log('courseEnrollment:', this.courseEnrollment);
+    
+    if (!this.lessonStartTime || !this.currentLesson?.id || !this.courseEnrollment) {
+      console.warn('⚠️ updateTimeSpent() skipped - missing required data:');
+      console.warn('  lessonStartTime:', this.lessonStartTime);
+      console.warn('  currentLesson:', this.currentLesson);
+      console.warn('  courseEnrollment:', this.courseEnrollment);
+      return;
+    }
+
+    // Additional validation for lesson ID
+    if (!this.currentLesson.id) {
+      console.error('❌ Cannot update time spent - currentLesson.id is missing');
+      console.log('  currentLesson:', this.currentLesson);
+      return;
+    }
+
+    // Additional validation for courseId
+    if (!this.courseId) {
+      console.error('❌ Cannot update time spent - courseId is missing');
+      console.log('  courseId:', this.courseId);
+      return;
+    }
     
     const timeSpent = Math.floor((new Date().getTime() - this.lessonStartTime.getTime()) / 60000); // minutes
-    const lessonProgress = this.courseEnrollment.lessons.find(l => l.lessonId === this.currentLesson!.id);
     
-    if (lessonProgress && timeSpent > 0) {
-      lessonProgress.timeSpent += timeSpent;
-      lessonProgress.lastAccessedAt = new Date();
-      
-      // Update backend
-      this.progressService.updateLessonProgress(this.courseId, this.currentLesson.id, timeSpent).subscribe();
-      
-      // Reset start time
-      this.lessonStartTime = new Date();
+    console.log('Time calculation:');
+    console.log('  current time:', new Date().getTime());
+    console.log('  lessonStartTime:', this.lessonStartTime.getTime());
+    console.log('  timeSpent (minutes):', timeSpent);
+    
+    console.log('Looking for lesson progress with lessonId:', this.currentLesson.id);
+    console.log('Available lessons in enrollment:', this.courseEnrollment.lessons);
+    
+    const lessonProgress = this.courseEnrollment.lessons.find(l => l.lessonId === this.currentLesson!.id);
+    console.log('Found lessonProgress:', lessonProgress);
+    
+    if (!lessonProgress) {
+      console.error('❌ No lesson progress found for current lesson');
+      console.log('  Looking for lessonId:', this.currentLesson!.id);
+      console.log('  Available lesson progress entries:', this.courseEnrollment.lessons.map(l => l.lessonId));
+      return;
     }
+
+    console.log('Progress update calculation:');
+    console.log('  lessonProgress.timeSpent (before):', lessonProgress.timeSpent);
+    console.log('  timeSpent to add:', timeSpent);
+    
+    // Always update lastAccessedAt, even if timeSpent is 0
+    lessonProgress.lastAccessedAt = new Date();
+    
+    // Only add time if there's actual time spent
+    if (timeSpent > 0) {
+      lessonProgress.timeSpent += timeSpent;
+      console.log('  lessonProgress.timeSpent (after):', lessonProgress.timeSpent);
+    } else {
+      console.log('  No time to add (timeSpent = 0), but updating lastAccessedAt');
+    }
+    
+    console.log('Updated local progress:', lessonProgress);
+    
+    // Prepare request data - always send the total timeSpent, not just the increment
+    const requestData = {
+      courseId: this.courseId,
+      lessonId: this.currentLesson.id,
+      timeSpent: lessonProgress.timeSpent, // Send total time, not increment
+      lastAccessedAt: new Date()
+    };
+    
+    console.log('Sending request to backend with data:', requestData);
+    console.log('Request URL will be: PUT /api/progress/lesson/progress');
+    
+    // Update backend - always send request to update lastAccessedAt
+    this.progressService.updateLessonProgress(this.courseId, this.currentLesson.id, lessonProgress.timeSpent).subscribe({
+      next: (response) => {
+        console.log('✅ Lesson progress updated successfully:', response);
+      },
+      error: (error) => {
+        console.error('❌ Error updating lesson progress:', error);
+        console.error('Error status:', error.status);
+        console.error('Error message:', error.message);
+        console.error('Error body:', error.error);
+        console.error('Full error object:', error);
+        console.error('Request payload was:', requestData);
+      }
+    });
+    
+    // Reset start time
+    this.lessonStartTime = new Date();
+    console.log('Reset lessonStartTime to:', this.lessonStartTime);
+    console.log('=== updateTimeSpent() end ===');
   }
 
   toggleSidebar(): void {

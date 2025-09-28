@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
+import { tap, map } from 'rxjs/operators';
 import { CourseProgress } from '../models/course';
 import { AuthService } from './auth/auth.service';
 // import { environment } from '../../../environments/environment';
@@ -43,29 +44,139 @@ export class ProgressService {
 
   // Get user's progress for a specific course
   getCourseProgress(courseId: string): Observable<CourseEnrollment> {
+    console.log('🔄 ProgressService.getCourseProgress() called for courseId:', courseId);
+    
     const headers = this.getAuthHeaders();
-    return this.http.get<CourseEnrollment>(`${this.apiUrl}/course/${courseId}`, { headers });
+    const url = `${this.apiUrl}/course/${courseId}`;
+    
+    console.log('HTTP GET Request Details:');
+    console.log('  URL:', url);
+    console.log('  Headers:', headers);
+    
+    return this.http.get<any>(url, { headers }).pipe(
+      tap(response => {
+        console.log('✅ getCourseProgress response received:', response);
+        console.log('Raw backend response structure:', Object.keys(response));
+        
+        // Check if response has lessons or completedLessons
+        if (response.lessons) {
+          console.log('Found lessons array:', response.lessons.length);
+          response.lessons.forEach((lesson: any) => {
+            console.log(`  ${lesson.lessonId}: completed=${lesson.completed}, completedAt=${lesson.completedAt}`);
+          });
+        } else if (response.completedLessons) {
+          console.log('Found completedLessons array:', response.completedLessons.length);
+          console.log('completedLessons:', response.completedLessons);
+        } else {
+          console.warn('⚠️ No lessons or completedLessons found in response');
+        }
+      }),
+      map((response: any) => {
+        // Transform backend response to match CourseEnrollment interface
+        const courseEnrollment: CourseEnrollment = {
+          courseId: courseId,
+          progress: {
+            courseId: courseId,
+            enrolledAt: response.enrolledAt ? new Date(response.enrolledAt) : new Date(),
+            startedAt: response.startedAt ? new Date(response.startedAt) : new Date(),
+            lastAccessedAt: response.lastAccessedAt ? new Date(response.lastAccessedAt) : new Date(),
+            completedAt: response.completedAt ? new Date(response.completedAt) : undefined,
+            completed: response.completed || false,
+            completionPercentage: response.progressPercentage || 0,
+            certificateUrl: response.certificateUrl,
+            completedSessionIds: response.completedSessionIds || [],
+            currentSessionId: response.currentSessionId,
+            totalSessions: response.totalSessions || 0,
+            totalTimeSpent: response.totalTimeSpent || 0,
+            accessCount: response.accessCount || 0
+          },
+          lessons: [],
+          currentLessonId: response.currentLessonId
+        };
+
+        // Handle different response formats from backend
+        if (response.lessons && Array.isArray(response.lessons)) {
+          // Backend returns lessons array directly
+          courseEnrollment.lessons = response.lessons.map((lesson: any) => ({
+            lessonId: lesson.lessonId,
+            completed: lesson.completed || false,
+            timeSpent: lesson.timeSpent || 0,
+            completedAt: lesson.completedAt ? new Date(lesson.completedAt) : undefined,
+            lastAccessedAt: lesson.lastAccessedAt ? new Date(lesson.lastAccessedAt) : new Date()
+          }));
+        } else if (response.completedLessons && Array.isArray(response.completedLessons)) {
+          // Backend returns completedLessons array - need to transform
+          console.log('Transforming completedLessons to lessons format');
+          courseEnrollment.lessons = response.completedLessons.map((lessonId: string) => ({
+            lessonId: lessonId,
+            completed: true,
+            timeSpent: 0, // Backend doesn't provide this in completedLessons format
+            completedAt: response.lessonCompletionDates?.[lessonId] ? new Date(response.lessonCompletionDates[lessonId]) : undefined,
+            lastAccessedAt: new Date()
+          }));
+        }
+
+        console.log('Transformed CourseEnrollment:', courseEnrollment);
+        return courseEnrollment;
+      })
+    );
   }
 
   // Update lesson completion status
   markLessonComplete(courseId: string, lessonId: string): Observable<any> {
+    console.log('🔄 ProgressService.markLessonComplete() called');
+    console.log('Parameters received:');
+    console.log('  courseId:', courseId);
+    console.log('  lessonId:', lessonId);
+    
     const headers = this.getAuthHeaders();
-    return this.http.post(`${this.apiUrl}/lesson/complete`, {
+    console.log('Auth headers:', headers);
+    
+    const requestBody = {
       courseId,
       lessonId,
       completedAt: new Date()
-    }, { headers });
+    };
+    
+    const url = `${this.apiUrl}/lesson/complete`;
+    
+    console.log('HTTP POST Request Details:');
+    console.log('  URL:', url);
+    console.log('  Request Body:', requestBody);
+    console.log('  Request Body JSON:', JSON.stringify(requestBody, null, 2));
+    console.log('  Headers:', headers);
+    
+    return this.http.post(url, requestBody, { headers });
   }
 
   // Update lesson progress (time spent, last accessed)
   updateLessonProgress(courseId: string, lessonId: string, timeSpent: number): Observable<any> {
+    console.log('🔄 ProgressService.updateLessonProgress() called');
+    console.log('Parameters received:');
+    console.log('  courseId:', courseId);
+    console.log('  lessonId:', lessonId);
+    console.log('  timeSpent:', timeSpent);
+    console.log('  timeSpent type:', typeof timeSpent);
+    
     const headers = this.getAuthHeaders();
-    return this.http.put(`${this.apiUrl}/lesson/progress`, {
+    console.log('Auth headers:', headers);
+    
+    const requestBody = {
       courseId,
       lessonId,
       timeSpent,
       lastAccessedAt: new Date()
-    }, { headers });
+    };
+    
+    const url = `${this.apiUrl}/lesson/progress`;
+    
+    console.log('HTTP PUT Request Details:');
+    console.log('  URL:', url);
+    console.log('  Request Body:', requestBody);
+    console.log('  Request Body JSON:', JSON.stringify(requestBody, null, 2));
+    console.log('  Headers:', headers);
+    
+    return this.http.put(url, requestBody, { headers });
   }
 
   // Set current lesson
