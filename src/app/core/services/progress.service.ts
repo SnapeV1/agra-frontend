@@ -44,33 +44,10 @@ export class ProgressService {
 
   // Get user's progress for a specific course
   getCourseProgress(courseId: string): Observable<CourseEnrollment> {
-    console.log('🔄 ProgressService.getCourseProgress() called for courseId:', courseId);
-    
     const headers = this.getAuthHeaders();
     const url = `${this.apiUrl}/course/${courseId}`;
     
-    console.log('HTTP GET Request Details:');
-    console.log('  URL:', url);
-    console.log('  Headers:', headers);
-    
     return this.http.get<any>(url, { headers }).pipe(
-      tap(response => {
-        console.log('✅ getCourseProgress response received:', response);
-        console.log('Raw backend response structure:', Object.keys(response));
-        
-        // Check if response has lessons or completedLessons
-        if (response.lessons) {
-          console.log('Found lessons array:', response.lessons.length);
-          response.lessons.forEach((lesson: any) => {
-            console.log(`  ${lesson.lessonId}: completed=${lesson.completed}, completedAt=${lesson.completedAt}`);
-          });
-        } else if (response.completedLessons) {
-          console.log('Found completedLessons array:', response.completedLessons.length);
-          console.log('completedLessons:', response.completedLessons);
-        } else {
-          console.warn('⚠️ No lessons or completedLessons found in response');
-        }
-      }),
       map((response: any) => {
         // Transform backend response to match CourseEnrollment interface
         const courseEnrollment: CourseEnrollment = {
@@ -106,7 +83,6 @@ export class ProgressService {
           }));
         } else if (response.completedLessons && Array.isArray(response.completedLessons)) {
           // Backend returns completedLessons array - need to transform
-          console.log('Transforming completedLessons to lessons format');
           courseEnrollment.lessons = response.completedLessons.map((lessonId: string) => ({
             lessonId: lessonId,
             completed: true,
@@ -116,7 +92,6 @@ export class ProgressService {
           }));
         }
 
-        console.log('Transformed CourseEnrollment:', courseEnrollment);
         return courseEnrollment;
       })
     );
@@ -124,57 +99,27 @@ export class ProgressService {
 
   // Update lesson completion status
   markLessonComplete(courseId: string, lessonId: string): Observable<any> {
-    console.log('🔄 ProgressService.markLessonComplete() called');
-    console.log('Parameters received:');
-    console.log('  courseId:', courseId);
-    console.log('  lessonId:', lessonId);
-    
     const headers = this.getAuthHeaders();
-    console.log('Auth headers:', headers);
-    
     const requestBody = {
       courseId,
       lessonId,
       completedAt: new Date()
     };
-    
     const url = `${this.apiUrl}/lesson/complete`;
-    
-    console.log('HTTP POST Request Details:');
-    console.log('  URL:', url);
-    console.log('  Request Body:', requestBody);
-    console.log('  Request Body JSON:', JSON.stringify(requestBody, null, 2));
-    console.log('  Headers:', headers);
     
     return this.http.post(url, requestBody, { headers });
   }
 
   // Update lesson progress (time spent, last accessed)
   updateLessonProgress(courseId: string, lessonId: string, timeSpent: number): Observable<any> {
-    console.log('🔄 ProgressService.updateLessonProgress() called');
-    console.log('Parameters received:');
-    console.log('  courseId:', courseId);
-    console.log('  lessonId:', lessonId);
-    console.log('  timeSpent:', timeSpent);
-    console.log('  timeSpent type:', typeof timeSpent);
-    
     const headers = this.getAuthHeaders();
-    console.log('Auth headers:', headers);
-    
     const requestBody = {
       courseId,
       lessonId,
       timeSpent,
       lastAccessedAt: new Date()
     };
-    
     const url = `${this.apiUrl}/lesson/progress`;
-    
-    console.log('HTTP PUT Request Details:');
-    console.log('  URL:', url);
-    console.log('  Request Body:', requestBody);
-    console.log('  Request Body JSON:', JSON.stringify(requestBody, null, 2));
-    console.log('  Headers:', headers);
     
     return this.http.put(url, requestBody, { headers });
   }
@@ -210,7 +155,9 @@ export class ProgressService {
   calculateCompletionPercentage(lessons: LessonProgress[]): number {
     if (lessons.length === 0) return 0;
     const completedLessons = lessons.filter(lesson => lesson.completed).length;
-    return Math.round((completedLessons / lessons.length) * 100);
+    const percentage = Math.round((completedLessons / lessons.length) * 100);
+    
+    return percentage;
   }
 
   // Get total time spent on course
@@ -235,4 +182,6 @@ export class ProgressService {
       headers
     });
   }
+
+
 }

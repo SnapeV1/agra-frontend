@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Course } from "src/app/core/models/course";
 import { CourseService } from "src/app/core/services/course/course.service";
+import { ProgressService } from "src/app/core/services/progress.service";
 
 @Component({
   selector: "app-course-details",
@@ -42,6 +43,20 @@ export class AdminCourseDetailsComponent implements OnInit {
   };
 
   formErrors: Record<string, string> = {};
+
+  // Collapsible sections state
+  sectionCollapsed: Record<string, boolean> = {
+    basicInfo: true,
+    goals: true,
+    media: true,
+    languages: true,
+    sessions: true,
+    files: true,
+    textContent: true
+  };
+
+  // Individual text content item collapsed state
+  textContentCollapsed: Record<number, boolean> = {};
 
   domains: string[] = ["Technology", "Business", "Design", "Marketing", "Healthcare", "Education"];
   countries: string[] = [
@@ -103,7 +118,12 @@ export class AdminCourseDetailsComponent implements OnInit {
   languages: string[] = ["Arabic", "English", "French"];
   textContentTypes: string[] = ["lesson", "assignment", "reading", "quiz", "project"];
 
-  constructor(private route: ActivatedRoute, private courseService: CourseService, private router: Router) {}
+  constructor(
+    private route: ActivatedRoute, 
+    private courseService: CourseService, 
+    private router: Router,
+    private progressService: ProgressService
+  ) {}
 
   ngOnInit(): void {
     this.courseId = this.route.snapshot.paramMap.get("id");
@@ -125,6 +145,13 @@ export class AdminCourseDetailsComponent implements OnInit {
           textContent: course.textContent || [],
           goals: course.goals || []
         };
+        
+        // Initialize all text content items as collapsed
+        this.textContentCollapsed = {};
+        (this.formData.textContent || []).forEach((_, index) => {
+          this.textContentCollapsed[index] = true;
+        });
+        
         this.loading = false;
       },
       error: (err) => {
@@ -181,6 +208,8 @@ export class AdminCourseDetailsComponent implements OnInit {
   addGoal(): void {
     const currentGoals = this.formData.goals || [];
     this.formData.goals = [...currentGoals, ""];
+    // Expand the goals section when adding a new goal
+    this.sectionCollapsed['goals'] = false;
   }
 
   removeGoal(index: number): void {
@@ -192,14 +221,44 @@ export class AdminCourseDetailsComponent implements OnInit {
     return index;
   }
 
+  // Collapsible section methods
+  toggleSection(sectionName: string): void {
+    this.sectionCollapsed[sectionName] = !this.sectionCollapsed[sectionName];
+  }
+
+  collapseAll(): void {
+    Object.keys(this.sectionCollapsed).forEach(key => {
+      this.sectionCollapsed[key] = true;
+    });
+  }
+
+  expandAll(): void {
+    Object.keys(this.sectionCollapsed).forEach(key => {
+      this.sectionCollapsed[key] = false;
+    });
+  }
+
+  areAllCollapsed(): boolean {
+    return Object.values(this.sectionCollapsed).every(collapsed => collapsed);
+  }
+
+  areAllExpanded(): boolean {
+    return Object.values(this.sectionCollapsed).every(collapsed => !collapsed);
+  }
+
   addTextContent(): void {
     const currentContent = this.formData.textContent || [];
+    const newIndex = currentContent.length;
     this.formData.textContent = [...currentContent, { 
       title: "", 
       type: "lesson", 
       content: "", 
       order: currentContent.length + 1 
     }];
+    // Initialize new text content item as collapsed
+    this.textContentCollapsed[newIndex] = true;
+    // Expand the textContent section when adding new content
+    this.sectionCollapsed['textContent'] = false;
   }
 
 
@@ -207,6 +266,26 @@ export class AdminCourseDetailsComponent implements OnInit {
   removeTextContent(index: number): void {
     const currentContent = this.formData.textContent || [];
     this.formData.textContent = currentContent.filter((_, i) => i !== index);
+    
+    // Clean up collapsed state and reindex
+    const newCollapsedState: Record<number, boolean> = {};
+    Object.keys(this.textContentCollapsed).forEach(key => {
+      const keyIndex = parseInt(key);
+      if (keyIndex < index) {
+        newCollapsedState[keyIndex] = this.textContentCollapsed[keyIndex];
+      } else if (keyIndex > index) {
+        newCollapsedState[keyIndex - 1] = this.textContentCollapsed[keyIndex];
+      }
+    });
+    this.textContentCollapsed = newCollapsedState;
+  }
+
+  toggleTextContent(index: number): void {
+    this.textContentCollapsed[index] = !this.textContentCollapsed[index];
+  }
+
+  isTextContentCollapsed(index: number): boolean {
+    return this.textContentCollapsed[index] || false;
   }
 
   moveTextContent(index: number, direction: "up" | "down"): void {
@@ -225,6 +304,11 @@ export class AdminCourseDetailsComponent implements OnInit {
     newContent[index] = newContent[newIndex];
     newContent[newIndex] = temp;
     this.formData.textContent = newContent;
+
+    // Swap collapsed states as well
+    const tempCollapsed = this.textContentCollapsed[index];
+    this.textContentCollapsed[index] = this.textContentCollapsed[newIndex];
+    this.textContentCollapsed[newIndex] = tempCollapsed;
   }
 
   handleImageUpload(event: any): void {
@@ -398,6 +482,12 @@ export class AdminCourseDetailsComponent implements OnInit {
         // Also update local formData to remove any empty goals that might still be in the UI
         this.formData.goals = this.formData.goals.filter(goal => goal.trim() !== "");
 
+        // If this is an update (not a new course), refresh progress data to reflect new lesson count
+        if (this.courseId !== "new" && savedCourse.id) {
+          console.log('🔄 Course updated, progress will be automatically recalculated when users access the course');
+          // Note: Progress is automatically recalculated when users access the course via getCourseProgress
+          // This ensures the completion percentage reflects the new lesson count
+        }
 
         this.loading = false;
         alert("Course saved successfully!");

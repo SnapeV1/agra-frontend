@@ -11,7 +11,7 @@
   border-bottom: 1px solid #e5e7eb;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 5;
 }
 
 .container {
@@ -102,12 +102,12 @@
 }
 
 .card-header {
-  padding: 24px 24px 0;
+  padding: 20px 24px;
 }
 
 .card-header-content {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
 }
@@ -116,7 +116,7 @@
   font-size: 20px;
   font-weight: 600;
   color: #111827;
-  margin: 0 0 4px 0;
+  margin: 0;
 }
 
 .card-description {
@@ -747,4 +747,299 @@ input:checked + .slider:before {
 .btn.loading {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+/* Collapsible Sections */
+.collapse-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.collapse-all-btn {
+  padding: 8px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.collapse-all-btn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.hamburger-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 18px;
+  height: 14px;
+}
+
+.hamburger-icon span {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background-color: #374151;
+  border-radius: 1px;
+  transition: all 0.2s;
+}
+
+.collapse-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Clickable Header Styles */
+.clickable-header {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  user-select: none;
+}
+
+.clickable-header:hover {
+  background-color: #f8f9fa;
+}
+
+.clickable-header .card-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.header-chevron {
+  font-size: 1.25rem;
+  color: #6c757d;
+  transition: transform 0.2s ease, color 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.clickable-header:hover .header-chevron {
+  color: #495057;
+}
+
+.section-toggle {
+  padding: 6px;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  transition: all 0.2s;
+  color: #6b7280;
+}
+
+.section-toggle:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.section-toggle i {
+  font-size: 16px;
+  transition: transform 0.2s;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-actions .header-chevron {
+  margin-left: 0.75rem;
+}
+
+.card-content.collapsed {
+  display: none;
+}
+
+.card-content {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Animation for smooth collapse/expand */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    max-height: 1000px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+  to {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+/* Responsive adjustments for collapsible controls */
+@media (max-width: 768px) {
+  .collapse-control {
+    padding: 12px 16px;
+  }
+  
+  .collapse-label {
+    font-size: 13px;
+  }
+  
+  .hamburger-icon {
+    width: 16px;
+    height: 12px;
+  }
+  
+  .header-actions {
+    gap: 6px;
+  }
+}
+
+/* Text Content Collapsible Styles */
+.content-item .content-header.clickable-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  margin-bottom: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.content-item .content-header.clickable-header:hover {
+  background: #e9ecef;
+  border-color: #dee2e6;
+}
+
+.content-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.content-title-preview {
+  font-weight: 500;
+  color: #495057;
+  font-size: 14px;
+}
+
+.untitled-text {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.content-item .content-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.content-item .content-actions .btn-icon {
+  padding: 6px;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  color: #495057;
+}
+
+.content-item .content-actions .btn-icon:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: #e9ecef;
+  border-color: #dee2e6;
+}
+
+.content-item .content-actions .btn-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f8f9fa;
+  border-color: #e9ecef;
+}
+
+.content-item .header-chevron {
+  font-size: 1.1rem;
+  color: #6c757d;
+  transition: transform 0.2s ease, color 0.2s ease;
+  margin-left: 8px;
+}
+
+.content-item .content-header.clickable-header:hover .header-chevron {
+  color: #495057;
+}
+
+.content-item .content-form {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  max-height: 1000px;
+  opacity: 1;
+}
+
+.content-item .content-form.collapsed {
+  max-height: 0;
+  padding: 0 16px;
+  opacity: 0;
+  border: none;
+}
+
+.content-item:not(:last-child) {
+  margin-bottom: 16px;
+}
+
+/* Adjust content header when collapsed */
+.content-item .content-form.collapsed + .content-header {
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+/* Responsive adjustments for text content */
+@media (max-width: 768px) {
+  .content-header-left {
+    gap: 8px;
+  }
+  
+  .content-title-preview {
+    font-size: 13px;
+  }
+  
+  .content-item .content-actions {
+    gap: 6px;
+  }
+  
+  .content-item .content-actions .btn-icon {
+    min-width: 28px;
+    height: 28px;
+    padding: 4px;
+  }
 }

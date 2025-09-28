@@ -208,39 +208,36 @@ updateCourse(id: string, course: Course, image?: File, video?: File, attachments
       'Authorization': `Bearer ${token}`
     });
 
+    // Use the enhanced enrolled courses endpoint that now includes progress data
     return this.http.get<any>(`${this.apiUrl}/enrolled`, { headers })
       .pipe(
-        map((response: any[]) => {
-          // Transform Course objects from API into CourseProgress objects
-          const now = new Date();
-          return response.map(item => {
-            // Check if item is already a CourseProgress object
-            if (item.courseId && item.enrolledAt) {
-              return item as CourseProgress;
-            }
-            
-            // Transform Course object to CourseProgress object
+        map((response: any) => {
+          console.log('getUserEnrolledCourses response:', response);
+          
+          // Handle the new response format with courses array and totalEnrollments
+          const courses = response.courses || response; // Support both formats
+          
+          return courses.map((item: any) => {
+            // Transform enhanced backend response to CourseProgress object
             return {
-              courseId: item.id,
-              course: item as Course, // Include the full course object
-              enrolledAt: now,
-              startedAt: now,
-              lastAccessedAt: now,
-              completedAt: undefined,
-              completed: false,
-              completionPercentage: 0,
-              certificateUrl: undefined,
-              completedSessionIds: [],
-              currentSessionId: undefined,
-              sessionTimeSpent: {}, // Initialize empty session time tracking
+              courseId: item.id || item.courseId,
+              enrolledAt: item.enrolledAt ? new Date(item.enrolledAt) : new Date(),
+              startedAt: item.startedAt ? new Date(item.startedAt) : new Date(),
+              lastAccessedAt: item.lastAccessedAt ? new Date(item.lastAccessedAt) : new Date(),
+              completedAt: item.completedAt ? new Date(item.completedAt) : undefined,
+              completed: item.completed || false,
+              completionPercentage: item.progressPercentage || 0,
+              certificateUrl: item.certificateUrl,
+              completedSessionIds: item.completedLessons || [],
+              currentSessionId: item.currentLessonId,
               totalSessions: item.sessionIds ? item.sessionIds.length : 0,
-              totalTimeSpent: 0,
-              accessCount: 1
+              totalTimeSpent: item.totalTimeSpent || 0,
+              accessCount: item.accessCount || 1
             } as CourseProgress;
           });
         }),
         catchError((error) => {
-          console.warn('API call failed for enrolled courses, falling back to mock data:', error);
+          console.warn('API call failed for enrolled courses, using mock data:', error);
           return this.mockDataService.getMockEnrolledCourses();
         })
       );

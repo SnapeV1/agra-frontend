@@ -5,7 +5,7 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { SharedModule } from '../shared/shared.module';
 import { FormsModule } from '@angular/forms';
 
-import { LucideAngularModule, Mail, Phone, Calendar, MapPin, BarChart2, User, Globe, Briefcase, Camera, Save, X, Book, Star, BookOpen, Clock, Trophy, Play, CheckCircle, BarChart3, Check, Plus } from 'lucide-angular';
+import { LucideAngularModule, Mail, Phone, Calendar, MapPin, BarChart2, User, Globe, Briefcase, Camera, Save, X, Book, Star, BookOpen, Clock, Trophy, Play, CheckCircle, BarChart3, Check, Plus, Award, ArrowRight } from 'lucide-angular';
 
 @NgModule({
   declarations: [
@@ -38,7 +38,9 @@ import { LucideAngularModule, Mail, Phone, Calendar, MapPin, BarChart2, User, Gl
       CheckCircle,
       BarChart3,
       Check,
-      Plus
+      Plus,
+      Award,
+      ArrowRight
     })
   ]
 })

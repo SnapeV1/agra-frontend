@@ -25,13 +25,38 @@
     <div class="content-grid">
       <!-- Main Content -->
       <div class="main-column">
+        <!-- Collapse All Control -->
+        <div class="collapse-control">
+          <button 
+            type="button" 
+            class="btn btn-icon collapse-all-btn" 
+            (click)="areAllCollapsed() ? expandAll() : collapseAll()"
+            [title]="areAllCollapsed() ? 'Expand All Sections' : 'Collapse All Sections'">
+            <div class="hamburger-icon">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </button>
+          <span class="collapse-label">
+            {{ areAllCollapsed() ? 'Expand All' : 'Collapse All' }}
+          </span>
+        </div>
+
         <!-- Basic Information -->
         <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">Basic Information</h2>
-            <p class="card-description">Essential course details and metadata</p>
+          <div class="card-header clickable-header" 
+               (click)="toggleSection('basicInfo')"
+               [title]="sectionCollapsed['basicInfo'] ? 'Expand Section' : 'Collapse Section'">
+            <div class="card-header-content">
+              <div>
+                <h2 class="card-title">Basic Information</h2>
+                <p class="card-description">Enter the basic details for your course</p>
+              </div>
+              <lucide-icon class="header-chevron" [name]="sectionCollapsed['basicInfo'] ? 'chevron-down' : 'chevron-up'"></lucide-icon>
+            </div>
           </div>
-          <div class="card-content">
+          <div class="card-content" [class.collapsed]="sectionCollapsed['basicInfo']">
             <div class="form-grid">
               <div class="form-group">
                 <label class="form-label" for="title">Course Title *</label>
@@ -105,19 +130,24 @@
 
         <!-- Course Goals -->
         <div class="card">
-          <div class="card-header">
+          <div class="card-header clickable-header" 
+               (click)="toggleSection('goals')"
+               [title]="sectionCollapsed['goals'] ? 'Expand Section' : 'Collapse Section'">
             <div class="card-header-content">
               <div>
                 <h2 class="card-title">Course Goals</h2>
-                <p class="card-description">Define what students will achieve by completing this course</p>
+                <p class="card-description">Define what students will achieve</p>
               </div>
-              <button type="button" class="btn btn-primary btn-sm" (click)="addGoal()">
-                <i class="icon-plus"></i>
-                Add Goal
-              </button>
+              <div class="header-actions">
+                <button type="button" class="btn btn-primary btn-sm" (click)="addGoal(); $event.stopPropagation()">
+                  <lucide-icon name="plus"></lucide-icon>
+                  Add Goal
+                </button>
+                <lucide-icon class="header-chevron" [name]="sectionCollapsed['goals'] ? 'chevron-down' : 'chevron-up'"></lucide-icon>
+              </div>
             </div>
           </div>
-          <div class="card-content">
+          <div class="card-content" [class.collapsed]="sectionCollapsed['goals']">
             <div *ngIf="formData['goals'].length === 0" class="empty-state">
               <p>No goals added yet. Click "Add Goal" to define what students will learn.</p>
             </div>
@@ -139,11 +169,18 @@
 
         <!-- Media Section -->
         <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">Course Media</h2>
-            <p class="card-description">Upload images and videos for your course</p>
+          <div class="card-header clickable-header" 
+               (click)="toggleSection('media')"
+               [title]="sectionCollapsed['media'] ? 'Expand Section' : 'Collapse Section'">
+            <div class="card-header-content">
+              <div>
+                <h2 class="card-title">Course Media</h2>
+                <p class="card-description">Upload course image and video</p>
+              </div>
+              <lucide-icon class="header-chevron" [name]="sectionCollapsed['media'] ? 'chevron-down' : 'chevron-up'"></lucide-icon>
+            </div>
           </div>
-          <div class="card-content">
+          <div class="card-content" [class.collapsed]="sectionCollapsed['media']">
             <div class="media-grid">
               <!-- Image Upload -->
               <div class="media-group">
@@ -214,11 +251,18 @@
 
         <!-- Languages -->
         <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">Available Languages</h2>
-            <p class="card-description">Select the languages this course is available in</p>
+          <div class="card-header clickable-header" 
+               (click)="toggleSection('languages')"
+               [title]="sectionCollapsed['languages'] ? 'Expand Section' : 'Collapse Section'">
+            <div class="card-header-content">
+              <div>
+                <h2 class="card-title">Available Languages</h2>
+                <p class="card-description">Select the languages this course is available in</p>
+              </div>
+              <lucide-icon class="header-chevron" [name]="sectionCollapsed['languages'] ? 'chevron-down' : 'chevron-up'"></lucide-icon>
+            </div>
           </div>
-          <div class="card-content">
+          <div class="card-content" [class.collapsed]="sectionCollapsed['languages']">
             <div class="language-grid">
               <div *ngFor="let language of languages" class="language-item">
                 <label class="switch">
@@ -241,19 +285,24 @@
 
         <!-- Sessions -->
         <div class="card">
-          <div class="card-header">
+          <div class="card-header clickable-header" 
+               (click)="toggleSection('sessions')"
+               [title]="sectionCollapsed['sessions'] ? 'Expand Section' : 'Collapse Section'">
             <div class="card-header-content">
               <div>
                 <h2 class="card-title">Sessions</h2>
-                <p class="card-description">Manage course session IDs</p>
+                <p class="card-description">Add session IDs for this course</p>
               </div>
-              <button type="button" class="btn btn-primary btn-sm" (click)="addSession()">
-                <i class="icon-plus"></i>
-                Add Session
-              </button>
+              <div class="header-actions">
+                <button type="button" class="btn btn-primary btn-sm" (click)="addSession(); $event.stopPropagation()">
+                  <lucide-icon name="plus"></lucide-icon>
+                  Add Session
+                </button>
+                <lucide-icon class="header-chevron" [name]="sectionCollapsed['sessions'] ? 'chevron-down' : 'chevron-up'"></lucide-icon>
+              </div>
             </div>
           </div>
-          <div class="card-content">
+          <div class="card-content" [class.collapsed]="sectionCollapsed['sessions']">
             <div *ngIf="formData['sessionIds'].length === 0" class="empty-state">
               <p>No sessions added yet. Click "Add Session" to get started.</p>
             </div>
@@ -274,23 +323,26 @@
 
         <!-- Files -->
         <div class="card">
-          <div class="card-header">
+          <div class="card-header clickable-header" 
+               (click)="toggleSection('files')"
+               [title]="sectionCollapsed['files'] ? 'Expand Section' : 'Collapse Section'">
             <div class="card-header-content">
               <div>
                 <h2 class="card-title">Course Files</h2>
                 <p class="card-description">Upload supporting materials and resources</p>
               </div>
-              <div>
+              <div class="header-actions">
                 <input type="file" multiple (change)="handleFileUpload($event)" class="file-input" id="file-upload">
-                <label for="file-upload" class="btn btn-primary btn-sm" [class.loading]="uploadingFiles">
+                <label for="file-upload" class="btn btn-primary btn-sm" [class.loading]="uploadingFiles" (click)="$event.stopPropagation()">
                   <i *ngIf="!uploadingFiles" class="icon-upload"></i>
                   <div *ngIf="uploadingFiles" class="spinner"></div>
                   {{ uploadingFiles ? 'Uploading...' : 'Upload Files' }}
                 </label>
+                <lucide-icon class="header-chevron" [name]="sectionCollapsed['files'] ? 'chevron-down' : 'chevron-up'"></lucide-icon>
               </div>
             </div>
           </div>
-          <div class="card-content">
+          <div class="card-content" [class.collapsed]="sectionCollapsed['files']">
             <div *ngIf="formData['files'].length === 0" class="empty-state">
               <p>No files uploaded yet. Click "Upload Files" to add course materials.</p>
             </div>
@@ -313,50 +365,71 @@
 
         <!-- Text Content -->
         <div class="card">
-          <div class="card-header">
+          <div class="card-header clickable-header" 
+               (click)="toggleSection('textContent')"
+               [title]="sectionCollapsed['textContent'] ? 'Expand Section' : 'Collapse Section'">
             <div class="card-header-content">
               <div>
                 <h2 class="card-title">Text Content</h2>
                 <p class="card-description">Create lessons, assignments, and other text-based content</p>
               </div>
-              <button type="button" class="btn btn-primary btn-sm" (click)="addTextContent()">
-                <i class="icon-plus"></i>
-                Add Content
-              </button>
+              <div class="header-actions">
+                <button type="button" class="btn btn-primary btn-sm" (click)="addTextContent(); $event.stopPropagation()">
+                  <lucide-icon name="plus"></lucide-icon>
+                  Add Content
+                </button>
+                <lucide-icon class="header-chevron" [name]="sectionCollapsed['textContent'] ? 'chevron-down' : 'chevron-up'"></lucide-icon>
+              </div>
             </div>
           </div>
-          <div class="card-content">
+          <div class="card-content" [class.collapsed]="sectionCollapsed['textContent']">
             <div *ngIf="formData['textContent'].length === 0" class="empty-state">
               <p>No text content added yet. Click "Add Content" to create lessons, assignments, or readings.</p>
             </div>
             <div *ngIf="formData['textContent'].length > 0" class="content-list">
               <div *ngFor="let content of formData['textContent']; let i = index; trackBy: trackByIndex" class="content-item">
-                <div class="content-header">
-                  <div class="content-badges">
-                    <span class="content-number">#{{ i + 1 }}</span>
-                    <span class="content-type">{{ content.type | titlecase }}</span>
+                <div class="content-header clickable-header" 
+                     (click)="toggleTextContent(i)"
+                     [title]="isTextContentCollapsed(i) ? 'Expand Content' : 'Collapse Content'">
+                  <div class="content-header-left">
+                    <div class="content-badges">
+                      <span class="content-number">#{{ i + 1 }}</span>
+                      <span class="content-type">{{ content.type | titlecase }}</span>
+                    </div>
+                    <div class="content-title-preview">
+                      <span *ngIf="content.title; else untitledContent">{{ content.title }}</span>
+                      <ng-template #untitledContent>
+                        <span class="untitled-text">Untitled {{ content.type | titlecase }}</span>
+                      </ng-template>
+                    </div>
                   </div>
                   <div class="content-actions">
                     <button
                       type="button"
                       class="btn btn-icon"
-                      (click)="moveTextContent(i, 'up')"
-                      [disabled]="i === 0">
-                      <i class="icon-arrow-up"></i>
+                      (click)="moveTextContent(i, 'up'); $event.stopPropagation()"
+                      [disabled]="i === 0"
+                      title="Move Up">
+                      <lucide-icon name="arrow-up"></lucide-icon>
                     </button>
                     <button
                       type="button"
                       class="btn btn-icon"
-                      (click)="moveTextContent(i, 'down')"
-                      [disabled]="i === formData['textContent'].length - 1">
-                      <i class="icon-arrow-down"></i>
+                      (click)="moveTextContent(i, 'down'); $event.stopPropagation()"
+                      [disabled]="i === formData['textContent'].length - 1"
+                      title="Move Down">
+                      <lucide-icon name="arrow-down"></lucide-icon>
                     </button>
-                    <button type="button" class="btn btn-icon btn-danger" (click)="removeTextContent(i)">
-                      <i class="icon-trash"></i>
+                    <button type="button" 
+                            class="btn btn-icon btn-danger" 
+                            (click)="removeTextContent(i); $event.stopPropagation()"
+                            title="Delete Content">
+                      <lucide-icon name="trash-2"></lucide-icon>
                     </button>
+                    <lucide-icon class="header-chevron" [name]="isTextContentCollapsed(i) ? 'chevron-down' : 'chevron-up'"></lucide-icon>
                   </div>
                 </div>
-                <div class="content-form">
+                <div class="content-form" [class.collapsed]="isTextContentCollapsed(i)">
                   <div class="content-form-row">
                     <div class="form-group flex-2">
                       <label class="form-label">Title</label>

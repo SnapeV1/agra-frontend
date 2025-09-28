@@ -5,6 +5,7 @@ import { User } from '../../../../core/models/user.model';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { CourseService } from 'src/app/core/services/course/course.service';
+import { ProgressService } from 'src/app/core/services/progress.service';
 import { Course, CourseProgress } from 'src/app/core/models/course';
 
 interface ProfileStats {
@@ -74,6 +75,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     private authService: AuthService, 
     private profileService: ProfileService,
     private courseService: CourseService,
+    private progressService: ProgressService,
     private router: Router
   ) {}
 
@@ -81,6 +83,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.loadUserProfile();
     this.subscribeToUserChanges();
     this.loadEnrolledCourses();
+    this.subscribeToProgressUpdates();
   }
 
   ngOnDestroy(): void {
@@ -95,6 +98,33 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         if (authUser?.user) {
           this.userProfile = authUser.user;
           this.isLoading = false;
+        }
+      });
+  }
+
+  private subscribeToProgressUpdates(): void {
+    this.progressService.currentProgress$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(updatedProgress => {
+        if (updatedProgress) {
+          // Find the corresponding enrolled course and update its progress
+          const enrolledCourseIndex = this.enrolledCourses.findIndex(
+            course => course.courseId === updatedProgress.courseId
+          );
+          
+          if (enrolledCourseIndex !== -1) {
+            // Update the progress data
+            const newCompletionPercentage = this.progressService.calculateCompletionPercentage(updatedProgress.lessons);
+            
+            this.enrolledCourses[enrolledCourseIndex].progress.completionPercentage = newCompletionPercentage;
+            this.enrolledCourses[enrolledCourseIndex].progress.completedSessionIds = updatedProgress.lessons
+              .filter(l => l.completed)
+              .map(l => l.lessonId);
+            this.enrolledCourses[enrolledCourseIndex].status = this.getStatusFromProgress(newCompletionPercentage);
+            
+            // Update stats
+            this.updateStats();
+          }
         }
       });
   }
@@ -143,11 +173,11 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             return true;
           });
 
-          // Initialize enrolled courses with progress data
+          // Initialize enrolled courses with progress data (progress will be recalculated after course details are fetched)
           this.enrolledCourses = validProgressList.map(progress => ({
             courseId: progress.courseId,
-            progress: progress,
-            status: this.getStatusFromProgress(progress.completionPercentage),
+            progress: progress, // Keep original progress for now
+            status: this.getStatusFromProgress(progress.completionPercentage), // Will be updated after course details
             course: undefined // Will be populated when course details are fetched
           }));
 
@@ -175,7 +205,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.enrolledCourses.forEach((enrolledCourse, index) => {
       // Additional safety check for undefined courseId
       if (!enrolledCourse.courseId) {
-        console.error('Attempting to fetch course details for undefined courseId at index:', index);
         completedRequests++;
         if (completedRequests === totalRequests) {
           this.coursesLoading = false;
@@ -189,6 +218,21 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (course: Course) => {
             this.enrolledCourses[index].course = course;
+            
+            // Now recalculate progress using the correct total lessons count from course data
+            const totalLessons = course.textContent?.length || 0;
+            const completedLessons = this.enrolledCourses[index].progress.completedSessionIds?.length || 0;
+            const recalculatedPercentage = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+            
+            // Update the progress object with the correct percentage
+            this.enrolledCourses[index].progress = {
+              ...this.enrolledCourses[index].progress,
+              completionPercentage: recalculatedPercentage
+            };
+            
+            // Update the status based on the recalculated percentage
+            this.enrolledCourses[index].status = this.getStatusFromProgress(recalculatedPercentage);
+            
             completedRequests++;
             
             // Check if all course details have been fetched
@@ -397,23 +441,18 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   }
 
   continueCourse(courseId: string): void {
-    console.log('Continue course:', courseId);
-    // Navigate to course player
     this.router.navigate(['/courses/course-enrolled', courseId]);
   }
 
   startCourse(courseId: string): void {
-    console.log('Start course:', courseId);
-    // Navigate to course player
     this.router.navigate(['/courses/course-enrolled', courseId]);
   }
 
   viewCertificate(courseId: string): void {
     const enrolledCourse = this.enrolledCourses.find(ec => ec.courseId === courseId);
-    if (enrolledCourse?.progress?.certificateUrl) {
-      window.open(enrolledCourse.progress.certificateUrl, '_blank');
-    } else {
-      console.log('Certificate not available for course:', courseId);
+    if (enrolledCourse && enrolledCourse.status === 'completed') {
+      // Navigate to certificate view
+      this.router.navigate(['/certificate', courseId]);
     }
   }
 
