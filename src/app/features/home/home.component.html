@@ -188,9 +188,9 @@
        *ngFor="let course of featuredCourses | slice:0:3" 
        (click)="onCourseSelect(course)">
     <div class="course-image">
-      <img [src]="course.imageUrl || '/assets/images/course-placeholder.jpg'" 
+      <img [src]="course.imageUrl || '/assets/images/course-placeholder.svg'" 
            [alt]="course.title" 
-           onerror="this.src='/assets/images/course-placeholder.jpg'">
+           onerror="this.onerror=null; this.src='/assets/images/course-placeholder.svg'">
       <div class="course-duration">{{ '4 semaines' }}</div>
     </div>
   
@@ -301,9 +301,9 @@
                 <!-- Post Header -->
                 <div class="post-header">
                     <div class="post-avatar">
-                        <img [src]="post.user?.picture || '/assets/images/default-avatar.png'" 
+                        <img [src]="post.user?.picture || '/assets/images/default-avatar.svg'" 
                              [alt]="post.user?.name || 'Utilisateur'"
-                             onerror="this.src='/assets/images/default-avatar.png'">
+                             onerror="this.onerror=null; this.src='/assets/images/default-avatar.svg'">
                     </div>
                     <div class="post-user-info">
                         <h4 class="post-username">{{ post.user?.name || 'Utilisateur anonyme' }}</h4>

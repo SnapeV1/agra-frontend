@@ -134,8 +134,17 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (progressList: CourseProgress[]) => {
+          // Filter out progress entries with undefined or null courseId
+          const validProgressList = progressList.filter(progress => {
+            if (!progress.courseId) {
+              console.warn('Skipping progress entry with undefined courseId:', progress);
+              return false;
+            }
+            return true;
+          });
+
           // Initialize enrolled courses with progress data
-          this.enrolledCourses = progressList.map(progress => ({
+          this.enrolledCourses = validProgressList.map(progress => ({
             courseId: progress.courseId,
             progress: progress,
             status: this.getStatusFromProgress(progress.completionPercentage),
@@ -164,6 +173,17 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     }
 
     this.enrolledCourses.forEach((enrolledCourse, index) => {
+      // Additional safety check for undefined courseId
+      if (!enrolledCourse.courseId) {
+        console.error('Attempting to fetch course details for undefined courseId at index:', index);
+        completedRequests++;
+        if (completedRequests === totalRequests) {
+          this.coursesLoading = false;
+          this.updateStats();
+        }
+        return;
+      }
+
       this.courseService.getCourseById(enrolledCourse.courseId)
         .pipe(takeUntil(this.destroy$))
         .subscribe({

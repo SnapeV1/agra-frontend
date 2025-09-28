@@ -84,5 +84,8 @@
       }
     }
   },
-  "defaultProject": "agra-frontend"
+  "defaultProject": "agra-frontend",
+  "cli": {
+    "analytics": false
+  }
 }

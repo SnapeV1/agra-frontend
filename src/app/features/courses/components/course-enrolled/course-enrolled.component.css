@@ -568,14 +568,18 @@
   font-size: 0.95rem;
 }
 
-/* Course Files */
-.course-files {
+/* Course Resources (Static) */
+.course-resources {
   border-radius: 8px;
   border: 1px solid #e2e8f0;
   background: #f8fafc;
+  margin-bottom: 1rem;
 }
 
 .resources-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 16px;
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -586,12 +590,117 @@
   background-color: #f1f5f9;
 }
 
-.course-files h3 {
+.resources-header h3 {
   font-size: 1.1rem;
   font-weight: 600;
   color: #1e293b;
   margin: 0;
   user-select: none;
+}
+
+.toggle-icon {
+  width: 20px;
+  height: 20px;
+  color: #64748b;
+  transition: transform 0.2s ease;
+}
+
+.resources-content {
+  max-height: 1000px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+  opacity: 1;
+  padding: 0 16px 16px;
+}
+
+.resources-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 16px;
+}
+
+.resource-category {
+  margin-bottom: 1.5rem;
+}
+
+.resource-category:last-child {
+  margin-bottom: 0;
+}
+
+.resource-category h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.resource-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resource-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #374151;
+  transition: all 0.2s ease;
+  border: 1px solid #e5e7eb;
+}
+
+.resource-item:hover {
+  background: #f8fafc;
+  color: #1f2937;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.resource-icon {
+  width: 20px;
+  height: 20px;
+  color: #10b981;
+}
+
+.resource-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.resource-type {
+  font-size: 0.75rem;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Course Files (Dynamic) */
+.course-files {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.files-header {
+  padding: 16px;
+  border-radius: 8px 8px 0 0;
+}
+
+.files-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
 }
 
 .files-list {

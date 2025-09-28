@@ -44,7 +44,7 @@ export interface CourseProgress {
   enrolledAt: Date;
   startedAt: Date;
   lastAccessedAt: Date;
-  completedAt: Date;
+  completedAt?: Date;
   completed: boolean;
   completionPercentage: number;
   certificateUrl?: string;

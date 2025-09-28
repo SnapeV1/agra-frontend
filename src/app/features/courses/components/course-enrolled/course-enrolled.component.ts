@@ -3,7 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil, Subscription, interval } from 'rxjs';
 import { Course, CourseProgress, TextContent } from '../../../../core/models/course';
 import { ProgressService, LessonProgress, CourseEnrollment } from '../../../../core/services/progress.service';
-import { MockDataService } from '../../../../core/services/mock-data.service';
+
+import { CourseService } from '../../../../core/services/course/course.service';
 
 @Component({
   selector: 'app-course-enrolled',
@@ -38,7 +39,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private progressService: ProgressService,
-    private mockDataService: MockDataService
+    private courseService: CourseService
   ) {}
 
   ngOnInit(): void {
@@ -63,56 +64,133 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = null;
 
-    // Load course data using mock service
-    this.mockDataService.getMockCourse(this.courseId)
+    // Load course data using real course service only
+    this.courseService.getCourseById(this.courseId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (course) => {
           this.course = course;
-          this.initializeLessons();
+          this.checkDataLoadComplete();
         },
         error: (error) => {
-          this.error = 'Failed to load course data';
-          this.loading = false;
           console.error('Error loading course:', error);
+          
+          // Handle different error types
+          if (error.status === 403) {
+            this.error = 'Access denied. You may not have permission to view this course.';
+          } else if (error.status === 401) {
+            this.error = 'Authentication required. Please log in to view this course.';
+          } else if (error.status === 404) {
+            this.error = 'Course not found. It may have been removed or the link is invalid.';
+          } else {
+            this.error = 'Failed to load course data. Please try again later.';
+          }
+          
+          this.loading = false;
         }
       });
 
-    // Load enrollment progress using mock service
-    this.mockDataService.getMockCourseEnrollment(this.courseId)
+    // Load enrollment progress using progress service only
+    this.progressService.getCourseProgress(this.courseId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (enrollment) => {
            this.courseEnrollment = enrollment;
-           this.loading = false;
-           this.setCurrentLesson();
+           this.checkDataLoadComplete();
          },
         error: (error) => {
-          this.error = 'Failed to load progress data';
-          this.loading = false;
           console.error('Error loading progress:', error);
+          
+          // Create a default enrollment object to allow course viewing without progress
+          this.courseEnrollment = {
+            courseId: this.courseId,
+            currentLessonId: undefined,
+            lessons: [],
+            progress: {
+              courseId: this.courseId,
+              enrolledAt: new Date(),
+              startedAt: new Date(),
+              lastAccessedAt: new Date(),
+              completed: false,
+              completionPercentage: 0,
+              totalSessions: 0,
+              completedSessionIds: [],
+              totalTimeSpent: 0,
+              accessCount: 0
+            }
+          };
+          
+          // Handle different error types with warnings instead of blocking errors
+          if (error.status === 403) {
+            console.warn('Access forbidden for progress data - user may not have permission. Continuing with default progress.');
+          } else if (error.status === 401) {
+            console.warn('Unauthorized - token may be invalid or expired. Continuing with default progress.');
+          } else if (error.status === 500) {
+            console.warn('Server error loading progress data. Continuing with default progress.');
+          } else if (error.message === 'Authentication required') {
+            console.warn('No authentication token found. Continuing with default progress.');
+          } else {
+            console.warn('Failed to load progress data. Continuing with default progress.');
+          }
+          
+          // Check if we can proceed with course data only
+          this.checkDataLoadComplete();
         }
       });
+  }
+
+  private checkDataLoadComplete(): void {
+    if (this.course && this.courseEnrollment) {
+      this.initializeLessons();
+      this.setCurrentLesson();
+      this.loading = false;
+    }
   }
 
   initializeLessons(): void {
     if (!this.course || !this.courseEnrollment) return;
     
+    // Initialize lessons array if it doesn't exist
+    if (!this.courseEnrollment.lessons) {
+      this.courseEnrollment.lessons = [];
+      console.log('Initialized empty lessons array for enrollment');
+    }
+    
+    console.log('Initializing lessons with enrollment data:', this.courseEnrollment.lessons);
+    
     // Sort lessons by order
     this.course.textContent = this.course.textContent.sort((a, b) => a.order - b.order);
     
-    // Initialize lesson progress if not exists
+    // Get valid lesson IDs from course content
+    const validLessonIds = this.course.textContent.map(lesson => lesson.id);
+    console.log('Valid lesson IDs from course content:', validLessonIds);
+    
+    // Filter out any lesson progress entries that don't correspond to actual course lessons
+    this.courseEnrollment.lessons = this.courseEnrollment.lessons.filter(progress => {
+      const isValid = validLessonIds.includes(progress.lessonId);
+      if (!isValid) {
+        console.log(`Removing orphaned lesson progress for: ${progress.lessonId}`);
+      }
+      return isValid;
+    });
+    
+    // Initialize lesson progress for course lessons that don't have progress yet
     this.course.textContent.forEach(lesson => {
       const existingProgress = this.courseEnrollment!.lessons.find(p => p.lessonId === lesson.id);
       if (!existingProgress) {
+        console.log(`Adding missing progress for lesson: ${lesson.id}`);
         this.courseEnrollment!.lessons.push({
           lessonId: lesson.id || '',
           completed: false,
           timeSpent: 0,
           lastAccessedAt: new Date()
         });
+      } else {
+        console.log(`Found existing progress for lesson ${lesson.id}:`, existingProgress);
       }
     });
+    
+    console.log('Final lesson progress data:', this.courseEnrollment.lessons);
   }
 
   setCurrentLesson(): void {

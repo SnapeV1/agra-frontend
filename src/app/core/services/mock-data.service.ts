@@ -359,6 +359,7 @@ const routes: Routes = [
   }
 
   getMockCourseEnrollment(courseId: string): Observable<CourseEnrollment> {
+    // Only include lessons that actually exist in the course content
     const mockLessons: LessonProgress[] = [
       {
         lessonId: 'lesson-1',
@@ -385,13 +386,8 @@ const routes: Routes = [
         completed: false,
         timeSpent: 45,
         lastAccessedAt: new Date('2024-01-17')
-      },
-      {
-        lessonId: 'lesson-4',
-        completed: false,
-        timeSpent: 0,
-        lastAccessedAt: new Date()
       }
+      // Removed lesson-4 as it doesn't exist in the actual course content
     ];
 
     const mockProgress: CourseProgress = {
@@ -417,5 +413,54 @@ const routes: Routes = [
     };
 
     return of(mockEnrollment);
+  }
+
+  getMockEnrolledCourses(): Observable<CourseProgress[]> {
+    const mockEnrolledCourses: CourseProgress[] = [
+      {
+        courseId: 'course-1',
+        enrolledAt: new Date('2024-01-08'),
+        startedAt: new Date('2024-01-10'),
+        lastAccessedAt: new Date('2024-01-17'),
+        completedAt: undefined,
+        completed: false,
+        completionPercentage: 65,
+        completedSessionIds: ['session-1', 'session-2', 'session-3'],
+        currentSessionId: 'session-4',
+        totalSessions: 6,
+        totalTimeSpent: 180,
+        accessCount: 12
+      },
+      {
+        courseId: 'course-2',
+        enrolledAt: new Date('2024-01-03'),
+        startedAt: new Date('2024-01-05'),
+        lastAccessedAt: new Date('2024-01-16'),
+        completedAt: new Date('2024-01-15'),
+        completed: true,
+        completionPercentage: 100,
+        completedSessionIds: ['session-1', 'session-2', 'session-3', 'session-4'],
+        currentSessionId: undefined,
+        totalSessions: 4,
+        totalTimeSpent: 240,
+        accessCount: 20
+      },
+      {
+        courseId: 'course-3',
+        enrolledAt: new Date('2024-01-10'),
+        startedAt: new Date('2024-01-12'),
+        lastAccessedAt: new Date('2024-01-17'),
+        completedAt: undefined,
+        completed: false,
+        completionPercentage: 30,
+        completedSessionIds: ['session-1'],
+        currentSessionId: 'session-2',
+        totalSessions: 5,
+        totalTimeSpent: 90,
+        accessCount: 8
+      }
+    ];
+
+    return of(mockEnrolledCourses);
   }
 }
