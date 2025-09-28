@@ -452,7 +452,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     const enrolledCourse = this.enrolledCourses.find(ec => ec.courseId === courseId);
     if (enrolledCourse && enrolledCourse.status === 'completed') {
       // Navigate to certificate view
-      this.router.navigate(['/certificate', courseId]);
+      this.router.navigate(['/courses/certificate', courseId]);
     }
   }
 

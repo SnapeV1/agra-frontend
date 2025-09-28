@@ -9,13 +9,15 @@ import { SharedModule } from "src/app/features/shared/shared.module";
 import { LucideAngularModule, AlertTriangle, RefreshCw, Search, X, BookOpen, Globe, Users, Clock, Eye, Plus, ArrowLeft, Menu, Maximize, Maximize2, MoreVertical, CheckCircle, Play, ChevronLeft, ChevronRight, FileText, Download, Award, Share2, ExternalLink } from 'lucide-angular';
 import { CourseDetailsComponent } from './components/course-details/course-details.component';
 import { CourseEnrolledComponent } from './components/course-enrolled/course-enrolled.component';
+import { CertificateComponent } from './components/certificate/certificate.component';
 
 
 @NgModule({
   declarations: [
     CoursesComponent,
     CourseDetailsComponent,
-    CourseEnrolledComponent  
+    CourseEnrolledComponent,
+    CertificateComponent
   ],
   imports: [
     CommonModule,

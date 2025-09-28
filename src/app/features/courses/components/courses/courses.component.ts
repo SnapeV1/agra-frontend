@@ -17,12 +17,24 @@ export class CoursesComponent implements OnInit {
   searchTerm = '';
   selectedLanguage = '';
   selectedCountry = '';
+  selectedLevel = '';
 
   languageListWithCounts: CountItem[] = [];
   countryListWithCounts: CountItem[] = [];
+  levelOptions = [
+    { value: '', label: 'All Levels' },
+    { value: 'beginner', label: 'Beginner' },
+    { value: 'intermediate', label: 'Intermediate' },
+    { value: 'advanced', label: 'Advanced' }
+  ];
 
   loading = true;
   error = '';
+
+  // Pagination properties
+  currentPage = 1;
+  itemsPerPage = 8;
+  totalPages = 1;
 
   skeletonArray = Array(8).fill(0);
 
@@ -91,7 +103,12 @@ export class CoursesComponent implements OnInit {
     this.applyFilters();
   }
 
-  private applyFilters(): void {
+  onLevelChange(event: any): void {
+    this.selectedLevel = event.target.value;
+    this.applyFilters();
+  }
+
+  applyFilters(): void {
     const term = this.searchTerm.trim().toLowerCase();
 
     this.filteredCourses = this.courses.filter(course => {
@@ -103,16 +120,36 @@ export class CoursesComponent implements OnInit {
       const matchesLanguage = !this.selectedLanguage || 
         (course.languagesAvailable && course.languagesAvailable.includes(this.selectedLanguage));
       const matchesCountry = !this.selectedCountry || course.country === this.selectedCountry;
+      
+      // Simple level matching based on course title/description keywords
+      const matchesLevel = !this.selectedLevel || this.getCourseLevel(course) === this.selectedLevel;
 
-      return matchesSearch && matchesLanguage && matchesCountry;
+      return matchesSearch && matchesLanguage && matchesCountry && matchesLevel;
     });
+    
+    this.updatePaginatedCourses();
+  }
+
+  private getCourseLevel(course: Course): string {
+    const title = course.title.toLowerCase();
+    const description = (course.description ?? '').toLowerCase();
+    const content = title + ' ' + description;
+    
+    if (content.includes('beginner') || content.includes('intro') || content.includes('basic') || content.includes('fundamentals')) {
+      return 'beginner';
+    } else if (content.includes('advanced') || content.includes('expert') || content.includes('master') || content.includes('professional')) {
+      return 'advanced';
+    } else {
+      return 'intermediate';
+    }
   }
 
   clearFilters(): void {
     this.searchTerm = '';
     this.selectedLanguage = '';
     this.selectedCountry = '';
-    this.filteredCourses = [...this.courses];
+    this.selectedLevel = '';
+    this.applyFilters();
   }
 onCourseSelect(course: Course): void {
   console.log('Navigating to course:', course.id); 
@@ -137,5 +174,56 @@ onCourseSelect(course: Course): void {
   formatNumber(num: number): string {
     if (typeof num !== 'number') return '';
     return num.toLocaleString();
+  }
+
+  // Pagination methods
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePaginatedCourses();
+    }
+  }
+
+  getVisiblePages(): number[] {
+    const pages: number[] = [];
+    const maxVisiblePages = 5;
+    
+    if (this.totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      const start = Math.max(1, this.currentPage - 2);
+      const end = Math.min(this.totalPages, start + maxVisiblePages - 1);
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+    }
+    
+    return pages;
+  }
+
+  getStartIndex(): number {
+    return (this.currentPage - 1) * this.itemsPerPage + 1;
+  }
+
+  getTotalCourses(): number {
+    return this.filteredCourses.length;
+  }
+
+  getPaginatedCourses(): Course[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.filteredCourses.slice(startIndex, endIndex);
+  }
+
+  private updatePaginatedCourses(): void {
+    this.totalPages = Math.ceil(this.filteredCourses.length / this.itemsPerPage);
+    
+    // Reset to page 1 if current page is beyond total pages
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = 1;
+    }
   }
 }

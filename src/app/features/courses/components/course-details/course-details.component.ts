@@ -19,6 +19,7 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
   isEnrolling = false;
   isEnrolled = false;
   enrollmentError = '';
+  activeTab = 'overview';
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -191,5 +192,9 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
         // Don't show error to user for status check failures as it's not critical
       }
     });
+  }
+
+  switchTab(tab: string): void {
+    this.activeTab = tab;
   }
 }

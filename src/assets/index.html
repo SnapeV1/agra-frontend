@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced React Development - Course Details</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+     Header 
+    <header class="header">
+        <div class="container">
+            <div class="nav">
+                <div class="logo">EduPlatform</div>
+                <nav class="nav-links">
+                    <a href="#" class="nav-link">Courses</a>
+                    <a href="#" class="nav-link">About</a>
+                    <a href="#" class="nav-link">Contact</a>
+                    <button class="btn-secondary">Sign In</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+     Hero Section 
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-main">
+                    <div class="breadcrumb">
+                        <span>Development</span> → <span>Frontend</span> → <span>React</span>
+                    </div>
+                    <h1 class="hero-title">Advanced React Development</h1>
+                    <p class="hero-subtitle">Master modern React patterns, hooks, and performance optimization techniques used by top tech companies</p>
+                    
+                    <div class="course-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">Instructor</span>
+                            <span class="meta-value">Sarah Johnson</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Duration</span>
+                            <span class="meta-value">12 weeks</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Level</span>
+                            <span class="meta-value">Advanced</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Students</span>
+                            <span class="meta-value">2,847</span>
+                        </div>
+                    </div>
+
+                     Video Preview 
+                    <div class="video-preview">
+                        <div class="video-thumbnail">
+                            <img src="/placeholder.svg?height=400&width=700" alt="Course preview">
+                            <button class="play-button">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M8 5v14l11-7z" fill="currentColor"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <p class="video-caption">Watch the course introduction (3:24)</p>
+                    </div>
+                </div>
+
+                 Enrollment Sidebar 
+                <div class="enrollment-sidebar">
+                    <div class="pricing-card">
+                        <div class="price">
+                            <span class="price-amount">$149</span>
+                            <span class="price-period">one-time</span>
+                        </div>
+                        <div class="price-original">Originally $299</div>
+                        
+                        <button class="btn-primary btn-large">Enroll Now</button>
+                        <button class="btn-secondary btn-large">Add to Wishlist</button>
+                        
+                        <div class="course-includes">
+                            <h4>This course includes:</h4>
+                            <ul class="includes-list">
+                                <li>24 hours of video content</li>
+                                <li>45 coding exercises</li>
+                                <li>Certificate of completion</li>
+                                <li>Lifetime access</li>
+                                <li>30-day money-back guarantee</li>
+                            </ul>
+                        </div>
+
+                        <div class="progress-section">
+                            <div class="progress-header">
+                                <span>Course Progress</span>
+                                <span>0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+     Course Content 
+    <section class="course-content">
+        <div class="container">
+            <div class="content-tabs">
+                <button class="tab-button active">Overview</button>
+                <button class="tab-button">Curriculum</button>
+                <button class="tab-button">Instructor</button>
+                <button class="tab-button">Reviews</button>
+            </div>
+
+            <div class="content-grid">
+                <div class="main-content">
+                    <div class="content-section">
+                        <h2>What you'll learn</h2>
+                        <div class="learning-grid">
+                            <div class="learning-item">
+                                <div class="learning-icon">✓</div>
+                                <span>Advanced React hooks and custom hook patterns</span>
+                            </div>
+                            <div class="learning-item">
+                                <div class="learning-icon">✓</div>
+                                <span>Performance optimization with React.memo and useMemo</span>
+                            </div>
+                            <div class="learning-item">
+                                <div class="learning-icon">✓</div>
+                                <span>State management with Context API and Zustand</span>
+                            </div>
+                            <div class="learning-item">
+                                <div class="learning-icon">✓</div>
+                                <span>Testing strategies for React applications</span>
+                            </div>
+                            <div class="learning-item">
+                                <div class="learning-icon">✓</div>
+                                <span>Server-side rendering with Next.js</span>
+                            </div>
+                            <div class="learning-item">
+                                <div class="learning-icon">✓</div>
+                                <span>Building scalable component architectures</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-section">
+                        <h2>Course Description</h2>
+                        <p>Take your React skills to the next level with this comprehensive advanced course. You'll dive deep into modern React patterns, learn performance optimization techniques, and build production-ready applications.</p>
+                        <p>This course is designed for developers who already have a solid foundation in React and want to master advanced concepts used in enterprise applications. Through hands-on projects and real-world examples, you'll gain the expertise needed to architect scalable React applications.</p>
+                    </div>
+
+                    <div class="content-section">
+                        <h2>Prerequisites</h2>
+                        <ul class="prerequisites-list">
+                            <li>Solid understanding of JavaScript ES6+</li>
+                            <li>Experience with React fundamentals (components, props, state)</li>
+                            <li>Familiarity with modern development tools (npm, webpack)</li>
+                            <li>Basic knowledge of HTML and CSS</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="sidebar-content">
+                    <div class="instructor-card">
+                        <img src="/placeholder.svg?height=80&width=80" alt="Sarah Johnson" class="instructor-avatar">
+                        <div class="instructor-info">
+                            <h4>Sarah Johnson</h4>
+                            <p>Senior React Developer at TechCorp</p>
+                            <div class="instructor-stats">
+                                <span>4.9 ★ rating</span>
+                                <span>15,000+ students</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="related-courses">
+                        <h4>Related Courses</h4>
+                        <div class="related-course">
+                            <img src="/placeholder.svg?height=60&width=80" alt="JavaScript Fundamentals">
+                            <div class="related-info">
+                                <h5>JavaScript Fundamentals</h5>
+                                <span>$89</span>
+                            </div>
+                        </div>
+                        <div class="related-course">
+                            <img src="/placeholder.svg?height=60&width=80" alt="Node.js Backend">
+                            <div class="related-info">
+                                <h5>Node.js Backend Development</h5>
+                                <span>$129</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

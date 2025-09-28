@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { CoursesComponent } from './components/courses/courses.component';
 import { CourseDetailsComponent } from './components/course-details/course-details.component';
 import { CourseEnrolledComponent } from './components/course-enrolled/course-enrolled.component';
+import { CertificateComponent } from './components/certificate/certificate.component';
 
 const routes: Routes = [
   {
@@ -11,6 +12,7 @@ const routes: Routes = [
   },
   { path: 'course-details/:id', component: CourseDetailsComponent },
   { path: 'course-enrolled/:id', component: CourseEnrolledComponent },
+  { path: 'certificate/:id', component: CertificateComponent },
 ];
 
 @NgModule({

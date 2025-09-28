@@ -1,0 +1,156 @@
+<div class="certificate-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading certificate...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <h3>Certificate Not Available</h3>
+    <p>{{ error }}</p>
+    <button class="btn-primary" (click)="goBack()">Go Back</button>
+  </div>
+
+  <!-- Certificate Content -->
+  <div *ngIf="certificateData && !loading && !error" class="certificate-wrapper">
+    <!-- Action Buttons -->
+    <div class="certificate-actions no-print">
+      <button class="btn-secondary" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i> Back
+      </button>
+      <button class="btn-primary" (click)="downloadCertificate()">
+        <i class="fas fa-download"></i> Download PDF
+      </button>
+      <button class="btn-outline" (click)="shareCertificate()">
+        <i class="fas fa-share"></i> Share
+      </button>
+    </div>
+
+    <!-- Certificate -->
+    <div class="certificate" id="certificate">
+      <!-- Certificate Border -->
+      <div class="certificate-border">
+        <!-- Header -->
+        <div class="certificate-header">
+          <div class="logo-section">
+            <img src="assets/logo2.png" alt="AGRA Learning Platform" class="organization-logo">
+          </div>
+          <div class="certificate-stamp">
+            <img src="assets/stamp.png" alt="Official Stamp" class="stamp-image">
+          </div>
+        </div>
+
+        <!-- Certificate Title -->
+        <div class="certificate-title">
+          <h2>Certificate of Completion</h2>
+          <div class="title-underline"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="certificate-content">
+          <div class="recipient-section">
+            <p class="presented-to">This is to certify that</p>
+            <h3 class="student-name">{{ certificateData.studentName }}</h3>
+            <p class="completion-text">has successfully completed the course</p>
+          </div>
+
+          <div class="course-section">
+            <h4 class="course-title">{{ certificateData.courseTitle }}</h4>
+            <div class="course-details">
+              <div class="detail-item">
+                <span class="label">Domain:</span>
+                <span class="value">{{ certificateData.courseDomain }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Country Focus:</span>
+                <span class="value">{{ certificateData.courseCountry }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Completion Date:</span>
+                <span class="value">{{ formatDate(certificateData.completionDate) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Achievement Stats -->
+          <div class="achievement-stats">
+            <div class="stat-item">
+              <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value">{{ formatTime(certificateData.totalTimeSpent) }}</span>
+                <span class="stat-label">Time Invested</span>
+              </div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-icon">
+                <i class="fas fa-book-open"></i>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value">{{ certificateData.totalLessons }}</span>
+                <span class="stat-label">Lessons Completed</span>
+              </div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-icon">
+                <i class="fas fa-percentage"></i>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value">{{ certificateData.completionPercentage }}%</span>
+                <span class="stat-label">Course Progress</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Signature Section -->
+        <div class="signature-section">
+          <div class="signature-left">
+            <div class="signature-line">
+              <div class="signature-image">
+                <img src="assets/signature.png" alt="Instructor Signature" class="signature-img">
+              </div>
+              <div class="signature-info">
+                <p class="signature-name">{{ certificateData.instructorName }}</p>
+                <p class="signature-title">Trainer name</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="signature-right">
+            <div class="certificate-id">
+              <p class="id-label">Certificate ID</p>
+              <p class="id-value">{{ certificateData.certificateId }}</p>
+            </div>
+            <div class="issue-date">
+              <p class="date-label">Issue Date</p>
+              <p class="date-value">{{ formatDate(certificateData.issueDate) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="certificate-footer">
+          <div class="footer-pattern"></div>
+          <p class="verification-text">
+            This certificate can be verified at: agra-learning.com/verify/{{ certificateData.certificateId }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Actions -->
+    <div class="post-certificate-actions no-print">
+      <div class="action-card">
+        <h4>🎉 Congratulations!</h4>
+        <p>You've successfully completed this course. Continue your learning journey!</p>
+        <button class="btn-primary" (click)="goToCourses()">
+          <i class="fas fa-graduation-cap"></i> Explore More Courses
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

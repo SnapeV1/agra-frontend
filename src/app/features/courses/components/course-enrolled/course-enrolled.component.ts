@@ -3,7 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil, Subscription, interval } from 'rxjs';
 import { Course, CourseProgress, TextContent } from '../../../../core/models/course';
 import { ProgressService, LessonProgress, CourseEnrollment } from '../../../../core/services/progress.service';
-
+import { CertificateService, CertificateData } from '../../../../core/services/certificate.service';
+import { AuthService } from '../../../../core/services/auth/auth.service';
 import { CourseService } from '../../../../core/services/course/course.service';
 
 @Component({
@@ -32,6 +33,8 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
   showResources = false;
   certificateUrl: string | null = null;
   isGeneratingCertificate = false;
+  certificateData: CertificateData | null = null;
+  certificateError: string | null = null;
   
   private destroy$ = new Subject<void>();
 
@@ -39,7 +42,9 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private progressService: ProgressService,
-    private courseService: CourseService
+    private courseService: CourseService,
+    private certificateService: CertificateService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -302,9 +307,9 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
           this.courseEnrollment!.progress.completedAt = new Date();
           this.courseEnrollment!.progress.completionPercentage = 100;
           
-          // Show completion modal and generate certificate
+          // Show completion modal and generate certificate with enhanced data
           this.showCompletionModal = true;
-          this.generateCertificate();
+          this.generateEnhancedCertificate();
         },
         error: (error) => console.error('Error completing course:', error)
       });
@@ -444,6 +449,60 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     });
   }
 
+  generateEnhancedCertificate(): void {
+    if (!this.course || !this.courseEnrollment) {
+      this.certificateError = 'Course data not available';
+      return;
+    }
+
+    const authUser = this.authService.currentUserValue;
+    const user = authUser?.user;
+    if (!authUser || !user) {
+      this.certificateError = 'User not authenticated';
+      return;
+    }
+
+    this.isGeneratingCertificate = true;
+    this.certificateError = null;
+
+    const completionDate = this.courseEnrollment.progress.completedAt || new Date();
+    const totalTimeSpent = this.courseEnrollment.progress.totalTimeSpent;
+    const totalLessons = this.courseEnrollment.lessons.filter(l => l.completed).length;
+    const completionPercentage = this.courseEnrollment.progress.completionPercentage;
+
+    const request = {
+      courseId: this.course.id || 'unknown-course',
+      studentId: user.id || 'unknown-student',
+      completionData: {
+        completionDate,
+        totalTimeSpent,
+        totalLessons,
+        completionPercentage
+      }
+    };
+
+    this.certificateService.generateCertificate(request).subscribe({
+      next: (certificateData) => {
+        this.certificateData = certificateData;
+        this.certificateUrl = certificateData.verificationUrl;
+        this.isGeneratingCertificate = false;
+        
+        // Update the course enrollment with certificate URL
+        if (this.courseEnrollment) {
+          this.courseEnrollment.progress.certificateUrl = certificateData.verificationUrl;
+        }
+      },
+      error: (error) => {
+        console.error('Error generating enhanced certificate:', error);
+        this.certificateError = 'Failed to generate certificate. Please try again.';
+        this.isGeneratingCertificate = false;
+        
+        // Fallback to basic certificate generation
+        this.generateCertificate();
+      }
+    });
+  }
+
   downloadCertificate(): void {
     if (!this.certificateUrl) return;
     
@@ -461,7 +520,11 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
   }
 
   viewCertificate(): void {
-    if (this.certificateUrl) {
+    if (this.certificateData) {
+      // Navigate to the enhanced certificate component
+      this.router.navigate(['/courses/certificate', this.courseId]);
+    } else if (this.certificateUrl) {
+      // Fallback to basic certificate URL
       window.open(this.certificateUrl, '_blank');
     }
   }

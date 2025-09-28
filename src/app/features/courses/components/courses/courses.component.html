@@ -1,207 +1,229 @@
 <app-navigation></app-navigation>
 
 <div class="min-h-screen bg-background">
-  <header class="border-b bg-card-50 backdrop-blur-sm sticky top-0 z-50">
-    <div class="container mx-auto px-4 py-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-bold text-balance">Available Courses</h1>
-          <p class="text-muted-foreground mt-2 text-pretty">
-            Choose from our wide selection of courses and start learning today
-          </p>
-        </div>
-        <div class="hidden md:flex items-center gap-4">
-          <div class="badge badge-secondary px-3 py-1">
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+  <!-- Header Section -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <h1 class="header-title">Discover Your Next Skill</h1>
+        <p class="header-subtitle">Choose from over 1,200 courses taught by industry experts</p>
+        
+        <!-- Search Bar -->
+        <div class="search-container">
+          <div class="search-bar">
+            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path>
             </svg>
-            {{ courses.length }} Courses
+            <input 
+              type="text" 
+              placeholder="Search courses..." 
+              class="search-input"
+              [(ngModel)]="searchTerm"
+              (input)="onSearch()"
+            />
           </div>
         </div>
+        
+        <!-- Filter Dropdowns -->
+         <div class="filter-dropdowns">
+           <div class="filter-dropdown">
+             <svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+             </svg>
+             <select 
+               class="filter-select"
+               [(ngModel)]="selectedLanguage"
+               (change)="onLanguageChange($event)"
+             >
+               <option value="">Language</option>
+               <option 
+                 *ngFor="let lang of languageListWithCounts" 
+                 [value]="lang.value"
+               >
+                 {{ lang.value }}
+               </option>
+             </select>
+           </div>
+           
+           <div class="filter-dropdown">
+             <svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+             </svg>
+             <select 
+               class="filter-select"
+               [(ngModel)]="selectedLevel"
+               (change)="onLevelChange($event)"
+             >
+               <option 
+                 *ngFor="let level of levelOptions" 
+                 [value]="level.value"
+               >
+                 {{ level.label }}
+               </option>
+             </select>
+           </div>
+         </div>
       </div>
     </div>
   </header>
 
-  <div class="container mx-auto px-4 py-8">
-    <div class="mb-8 space-y-6">
-      <div class="relative max-w-md mx-auto">
-        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-        </svg>
-        <input
-          type="text"
-          placeholder="Search courses..."
-          class="search-input pl-10 bg-card shadow-sm border-border-50"
-          [(ngModel)]="searchTerm"
-          (input)="onSearch()"
-        />
-      </div>
-
-      <div class="filters-row">
-        <div class="filter-group">
-          <label for="languageFilter" class="filter-label">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
-            </svg>
-            Language
-          </label>
-          <select 
-            id="languageFilter"
-            class="filter-select"
-            [(ngModel)]="selectedLanguage"
-            (change)="onLanguageChange($event)"
-          >
-            <option value="">All Languages ({{ courses.length }})</option>
-            <option 
-              *ngFor="let lang of languageListWithCounts" 
-              [value]="lang.value"
-            >
-              {{ lang.value }} ({{ lang.count }})
-            </option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <label for="countryFilter" class="filter-label">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-            </svg>
-            Country
-          </label>
-          <select 
-            id="countryFilter"
-            class="filter-select"
-            [(ngModel)]="selectedCountry"
-            (change)="onCountryChange($event)"
-          >
-            <option value="">All Countries ({{ courses.length }})</option>
-            <option 
-              *ngFor="let country of countryListWithCounts" 
-              [value]="country.value"
-            >
-              {{ country.value }} ({{ country.count }})
-            </option>
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+      <!-- Results Header -->
+      <div class="results-header">
+        <h2 class="results-title">Featured Courses</h2>
+        <div class="sort-container">
+          <label for="sort-select">Sort by:</label>
+          <select id="sort-select" class="sort-select">
+            <option value="popular">Most Popular</option>
+            <option value="newest">Newest</option>
+            <option value="rating">Highest Rated</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
           </select>
         </div>
       </div>
 
-      <div class="text-center">
-        <button class="btn btn-outline rounded-full px-8 bg-transparent" (click)="clearFilters()">
-          Clear All Filters
-        </button>
-      </div>
-    </div>
-
-    <div *ngIf="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      <div *ngFor="let _ of skeletonArray" class="course-card shadow-sm">
-        <div class="skeleton h-48"></div>
-        <div class="card-header">
-          <div class="skeleton skeleton-line w-3/4"></div>
-          <div class="skeleton skeleton-line w-1/2 mt-2"></div>
-        </div>
-        <div class="card-content">
-          <div class="skeleton skeleton-line w-full"></div>
-          <div class="skeleton skeleton-line w-2/3 mt-2"></div>
-        </div>
-        <div class="card-footer">
-          <div class="skeleton skeleton-btn w-full"></div>
-        </div>
-      </div>
-    </div>
-
-    <div *ngIf="!loading && filteredCourses.length === 0" class="text-center mt-12">
-      <h3 class="text-lg font-semibold mb-2">No courses found</h3>
-      <p class="text-muted-foreground mb-4">Try adjusting your search terms or filters.</p>
-      <button class="btn btn-outline rounded-full px-8 bg-transparent" (click)="clearFilters()">Reset Filters</button>
-    </div>
-
-    <div *ngIf="!loading && filteredCourses.length > 0"
-         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      <div
-        *ngFor="let course of filteredCourses"
-        class="course-card group overflow-hidden border-border-50 shadow-sm bg-card-80"
-        (click)="onCourseSelect(course)"
-      >
-        <div class="relative overflow-hidden">
-          <img
-            [src]="course.imageUrl"
-            [alt]="course.title"
-            class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-          <div class="absolute inset-0 bg-gradient-to-t from-black-20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        </div>
-
-        <div class="card-header pb-2">
-          <h3 class="card-title text-lg font-semibold line-clamp-2 text-balance">{{ course.title }}</h3>
-
-          <div class="rating-row" *ngIf="getCourseRating(course) !== null">
-            <ng-container *ngFor="let filled of generateStarArray(getCourseRating(course)!)">
-              <svg class="w-4 h-4 mr-1" [class.text-yellow-400]="filled" [class.text-muted-foreground]="!filled" viewBox="0 0 24 24">
-                <path fill="currentColor"
-                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-              </svg>
-            </ng-container>
-            <span class="rating-value" *ngIf="getCourseRating(course) as r">{{ r }}</span>
+      <!-- Loading State -->
+      <div *ngIf="loading" class="course-grid">
+        <div *ngFor="let _ of skeletonArray" class="course-card">
+          <div class="course-image skeleton"></div>
+          <div class="course-content">
+            <div class="skeleton" style="height: 20px; margin-bottom: 10px; width: 80%;"></div>
+            <div class="skeleton" style="height: 16px; margin-bottom: 10px; width: 60%;"></div>
+            <div class="skeleton" style="height: 14px; margin-bottom: 15px; width: 100%;"></div>
+            <div class="skeleton" style="height: 32px; width: 100%;"></div>
           </div>
-
-          <p class="card-description text-sm text-muted-foreground" *ngIf="course">
-            by instructor1
-          </p>
         </div>
+      </div>
 
-        <div class="card-content pb-4">
-          <p class="text-sm text-muted-foreground line-clamp-2 text-pretty mb-4">{{ course.description }}</p>
+      <!-- No Results -->
+      <div *ngIf="!loading && filteredCourses.length === 0" class="text-center mt-12">
+        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #374151;">No courses found</h3>
+        <p style="color: #64748b; margin-bottom: 2rem;">Try adjusting your search terms or filters.</p>
+        <button class="btn-load-more" (click)="clearFilters()">Reset Filters</button>
+      </div>
 
-          <div class="flex items-center justify-between text-xs text-muted-foreground">
-            <div class="flex items-center gap-1" *ngIf="course != null">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
-              </svg>
-              <span>40 students</span>
+      <!-- Course Grid -->
+      <div *ngIf="!loading && filteredCourses.length > 0" class="course-grid">
+        <div 
+          *ngFor="let course of getPaginatedCourses()" 
+          class="course-card"
+          (click)="onCourseSelect(course)"
+        >
+          <div class="course-image">
+            <img 
+              [src]="course.imageUrl" 
+              [alt]="course.title"
+            />
+            <div class="course-badge">Popular</div>
+          </div>
+          
+          <div class="course-content">
+            <div class="course-meta">
+              <span class="course-category">{{ course.domain || 'Programming' }}</span>
+              <div class="course-rating" *ngIf="getCourseRating(course) !== null">
+                <ng-container *ngFor="let filled of generateStarArray(getCourseRating(course)!)">
+                  <svg class="star" [class.empty]="!filled" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                </ng-container>
+                <span class="rating-text">({{ getCourseRating(course) }})</span>
+              </div>
             </div>
-            <div class="flex items-center gap-1" *ngIf="course">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              <span>8h</span>
+            
+            <h3 class="course-title">{{ course.title }}</h3>
+            <p class="course-description">{{ course.description }}</p>
+            
+            <div class="course-instructor">
+              <img 
+                src="https://via.placeholder.com/32x32/667eea/ffffff?text=I" 
+                alt="Instructor" 
+                class="instructor-avatar"
+              />
+              <span class="instructor-name">{{ course.trainerId || 'Expert Instructor' }}</span>
             </div>
-          </div>
-
-          <div class="flex items-center gap-2 mt-3 flex-wrap">
-            <span class="badge badge-country">{{ course.country }}</span>
-            <span class="badge badge-language" *ngFor="let lang of course.languagesAvailable?.slice(0, 2)">{{ lang }}</span>
-            <span class="badge badge-more" *ngIf="course.languagesAvailable && course.languagesAvailable.length > 2">
-              +{{ course.languagesAvailable.length - 2 }} more
-            </span>
-          </div>
-        </div>
-
-        <div class="card-footer pt-0">
-          <div class="actions">
-            <button
-              class="btn btn-outline rounded-lg font-medium"
-              (click)="onCourseSelect(course); $event.stopPropagation()"
-            >
-              View Details
-            </button>
-            <button
-              class="btn btn-primary rounded-lg font-medium"
-              (click)="enrollInCourse(course, $event)"
-            >
-              Enroll Now
-            </button>
+            
+            <div class="course-stats">
+              <div class="stat-item">
+                <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>8 hours</span>
+              </div>
+              <div class="stat-item">
+                <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                <span>{{ course.textContent.length || 12 }} lessons</span>
+              </div>
+              <div class="stat-item">
+                <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                </svg>
+                <span>1,234 students</span>
+              </div>
+            </div>
+            
+            <div class="course-footer">
+              <div class="course-price">
+                <span class="current-price">Free</span>
+                <span class="original-price" *ngIf="false">$99</span>
+              </div>
+              <div class="course-actions">
+                <button 
+                  class="btn-secondary"
+                  (click)="onCourseSelect(course); $event.stopPropagation()"
+                >
+                  Preview
+                </button>
+                <button 
+                  class="btn-primary"
+                  (click)="enrollInCourse(course, $event)"
+                >
+                  Enroll Now
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="text-center mt-12" *ngIf="!loading && filteredCourses.length">
+      <!-- Pagination -->
+      <div class="pagination-container" *ngIf="!loading && filteredCourses.length > 0">
+        <div class="pagination-info">
+          <span>Showing {{ getStartIndex() }} of {{ getTotalCourses() }} courses</span>
+        </div>
+        <div class="pagination">
+          <button 
+            class="pagination-btn pagination-prev" 
+            [disabled]="currentPage === 1"
+            (click)="goToPage(currentPage - 1)"
+          >
+            Previous
+          </button>
+          
+          <button 
+            *ngFor="let page of getVisiblePages()" 
+            class="pagination-btn pagination-number"
+            [class.active]="page === currentPage"
+            (click)="goToPage(page)"
+          >
+            {{ page }}
+          </button>
+          
+          <button 
+            class="pagination-btn pagination-next" 
+            [disabled]="currentPage === totalPages"
+            (click)="goToPage(currentPage + 1)"
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
+  </main>
 </div>
 
 <app-footer></app-footer>
