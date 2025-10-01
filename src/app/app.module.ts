@@ -10,6 +10,7 @@ import { SharedModule } from "src/app/features/shared/shared.module";
 import { AdminModule } from './features/admin/admin.module';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from './core/services/auth/auth.service';
+import { JitsiService } from './core/services/jitsi.service';
 import { FeedModule } from './features/feed/feed.module';
 import { RouterModule } from '@angular/router';
 import { ContactModule } from './features/contact/contact.module';
@@ -43,6 +44,7 @@ export function initializeAuth(authService: AuthService) {
   
 ],
   providers: [
+    JitsiService,
     {
       provide: APP_INITIALIZER,
       useFactory: initializeAuth,

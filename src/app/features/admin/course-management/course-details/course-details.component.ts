@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Course } from "src/app/core/models/course";
 import { CourseService } from "src/app/core/services/course/course.service";
 import { ProgressService } from "src/app/core/services/progress.service";
+import { JitsiService } from "src/app/core/services/jitsi.service";
 
 @Component({
   selector: "app-course-details",
@@ -17,6 +18,12 @@ export class AdminCourseDetailsComponent implements OnInit {
   uploadingImage = false;
   uploadingVideo = false;
   uploadingFiles = false;
+
+  // Live session state
+  isLiveSessionActive = false;
+  currentRoomName: string | null = null;
+  sessionParticipants = 0;
+  sessionDuration = '00:00';
 
   // Store actual files
   selectedImageFile: File | null = null;
@@ -49,6 +56,7 @@ export class AdminCourseDetailsComponent implements OnInit {
     basicInfo: true,
     goals: true,
     media: true,
+    liveSession: true,
     languages: true,
     sessions: true,
     files: true,
@@ -122,7 +130,8 @@ export class AdminCourseDetailsComponent implements OnInit {
     private route: ActivatedRoute, 
     private courseService: CourseService, 
     private router: Router,
-    private progressService: ProgressService
+    private progressService: ProgressService,
+    private jitsiService: JitsiService
   ) {}
 
   ngOnInit(): void {
@@ -564,6 +573,47 @@ export class AdminCourseDetailsComponent implements OnInit {
           this.loading = false;
         }
       });
+    }
+  }
+
+  // Live Session Methods
+  startLiveSession(): void {
+    if (!this.courseId) {
+      alert('Course ID is required to start a live session');
+      return;
+    }
+
+    this.jitsiService.createRoom().subscribe({
+      next: (response) => {
+        this.currentRoomName = response.roomName;
+        this.isLiveSessionActive = true;
+        // Navigate to the Jitsi component in a new tab
+        const url = this.router.serializeUrl(
+          this.router.createUrlTree(['/courses/live-session', response.roomName])
+        );
+        window.open(url, '_blank');
+      },
+      error: (error) => {
+        console.error('Error creating room:', error);
+        // Fallback: create a room name based on course ID
+        const fallbackRoomName = `course-${this.courseId}-${Date.now()}`;
+        this.currentRoomName = fallbackRoomName;
+        this.isLiveSessionActive = true;
+        const url = this.router.serializeUrl(
+          this.router.createUrlTree(['/courses/live-session', fallbackRoomName])
+        );
+        window.open(url, '_blank');
+      }
+    });
+  }
+
+  stopLiveSession(): void {
+    if (confirm('Are you sure you want to stop the live session? All participants will be disconnected.')) {
+      this.isLiveSessionActive = false;
+      this.currentRoomName = null;
+      this.sessionParticipants = 0;
+      this.sessionDuration = '00:00';
+      // Here you could also call a backend API to officially end the session
     }
   }
 }

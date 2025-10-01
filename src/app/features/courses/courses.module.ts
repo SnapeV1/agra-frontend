@@ -10,6 +10,7 @@ import { LucideAngularModule, AlertTriangle, RefreshCw, Search, X, BookOpen, Glo
 import { CourseDetailsComponent } from './components/course-details/course-details.component';
 import { CourseEnrolledComponent } from './components/course-enrolled/course-enrolled.component';
 import { CertificateComponent } from './components/certificate/certificate.component';
+import { JitsiComponent } from './components/jitsi/jitsi.component';
 
 
 @NgModule({
@@ -17,7 +18,8 @@ import { CertificateComponent } from './components/certificate/certificate.compo
     CoursesComponent,
     CourseDetailsComponent,
     CourseEnrolledComponent,
-    CertificateComponent
+    CertificateComponent,
+    JitsiComponent
   ],
   imports: [
     CommonModule,

@@ -1,0 +1,257 @@
+<div class="jitsi-container">
+  <!-- Header -->
+  <div class="jitsi-header">
+    <div class="room-info">
+      <h2 class="room-title">{{ roomName || 'Video Conference' }}</h2>
+      <div class="connection-status" [ngClass]="getConnectionStatusClass()">
+        <div class="status-dot"></div>
+        <span>{{ getConnectionStatusText() }}</span>
+      </div>
+    </div>
+    
+    <div class="header-actions">
+      <div class="participant-count">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span>{{ participants.length }}</span>
+      </div>
+      
+      <button 
+        class="btn-icon recording-btn" 
+        [class.active]="isRecording"
+        (click)="toggleRecording()"
+        [disabled]="!isJoined"
+        title="Toggle Recording">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Join Room Section (shown when not connected) -->
+  <div class="join-section" *ngIf="!isJoined && !isConnecting">
+    <div class="join-card">
+      <h3>Join Video Conference</h3>
+      
+      <div class="form-group">
+        <label for="displayName">Your Name</label>
+        <input 
+          id="displayName"
+          type="text" 
+          [(ngModel)]="displayName" 
+          placeholder="Enter your name"
+          class="form-input">
+      </div>
+      
+      <div class="form-group">
+        <label for="roomName">Room Name</label>
+        <div class="room-input-group">
+          <input 
+            id="roomName"
+            type="text" 
+            [(ngModel)]="roomName" 
+            placeholder="Enter room name"
+            class="form-input">
+          <button 
+            class="btn-secondary" 
+            (click)="createRoom()"
+            title="Create New Room">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14"/>
+              <path d="M5 12h14"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <button 
+        class="btn-primary join-btn" 
+        (click)="joinRoom()"
+        [disabled]="!roomName || !displayName">
+        Join Room
+      </button>
+    </div>
+  </div>
+
+  <!-- Connecting State -->
+  <div class="connecting-section" *ngIf="isConnecting">
+    <div class="connecting-card">
+      <div class="spinner"></div>
+      <h3>Connecting to room...</h3>
+      <p>Please wait while we connect you to {{ roomName }}</p>
+    </div>
+  </div>
+
+  <!-- Video Conference Section (shown when joined) -->
+  <div class="conference-section" *ngIf="isJoined">
+    
+    <!-- Main Video Area -->
+    <div class="video-area" [class.chat-open]="showChat">
+      
+      <!-- Local Video -->
+      <div class="local-video-container">
+        <video 
+          #localVideo 
+          class="local-video" 
+          autoplay 
+          muted
+          [class.video-muted]="isVideoMuted">
+        </video>
+        <div class="video-overlay">
+          <span class="participant-name">You</span>
+          <div class="video-controls">
+            <div class="control-indicator" *ngIf="isAudioMuted">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="1" y1="1" x2="23" y2="23"/>
+                <path d="M9 9v3a3 3 0 0 0 5.12 2.12l1.88-1.88"/>
+                <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+              </svg>
+            </div>
+            <div class="control-indicator" *ngIf="isVideoMuted">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 16v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Remote Videos -->
+      <div class="remote-videos-container">
+        <div #remoteVideos class="remote-videos">
+          <!-- Remote participant videos will be dynamically added here -->
+        </div>
+        
+        <!-- No participants message -->
+        <div class="no-participants" *ngIf="participants.length <= 1">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          <p>Waiting for other participants to join...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Panel -->
+    <div class="chat-panel" [class.open]="showChat">
+      <div class="chat-header">
+        <h4>Chat</h4>
+        <button class="btn-icon close-chat" (click)="toggleChat()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="chat-messages">
+        <div 
+          class="chat-message" 
+          *ngFor="let message of chatMessages"
+          [class.local]="message.isLocal">
+          <div class="message-content">
+            <span class="message-text">{{ message.text }}</span>
+            <span class="message-time">{{ message.timestamp | date:'short' }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="chat-input">
+        <input 
+          type="text" 
+          [(ngModel)]="newChatMessage" 
+          (keyup.enter)="sendChatMessage()"
+          placeholder="Type a message..."
+          class="chat-input-field">
+        <button 
+          class="btn-icon send-btn" 
+          (click)="sendChatMessage()"
+          [disabled]="!newChatMessage.trim()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22,2 15,22 11,13 2,9"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Control Bar -->
+    <div class="control-bar">
+      <div class="control-group">
+        <!-- Audio Control -->
+        <button 
+          class="control-btn audio-btn" 
+          [class.muted]="isAudioMuted"
+          (click)="toggleAudio()"
+          title="Toggle Microphone">
+          <svg *ngIf="!isAudioMuted" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+          <svg *ngIf="isAudioMuted" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="1" y1="1" x2="23" y2="23"/>
+            <path d="M9 9v3a3 3 0 0 0 5.12 2.12l1.88-1.88"/>
+            <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </button>
+
+        <!-- Video Control -->
+        <button 
+          class="control-btn video-btn" 
+          [class.muted]="isVideoMuted"
+          (click)="toggleVideo()"
+          title="Toggle Camera">
+          <svg *ngIf="!isVideoMuted" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="23 7 16 12 23 17 23 7"/>
+            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+          </svg>
+          <svg *ngIf="isVideoMuted" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 16v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        </button>
+
+        <!-- Chat Toggle -->
+        <button 
+          class="control-btn chat-btn" 
+          [class.active]="showChat"
+          (click)="toggleChat()"
+          title="Toggle Chat">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span class="chat-badge" *ngIf="chatMessages.length > 0">{{ chatMessages.length }}</span>
+        </button>
+      </div>
+
+      <!-- Leave Button -->
+      <button 
+        class="control-btn leave-btn" 
+        (click)="leaveRoom()"
+        title="Leave Room">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16,17 21,12 16,7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span>Leave</span>
+      </button>
+    </div>
+  </div>
+</div>

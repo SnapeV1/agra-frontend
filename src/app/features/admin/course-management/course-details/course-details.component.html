@@ -249,6 +249,160 @@
           </div>
         </div>
 
+        <!-- Live Session Management -->
+        <div class="card">
+          <div class="card-header clickable-header" 
+               (click)="toggleSection('liveSession')"
+               [title]="sectionCollapsed['liveSession'] ? 'Expand Section' : 'Collapse Section'">
+            <div class="card-header-content">
+              <div>
+                <h2 class="card-title">Live Session</h2>
+                <p class="card-description">Manage live streaming sessions for this course</p>
+              </div>
+              <lucide-icon class="header-chevron" [name]="sectionCollapsed['liveSession'] ? 'chevron-down' : 'chevron-up'"></lucide-icon>
+            </div>
+          </div>
+          <div class="card-content" [class.collapsed]="sectionCollapsed['liveSession']">
+            
+            <!-- Live Session Status -->
+            <div class="live-session-status">
+              <div class="status-indicator">
+                <div class="status-dot" [class.online]="isLiveSessionActive" [class.offline]="!isLiveSessionActive"></div>
+                <div class="status-info">
+                  <h3>Session Status: <span class="status-text" [class.online]="isLiveSessionActive" [class.offline]="!isLiveSessionActive">{{ isLiveSessionActive ? 'Live' : 'Offline' }}</span></h3>
+                  <p class="status-description">{{ isLiveSessionActive ? 'Live session is active' + (currentRoomName ? ' - Room: ' + currentRoomName : '') : 'No active live session' }}</p>
+                </div>
+              </div>
+              <div class="session-stats">
+                <div class="stat-item">
+                  <span class="stat-label">Participants</span>
+                  <span class="stat-value">{{ sessionParticipants }}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Duration</span>
+                  <span class="stat-value">{{ sessionDuration }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Session Controls -->
+            <div class="live-session-controls">
+              <div class="control-group">
+                <h4>Session Controls</h4>
+                <div class="controls-grid">
+                  <button class="control-btn primary start-session" type="button" 
+                          [disabled]="isLiveSessionActive" 
+                          (click)="startLiveSession()">
+                    <div class="btn-icon">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polygon points="10,8 16,12 10,16"/>
+                      </svg>
+                    </div>
+                    <span>Start Live Session</span>
+                  </button>
+                  
+                  <button class="control-btn secondary" type="button" 
+                          [disabled]="!isLiveSessionActive" 
+                          (click)="stopLiveSession()">
+                    <div class="btn-icon">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="6" y="6" width="12" height="12"/>
+                      </svg>
+                    </div>
+                    <span>Stop Session</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Session Settings -->
+              <div class="control-group">
+                <h4>Session Settings</h4>
+                <div class="settings-grid">
+                  <div class="setting-item">
+                    <label class="setting-label">
+                      <input type="checkbox" class="setting-checkbox">
+                      <span class="checkmark"></span>
+                      Allow participant cameras
+                    </label>
+                  </div>
+                  <div class="setting-item">
+                    <label class="setting-label">
+                      <input type="checkbox" class="setting-checkbox" checked>
+                      <span class="checkmark"></span>
+                      Enable chat
+                    </label>
+                  </div>
+                  <div class="setting-item">
+                    <label class="setting-label">
+                      <input type="checkbox" class="setting-checkbox">
+                      <span class="checkmark"></span>
+                      Record session
+                    </label>
+                  </div>
+                  <div class="setting-item">
+                    <label class="setting-label">
+                      <input type="checkbox" class="setting-checkbox">
+                      <span class="checkmark"></span>
+                      Waiting room
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Actions -->
+              <div class="control-group">
+                <h4>Quick Actions</h4>
+                <div class="quick-actions">
+                  <button class="action-btn" type="button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M9 12l2 2 4-4"/>
+                      <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"/>
+                      <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"/>
+                      <path d="M3 12h6m6 0h6"/>
+                    </svg>
+                    Test Connection
+                  </button>
+                  <button class="action-btn" type="button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 2v20"/>
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                    Share Link
+                  </button>
+                  <button class="action-btn" type="button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                      <polyline points="14,2 14,8 20,8"/>
+                    </svg>
+                    Session History
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Participant Management Preview -->
+            <div class="participant-management">
+              <h4>Participant Management</h4>
+              <div class="participant-list-preview">
+                <div class="participant-item">
+                  <div class="participant-avatar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  <div class="participant-info">
+                    <span class="participant-name">No participants yet</span>
+                    <span class="participant-status">Start a session to see participants</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         <!-- Languages -->
         <div class="card">
           <div class="card-header clickable-header" 
