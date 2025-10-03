@@ -146,7 +146,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error loading user profile:', error);
+    
           this.isLoading = false;
         }
       });
@@ -167,7 +167,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           // Filter out progress entries with undefined or null courseId
           const validProgressList = progressList.filter(progress => {
             if (!progress.courseId) {
-              console.warn('Skipping progress entry with undefined courseId:', progress);
+    
               return false;
             }
             return true;
@@ -185,7 +185,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           this.fetchCourseDetails();
         },
         error: (error) => {
-          console.error('Error loading enrolled courses:', error);
+    
           this.coursesError = 'Failed to load enrolled courses';
           this.coursesLoading = false;
         }
@@ -242,7 +242,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             }
           },
           error: (error) => {
-            console.error(`Error loading course details for ${enrolledCourse.courseId}:`, error);
             // Set fallback course data
             this.enrolledCourses[index].course = {
               id: enrolledCourse.courseId,
@@ -360,16 +359,16 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       
         },
         error: (error) => {
-          console.error('Error updating profile:', error);
+          
           this.isSaving = false;
           
           if (error.status === 401) {
-            console.error('Unauthorized: Please login again');
+            
             this.authService.logout('/login');
           } else if (error.status === 400) {
-            console.error('Bad request: Please check your input data');
+            
           } else {
-            console.error('Server error: Please try again later');
+            
           }
           
          
@@ -384,13 +383,13 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     const file = input.files[0];
     
     if (!file.type.startsWith('image/')) {
-      console.error('Please select a valid image file');
+      
       return;
     }
 
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      console.error('File size must be less than 5MB');
+      
       return;
     }
 

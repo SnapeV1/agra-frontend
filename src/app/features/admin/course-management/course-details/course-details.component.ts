@@ -164,7 +164,6 @@ export class AdminCourseDetailsComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        console.error(err);
         this.error = "Failed to load course details.";
         this.loading = false;
       },
@@ -493,20 +492,18 @@ export class AdminCourseDetailsComponent implements OnInit {
 
         // If this is an update (not a new course), refresh progress data to reflect new lesson count
         if (this.courseId !== "new" && savedCourse.id) {
-          console.log('🔄 Course updated, progress will be automatically recalculated when users access the course');
+          
           // Note: Progress is automatically recalculated when users access the course via getCourseProgress
           // This ensures the completion percentage reflects the new lesson count
         }
 
         this.loading = false;
         alert("Course saved successfully!");
-        console.log("course   ",this.course)
+        
 
         // Log other files for future implementation
         if (this.selectedFiles.length > 0) {
-          console.log('Additional files not yet supported by service:', {
-            attachments: this.selectedFiles
-          });
+          
         }
         
         // Clear selected files after successful save
@@ -518,7 +515,7 @@ export class AdminCourseDetailsComponent implements OnInit {
         this.router.navigate(['/admin/courses']);
       },
       error: (err) => {
-        console.error(err);
+        
         alert("Failed to save course.");  
         this.loading = false;
       },
@@ -546,7 +543,6 @@ export class AdminCourseDetailsComponent implements OnInit {
           this.router.navigate(['/admin/courses']);
         },
         error: (err) => {
-          console.error(err);
           alert("Failed to delete course.");
           this.loading = false;
         }
@@ -568,7 +564,6 @@ export class AdminCourseDetailsComponent implements OnInit {
           this.loading = false;
         },
         error: (err) => {
-          console.error(err);
           alert("Failed to retrieve course.");
           this.loading = false;
         }
@@ -594,7 +589,6 @@ export class AdminCourseDetailsComponent implements OnInit {
         window.open(url, '_blank');
       },
       error: (error) => {
-        console.error('Error creating room:', error);
         // Fallback: create a room name based on course ID
         const fallbackRoomName = `course-${this.courseId}-${Date.now()}`;
         this.currentRoomName = fallbackRoomName;

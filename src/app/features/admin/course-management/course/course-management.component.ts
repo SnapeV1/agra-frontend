@@ -115,7 +115,6 @@ export class CourseManagementComponent {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading courses:', error);
         alert('Failed to load courses.');
         this.courses = [];
         this.loading = false;
@@ -201,7 +200,6 @@ export class CourseManagementComponent {
           this.loading = false;
         },
         error: (error) => {
-          console.error('Error adding course:', error);
           alert('Error saving course. Please try again.');
           this.loading = false;
         }
@@ -299,7 +297,6 @@ export class CourseManagementComponent {
           }
           
           this.videoUploadError = errorMessage;
-          console.error('Error uploading video:', error);
         }
       });
   }

@@ -255,7 +255,7 @@ private clearAuthData(): void {
   register(userData: any): Observable<any> {
   return this.http.post<any>(`${this.apiUrl}/register`, userData).pipe(
     tap(response => {
-      console.log('User registered successfully:', response);
+      
     }),
     catchError(this.handleError)
   );
@@ -294,7 +294,6 @@ isUser(): boolean {
         }
       }),
       catchError(err => {
-        console.error('Failed to fetch current user', err);
         return throwError(() => err);
       })
     );
@@ -326,7 +325,7 @@ isUser(): boolean {
       this.removeStoredItem(this.PICTURE_KEY);
     }
     
-    console.log('Current user updated in AuthService:', updatedUser);
+    
   }
   }
 getToken(): string | null {

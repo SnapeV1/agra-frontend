@@ -76,7 +76,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   private checkTokenExpiration(): void {
     if (this.authService.isTokenExpiringSoon()) {
-      console.warn('Token is expiring soon');
+      
     }
   }
 

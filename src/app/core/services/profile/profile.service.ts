@@ -14,8 +14,7 @@ export class ProfileService {
     const formData = new FormData();
     
     formData.append('user', JSON.stringify(userData));
-    console.log('User data before sending:', userData);
-console.log('Stringified user data:', JSON.stringify(userData));
+    
 
     if (profilePicture) {
       formData.append('profilePicture', profilePicture);

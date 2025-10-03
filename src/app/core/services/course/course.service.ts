@@ -37,25 +37,7 @@ export class CourseService {
 // Optional: Extended version of your CourseService to support more file types
 
 addCourse(course: Course, image?: File, video?: File, attachments?: File[]): Observable<Course> {
-  // DEBUG: Log the course data being sent
-  console.log('=== COURSE ADD DEBUG ===');
-  console.log('Course Data:', course);
-  console.log('Text Content:', course.textContent);
-  console.log('Goals:', course.goals);
-  console.log('Session IDs:', course.sessionIds);
-  console.log('Languages Available:', course.languagesAvailable);
-  console.log('Files:', course.files);
-  
-  // DEBUG: Log file attachments
-  console.log('Image File:', image ? { name: image.name, size: image.size, type: image.type } : 'None');
-  console.log('Video File:', video ? { name: video.name, size: video.size, type: video.type } : 'None');
-  console.log('Attachment Files:', attachments ? attachments.map(f => ({ name: f.name, size: f.size, type: f.type })) : 'None');
-  
-  // DEBUG: Log the JSON string that will be sent
   const courseJson = JSON.stringify(course);
-  console.log('Course JSON String Length:', courseJson.length);
-  console.log('Course JSON String:', courseJson);
-  console.log('=== END DEBUG ===');
 
   const formData = new FormData();
   
@@ -81,26 +63,7 @@ addCourse(course: Course, image?: File, video?: File, attachments?: File[]): Obs
 }
 
 updateCourse(id: string, course: Course, image?: File, video?: File, attachments?: File[]): Observable<Course> {
-  // DEBUG: Log the course data being sent
-  console.log('=== COURSE UPDATE DEBUG ===');
-  console.log('Course ID:', id);
-  console.log('Course Data:', course);
-  console.log('Text Content:', course.textContent);
-  console.log('Goals:', course.goals);
-  console.log('Session IDs:', course.sessionIds);
-  console.log('Languages Available:', course.languagesAvailable);
-  console.log('Files:', course.files);
-  
-  // DEBUG: Log file attachments
-  console.log('Image File:', image ? { name: image.name, size: image.size, type: image.type } : 'None');
-  console.log('Video File:', video ? { name: video.name, size: video.size, type: video.type } : 'None');
-  console.log('Attachment Files:', attachments ? attachments.map(f => ({ name: f.name, size: f.size, type: f.type })) : 'None');
-  
-  // DEBUG: Log the JSON string that will be sent
   const courseJson = JSON.stringify(course);
-  console.log('Course JSON String Length:', courseJson.length);
-  console.log('Course JSON String:', courseJson);
-  console.log('=== END DEBUG ===');
 
   const formData = new FormData();
   
@@ -141,7 +104,6 @@ updateCourse(id: string, course: Course, image?: File, video?: File, attachments
   uploadCourseVideo(courseId: string, videoFile: File, videoName?: string): Observable<any> {
     const formData = new FormData();
     formData.append('video', videoFile);
-    console.log("uploadCourseVideo:   ", courseId, videoFile, videoName);
     if (videoName) {
       formData.append('videoName', videoName);
     }
@@ -183,7 +145,7 @@ updateCourse(id: string, course: Course, image?: File, video?: File, attachments
       catchError(error => {
         // If we get a 403 or 401, it might be a token issue
         if (error.status === 403 || error.status === 401) {
-          console.warn('Authentication error when checking enrollment status:', error);
+          
           // Return default not-enrolled status instead of propagating the error
           return new Observable(observer => {
             observer.next({ enrolled: false });
@@ -200,7 +162,6 @@ updateCourse(id: string, course: Course, image?: File, video?: File, attachments
     const token = this.authService.getToken();
     
     if (!token) {
-      console.warn('No authentication token found, using mock data for enrolled courses');
       return this.mockDataService.getMockEnrolledCourses();
     }
 
@@ -212,7 +173,6 @@ updateCourse(id: string, course: Course, image?: File, video?: File, attachments
     return this.http.get<any>(`${this.apiUrl}/enrolled`, { headers })
       .pipe(
         map((response: any) => {
-          console.log('getUserEnrolledCourses response:', response);
           
           // Handle the new response format with courses array and totalEnrollments
           const courses = response.courses || response; // Support both formats
@@ -237,7 +197,7 @@ updateCourse(id: string, course: Course, image?: File, video?: File, attachments
           });
         }),
         catchError((error) => {
-          console.warn('API call failed for enrolled courses, using mock data:', error);
+          
           return this.mockDataService.getMockEnrolledCourses();
         })
       );

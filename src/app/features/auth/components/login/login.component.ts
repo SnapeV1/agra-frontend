@@ -30,7 +30,6 @@ export class LoginComponent {
         // No manual redirect needed here
       },
       error: (error) => {
-        console.error('Login failed:', error);
         this.isLoading = false;
       }
     });
@@ -42,12 +41,10 @@ export class LoginComponent {
 
   onForgotPassword(event: Event) {
     event.preventDefault();
-    console.log('Forgot password clicked');
     // TO DO
   }
 
   onGoogleLogin() {
-    console.log('Google login clicked');
     // TO DO
   }
 }

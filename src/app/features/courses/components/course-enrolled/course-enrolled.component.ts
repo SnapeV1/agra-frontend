@@ -78,7 +78,6 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
           this.checkDataLoadComplete();
         },
         error: (error) => {
-          console.error('Error loading course:', error);
           
           // Handle different error types
           if (error.status === 403) {
@@ -104,7 +103,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
            this.checkDataLoadComplete();
          },
         error: (error) => {
-          console.error('Error loading progress:', error);
+          
           
           // Create a default enrollment object to allow course viewing without progress
           this.courseEnrollment = {
@@ -127,15 +126,15 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
           
           // Handle different error types with warnings instead of blocking errors
           if (error.status === 403) {
-            console.warn('Access forbidden for progress data - user may not have permission. Continuing with default progress.');
+            
           } else if (error.status === 401) {
-            console.warn('Unauthorized - token may be invalid or expired. Continuing with default progress.');
+            
           } else if (error.status === 500) {
-            console.warn('Server error loading progress data. Continuing with default progress.');
+            
           } else if (error.message === 'Authentication required') {
-            console.warn('No authentication token found. Continuing with default progress.');
+            
           } else {
-            console.warn('Failed to load progress data. Continuing with default progress.');
+            
           }
           
           // Check if we can proceed with course data only
@@ -253,7 +252,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     
     const lessonProgress = this.courseEnrollment.lessons.find(l => l.lessonId === this.currentLesson!.id);
     if (!lessonProgress) {
-      console.error('Cannot find lesson progress for lesson:', this.currentLesson.id);
+      
       return;
     }
     
@@ -284,7 +283,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
         }, 1000);
       },
       error: (error) => {
-        console.error('Error marking lesson complete:', error);
+        
         
         // Rollback optimistic update
         lessonProgress.completed = originalCompleted;
@@ -311,7 +310,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
           this.showCompletionModal = true;
           this.generateEnhancedCertificate();
         },
-        error: (error) => console.error('Error completing course:', error)
+        error: (error) => {}
       });
     }
   }
@@ -380,7 +379,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
         // Progress updated successfully
       },
       error: (error) => {
-        console.error('Error updating lesson progress:', error);
+        
       }
     });
     
@@ -442,8 +441,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
           this.courseEnrollment.progress.certificateUrl = response.certificateUrl;
         }
       },
-      error: (error) => {
-        console.error('Error generating certificate:', error);
+      error: () => {
         this.isGeneratingCertificate = false;
       }
     });
@@ -492,8 +490,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
           this.courseEnrollment.progress.certificateUrl = certificateData.verificationUrl;
         }
       },
-      error: (error) => {
-        console.error('Error generating enhanced certificate:', error);
+      error: () => {
         this.certificateError = 'Failed to generate certificate. Please try again.';
         this.isGeneratingCertificate = false;
         
@@ -515,7 +512,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
         link.click();
         window.URL.revokeObjectURL(url);
       },
-      error: (error) => console.error('Error downloading certificate:', error)
+      error: () => {}
     });
   }
 
@@ -539,7 +536,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
         title: `I completed ${this.course.title}!`,
         text: `I just completed the course "${this.course.title}" and earned my certificate!`,
         url: window.location.href
-      }).catch(console.error);
+      }).catch(() => {});
     } else {
       // Fallback for browsers that don't support Web Share API
       const text = `I just completed the course "${this.course?.title}" and earned my certificate!`;

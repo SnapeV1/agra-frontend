@@ -25,7 +25,7 @@ export class UserManagementComponent implements OnInit {
         this.users = data;
       },
       error: (err) => {
-        console.error('Error fetching users:', err);
+    
       }
     });
   }

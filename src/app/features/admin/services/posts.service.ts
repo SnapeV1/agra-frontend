@@ -42,8 +42,7 @@ export class PostsService {
           this.posts = data;
           this.sortPosts();
         },
-        error: (error) => {
-          console.error('Error fetching posts:', error);
+        error: () => {
         }
       });
   }
@@ -71,8 +70,7 @@ export class PostsService {
 
   /** Toggle like on a post */
   toggleLike(post: Post): void {
-    console.log('🔧 PostsService - toggleLike called for post:', post.id);
-    console.log('📊 Initial state - isLiked:', post.isLikedByCurrentUser, 'likesCount:', post.likesCount);
+    
     
     // Ensure likesCount has a default value
     if (post.likesCount === undefined || post.likesCount === null) {
@@ -82,49 +80,39 @@ export class PostsService {
     // Update local state immediately for optimistic UI
     post.isLikedByCurrentUser = !post.isLikedByCurrentUser;
     post.likesCount += post.isLikedByCurrentUser ? 1 : -1;
-    console.log('🔄 Local state updated - isLiked:', post.isLikedByCurrentUser, 'likesCount:', post.likesCount);
+    
 
     // Notify subscribers of the optimistic update
     this.updatePosts();
-    console.log('📢 Notified subscribers of optimistic update');
+    
 
     const token = this.authService.getToken();
-    console.log('🔑 Token retrieved:', token ? 'Present' : 'Missing');
     
     if (token) {
       const url = `http://localhost:8080/api/posts/${post.id}/like`;
-      console.log('🌐 Making API call to:', url);
       
       this.http.post(url, {}, {
         headers: { 'Authorization': `Bearer ${token}` }
       }).subscribe({
         next: (response) => {
-          console.log('✅ API response received:', response);
           // Update the post with the response from server
           if (response && typeof response === 'object') {
             Object.assign(post, response);
-            console.log('🔄 Post updated with server response');
             this.updatePosts();
-            console.log('📢 Notified subscribers of server update');
           }
         },
         error: (error) => {
-          console.error('❌ API error:', error);
           // Revert optimistic update on error
           post.isLikedByCurrentUser = !post.isLikedByCurrentUser;
           post.likesCount = (post.likesCount || 0) + (post.isLikedByCurrentUser ? 1 : -1);
-          console.log('↩️ Reverted local state due to error');
           this.updatePosts();
-          console.log('📢 Notified subscribers of error revert');
         }
       });
     } else {
-      console.log('❌ No token available, reverting local state');
       // Revert if no token
       post.isLikedByCurrentUser = !post.isLikedByCurrentUser;
       post.likesCount = (post.likesCount || 0) + (post.isLikedByCurrentUser ? 1 : -1);
       this.updatePosts();
-      console.log('📢 Notified subscribers of no-token revert');
     }
   }
 
@@ -152,7 +140,7 @@ export class PostsService {
           }
         },
         error: (error) => {
-          console.error('Error toggling comment like:', error);
+          
           // Revert local state on error
           comment.isLikedByCurrentUser = wasLiked;
           comment.likesCount = (comment.likesCount || 0) + (wasLiked ? 1 : -1);
@@ -189,7 +177,7 @@ export class PostsService {
           }
         },
         error: (error) => {
-          console.error('Error adding comment:', error);
+          
           // Remove the comment from local state on error
           post.comments = post.comments?.filter(c => c.id !== comment.id) || [];
           post.commentsCount = Math.max(0, (post.commentsCount || 1) - 1);
@@ -218,7 +206,7 @@ export class PostsService {
 
 createPostOnServer(formData: FormData): Observable<Post> {
   const token = this.authService.getToken();
-  console.log("token", token);
+  
 
   return this.http.post<Post>(`http://localhost:8080/api/posts/CreatePost`, formData, {
     headers: {

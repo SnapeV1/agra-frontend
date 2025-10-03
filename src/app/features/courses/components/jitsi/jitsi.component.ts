@@ -47,7 +47,6 @@ export class JitsiComponent implements OnInit, OnDestroy, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('🚀 ngOnInit - Component initializing');
     
     // Get room name from route
     this.route.params.subscribe(params => {
@@ -60,17 +59,13 @@ export class JitsiComponent implements OnInit, OnDestroy, AfterViewInit {
     this.displayName = 'User ' + Math.floor(Math.random() * 1000);
 
     this.setupSubscriptions();
-    console.log('✅ ngOnInit - Component initialized');
   }
 
   ngAfterViewInit(): void {
     // View is initialized, video elements are ready
-    console.log('🎬 ngAfterViewInit - Video elements should be ready');
-    console.log('📹 localVideoRef available:', !!this.localVideoRef);
     
     // If we have tracks waiting to be attached, attach them now
     if (this.localTracks.length > 0) {
-      console.log('🔄 Retrying local track attachment after view init');
       this.attachLocalTracks();
     }
   }
@@ -86,7 +81,13 @@ export class JitsiComponent implements OnInit, OnDestroy, AfterViewInit {
       this.jitsiService.connectionStatus$.subscribe(status => {
         this.connectionStatus = status;
         this.isConnecting = status === 'connecting';
+        const wasJoined = this.isJoined;
         this.isJoined = status === 'joined';
+
+        // When we transition into joined, try attaching local tracks again
+        if (!wasJoined && this.isJoined) {
+          this.attachLocalTracks();
+        }
       })
     );
 
@@ -138,7 +139,6 @@ export class JitsiComponent implements OnInit, OnDestroy, AfterViewInit {
         this.roomName = response.roomName;
       }
     } catch (error) {
-      console.error('Error creating room:', error);
     }
   }
 
@@ -154,7 +154,6 @@ export class JitsiComponent implements OnInit, OnDestroy, AfterViewInit {
     try {
       await this.jitsiService.joinRoom(this.roomName, this.displayName);
     } catch (error) {
-      console.error('Error joining room:', error);
       alert('Failed to join room. Please try again.');
     }
   }
@@ -167,7 +166,7 @@ export class JitsiComponent implements OnInit, OnDestroy, AfterViewInit {
       await this.jitsiService.leaveRoom();
       this.isJoined = false;
     } catch (error) {
-      console.error('Error leaving room:', error);
+      
     }
   }
 
@@ -179,7 +178,7 @@ export class JitsiComponent implements OnInit, OnDestroy, AfterViewInit {
       await this.jitsiService.toggleAudio();
       this.isAudioMuted = !this.isAudioMuted;
     } catch (error) {
-      console.error('Error toggling audio:', error);
+      
     }
   }
 
@@ -191,7 +190,6 @@ export class JitsiComponent implements OnInit, OnDestroy, AfterViewInit {
       await this.jitsiService.toggleVideo();
       this.isVideoMuted = !this.isVideoMuted;
     } catch (error) {
-      console.error('Error toggling video:', error);
     }
   }
 
@@ -212,15 +210,6 @@ export class JitsiComponent implements OnInit, OnDestroy, AfterViewInit {
   sendChatMessage(): void {
     if (this.newChatMessage.trim()) {
       this.jitsiService.sendChatMessage(this.newChatMessage);
-      
-      // Add to local chat (for immediate feedback)
-      this.chatMessages.push({
-        id: 'local',
-        text: this.newChatMessage,
-        timestamp: Date.now(),
-        isLocal: true
-      });
-      
       this.newChatMessage = '';
     }
   }
@@ -236,83 +225,56 @@ export class JitsiComponent implements OnInit, OnDestroy, AfterViewInit {
    * Attach local tracks to video elements
    */
   private attachLocalTracks(): void {
-    console.log('🎬 attachLocalTracks called');
-    console.log('📹 localVideoRef exists:', !!this.localVideoRef);
-    console.log('📊 localTracks length:', this.localTracks.length);
-    console.log('📋 localTracks:', this.localTracks);
+
+    // If we haven't joined yet, the local video element is gated by *ngIf="isJoined"
+    // so it won't exist. Wait until joined to attach.
+    if (!this.isJoined) {
+      return;
+    }
 
     if (!this.localVideoRef) {
       if (this.videoAttachRetryCount < this.MAX_VIDEO_ATTACH_RETRIES) {
         this.videoAttachRetryCount++;
-        console.log(`❌ No localVideoRef - video element not ready, will retry in 100ms (attempt ${this.videoAttachRetryCount}/${this.MAX_VIDEO_ATTACH_RETRIES})`);
         // Retry after a short delay to allow Angular to initialize the ViewChild
         setTimeout(() => {
-          console.log('🔄 Retrying attachLocalTracks after delay...');
           this.attachLocalTracks();
         }, 100);
       } else {
-        console.error('❌ Max retries reached for video attachment. Video element never became available.');
       }
       return;
     }
 
     if (this.localTracks.length === 0) {
-      console.log('❌ No local tracks available');
       return;
     }
 
     const videoTrack = this.localTracks.find(track => track.getType() === 'video');
-    console.log('🎥 Video track found:', !!videoTrack);
+    
     
     if (videoTrack) {
-      console.log('🎯 Video track details:', {
-        type: videoTrack.getType(),
-        deviceId: videoTrack.getDeviceId ? videoTrack.getDeviceId() : 'unknown',
-        muted: videoTrack.isMuted ? videoTrack.isMuted() : 'unknown'
-      });
       
-      console.log('🖥️ Video element details:', {
-        tagName: this.localVideoRef.nativeElement.tagName,
-        autoplay: this.localVideoRef.nativeElement.autoplay,
-        muted: this.localVideoRef.nativeElement.muted,
-        srcObject: this.localVideoRef.nativeElement.srcObject
-      });
+      
 
       try {
-        console.log('🔗 Attempting to attach video track...');
         videoTrack.attach(this.localVideoRef.nativeElement);
-        console.log('✅ Video track attached successfully');
         
         // Reset retry counter on successful attachment
         this.videoAttachRetryCount = 0;
         
         // Make sure video is not muted and playing
         this.localVideoRef.nativeElement.muted = true; // Local video should be muted
-        this.localVideoRef.nativeElement.play().catch(e => console.log('Video play failed:', e));
+        this.localVideoRef.nativeElement.play().catch(() => {});
         
         // Additional debugging after attachment
         setTimeout(() => {
-          console.log('🔍 Post-attachment video element state:', {
-            srcObject: this.localVideoRef.nativeElement.srcObject,
-            videoWidth: this.localVideoRef.nativeElement.videoWidth,
-            videoHeight: this.localVideoRef.nativeElement.videoHeight,
-            readyState: this.localVideoRef.nativeElement.readyState,
-            paused: this.localVideoRef.nativeElement.paused
-          });
+          // no-op
         }, 1000);
         
       } catch (error) {
-        console.error('❌ Error attaching video track:', error);
+        
       }
     } else {
-      console.log('⚠️ No video track found in local tracks');
-      // Show what tracks we do have
-      this.localTracks.forEach((track, index) => {
-        console.log(`📊 Track ${index}:`, {
-          type: track.getType(),
-          deviceId: track.getDeviceId ? track.getDeviceId() : 'unknown'
-        });
-      });
+      
     }
   }
 

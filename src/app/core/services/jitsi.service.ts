@@ -9,9 +9,10 @@ export interface JitsiConfig {
   hosts: {
     domain: string;
     muc: string;
+    anonymousdomain?: string;
   };
-  bosh: string;
-  serviceUrl: string;
+  bosh?: string;
+  serviceUrl?: string;
   clientNode: string;
   focusUserJid: string;
 }
@@ -43,7 +44,8 @@ export class JitsiService {
   private readonly localConfig: JitsiConfig = {
     hosts: {
       domain: 'jitsi.local',
-      muc: 'conference.jitsi.local'
+      muc: 'conference.jitsi.local',
+      anonymousdomain: 'guest.jitsi.local'
     },
     bosh: 'https://jitsi.local/http-bind',
     serviceUrl: 'wss://jitsi.local/xmpp-websocket',
@@ -55,7 +57,8 @@ export class JitsiService {
   private readonly fallbackConfig: JitsiConfig = {
     hosts: {
       domain: 'meet.jit.si',
-      muc: 'conference.meet.jit.si'
+      muc: 'conference.meet.jit.si',
+      anonymousdomain: 'guest.meet.jit.si'
     },
     bosh: 'https://meet.jit.si/http-bind',
     serviceUrl: 'wss://meet.jit.si/xmpp-websocket',
@@ -64,6 +67,10 @@ export class JitsiService {
   };
 
   private currentConfig: JitsiConfig = this.localConfig;
+
+  // Authentication handling
+  private authMode: 'anonymous' | 'jwt' = 'anonymous';
+  private jwtToken?: string;
 
   // Connection options
   private readonly connectionOptions = {
@@ -100,47 +107,47 @@ export class JitsiService {
   }
 
   /**
+   * Use token-based authentication (JWT) with Prosody/Jitsi
+   */
+  public setJwtToken(token: string): void {
+    this.authMode = 'jwt';
+    this.jwtToken = token;
+  }
+
+  /**
+   * Use anonymous authentication with guest domain
+   */
+  public useAnonymousAuth(): void {
+    this.authMode = 'anonymous';
+    this.jwtToken = undefined;
+  }
+
+  /**
    * Initialize Jitsi Meet library
    */
   private initializeJitsi(): void {
-    console.log('=== JITSI INITIALIZATION DEBUG START ===');
-    console.log('Checking JitsiMeetJS availability...');
     
     // Load Jitsi Meet library if not already loaded
     if (typeof JitsiMeetJS === 'undefined') {
-      console.log('JitsiMeetJS not found, loading library...');
-      console.log('Attempting to load from local server: https://jitsi.local/libs/lib-jitsi-meet.min.js');
       
       const script = document.createElement('script');
       script.src = 'https://jitsi.local/libs/lib-jitsi-meet.min.js';
       
       script.onload = () => {
-        console.log('✓ Successfully loaded Jitsi library from local server');
-        console.log('JitsiMeetJS type:', typeof JitsiMeetJS);
-        console.log('JitsiMeetJS version:', JitsiMeetJS?.version || 'Unknown');
         this.setupJitsiMeet();
       };
       
       script.onerror = (error) => {
-        console.error('❌ Failed to load Jitsi library from local server');
-        console.error('Local library load error:', error);
-        console.log('Attempting fallback to public server: https://meet.jit.si/libs/lib-jitsi-meet.min.js');
         
         // Fallback to public server if local fails
         const fallbackScript = document.createElement('script');
         fallbackScript.src = 'https://meet.jit.si/libs/lib-jitsi-meet.min.js';
         
         fallbackScript.onload = () => {
-          console.log('✓ Successfully loaded Jitsi library from public server (fallback)');
-          console.log('JitsiMeetJS type:', typeof JitsiMeetJS);
-          console.log('JitsiMeetJS version:', JitsiMeetJS?.version || 'Unknown');
           this.setupJitsiMeet();
         };
         
         fallbackScript.onerror = (fallbackError) => {
-          console.error('❌ Failed to load Jitsi library from both local and public servers');
-          console.error('Fallback library load error:', fallbackError);
-          console.error('=== CRITICAL ERROR: Cannot load Jitsi library ===');
           this.connectionStatusSubject.next('library_error');
         };
         
@@ -149,9 +156,6 @@ export class JitsiService {
       
       document.head.appendChild(script);
     } else {
-      console.log('✓ JitsiMeetJS already available');
-      console.log('JitsiMeetJS type:', typeof JitsiMeetJS);
-      console.log('JitsiMeetJS version:', JitsiMeetJS?.version || 'Unknown');
       this.setupJitsiMeet();
     }
   }
@@ -160,34 +164,16 @@ export class JitsiService {
    * Setup Jitsi Meet with configuration
    */
   private setupJitsiMeet(): void {
-    console.log('=== JITSI SETUP DEBUG START ===');
-    console.log('Setting up JitsiMeetJS...');
     
     try {
-      console.log('Available JitsiMeetJS properties:', Object.keys(JitsiMeetJS || {}));
-      console.log('Available events:', Object.keys(JitsiMeetJS?.events || {}));
-      console.log('Available log levels:', JitsiMeetJS?.logLevels || 'Not available');
-      
       const initConfig = {
         disableAudioLevels: true,
         disableThirdPartyRequests: true,
         enableAnalyticsLogging: false
       };
-      
-      console.log('Initializing JitsiMeetJS with config:', initConfig);
       JitsiMeetJS.init(initConfig);
-      console.log('✓ JitsiMeetJS.init() completed successfully');
-
-      console.log('Setting log level to ERROR...');
       JitsiMeetJS.setLogLevel(JitsiMeetJS.logLevels.ERROR);
-      console.log('✓ Log level set successfully');
-      
-      console.log('=== JITSI SETUP DEBUG END (SUCCESS) ===');
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown setup error';
-      console.error('❌ Error during JitsiMeetJS setup:', error);
-      console.error('Setup error message:', errorMessage);
-      console.error('=== JITSI SETUP DEBUG END (FAILED) ===');
       throw error;
     }
   }
@@ -204,14 +190,18 @@ export class JitsiService {
    */
   private async testConnectivity(config: JitsiConfig): Promise<boolean> {
     try {
-      const response = await fetch(config.bosh, { 
+      // If there's no BOSH URL defined, skip connectivity test and proceed
+      if (!config.bosh) {
+        return true;
+      }
+
+      const response = await fetch(config.bosh as string, {
         method: 'HEAD',
         mode: 'no-cors',
         cache: 'no-cache'
       });
       return true;
     } catch (error: unknown) {
-      console.warn('Connectivity test failed for:', config.hosts.domain, error);
       return false;
     }
   }
@@ -220,7 +210,6 @@ export class JitsiService {
    * Switch to fallback configuration
    */
   private switchToFallback(): void {
-    console.log('Switching to fallback configuration (public Jitsi server)');
     this.currentConfig = this.fallbackConfig;
   }
 
@@ -228,154 +217,47 @@ export class JitsiService {
    * Join a Jitsi room
    */
   async joinRoom(roomName: string, displayName: string): Promise<void> {
-    console.log('=== JITSI JOIN ROOM DEBUG START ===');
-    console.log('Room Name:', roomName);
-    console.log('Display Name:', displayName);
-    console.log('Current Config:', JSON.stringify(this.currentConfig, null, 2));
-    console.log('JitsiMeetJS available:', typeof JitsiMeetJS !== 'undefined');
-    
-    if (typeof JitsiMeetJS !== 'undefined') {
-      console.log('JitsiMeetJS version:', JitsiMeetJS.version);
-      console.log('JitsiMeetJS events:', Object.keys(JitsiMeetJS.events || {}));
-    }
-
+    const sanitizedRoomName = this.sanitizeRoomName(roomName);
     try {
-      console.log('STEP 1: Setting connection status to connecting...');
       this.connectionStatusSubject.next('connecting');
-
-      // Check if JitsiMeetJS is available
-      console.log('STEP 2: Checking JitsiMeetJS availability...');
       if (typeof JitsiMeetJS === 'undefined') {
-        console.error('ERROR: JitsiMeetJS library is not loaded');
         throw new Error('JitsiMeetJS library is not loaded');
       }
-      console.log('✓ JitsiMeetJS is available');
 
-      // Test connectivity first
-      console.log('STEP 3: Testing connectivity to server...');
-      const isConnectable = await this.testConnectivity(this.currentConfig);
-      console.log('Connectivity test result:', isConnectable);
+      // Force local configuration for testing
+      this.currentConfig = this.localConfig;
 
-      // Create connection
-      console.log('STEP 4: Creating Jitsi connection...');
-      console.log('Connection options:', this.connectionOptions);
+      // Choose auth mode: JWT (token) or anonymous (guest domain)
+      let connection: any;
+      const usingWebsocket = !!this.currentConfig.serviceUrl && this.currentConfig.serviceUrl.startsWith('wss://');
       
-      let connection;
-      try {
-        connection = new JitsiMeetJS.JitsiConnection(null, null, this.currentConfig);
-        console.log('✓ Connection object created successfully');
-        console.log('Connection state:', connection.getConnectionState ? connection.getConnectionState() : 'unknown');
-      } catch (connError: unknown) {
-        console.error('ERROR: Failed to create connection object:', connError);
-        throw connError;
-      }
-      
-      // Setup connection event listeners
-      console.log('STEP 5: Setting up connection event listeners...');
-      this.setupConnectionListeners(connection);
-      console.log('✓ Connection listeners set up');
 
-      // Connect
-      console.log('STEP 6: Initiating connection to Jitsi server...');
-      console.log('Connecting to:', this.currentConfig.hosts.domain);
-      console.log('BOSH URL:', this.currentConfig.bosh);
-      console.log('WebSocket URL:', this.currentConfig.serviceUrl);
-      
-      try {
-        connection.connect();
-        console.log('✓ Connection.connect() called successfully');
-      } catch (connectError: unknown) {
-        console.error('ERROR: connection.connect() failed:', connectError);
-        throw connectError;
-      }
-
-      // Wait for connection to be established
-      console.log('STEP 7: Waiting for connection to be established...');
-      try {
-        await this.waitForConnection(connection);
-        console.log('✓ Connection established successfully');
-      } catch (waitError: unknown) {
-        console.error('ERROR: Connection establishment failed:', waitError);
-        throw waitError;
-      }
-
-      // Create and join conference
-      console.log('STEP 8: Creating conference...');
-      console.log('Conference options:', this.conferenceOptions);
-      
-      let conference: any;
-      try {
-        conference = connection.initJitsiConference(roomName, this.conferenceOptions);
-        console.log('✓ Conference object created successfully');
-      } catch (confError: unknown) {
-        console.error('ERROR: Failed to create conference:', confError);
-        throw confError;
-      }
-      
-      console.log('STEP 9: Setting up conference event listeners...');
-      this.setupConferenceListeners(conference);
-      console.log('✓ Conference listeners set up');
-
-      // Get local tracks (audio and video)
-      console.log('STEP 10: Creating local tracks...');
-      let localTracks;
-      try {
-        localTracks = await this.createLocalTracks();
-        console.log('✓ Local tracks created successfully:', localTracks.length);
-        localTracks.forEach((track, index) => {
-          console.log(`Track ${index}:`, {
-            type: track.getType(),
-            deviceId: track.getDeviceId(),
-            muted: track.isMuted()
-          });
-        });
-      } catch (trackError: unknown) {
-        console.error('ERROR: Failed to create local tracks:', trackError);
-        // Continue without local tracks for debugging
-        localTracks = [];
-        console.log('Continuing without local tracks for debugging...');
-      }
-
-      // Add local tracks to conference
-      console.log('STEP 11: Adding local tracks to conference...');
-      if (localTracks.length > 0) {
-        localTracks.forEach((track, index) => {
-          try {
-            console.log(`Adding track ${index} (${track.getType()}) to conference...`);
-            conference.addTrack(track);
-            console.log(`✓ Track ${index} added successfully`);
-          } catch (trackAddError: unknown) {
-            console.error(`ERROR: Failed to add track ${index}:`, trackAddError);
-          }
-        });
+      if (this.authMode === 'jwt' && this.jwtToken) {
+        // JWT token auth: pass token as the second constructor argument
+        connection = new JitsiMeetJS.JitsiConnection(null, this.jwtToken, this.currentConfig);
       } else {
-        console.log('No local tracks to add to conference');
+        // Anonymous auth: rely on currentConfig.hosts.anonymousdomain being set correctly
+        connection = new JitsiMeetJS.JitsiConnection(null, null, this.currentConfig);
+      }
+      this.setupConnectionListeners(connection);
+      connection.connect();
+      await this.waitForConnection(connection);
+
+      const conference = connection.initJitsiConference(sanitizedRoomName, this.conferenceOptions);
+      this.setupConferenceListeners(conference);
+
+      let localTracks = await this.createLocalTracks();
+      if (localTracks && localTracks.length) {
+        localTracks.forEach(track => {
+          try { conference.addTrack(track); } catch {}
+        });
       }
 
-      // Join the conference
-      console.log('STEP 12: Joining conference...');
-      try {
-        conference.join();
-        console.log('✓ Conference.join() called successfully');
-      } catch (joinError: unknown) {
-        console.error('ERROR: conference.join() failed:', joinError);
-        throw joinError;
-      }
+      conference.join();
+      try { conference.setDisplayName(displayName); } catch {}
 
-      // Set display name
-      console.log('STEP 13: Setting display name...');
-      try {
-        conference.setDisplayName(displayName);
-        console.log('✓ Display name set successfully:', displayName);
-      } catch (nameError: unknown) {
-        console.error('ERROR: Failed to set display name:', nameError);
-        // Continue anyway, this is not critical
-      }
-
-      // Update current room state
-      console.log('STEP 14: Updating room state...');
       this.currentRoom = {
-        roomName,
+        roomName: sanitizedRoomName,
         connection,
         conference,
         localTracks,
@@ -383,56 +265,11 @@ export class JitsiService {
         isJoined: true
       };
 
-      console.log('📡 Emitting localTracks to component:', localTracks.length, 'tracks');
-      localTracks.forEach((track, index) => {
-        console.log(`📊 Track ${index} being emitted:`, {
-          type: track.getType(),
-          deviceId: track.getDeviceId ? track.getDeviceId() : 'unknown',
-          muted: track.isMuted ? track.isMuted() : 'unknown'
-        });
-      });
-      
       this.localTracksSubject.next(localTracks);
       this.connectionStatusSubject.next('connected');
-      console.log('✓ Successfully joined room:', roomName);
-      console.log('=== JITSI JOIN ROOM DEBUG END (SUCCESS) ===');
-
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      const errorStack = error instanceof Error ? error.stack : undefined;
-      
-      console.error('=== JITSI JOIN ROOM ERROR ===');
-      console.error('Error joining room:', error);
-      console.error('Error details:', {
-        message: errorMessage,
-        stack: errorStack,
-        config: this.currentConfig,
-        currentConfigType: this.currentConfig === this.localConfig ? 'local' : 'fallback'
-      });
-
-      // If using local config and it fails, try fallback
-      if (this.currentConfig === this.localConfig) {
-        console.log('=== ATTEMPTING FALLBACK TO PUBLIC SERVER ===');
-        console.log('Local server failed, switching to public server...');
-        this.switchToFallback();
-        
-        try {
-          // Retry with fallback configuration
-          console.log('Retrying with fallback configuration...');
-          return await this.joinRoom(roomName, displayName);
-        } catch (fallbackError: unknown) {
-          const fallbackErrorMessage = fallbackError instanceof Error ? fallbackError.message : 'Unknown fallback error';
-          console.error('=== FALLBACK ALSO FAILED ===');
-          console.error('Fallback error:', fallbackError);
-          console.error('Fallback error message:', fallbackErrorMessage);
-          this.connectionStatusSubject.next('error');
-          throw new Error(`Failed to connect to both local and public Jitsi servers. Local error: ${errorMessage}, Fallback error: ${fallbackErrorMessage}`);
-        }
-      } else {
-        console.error('=== FALLBACK SERVER FAILED ===');
-        this.connectionStatusSubject.next('error');
-        throw error;
-      }
+      this.connectionStatusSubject.next('error');
+      throw error;
     }
   }
 
@@ -466,7 +303,6 @@ export class JitsiService {
       this.remoteTracksSubject.next([]);
 
     } catch (error: unknown) {
-      console.error('Error leaving room:', error);
       throw error;
     }
   }
@@ -563,110 +399,63 @@ export class JitsiService {
   // Private helper methods
 
   private setupConnectionListeners(connection: any): void {
-    console.log('Setting up connection event listeners...');
-
     connection.addEventListener(JitsiMeetJS.events.connection.CONNECTION_ESTABLISHED, () => {
-      console.log('🟢 CONNECTION_ESTABLISHED: Connection successfully established');
-      console.log('Connection details:', {
-        readyState: connection.xmpp?.connection?.readyState,
-        connected: connection.xmpp?.connection?.connected,
-        authenticated: connection.xmpp?.connection?.authenticated
-      });
+      // no-op
     });
 
     connection.addEventListener(JitsiMeetJS.events.connection.CONNECTION_FAILED, (error: any) => {
-      console.error('🔴 CONNECTION_FAILED: Connection failed');
-      console.error('Connection failure details:', {
-        error: error,
-        errorType: typeof error,
-        errorMessage: error?.message || 'No error message',
-        errorCode: error?.code || 'No error code',
-        config: this.currentConfig,
-        connectionState: connection.xmpp?.connection?.readyState
-      });
       this.connectionStatusSubject.next('error');
     });
 
     connection.addEventListener(JitsiMeetJS.events.connection.CONNECTION_DISCONNECTED, () => {
-      console.log('🟡 CONNECTION_DISCONNECTED: Connection disconnected');
-      console.log('Disconnection details:', {
-        readyState: connection.xmpp?.connection?.readyState,
-        connected: connection.xmpp?.connection?.connected
-      });
       this.connectionStatusSubject.next('disconnected');
     });
 
     // Add additional connection events for debugging
     connection.addEventListener(JitsiMeetJS.events.connection.WRONG_STATE, (error: any) => {
-      console.error('🔴 WRONG_STATE: Connection in wrong state', error);
+      // no-op
     });
 
     connection.addEventListener(JitsiMeetJS.events.connection.CONNECTION_DROPPED_ERROR, (error: any) => {
-      console.error('🔴 CONNECTION_DROPPED_ERROR: Connection dropped', error);
+      // no-op
     });
-
-    console.log('✓ Connection event listeners set up successfully');
   }
 
   private setupConferenceListeners(conference: any): void {
-    console.log('Setting up conference event listeners...');
-
     // Conference joined
     conference.addEventListener(JitsiMeetJS.events.conference.CONFERENCE_JOINED, () => {
-      console.log('🟢 CONFERENCE_JOINED: Successfully joined conference');
-      console.log('Conference details:', {
-        roomName: conference.room,
-        participantCount: conference.getParticipantCount(),
-        localId: conference.myUserId()
-      });
       this.connectionStatusSubject.next('joined');
     });
 
     // Conference failed
     conference.addEventListener(JitsiMeetJS.events.conference.CONFERENCE_FAILED, (error: any) => {
-      console.error('🔴 CONFERENCE_FAILED: Failed to join conference');
-      console.error('Conference failure details:', {
-        error: error,
-        errorType: typeof error,
-        errorMessage: error?.message || 'No error message',
-        errorCode: error?.code || 'No error code',
-        roomName: conference.room,
-        config: this.currentConfig
-      });
+      try {
+        const stringifiedError = this.safeStringify(error);
+        void stringifiedError;
+      } catch {
+        // no-op
+      }
       this.connectionStatusSubject.next('error');
     });
 
     // Conference error
     conference.addEventListener(JitsiMeetJS.events.conference.CONFERENCE_ERROR, (error: any) => {
-      console.error('🔴 CONFERENCE_ERROR: Conference error occurred');
-      console.error('Conference error details:', error);
+      // no-op
     });
 
     // User joined
     conference.addEventListener(JitsiMeetJS.events.conference.USER_JOINED, (id: string) => {
-      console.log('👤 USER_JOINED:', id);
-      console.log('Participant count:', conference.getParticipantCount());
       this.updateParticipants();
     });
 
     // User left
     conference.addEventListener(JitsiMeetJS.events.conference.USER_LEFT, (id: string) => {
-      console.log('👤 USER_LEFT:', id);
-      console.log('Participant count:', conference.getParticipantCount());
       this.updateParticipants();
     });
 
     // Remote track added
     conference.addEventListener(JitsiMeetJS.events.conference.TRACK_ADDED, (track: any) => {
       if (track.isLocal()) return;
-
-      console.log('🎥 TRACK_ADDED: Remote track added');
-      console.log('Track details:', {
-        type: track.getType(),
-        participantId: track.getParticipantId(),
-        muted: track.isMuted(),
-        videoType: track.videoType
-      });
       
       if (this.currentRoom) {
         this.currentRoom.remoteTracks.push(track);
@@ -677,12 +466,6 @@ export class JitsiService {
     // Remote track removed
     conference.addEventListener(JitsiMeetJS.events.conference.TRACK_REMOVED, (track: any) => {
       if (track.isLocal()) return;
-
-      console.log('🎥 TRACK_REMOVED: Remote track removed');
-      console.log('Track details:', {
-        type: track.getType(),
-        participantId: track.getParticipantId()
-      });
       
       if (this.currentRoom) {
         const index = this.currentRoom.remoteTracks.indexOf(track);
@@ -695,37 +478,76 @@ export class JitsiService {
 
     // Chat message received
     conference.addEventListener(JitsiMeetJS.events.conference.MESSAGE_RECEIVED, (id: string, text: string, ts: number) => {
-      console.log('💬 MESSAGE_RECEIVED from:', id);
+      // Attempt to determine local participant id for proper isLocal flag
+      let localId: string | null = null;
+      try {
+        if (typeof conference.getLocalParticipant === 'function') {
+          const p = conference.getLocalParticipant();
+          if (p && typeof p.getId === 'function') {
+            localId = p.getId();
+          }
+        } else if (typeof conference.myUserId === 'function') {
+          localId = conference.myUserId();
+        } else if (typeof conference.getMyUserId === 'function') {
+          localId = conference.getMyUserId();
+        }
+      } catch {
+        // no-op
+      }
+
       const currentMessages = this.chatMessagesSubject.value;
       const newMessage = {
         id,
         text,
         timestamp: ts,
-        isLocal: false
+        isLocal: localId ? id === localId : false
       };
       this.chatMessagesSubject.next([...currentMessages, newMessage]);
     });
 
     // Recording status changed
     conference.addEventListener(JitsiMeetJS.events.conference.RECORDER_STATE_CHANGED, (status: any) => {
-      console.log('🔴 RECORDER_STATE_CHANGED:', status);
       this.recordingStatusSubject.next(status.status === 'on');
     });
 
     // Additional debugging events
     conference.addEventListener(JitsiMeetJS.events.conference.KICKED, (participant: any) => {
-      console.log('🚫 KICKED: Participant was kicked', participant);
+      // no-op
     });
 
     conference.addEventListener(JitsiMeetJS.events.conference.LOCK_STATE_CHANGED, (locked: boolean) => {
-      console.log('🔒 LOCK_STATE_CHANGED:', locked);
+      // no-op
     });
+  }
 
-    console.log('✓ Conference event listeners set up successfully');
+  /**
+   * Sanitize room name to avoid invalid characters/spaces that MUC may reject
+   */
+  private sanitizeRoomName(name: string): string {
+    const trimmed = (name || '').trim();
+    // Replace whitespace with dashes and remove non-alphanumeric/underscore/dash
+    const replaced = trimmed.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9_-]/g, '');
+    // Avoid empty names; fall back to a default for debugging
+    return replaced || 'room';
+  }
+
+  /**
+   * Safely stringify objects that may contain circular references
+   */
+  private safeStringify(obj: any): string {
+    const cache = new Set<any>();
+    const result = JSON.stringify(obj, function (_key, value) {
+      if (typeof value === 'object' && value !== null) {
+        if (cache.has(value)) return '[Circular]';
+        cache.add(value);
+      }
+      return value;
+    });
+    cache.clear();
+    return result;
   }
 
   private async createLocalTracks(): Promise<any[]> {
-    console.log('Creating local tracks...');
     
     // First, enumerate available devices
     await this.enumerateDevices();
@@ -735,7 +557,6 @@ export class JitsiService {
     
     // First, try to get both audio and video
     try {
-      console.log('Attempting to create audio and video tracks...');
       const tracks = await JitsiMeetJS.createLocalTracks({
         devices: ['audio', 'video'],
         resolution: 720,
@@ -750,25 +571,19 @@ export class JitsiService {
           }
         }
       });
-      console.log('✓ Successfully created both audio and video tracks');
       return tracks;
     } catch (error: unknown) {
-      console.warn('Failed to create both audio and video tracks:', error);
       
       // Try audio only
       try {
-        console.log('Attempting to create audio track only...');
         const audioTracks = await JitsiMeetJS.createLocalTracks({
           devices: ['audio']
         });
-        console.log('✓ Successfully created audio track only');
         return audioTracks;
       } catch (audioError: unknown) {
-        console.warn('Failed to create audio track:', audioError);
         
         // Try video only with multiple fallback strategies
         try {
-          console.log('Attempting to create video track only...');
           
           // Try with high quality first
           try {
@@ -786,10 +601,8 @@ export class JitsiService {
                 }
               }
             });
-            console.log('✓ Successfully created high-quality video track');
             return videoTracks;
           } catch (highQualityError: unknown) {
-            console.warn('High-quality video failed, trying medium quality:', highQualityError);
             
             // Try with medium quality
             try {
@@ -803,10 +616,8 @@ export class JitsiService {
                   }
                 }
               });
-              console.log('✓ Successfully created medium-quality video track');
               return videoTracks;
             } catch (mediumQualityError: unknown) {
-              console.warn('Medium-quality video failed, trying basic quality:', mediumQualityError);
               
               // Try with basic quality and minimal constraints
               try {
@@ -816,19 +627,15 @@ export class JitsiService {
                     video: true  // Use browser defaults
                   }
                 });
-                console.log('✓ Successfully created basic video track');
                 return videoTracks;
               } catch (basicVideoError: unknown) {
-                console.warn('Basic video failed, trying to request permissions first:', basicVideoError);
                 
                 // Try to explicitly request permissions first
                 try {
-                  console.log('Requesting camera permission explicitly...');
                   const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                   
                   // Stop the stream immediately, we just wanted to trigger permission
                   stream.getTracks().forEach(track => track.stop());
-                  console.log('✓ Camera permission granted, retrying video track creation...');
                   
                   // Now try creating the track again
                   const videoTracks = await JitsiMeetJS.createLocalTracks({
@@ -837,19 +644,14 @@ export class JitsiService {
                       video: true
                     }
                   });
-                  console.log('✓ Successfully created video track after permission request');
                   return videoTracks;
                 } catch (permissionError: unknown) {
-                  console.error('❌ Failed to get camera permission or create video track:', permissionError);
-                  console.log('No local tracks available - continuing without media devices');
                   return [];
                 }
               }
             }
           }
         } catch (videoError: unknown) {
-          console.warn('Failed to create video track:', videoError);
-          console.log('No local tracks available - continuing without media devices');
           return [];
         }
       }
@@ -904,86 +706,57 @@ export class JitsiService {
 
   private async enumerateDevices(): Promise<void> {
     try {
-      console.log('🔍 Enumerating available media devices...');
-      
       if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
-        console.warn('⚠️ MediaDevices API not supported');
         return;
       }
 
       const devices = await navigator.mediaDevices.enumerateDevices();
-      console.log(`📱 Found ${devices.length} total devices:`);
       
       const audioInputs = devices.filter(device => device.kind === 'audioinput');
       const videoInputs = devices.filter(device => device.kind === 'videoinput');
       const audioOutputs = devices.filter(device => device.kind === 'audiooutput');
-      
-      console.log(`🎤 Audio inputs: ${audioInputs.length}`);
-      audioInputs.forEach((device, index) => {
-        console.log(`  ${index + 1}. ${device.label || 'Unknown Audio Device'} (${device.deviceId})`);
-      });
-      
-      console.log(`📹 Video inputs: ${videoInputs.length}`);
-      videoInputs.forEach((device, index) => {
-        console.log(`  ${index + 1}. ${device.label || 'Unknown Camera'} (${device.deviceId})`);
-      });
-      
-      console.log(`🔊 Audio outputs: ${audioOutputs.length}`);
-      audioOutputs.forEach((device, index) => {
-        console.log(`  ${index + 1}. ${device.label || 'Unknown Speaker'} (${device.deviceId})`);
-      });
 
       if (videoInputs.length === 0) {
-        console.warn('⚠️ No video input devices found! Please check:');
-        console.warn('   - Camera is connected and recognized by the system');
-        console.warn('   - Camera drivers are installed');
-        console.warn('   - Camera is not being used by another application');
+        // no-op
       }
       
     } catch (error: unknown) {
-      console.error('❌ Failed to enumerate devices:', error);
+      // no-op
     }
   }
 
   private async checkMediaPermissions(): Promise<void> {
     try {
-      console.log('🔐 Checking media permissions...');
-      
       if (!navigator.permissions) {
-        console.warn('⚠️ Permissions API not supported');
         return;
       }
 
       // Check camera permission
       try {
         const cameraPermission = await navigator.permissions.query({ name: 'camera' as PermissionName });
-        console.log(`📹 Camera permission: ${cameraPermission.state}`);
-        
         if (cameraPermission.state === 'denied') {
-          console.warn('❌ Camera permission is DENIED. Please enable camera access in browser settings.');
+          // no-op
         } else if (cameraPermission.state === 'prompt') {
-          console.log('❓ Camera permission will be requested when accessing camera.');
+          // no-op
         }
       } catch (permError: unknown) {
-        console.warn('Could not check camera permission:', permError);
+        // no-op
       }
 
       // Check microphone permission
       try {
         const micPermission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
-        console.log(`🎤 Microphone permission: ${micPermission.state}`);
-        
         if (micPermission.state === 'denied') {
-          console.warn('❌ Microphone permission is DENIED. Please enable microphone access in browser settings.');
+          // no-op
         } else if (micPermission.state === 'prompt') {
-          console.log('❓ Microphone permission will be requested when accessing microphone.');
+          // no-op
         }
       } catch (permError: unknown) {
-        console.warn('Could not check microphone permission:', permError);
+        // no-op
       }
       
     } catch (error: unknown) {
-      console.error('❌ Failed to check permissions:', error);
+      // no-op
     }
   }
 }

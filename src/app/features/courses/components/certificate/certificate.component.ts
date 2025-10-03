@@ -72,7 +72,6 @@ export class CertificateComponent implements OnInit, OnDestroy {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading certificate data:', error);
         this.error = 'Failed to load certificate data';
         this.loading = false;
       }
@@ -151,7 +150,7 @@ export class CertificateComponent implements OnInit, OnDestroy {
         title: 'Course Completion Certificate',
         text: shareText,
         url: shareUrl
-      }).catch(console.error);
+      }).catch(() => {});
     } else {
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {

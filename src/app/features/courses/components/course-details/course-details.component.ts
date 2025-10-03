@@ -66,7 +66,7 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.error('Error loading course:', err);
+    
         this.error = 'Failed to load course details. Please try again.';
         this.loading = false;
       }
@@ -96,7 +96,7 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
     const courseId = this.course.id; // Store in variable for type safety
     this.courseService.enrollInCourse(courseId).subscribe({
       next: (response) => {
-        console.log('Enrollment successful:', response);
+    
         this.isEnrolled = true;
         this.isEnrolling = false;
         
@@ -104,7 +104,7 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
         alert(`Successfully enrolled in "${this.course?.title || 'this course'}"!`);
       },
       error: (error) => {
-        console.error('Enrollment failed:', error);
+    
         this.isEnrolling = false;
         
         // Handle different error scenarios
@@ -147,7 +147,7 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
       video.play().then(() => {
         videoOverlay.style.display = 'none';
       }).catch((error) => {
-        console.error('Error playing video:', error);
+    
       });
     }
   }
@@ -165,11 +165,11 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
 
   checkEnrollmentStatus(): void {
     if (!this.course?.id || !this.isAuthenticated) {
-      console.log('Skipping enrollment status check - Course ID:', this.course?.id, 'Authenticated:', this.isAuthenticated);
+    
       return;
     }
 
-    console.log('Checking enrollment status for course:', this.course.id, 'User authenticated:', this.isAuthenticated);
+    
     this.courseService.checkEnrollmentStatus(this.course.id).subscribe({
       next: (response) => {
         // Assuming the API returns { enrolled: boolean }
@@ -177,13 +177,13 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
         this.enrollmentError = '';
       },
       error: (error) => {
-        console.error('Error checking enrollment status:', error);
+    
         
         // Handle different error types
         if (error.status === 403) {
-          console.warn('Access forbidden for enrollment status check - user may not have permission');
+    
         } else if (error.status === 401) {
-          console.warn('Unauthorized - token may be invalid or expired');
+    
           // Optionally redirect to login or refresh token
         }
         

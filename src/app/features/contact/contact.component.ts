@@ -29,7 +29,7 @@ export class ContactComponent implements OnInit {
 
       // Simulate form submission
       const formData = this.contactForm.value
-      console.log("Form submitted:", formData)
+  
 
       // Here you would typically send the data to your backend service
       // this.contactService.submitForm(formData).subscribe(...)

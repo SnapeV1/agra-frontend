@@ -41,6 +41,5 @@ import { RouterModule } from '@angular/router';
 })
 export class SharedModule {
   constructor() {
-    console.log('SharedModule loaded');
   }
 }

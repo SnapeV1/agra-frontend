@@ -57,7 +57,7 @@ export class CoursesComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading courses:', error);
+    
         this.error = 'Failed to load courses. Please try again later.';
         this.loading = false;
       }
@@ -152,13 +152,12 @@ export class CoursesComponent implements OnInit {
     this.applyFilters();
   }
 onCourseSelect(course: Course): void {
-  console.log('Navigating to course:', course.id); 
   this.router.navigate(['/courses/course-details', course.id]);
 }
 
   enrollInCourse(course: Course, event: Event): void {
     event.stopPropagation();
-    console.log('Enrolling in course:', course);
+    
   }
 
   getCourseRating(course: any): number | null {

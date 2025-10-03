@@ -95,7 +95,7 @@ featuredPosts: any[] = [];
     localStorage.removeItem('refresh_token');
     
     this.isLoggedIn = false;
-    console.log('User signed out successfully');
+    
   }
 
 
@@ -109,7 +109,6 @@ featuredPosts: any[] = [];
         this.coursesLoading = false;
       },
       error: (err) => {
-        console.error('Error loading featured courses:', err);
         this.coursesError = 'Failed to load courses';
         this.coursesLoading = false;
       }
@@ -128,7 +127,7 @@ featuredPosts: any[] = [];
   
   enrollInCourse(course: Course, event: Event): void {
     event.stopPropagation();
-    console.log('Enrolling in course:', course);
+    
   }
 
   
@@ -211,7 +210,6 @@ featuredPosts: any[] = [];
 
  
   onContactClick(): void {
-    console.log('Contact button clicked');
     window.location.href = 'mailto:contact@agra-platform.com?subject=Projet AGRA - Demande d\'information';
   }
 
@@ -229,14 +227,14 @@ featuredPosts: any[] = [];
 
 
   onPricingCardClick(cardIndex: number): void {
-    console.log(`Pricing card ${cardIndex} selected`);
+    
   }
 
   /**
    * Handle timeline item click
    */
   onTimelineItemClick(item: any): void {
-    console.log('Timeline item clicked:', item);
+    
   }
 
   /**
@@ -289,10 +287,8 @@ loadFeaturedPosts(): void {
         
         this.featuredPosts = updatedPosts;
         this.postsLoading = false;
-        console.log('🏠 Home component updated posts from service');
       },
-      error: error => {
-        console.error('Error loading posts:', error);
+      error: () => {
         this.postsError = 'Erreur lors du chargement des actualités. Veuillez réessayer plus tard.';
         this.postsLoading = false;
       }
@@ -305,30 +301,21 @@ loadFeaturedPosts(): void {
   }
 
   togglePostLike(post: any, event: Event): void {
-    console.log('🏠 Home Component - togglePostLike called for post:', post.id);
     event.stopPropagation();
     
-    console.log('🔐 Login status:', this.isLoggedIn);
     if (!this.isLoggedIn) {
-      console.log('❌ User not logged in, redirecting to login');
       this.login();
       return;
     }
     
-    console.log('📋 Looking for post in featuredPosts array...');
     const originalPost = this.featuredPosts.find(p => p.id === post.id);
-    console.log('📍 Original post found:', originalPost ? originalPost.id : 'Not found');
     
     if (originalPost) {
-      console.log('📄 Original post state - isLiked:', originalPost.isLikedByCurrentUser, 'likesCount:', originalPost.likesCount);
-      console.log('🎯 Calling postsService.toggleLike...');
       
       this.postsService.toggleLike(originalPost);
       
-      console.log('✅ Service will handle state updates via subscription');
       // Remove local state updates - let the service handle it via subscription
     } else {
-      console.log('❌ Post not found in featuredPosts array');
     }
   }
   onCommentClick(post: any, event: Event): void {
@@ -339,7 +326,7 @@ loadFeaturedPosts(): void {
   onPostMenuClick(post: any, event: Event): void {
     event.stopPropagation();
   
-    console.log('Show menu for post:', post.id);
+    
   }
 
   onViewAllComments(post: any, event: Event): void {

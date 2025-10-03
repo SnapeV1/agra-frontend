@@ -97,7 +97,6 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
           this.loading = false;
         },
         error: error => {
-          console.error('Error loading posts:', error);
           this.errorMessage = 'Failed to load posts. Please try again later.';
           this.loading = false;
         }
@@ -255,21 +254,18 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
 
       this.postsService.createPostOnServer(formData).subscribe({
         next: (createdPost: Post) => {
-          console.log('Post created successfully:', createdPost);
           this.refreshPosts();
           this.resetCreateForm();
           this.showCreateForm = false;
           this.isCreatingPost = false;
         },
         error: (error) => {
-          console.error('Error creating post:', error);
           this.errorMessage = 'Failed to create post. Please try again.';
           this.isCreatingPost = false;
         }
       });
       
     } catch (error) {
-      console.error('Error preparing post data:', error);
       this.errorMessage = 'Failed to prepare post data. Please try again.';
       this.isCreatingPost = false;
     }
@@ -314,7 +310,6 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
       try {
         // Implement image upload logic here if needed
       } catch (error) {
-        console.error('Error uploading image:', error);
         this.errorMessage = 'Failed to upload image. Please try again.';
         return;
       }

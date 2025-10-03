@@ -145,12 +145,10 @@ constructor(private router: Router, private authService: AuthService) {}
     if (this.isLoading) return;
     
     if (!this.passwordsMatch()) {
-      console.log('Passwords do not match');
       return;
     }
     
     if (!this.agreeToTerms) {
-      console.log('Must agree to terms and conditions');
       return;
     }
     
@@ -168,12 +166,10 @@ constructor(private router: Router, private authService: AuthService) {}
     
    this.authService.register(userData).subscribe({
   next: (response) => {
-    console.log('Registration successful:', response);
     this.isLoading = false;
     this.router.navigate(['/login']);
   },
   error: (error) => {
-    console.error('Registration failed:', error);
     this.isLoading = false;
   }
 });
@@ -193,7 +189,6 @@ constructor(private router: Router, private authService: AuthService) {}
   }
 
   onGoogleRegister() {
-    console.log('Google registration clicked');
     // TO Implement, Google OAuth registration
   
     // this.authService.googleSignUp().subscribe({

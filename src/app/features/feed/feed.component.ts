@@ -94,10 +94,8 @@ export class FeedComponent implements OnInit, OnDestroy {
           
           this.posts = updatedPosts;
           this.loading = false;
-          console.log('🔄 Feed component updated posts from service');
         },
         error: error => {
-          console.error('Error loading posts:', error);
           this.errorMessage = 'Failed to load posts. Please try again later.';
           this.loading = false;
         }
@@ -120,30 +118,20 @@ export class FeedComponent implements OnInit, OnDestroy {
   }
 
   toggleLike(post: any): void {
-    console.log('🎯 Feed Component - toggleLike called for post:', post.id);
-    console.log('🔐 Authentication status:', this.isAuthenticated);
     
     if (!this.isAuthenticated) {
-      console.log('❌ User not authenticated, showing alert');
       alert('Please log in to like posts');
       return;
     }
 
-    console.log('📋 Looking for post in posts array...');
     const postIndex = this.posts.findIndex(p => p.id === post.id);
-    console.log('📍 Post index found:', postIndex);
     
     if (postIndex !== -1) {
       const originalPost = this.posts[postIndex];
-      console.log('📄 Original post found:', originalPost.id, 'isLiked:', originalPost.isLikedByCurrentUser);
-      console.log('🎯 Calling postsService.toggleLike...');
       
       this.postsService.toggleLike(originalPost);
-      
-      console.log('✅ Service will handle state updates via subscription');
       // Remove local state updates - let the service handle it via subscription
     } else {
-      console.log('❌ Post not found in posts array');
     }
   }
 
