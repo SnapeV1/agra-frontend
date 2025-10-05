@@ -256,6 +256,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
               createdAt: new Date(),
               updatedAt: new Date(),
               archived: false,
+              activeCall: false,
               files: [],
               textContent: [],
               goals: []

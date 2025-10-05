@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { catchError, map, tap } from 'rxjs/operators';
+import {map } from 'rxjs/operators';
 import { Post } from '../../../core/models/post.module';
 import { PostComment } from '../../../core/models/post-comment.module';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
@@ -14,33 +14,6 @@ export class PostsService {
   private postsSubject = new BehaviorSubject<Post[]>([]);
   posts$ = this.postsSubject.asObservable();
 
-  /** Persist liked post IDs per user to bridge server gaps */
-  private getUserKey(): string | null {
-    const current = this.authService.currentUserValue;
-    const id = (current?.user as any)?.id as string | undefined;
-    const email = current?.user?.email as string | undefined;
-    return id || email || null;
-  }
-
-  private getOverlayKey(userKey: string): string {
-    return `likedPosts:${userKey}`;
-  }
-
-  private readLikedOverlay(userKey: string): Set<string> {
-    try {
-      const raw = localStorage.getItem(this.getOverlayKey(userKey));
-      if (!raw) return new Set<string>();
-      const arr = JSON.parse(raw) as string[];
-      return new Set<string>(Array.isArray(arr) ? arr : []);
-    } catch {
-      return new Set<string>();
-    }
-  }
-
-  private writeLikedOverlay(userKey: string, likedIds: Set<string>): void {
-    localStorage.setItem(this.getOverlayKey(userKey), JSON.stringify(Array.from(likedIds)));
-  }
-
   private readonly apiUrl = 'http://localhost:8080/api/posts/sorted';
   constructor(private http: HttpClient,private authService: AuthService,
   ) {}
@@ -51,15 +24,13 @@ export class PostsService {
     this.http.get<Post[]>(this.apiUrl, options)
       .pipe(
         map(posts => {
-          const userKey = this.getUserKey();
-          const overlay = userKey ? this.readLikedOverlay(userKey) : new Set<string>();
           return posts.map(post => ({
             ...post,
             createdAt: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
             updatedAt: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
             comments: post.comments || [],
-            // Prefer server flag; if missing or false, overlay can mark liked
-            isLikedByCurrentUser: (post.isLikedByCurrentUser === true) ? true : (overlay.has(post.id) ? true : false),
+            // Trust server-provided liked flag; default to false if absent
+            isLikedByCurrentUser: post.isLikedByCurrentUser === true,
             likesCount: post.likesCount || 0,
             commentsCount: post.commentsCount || 0,
             // Local UI flags (not in model)
@@ -149,15 +120,6 @@ export class PostsService {
                 target.likesCount = Math.max(0, current + (serverLiked ? 1 : -1));
               }
               target.isLikedByCurrentUser = serverLiked;
-              // Update overlay for persistence across refresh
-              const userKey = this.getUserKey();
-              if (userKey) {
-                const overlay = this.readLikedOverlay(userKey);
-                if (serverLiked) overlay.add(target.id);
-                else overlay.delete(target.id);
-                this.writeLikedOverlay(userKey, overlay);
-                console.log('[PostsService] overlay updated (text)', { userKey, liked: serverLiked, id: target.id, overlaySize: overlay.size });
-              }
             }
             this.updatePosts();
           } else if (response && typeof response === 'object') {
@@ -170,14 +132,6 @@ export class PostsService {
                 target.likesCount = Math.max(0, current + (serverLiked ? 1 : -1));
               }
               target.isLikedByCurrentUser = serverLiked;
-              // Update overlay
-              const userKey = this.getUserKey();
-              if (userKey) {
-                const overlay = this.readLikedOverlay(userKey);
-                if (serverLiked) overlay.add(target.id);
-                else overlay.delete(target.id);
-                this.writeLikedOverlay(userKey, overlay);
-              }
             }
             if (typeof response.likesCount === 'number') {
               target.likesCount = response.likesCount;

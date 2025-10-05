@@ -95,6 +95,7 @@ export class CourseManagementComponent {
     createdAt: new Date(),
     updatedAt: new Date(),
     archived: false,
+    activeCall: false,
     files: [],
     textContent: [],
     goals: []
@@ -159,6 +160,7 @@ export class CourseManagementComponent {
       country: '',
       trainerId: 'UMNAGRI',
       archived: false,
+      activeCall: false,
       sessionIds: [],
       languagesAvailable: [],
       createdAt: new Date(),

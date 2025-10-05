@@ -31,6 +31,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
   isFullscreen = false;
   showCompletionModal = false;
   showResources = false;
+  showLive = false;
   certificateUrl: string | null = null;
   isGeneratingCertificate = false;
   certificateData: CertificateData | null = null;
@@ -399,6 +400,10 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     this.showResources = !this.showResources;
   }
 
+  toggleLive(): void {
+    this.showLive = !this.showLive;
+  }
+
   getLessonProgress(lessonId: string): LessonProgress | null {
     const progress = this.courseEnrollment?.lessons.find(l => l.lessonId === lessonId) || null;
     
@@ -417,6 +422,19 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
   getTotalTimeSpent(): number {
     if (!this.courseEnrollment) return 0;
     return this.progressService.getTotalTimeSpent(this.courseEnrollment.lessons);
+  }
+
+  // Live session join handler
+  joinLiveCall(): void {
+    if (!this.course?.activeCall) {
+      alert('No live session is currently active.');
+      return;
+    }
+    const roomName = `course-${this.courseId}`;
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(['/courses/live-session', roomName])
+    );
+    window.open(url, '_blank');
   }
 
   formatTime(minutes: number): string {

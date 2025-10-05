@@ -11,6 +11,8 @@ export interface Course {
   createdAt: Date;
   updatedAt: Date;
   archived: boolean;
+  activeCall: boolean;
+  liveRoomName?: string;
   videoUrl?: string;
   videoPublicId?: string;
   files: CourseFile[];

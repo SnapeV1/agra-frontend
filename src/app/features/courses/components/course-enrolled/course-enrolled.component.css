@@ -684,6 +684,110 @@
   letter-spacing: 0.05em;
 }
 
+/* Live Session (Collapsible) */
+.course-live {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  margin-bottom: 1rem;
+}
+
+.live-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-radius: 8px 8px 0 0;
+}
+
+.live-header:hover {
+  background-color: #f1f5f9;
+}
+
+.live-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.live-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+  user-select: none;
+}
+
+.live-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.live-status-pill.online {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.live-status-pill.offline {
+  background: #f9fafb;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+}
+
+.live-content {
+  max-height: 1000px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+  opacity: 1;
+  padding: 0 16px 16px;
+}
+
+.live-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 16px;
+}
+
+.live-body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.live-description {
+  flex: 1;
+  color: #64748b;
+  margin: 0;
+}
+
+.btn-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(135deg, #0ea5e9, #10b981);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-live:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
 /* Course Files (Dynamic) */
 .course-files {
   border-radius: 8px;

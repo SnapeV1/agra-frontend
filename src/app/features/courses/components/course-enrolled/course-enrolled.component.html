@@ -163,6 +163,33 @@
     </main>
   </div>
 
+  <!-- Live Session Section -->
+  <div class="course-live">
+    <div class="live-header" (click)="toggleLive()">
+      <div class="live-title">
+        <h3>Live Session</h3>
+        <span class="live-status-pill" [class.online]="course.activeCall" [class.offline]="!course.activeCall">
+          {{ course.activeCall ? 'Live now' : 'Offline' }}
+        </span>
+      </div>
+      <lucide-icon [name]="showLive ? 'X' : 'Plus'" class="toggle-icon"></lucide-icon>
+    </div>
+    <div class="live-content" [class.collapsed]="!showLive">
+      <div class="live-body">
+        <p class="live-description" *ngIf="course.activeCall">
+          A live session is currently active. Click below to join.
+        </p>
+        <p class="live-description" *ngIf="!course.activeCall">
+          Instructor has not started a live session.
+        </p>
+        <button *ngIf="course.activeCall" class="btn-live" (click)="joinLiveCall()" title="Join Live Session">
+          <lucide-icon name="Video" class="btn-icon"></lucide-icon>
+          Join Call
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Static Resources Section -->
   <div class="course-resources">
     <div class="resources-header" (click)="toggleResources()">

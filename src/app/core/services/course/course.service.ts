@@ -26,6 +26,24 @@ export class CourseService {
     return this.http.get<Course[]>(`${this.apiUrl}/domain/${domain}`);
   }
 
+  // Get other courses the user is NOT enrolled in, excluding current course
+  getUnenrolledOtherCourses(courseId: string): Observable<Course[]> {
+    const token = this.authService.getToken();
+    if (!token || !this.authService.isAuthenticated()) {
+      // Gracefully return empty list when unauthenticated
+      return new Observable(observer => {
+        observer.next([]);
+        observer.complete();
+      });
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<Course[]>(`${this.apiUrl}/${courseId}/unenrolled-others`, { headers });
+  }
+
   getCoursesByCountry(country: string): Observable<Course[]> {
     return this.http.get<Course[]>(`${this.apiUrl}/country/${country}`);
   }

@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { Course } from 'src/app/core/models/course';
 import { CourseService } from 'src/app/core/services/course/course.service';
+import { ProgressService, CourseEnrollment } from 'src/app/core/services/progress.service';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 
 @Component({
@@ -20,13 +21,19 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
   isEnrolled = false;
   enrollmentError = '';
   activeTab = 'overview';
+  progressPercent = 0;
+  relatedCourses: Course[] = [];
+  relatedStart = 0;
+  get canPrev(): boolean { return this.relatedStart > 0; }
+  get canNext(): boolean { return this.relatedStart + 2 < this.relatedCourses.length; }
   private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private courseService: CourseService,
-    private authService: AuthService
+    private authService: AuthService,
+    private progressService: ProgressService
   ) {}
 
   ngOnInit(): void {
@@ -64,6 +71,9 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
         if (this.isAuthenticated && this.course?.id) {
           this.checkEnrollmentStatus();
         }
+
+        // Load related courses by domain
+        this.loadRelatedCourses();
       },
       error: (err) => {
     
@@ -99,6 +109,7 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
     
         this.isEnrolled = true;
         this.isEnrolling = false;
+        this.loadProgress();
         
         // Show success message
         alert(`Successfully enrolled in "${this.course?.title || 'this course'}"!`);
@@ -175,6 +186,9 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
         // Assuming the API returns { enrolled: boolean }
         this.isEnrolled = response.enrolled || false;
         this.enrollmentError = '';
+        if (this.isEnrolled) {
+          this.loadProgress();
+        }
       },
       error: (error) => {
     
@@ -194,7 +208,69 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
+  private loadProgress(): void {
+    if (!this.course?.id || !this.isAuthenticated) {
+      this.progressPercent = 0;
+      return;
+    }
+
+    this.progressService.getCourseProgress(this.course.id).subscribe({
+      next: (enrollment: CourseEnrollment) => {
+        const fromProgress = enrollment?.progress?.completionPercentage;
+        if (typeof fromProgress === 'number') {
+          this.progressPercent = Math.max(0, Math.min(100, Math.round(fromProgress)));
+        } else if (Array.isArray(enrollment?.lessons)) {
+          this.progressPercent = this.progressService.calculateCompletionPercentage(enrollment.lessons);
+        } else {
+          this.progressPercent = 0;
+        }
+        this.progressService.setCurrentProgress(enrollment);
+      },
+      error: () => {
+        this.progressPercent = 0;
+      }
+    });
+  }
+
   switchTab(tab: string): void {
     this.activeTab = tab;
+  }
+
+  private loadRelatedCourses(): void {
+    if (!this.course) {
+      return;
+    }
+    if (!this.isAuthenticated || !this.course.id) {
+      this.relatedCourses = [];
+      this.relatedStart = 0;
+      return;
+    }
+    this.courseService.getUnenrolledOtherCourses(this.course.id).subscribe({
+      next: (courses) => {
+        // Backend already excludes current and enrolled
+        this.relatedCourses = courses || [];
+        // Reset window if out of bounds
+        this.relatedStart = 0;
+      },
+      error: () => {
+        this.relatedCourses = [];
+      }
+    });
+  }
+
+  nextRelated(): void {
+    const total = this.relatedCourses.length;
+    if (total <= 2) return;
+    if (this.relatedStart + 2 < total) {
+      this.relatedStart += 1;
+    }
+  }
+
+  prevRelated(): void {
+    const total = this.relatedCourses.length;
+    if (total <= 2) return;
+    if (this.relatedStart > 0) {
+      this.relatedStart -= 1;
+    }
   }
 }

@@ -24,6 +24,7 @@ export class MockDataService {
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-15'),
       archived: false,
+      activeCall: false,
       goals: [
         'Understand sustainable farming principles and practices',
         'Master crop rotation and soil health management',

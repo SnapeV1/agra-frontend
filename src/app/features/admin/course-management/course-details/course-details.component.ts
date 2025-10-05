@@ -44,6 +44,7 @@ export class AdminCourseDetailsComponent implements OnInit {
     createdAt: new Date(),
     updatedAt: new Date(),
     archived: false,
+    activeCall: false,
     files: [],
     textContent: [],
     goals: []
@@ -577,28 +578,29 @@ export class AdminCourseDetailsComponent implements OnInit {
       alert('Course ID is required to start a live session');
       return;
     }
+    // Persist only the supported flag indicating an active call
+    try {
+      this.formData.activeCall = true;
+      this.courseService.updateCourse(this.courseId, this.formData).subscribe({
+        next: (updated) => {
+          this.formData = { ...this.formData, ...updated };
+        },
+        error: () => {
+          // Non-blocking: proceed with starting session even if persistence fails
+        }
+      });
+    } catch {}
 
-    this.jitsiService.createRoom().subscribe({
-      next: (response) => {
-        this.currentRoomName = response.roomName;
-        this.isLiveSessionActive = true;
-        // Navigate to the Jitsi component in a new tab
-        const url = this.router.serializeUrl(
-          this.router.createUrlTree(['/courses/live-session', response.roomName])
-        );
-        window.open(url, '_blank');
-      },
-      error: (error) => {
-        // Fallback: create a room name based on course ID
-        const fallbackRoomName = `course-${this.courseId}-${Date.now()}`;
-        this.currentRoomName = fallbackRoomName;
-        this.isLiveSessionActive = true;
-        const url = this.router.serializeUrl(
-          this.router.createUrlTree(['/courses/live-session', fallbackRoomName])
-        );
-        window.open(url, '_blank');
-      }
-    });
+    // Use a deterministic room name based on course ID, avoiding unsupported fields
+    const roomName = `course-${this.courseId}`;
+    this.currentRoomName = roomName;
+    this.isLiveSessionActive = true;
+
+    // Open the Jitsi component in a new tab with the deterministic room name
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(['/courses/live-session', roomName])
+    );
+    window.open(url, '_blank');
   }
 
   stopLiveSession(): void {
@@ -607,7 +609,20 @@ export class AdminCourseDetailsComponent implements OnInit {
       this.currentRoomName = null;
       this.sessionParticipants = 0;
       this.sessionDuration = '00:00';
-      // Here you could also call a backend API to officially end the session
+      // Persist activeCall=false on the course
+      if (this.courseId) {
+        try {
+          this.formData.activeCall = false;
+          this.courseService.updateCourse(this.courseId, this.formData).subscribe({
+            next: (updated) => {
+              this.formData = { ...this.formData, ...updated };
+            },
+            error: () => {
+              // Non-blocking: UI already reflects session ended
+            }
+          });
+        } catch {}
+      }
     }
   }
 }

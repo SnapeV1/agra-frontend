@@ -48,17 +48,17 @@
               </div>
             </div>
 
-            <!-- Video Preview -->
-            <div class="video-preview" *ngIf="course.videoUrl">
-              <div class="video-thumbnail" [class.locked]="!isAuthenticated">
-                <img [src]="course.imageUrl" [alt]="course.title">
-                <button class="play-button" *ngIf="isAuthenticated" (click)="playVideo($event)">
+            <!-- Media Preview -->
+            <div class="video-preview">
+              <div class="video-thumbnail" [class.locked]="!isAuthenticated && course.videoUrl">
+                <img [src]="course.imageUrl || 'https://res.cloudinary.com/dmumvupow/image/upload/v1758218323/defaultCourse_qqgiil.png'" [alt]="course.title">
+                <button class="play-button" *ngIf="isAuthenticated && course.videoUrl" (click)="playVideo($event)">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                     <path d="M8 5v14l11-7z" fill="currentColor"/>
                   </svg>
                 </button>
-                <!-- Lock Overlay for Non-Authenticated Users -->
-                <div *ngIf="!isAuthenticated" class="video-lock-overlay">
+                <!-- Lock Overlay shown only when a video exists and user is not authenticated -->
+                <div *ngIf="course.videoUrl && !isAuthenticated" class="video-lock-overlay">
                   <div class="lock-content">
                     <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
@@ -70,8 +70,8 @@
                   </div>
                 </div>
               </div>
-              <p class="video-caption" *ngIf="isAuthenticated">Watch the course introduction (3:24)</p>
-              <p class="video-caption" *ngIf="!isAuthenticated">Enroll to watch preview</p>
+              <p class="video-caption" *ngIf="course.videoUrl && isAuthenticated">Watch the course introduction (3:24)</p>
+              <p class="video-caption" *ngIf="course.videoUrl && !isAuthenticated">Enroll to watch preview</p>
             </div>
           </div>
 
@@ -104,22 +104,23 @@
               
               <div class="course-includes">
                 <h4>This course includes:</h4>
-                <ul class="includes-list">
-                  <li>Lifetime access</li>
-                  <li>Certificate of completion</li>
-                  <li>Mobile and TV access</li>
-                  <li>Full course content</li>
-                  <li>Expert instruction</li>
+                <ul class="includes-list" *ngIf="course.goals && course.goals.length > 0; else noGoals">
+                  <li *ngFor="let goal of course.goals">{{ goal }}</li>
                 </ul>
+                <ng-template #noGoals>
+                  <ul class="includes-list">
+                    <li>No goals provided by the instructor yet.</li>
+                  </ul>
+                </ng-template>
               </div>
 
               <div class="progress-section" *ngIf="isEnrolled">
                 <div class="progress-header">
                   <span>Course Progress</span>
-                  <span>0%</span>
+                  <span>{{ progressPercent || 0 }}%</span>
                 </div>
                 <div class="progress-bar">
-                  <div class="progress-fill" style="width: 0%"></div>
+                  <div class="progress-fill" [style.width.%]="progressPercent || 0"></div>
                 </div>
               </div>
             </div>
@@ -218,7 +219,7 @@
 
           <div class="sidebar-content">
             <div class="instructor-card">
-              <img src="/assets/images/instructor-placeholder.jpg" alt="{{ course.trainerId || 'instructor1' }}" class="instructor-avatar">
+              <img src="/assets/umnagrilogo.png" alt="UMNAGRI" class="instructor-avatar">
               <div class="instructor-info">
                 <h4>{{ course.trainerId || 'instructor1' }}</h4>
                 <p>Course Instructor</p>
@@ -231,20 +232,23 @@
 
             <div class="related-courses">
               <h4>Related Courses</h4>
-              <div class="related-course">
-                <img src="/assets/images/course-placeholder.jpg" alt="Related Course">
-                <div class="related-info">
-                  <h5>Foundation Course</h5>
-                  <span>Free</span>
+              <div class="related-list">
+                <div class="related-course" *ngFor="let rc of (relatedCourses | slice:relatedStart:relatedStart+2)">
+                  <a [routerLink]="['/courses/course-details', rc.id]">
+                    <img [src]="rc.imageUrl || '/assets/images/course-placeholder.jpg'" [alt]="rc.title">
+                    <div class="related-info">
+                      <h5>{{ rc.title }}</h5>
+                      <p class="related-meta">Instructed by {{ rc.trainerId || 'Instructor' }}</p>
+                      <span>Free</span>
+                    </div>
+                  </a>
                 </div>
               </div>
-              <div class="related-course">
-                <img src="/assets/images/course-placeholder.jpg" alt="Advanced Course">
-                <div class="related-info">
-                  <h5>Advanced Topics</h5>
-                  <span>Free</span>
-                </div>
+              <div class="related-nav" *ngIf="relatedCourses.length > 2">
+                <button class="nav-btn prev" (click)="prevRelated()" [disabled]="!canPrev" aria-label="Previous related course">‹</button>
+                <button class="nav-btn next" (click)="nextRelated()" [disabled]="!canNext" aria-label="Next related course">›</button>
               </div>
+              <p class="empty-related" *ngIf="relatedCourses.length === 0">No related courses yet.</p>
             </div>
           </div>
         </div>
