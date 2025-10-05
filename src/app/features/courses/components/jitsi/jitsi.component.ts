@@ -23,6 +23,8 @@ export class JitsiComponent implements OnInit, OnDestroy, AfterViewInit {
   isAudioMuted: boolean = false;
   isVideoMuted: boolean = false;
   isRecording: boolean = false;
+  // Live session tracking
+  sessionDurationSeconds: number = 0;
 
   // Participants and chat
   participants: JitsiParticipant[] = [];
@@ -33,6 +35,16 @@ export class JitsiComponent implements OnInit, OnDestroy, AfterViewInit {
   // Tracks
   localTracks: any[] = [];
   remoteTracks: any[] = [];
+
+  // Pre-join device selection
+  audioInputDevices: MediaDeviceInfo[] = [];
+  videoInputDevices: MediaDeviceInfo[] = [];
+  audioOutputDevices: MediaDeviceInfo[] = [];
+  selectedMicId: string | null = null;
+  selectedCameraId: string | null = null;
+  selectedAudioOutputId: string | null = null;
+  enableAudio: boolean = true;
+  enableVideo: boolean = true;
 
   // Video attachment retry counter
   private videoAttachRetryCount: number = 0;
@@ -59,6 +71,9 @@ export class JitsiComponent implements OnInit, OnDestroy, AfterViewInit {
     this.displayName = 'User ' + Math.floor(Math.random() * 1000);
 
     this.setupSubscriptions();
+
+    // Load available media devices for pre-join selection
+    void this.jitsiService.refreshDevices();
   }
 
   ngAfterViewInit(): void {
@@ -121,10 +136,43 @@ export class JitsiComponent implements OnInit, OnDestroy, AfterViewInit {
       })
     );
 
+    // Session duration
+    this.subscriptions.push(
+      this.jitsiService.sessionDuration$.subscribe(seconds => {
+        this.sessionDurationSeconds = seconds;
+      })
+    );
+
     // Recording status
     this.subscriptions.push(
       this.jitsiService.recordingStatus$.subscribe(isRecording => {
         this.isRecording = isRecording;
+      })
+    );
+
+    // Devices
+    this.subscriptions.push(
+      this.jitsiService.audioInputDevices$.subscribe(devs => {
+        this.audioInputDevices = devs;
+        if (!this.selectedMicId && devs.length > 0) {
+          this.selectedMicId = devs[0].deviceId;
+        }
+      })
+    );
+    this.subscriptions.push(
+      this.jitsiService.videoInputDevices$.subscribe(devs => {
+        this.videoInputDevices = devs;
+        if (!this.selectedCameraId && devs.length > 0) {
+          this.selectedCameraId = devs[0].deviceId;
+        }
+      })
+    );
+    this.subscriptions.push(
+      this.jitsiService.audioOutputDevices$.subscribe(devs => {
+        this.audioOutputDevices = devs;
+        if (!this.selectedAudioOutputId && devs.length > 0) {
+          this.selectedAudioOutputId = devs[0].deviceId;
+        }
       })
     );
   }
@@ -152,10 +200,38 @@ export class JitsiComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     try {
+      // Apply pre-join preferences
+      this.jitsiService.setPreferredDevices({
+        micId: this.selectedMicId,
+        cameraId: this.selectedCameraId,
+        audioOutputId: this.selectedAudioOutputId
+      });
+      this.jitsiService.setPreJoinPreferences({
+        enableAudio: this.enableAudio,
+        enableVideo: this.enableVideo
+      });
+      if (this.selectedAudioOutputId) {
+        await this.jitsiService.setAudioOutputDevice(this.selectedAudioOutputId);
+      }
       await this.jitsiService.joinRoom(this.roomName, this.displayName);
+      // Reflect pre-join toggle state in UI indicators
+      this.isAudioMuted = !this.enableAudio;
+      this.isVideoMuted = !this.enableVideo;
     } catch (error) {
       alert('Failed to join room. Please try again.');
     }
+  }
+
+  onMicChange(id: string): void {
+    this.selectedMicId = id;
+  }
+
+  onCameraChange(id: string): void {
+    this.selectedCameraId = id;
+  }
+
+  onAudioOutputChange(id: string): void {
+    this.selectedAudioOutputId = id;
   }
 
   /**
@@ -202,6 +278,20 @@ export class JitsiComponent implements OnInit, OnDestroy, AfterViewInit {
     } else {
       this.jitsiService.startRecording();
     }
+  }
+
+  /**
+   * Get formatted session duration HH:MM:SS
+   */
+  getSessionDurationText(): string {
+    const total = this.sessionDurationSeconds || 0;
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const seconds = total % 60;
+    const hh = hours.toString().padStart(2, '0');
+    const mm = minutes.toString().padStart(2, '0');
+    const ss = seconds.toString().padStart(2, '0');
+    return `${hh}:${mm}:${ss}`;
   }
 
   /**

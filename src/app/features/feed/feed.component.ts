@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { NewsService, NewsArticle } from 'src/app/core/services/news.service';
 import { Post } from '../../core/models/post.module';
 import { PostsService } from '../admin/services/posts.service';
 import { AuthUser } from '../../core/models/auth-user.model';
@@ -16,6 +17,13 @@ export class FeedComponent implements OnInit, OnDestroy {
   posts: Post[] = [];
   loading: boolean = false;
   errorMessage: string = '';
+  // News sidebars
+  leftNews: NewsArticle[] = [];
+  rightNews: NewsArticle[] = [];
+  leftNewsLimit: number = 5;
+  rightNewsLimit: number = 5;
+  newsLoading: boolean = false;
+  newsError: string = '';
   
   // Authentication state
   currentAuthUser: AuthUser | null = null;
@@ -25,12 +33,14 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
-    private postsService: PostsService
+    private postsService: PostsService,
+    private newsService: NewsService
   ) {}
 
   ngOnInit(): void {
     this.initializeAuthentication();
     this.loadPosts();
+    this.loadNews();
   }
 
   ngOnDestroy(): void {
@@ -67,17 +77,17 @@ export class FeedComponent implements OnInit, OnDestroy {
         next: posts => {
           // Update existing posts or create new ones, preserving UI state
           const updatedPosts = posts.map(servicePost => {
-            // Find existing post to preserve UI state like showComments, newComment
+            // Find existing post to preserve UI-only state like showComments/newComment
             const existingPost = this.posts.find(p => p.id === servicePost.id);
-            
             return {
               ...servicePost,
               user: servicePost.userInfo,
               content: servicePost.content || '',
               image: servicePost.imageUrl,
               timestamp: servicePost.createdAt ? new Date(servicePost.createdAt) : new Date(),
-              likes: servicePost.likesCount || 0,
-              isLiked: servicePost.isLikedByCurrentUser || false,
+              // Use canonical like state from service to avoid double updates and drift
+              isLikedByCurrentUser: servicePost.isLikedByCurrentUser ?? false,
+              likesCount: servicePost.likesCount ?? 0,
               comments: (servicePost.comments || []).map(comment => ({
                 id: comment.id,
                 user: comment.userInfo ? comment.userInfo : this.getDefaultUser(),
@@ -105,6 +115,35 @@ export class FeedComponent implements OnInit, OnDestroy {
     this.postsService.fetchPosts();
   }
 
+  private loadNews(): void {
+    this.newsLoading = true;
+    this.newsError = '';
+
+    const sub = this.newsService.getAllNews().subscribe({
+      next: (articles) => {
+        // Simple split: first half left, second half right
+        const cleaned = (articles || []).filter(a => !!a && !!a.title);
+        const half = Math.ceil(cleaned.length / 2);
+        this.leftNews = cleaned.slice(0, half);
+        this.rightNews = cleaned.slice(half);
+        this.newsLoading = false;
+      },
+      error: () => {
+        this.newsError = 'Failed to load news.';
+        this.newsLoading = false;
+      }
+    });
+    this.subscriptions.add(sub);
+  }
+
+  showMoreLeft(): void {
+    this.leftNewsLimit = this.leftNews.length;
+  }
+
+  showMoreRight(): void {
+    this.rightNewsLimit = this.rightNews.length;
+  }
+
   private getDefaultUser(): User {
     return {
       id: 'default-id',
@@ -118,20 +157,18 @@ export class FeedComponent implements OnInit, OnDestroy {
   }
 
   toggleLike(post: any): void {
-    
     if (!this.isAuthenticated) {
-      alert('Please log in to like posts');
       return;
     }
 
     const postIndex = this.posts.findIndex(p => p.id === post.id);
-    
+
     if (postIndex !== -1) {
-      const originalPost = this.posts[postIndex];
-      
-      this.postsService.toggleLike(originalPost);
-      // Remove local state updates - let the service handle it via subscription
+      const target = this.posts[postIndex];
+      // Delegate optimistic update to service to avoid double increments/decrements
+      this.postsService.toggleLike(target);
     } else {
+      // If not found, no-op
     }
   }
 
@@ -145,10 +182,8 @@ export class FeedComponent implements OnInit, OnDestroy {
       const commentIndex = post.comments?.findIndex(c => c.id === comment.id);
       if (commentIndex !== undefined && commentIndex !== -1 && post.comments) {
         const originalComment = post.comments[commentIndex];
+        // Delegate to service only; avoid local double updates
         this.postsService.toggleCommentLike(originalComment);
-        
-        comment.isLiked = !comment.isLiked;
-        comment.likes += comment.isLiked ? 1 : -1;
         break;
       }
     }
@@ -248,5 +283,17 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   canInteract(): boolean {
     return this.isAuthenticated && this.currentUser !== null;
+  }
+
+  trackByPostId(index: number, post: any): string {
+    return post.id;
+  }
+
+  onLikeHover(post: any): void {
+    // No-op: hover state handled purely by CSS
+  }
+
+  onLikeLeave(post: any): void {
+    // No-op: hover state handled purely by CSS
   }
 }

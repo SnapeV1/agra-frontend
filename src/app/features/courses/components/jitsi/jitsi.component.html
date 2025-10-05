@@ -10,6 +10,13 @@
     </div>
     
     <div class="header-actions">
+      <div class="session-duration" title="Session Duration">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12,6 12,12 16,14"/>
+        </svg>
+        <span>{{ getSessionDurationText() }}</span>
+      </div>
       <div class="participant-count">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -68,6 +75,37 @@
             </svg>
           </button>
         </div>
+      </div>
+
+      <!-- Pre-join media settings -->
+      <div class="form-group">
+        <label for="cameraDevice">Camera</label>
+        <select id="cameraDevice" class="form-input" [(ngModel)]="selectedCameraId" (ngModelChange)="onCameraChange($event)">
+          <option *ngFor="let d of videoInputDevices" [value]="d.deviceId">{{ d.label || 'Camera' }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="micDevice">Microphone</label>
+        <select id="micDevice" class="form-input" [(ngModel)]="selectedMicId" (ngModelChange)="onMicChange($event)">
+          <option *ngFor="let d of audioInputDevices" [value]="d.deviceId">{{ d.label || 'Microphone' }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="speakerDevice">Speakers</label>
+        <select id="speakerDevice" class="form-input" [(ngModel)]="selectedAudioOutputId" (ngModelChange)="onAudioOutputChange($event)">
+          <option *ngFor="let d of audioOutputDevices" [value]="d.deviceId">{{ d.label || 'Speakers' }}</option>
+        </select>
+      </div>
+
+      <div class="form-group toggle-group">
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="enableVideo"> Camera On
+        </label>
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="enableAudio"> Mic On
+        </label>
       </div>
       
       <button 

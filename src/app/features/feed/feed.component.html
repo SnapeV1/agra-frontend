@@ -1,5 +1,36 @@
 <app-navigation></app-navigation>
-<div class="feed-container">
+<div class="feed-layout">
+  <!-- Left News Sidebar -->
+  <aside class="side-news left">
+    <div class="news-header">
+      <h3 class="section-title">Agri News</h3>
+      <span class="section-subtitle">Latest updates</span>
+    </div>
+    <ul class="news-list" *ngIf="leftNews.length > 0; else leftNewsEmpty">
+      <li *ngFor="let item of leftNews | slice:0:leftNewsLimit">
+        <a class="news-item" [href]="item.url" target="_blank" rel="noopener noreferrer">
+          <div class="news-item-title">{{ item.title }}</div>
+          <div class="news-item-meta">
+            {{ item.country || 'Global' }} • {{ item.publishedAt | date:'short' }}
+          </div>
+        </a>
+      </li>
+    </ul>
+    <div class="view-more-container" *ngIf="leftNews.length > leftNewsLimit">
+      <button class="view-more-btn" (click)="showMoreLeft()">View more</button>
+    </div>
+    <ng-template #leftNewsEmpty>
+      <ul class="news-list">
+        <li class="news-item">
+          <div class="news-item-title">No news yet</div>
+          <div class="news-item-meta">Will appear once available</div>
+        </li>
+      </ul>
+    </ng-template>
+  </aside>
+
+  <!-- Main Feed -->
+  <div class="feed-container">
   <div class="feed-header">
     <h2>Feed</h2>
     <div *ngIf="!isAuthenticated" class="auth-status login-prompt">
@@ -17,7 +48,7 @@
   </div>
 
   <div class="posts-container" *ngIf="!loading">
-    <article class="post" *ngFor="let post of posts">
+    <article class="post" *ngFor="let post of posts; trackBy: trackByPostId">
       <div class="post-header">
         <div class="user-info">
           <img [src]="post.userInfo.picture"
@@ -51,6 +82,9 @@
           [class.liked]="post.isLikedByCurrentUser"
           [class.disabled]="!canInteract()"
           (click)="toggleLike(post)"
+          (mouseenter)="onLikeHover(post)"
+          (mouseleave)="onLikeLeave(post)"
+          [attr.data-liked]="post.isLikedByCurrentUser"
           [attr.aria-label]="post.isLikedByCurrentUser ? 'Unlike post' : 'Like post'">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -150,5 +184,35 @@
       <p>No posts available at the moment.</p>
     </div>
   </div>
+  </div>
+
+  <!-- Right News Sidebar -->
+  <aside class="side-news right">
+    <div class="news-header">
+      <h3 class="section-title">Weather & Advisory</h3>
+      <span class="section-subtitle">Regional insights</span>
+    </div>
+    <ul class="news-list" *ngIf="rightNews.length > 0; else rightNewsEmpty">
+      <li *ngFor="let item of rightNews | slice:0:rightNewsLimit">
+        <a class="news-item" [href]="item.url" target="_blank" rel="noopener noreferrer">
+          <div class="news-item-title">{{ item.title }}</div>
+          <div class="news-item-meta">
+            {{ item.country || 'Global' }} • {{ item.publishedAt | date:'short' }}
+          </div>
+        </a>
+      </li>
+    </ul>
+    <div class="view-more-container" *ngIf="rightNews.length > rightNewsLimit">
+      <button class="view-more-btn" (click)="showMoreRight()">View more</button>
+    </div>
+    <ng-template #rightNewsEmpty>
+      <ul class="news-list">
+        <li class="news-item">
+          <div class="news-item-title">No advisories yet</div>
+          <div class="news-item-meta">Will appear once available</div>
+        </li>
+      </ul>
+    </ng-template>
+  </aside>
 </div>
 <app-footer></app-footer>

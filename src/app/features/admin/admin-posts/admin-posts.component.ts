@@ -348,7 +348,6 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
   // Like functionality
   toggleLike(post: Post): void {
     if (!this.isAuthenticated) { 
-      alert('Please log in to like posts'); 
       return; 
     }
     this.postsService.toggleLike(post);
@@ -356,7 +355,6 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
 
   toggleCommentLike(comment: PostComment): void {
     if (!this.isAuthenticated) { 
-      alert('Please log in to like comments'); 
       return; 
     }
     this.postsService.toggleCommentLike(comment);
@@ -369,7 +367,6 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
 
   addComment(post: Post): void {
     if (!this.isAuthenticated || !this.currentUser) { 
-      alert('Please log in to comment'); 
       return; 
     }
     if (post.newComment && post.newComment.trim()) {

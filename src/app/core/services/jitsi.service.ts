@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, interval, Subscription } from 'rxjs';
 
 // Import Jitsi Meet library
 declare var JitsiMeetJS: any;
@@ -24,6 +24,7 @@ export interface JitsiRoom {
   localTracks: any[];
   remoteTracks: any[];
   isJoined: boolean;
+  localDisplayName: string;
 }
 
 export interface JitsiParticipant {
@@ -80,7 +81,10 @@ export class JitsiService {
   // Conference options
   private readonly conferenceOptions = {
     openBridgeChannel: true,
-    recordingType: 'jibri'
+    recordingType: 'jibri',
+    p2p: {
+      enabled: false
+    }
   };
 
   // Current room state
@@ -93,6 +97,27 @@ export class JitsiService {
   private remoteTracksSubject = new BehaviorSubject<any[]>([]);
   private chatMessagesSubject = new BehaviorSubject<any[]>([]);
   private recordingStatusSubject = new BehaviorSubject<boolean>(false);
+  private sessionDurationSubject = new BehaviorSubject<number>(0);
+
+  // Devices
+  private audioInputDevicesSubject = new BehaviorSubject<MediaDeviceInfo[]>([]);
+  private videoInputDevicesSubject = new BehaviorSubject<MediaDeviceInfo[]>([]);
+  private audioOutputDevicesSubject = new BehaviorSubject<MediaDeviceInfo[]>([]);
+
+  public audioInputDevices$ = this.audioInputDevicesSubject.asObservable();
+  public videoInputDevices$ = this.videoInputDevicesSubject.asObservable();
+  public audioOutputDevices$ = this.audioOutputDevicesSubject.asObservable();
+
+  // Pre-join preferences
+  private preferredMicId: string | null = null;
+  private preferredCameraId: string | null = null;
+  private preferredAudioOutputId: string | null = null;
+  private preJoinEnableAudio: boolean = true;
+  private preJoinEnableVideo: boolean = true;
+
+  // Internal timer state for session duration
+  private sessionStartMs: number | null = null;
+  private sessionTimerSub: Subscription | null = null;
 
   // Public observables
   public connectionStatus$ = this.connectionStatusSubject.asObservable();
@@ -101,6 +126,7 @@ export class JitsiService {
   public remoteTracks$ = this.remoteTracksSubject.asObservable();
   public chatMessages$ = this.chatMessagesSubject.asObservable();
   public recordingStatus$ = this.recordingStatusSubject.asObservable();
+  public sessionDuration$ = this.sessionDurationSubject.asObservable();
 
   constructor(private http: HttpClient) {
     this.initializeJitsi();
@@ -251,7 +277,28 @@ export class JitsiService {
         localTracks.forEach(track => {
           try { conference.addTrack(track); } catch {}
         });
+
+        // Apply pre-join mute preferences so devices remain available
+        try {
+          const audioTrack = localTracks.find((t: any) => t.getType() === 'audio');
+          if (audioTrack && !this.preJoinEnableAudio && !audioTrack.isMuted()) {
+            await audioTrack.mute();
+          }
+        } catch {}
+        try {
+          const videoTrack = localTracks.find((t: any) => t.getType() === 'video');
+          if (videoTrack && !this.preJoinEnableVideo && !videoTrack.isMuted()) {
+            await videoTrack.mute();
+          }
+        } catch {}
       }
+
+      // Apply preferred audio output device if set
+      try {
+        if (this.preferredAudioOutputId && JitsiMeetJS && JitsiMeetJS.mediaDevices && typeof JitsiMeetJS.mediaDevices.setAudioOutputDevice === 'function') {
+          await JitsiMeetJS.mediaDevices.setAudioOutputDevice(this.preferredAudioOutputId);
+        }
+      } catch {}
 
       conference.join();
       try { conference.setDisplayName(displayName); } catch {}
@@ -262,7 +309,8 @@ export class JitsiService {
         conference,
         localTracks,
         remoteTracks: [],
-        isJoined: true
+        isJoined: true,
+        localDisplayName: displayName
       };
 
       this.localTracksSubject.next(localTracks);
@@ -298,6 +346,12 @@ export class JitsiService {
       // Reset state
       this.currentRoom = null;
       this.connectionStatusSubject.next('disconnected');
+      // Stop session duration tracking
+      if (this.sessionTimerSub) {
+        this.sessionTimerSub.unsubscribe();
+        this.sessionTimerSub = null;
+      }
+      this.sessionStartMs = null;
       this.participantsSubject.next([]);
       this.localTracksSubject.next([]);
       this.remoteTracksSubject.next([]);
@@ -425,6 +479,20 @@ export class JitsiService {
     // Conference joined
     conference.addEventListener(JitsiMeetJS.events.conference.CONFERENCE_JOINED, () => {
       this.connectionStatusSubject.next('joined');
+      // Start session duration tracking on join
+      this.sessionStartMs = Date.now();
+      this.sessionDurationSubject.next(0);
+      if (this.sessionTimerSub) {
+        this.sessionTimerSub.unsubscribe();
+      }
+      this.sessionTimerSub = interval(1000).subscribe(() => {
+        if (this.sessionStartMs) {
+          const elapsedSec = Math.floor((Date.now() - this.sessionStartMs) / 1000);
+          this.sessionDurationSubject.next(elapsedSec);
+        }
+      });
+      // Initialize participants at join
+      this.updateParticipants();
     });
 
     // Conference failed
@@ -443,6 +511,18 @@ export class JitsiService {
       // no-op
     });
 
+    // Conference left
+    conference.addEventListener(JitsiMeetJS.events.conference.CONFERENCE_LEFT, () => {
+      // Stop session duration tracking
+      if (this.sessionTimerSub) {
+        this.sessionTimerSub.unsubscribe();
+        this.sessionTimerSub = null;
+      }
+      this.sessionStartMs = null;
+      this.connectionStatusSubject.next('disconnected');
+      this.updateParticipants();
+    });
+
     // User joined
     conference.addEventListener(JitsiMeetJS.events.conference.USER_JOINED, (id: string) => {
       this.updateParticipants();
@@ -450,6 +530,20 @@ export class JitsiService {
 
     // User left
     conference.addEventListener(JitsiMeetJS.events.conference.USER_LEFT, (id: string) => {
+      // Clean up any remote tracks associated with the participant
+      try {
+        if (this.currentRoom) {
+          const remaining = this.currentRoom.remoteTracks.filter((t: any) => {
+            try {
+              return typeof t.getParticipantId === 'function' ? t.getParticipantId() !== id : true;
+            } catch {
+              return true;
+            }
+          });
+          this.currentRoom.remoteTracks = remaining;
+          this.remoteTracksSubject.next([...remaining]);
+        }
+      } catch {}
       this.updateParticipants();
     });
 
@@ -548,113 +642,62 @@ export class JitsiService {
   }
 
   private async createLocalTracks(): Promise<any[]> {
-    
-    // First, enumerate available devices
+    // Refresh available devices and check permissions
     await this.enumerateDevices();
-    
-    // Check browser permissions
     await this.checkMediaPermissions();
-    
-    // First, try to get both audio and video
-    try {
-      const tracks = await JitsiMeetJS.createLocalTracks({
-        devices: ['audio', 'video'],
-        resolution: 720,
-        constraints: {
-          video: {
-            aspectRatio: 16 / 9,
-            height: {
-              ideal: 720,
-              max: 720,
-              min: 240
-            }
+
+    // Always request both devices so they remain available to unmute in-call
+    const requestedDevices: ('audio' | 'video')[] = ['audio', 'video'];
+
+    const baseOptions: any = {
+      devices: requestedDevices,
+      resolution: 720,
+      constraints: {
+        video: {
+          aspectRatio: 16 / 9,
+          height: {
+            ideal: 720,
+            max: 720,
+            min: 240
           }
-        }
-      });
-      return tracks;
-    } catch (error: unknown) {
-      
-      // Try audio only
-      try {
-        const audioTracks = await JitsiMeetJS.createLocalTracks({
-          devices: ['audio']
-        });
-        return audioTracks;
-      } catch (audioError: unknown) {
-        
-        // Try video only with multiple fallback strategies
-        try {
-          
-          // Try with high quality first
-          try {
-            const videoTracks = await JitsiMeetJS.createLocalTracks({
-              devices: ['video'],
-              resolution: 720,
-              constraints: {
-                video: {
-                  aspectRatio: 16 / 9,
-                  height: {
-                    ideal: 720,
-                    max: 720,
-                    min: 240
-                  }
-                }
-              }
-            });
-            return videoTracks;
-          } catch (highQualityError: unknown) {
-            
-            // Try with medium quality
-            try {
-              const videoTracks = await JitsiMeetJS.createLocalTracks({
-                devices: ['video'],
-                resolution: 480,
-                constraints: {
-                  video: {
-                    width: { ideal: 640, max: 640, min: 320 },
-                    height: { ideal: 480, max: 480, min: 240 }
-                  }
-                }
-              });
-              return videoTracks;
-            } catch (mediumQualityError: unknown) {
-              
-              // Try with basic quality and minimal constraints
-              try {
-                const videoTracks = await JitsiMeetJS.createLocalTracks({
-                  devices: ['video'],
-                  constraints: {
-                    video: true  // Use browser defaults
-                  }
-                });
-                return videoTracks;
-              } catch (basicVideoError: unknown) {
-                
-                // Try to explicitly request permissions first
-                try {
-                  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                  
-                  // Stop the stream immediately, we just wanted to trigger permission
-                  stream.getTracks().forEach(track => track.stop());
-                  
-                  // Now try creating the track again
-                  const videoTracks = await JitsiMeetJS.createLocalTracks({
-                    devices: ['video'],
-                    constraints: {
-                      video: true
-                    }
-                  });
-                  return videoTracks;
-                } catch (permissionError: unknown) {
-                  return [];
-                }
-              }
-            }
-          }
-        } catch (videoError: unknown) {
-          return [];
         }
       }
+    };
+
+    // Apply preferred device IDs if set
+    if (this.preferredCameraId) {
+      baseOptions.cameraDeviceId = this.preferredCameraId;
+    }
+    if (this.preferredMicId) {
+      baseOptions.micDeviceId = this.preferredMicId;
+    }
+
+    try {
+      const tracks = await JitsiMeetJS.createLocalTracks(baseOptions);
+      return tracks;
+    } catch (error: unknown) {
+      // Fallback strategies
+      // Try audio-only
+      try {
+        const audioTracks = await JitsiMeetJS.createLocalTracks({ devices: ['audio'], micDeviceId: this.preferredMicId || undefined });
+        return audioTracks;
+      } catch { /* no-op */ }
+      // Try video fallbacks
+        try {
+          const videoTracks = await JitsiMeetJS.createLocalTracks({ devices: ['video'], resolution: 480, constraints: { video: { width: { ideal: 640, max: 640, min: 320 }, height: { ideal: 480, max: 480, min: 240 } } }, cameraDeviceId: this.preferredCameraId || undefined });
+          return videoTracks;
+        } catch {}
+        try {
+          const videoTracks = await JitsiMeetJS.createLocalTracks({ devices: ['video'], constraints: { video: true }, cameraDeviceId: this.preferredCameraId || undefined });
+          return videoTracks;
+        } catch {}
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          stream.getTracks().forEach(track => track.stop());
+          const videoTracks = await JitsiMeetJS.createLocalTracks({ devices: ['video'], constraints: { video: true }, cameraDeviceId: this.preferredCameraId || undefined });
+          return videoTracks;
+        } catch {}
+      return [];
     }
   }
 
@@ -684,7 +727,7 @@ export class JitsiService {
     // Add local participant
     participants.push({
       id: 'local',
-      displayName: this.currentRoom.conference.getDisplayName() || 'You',
+      displayName: this.currentRoom.localDisplayName || 'You',
       isLocal: true,
       audioMuted: false, // You can track this based on local tracks
       videoMuted: false
@@ -716,13 +759,49 @@ export class JitsiService {
       const videoInputs = devices.filter(device => device.kind === 'videoinput');
       const audioOutputs = devices.filter(device => device.kind === 'audiooutput');
 
-      if (videoInputs.length === 0) {
-        // no-op
+      this.audioInputDevicesSubject.next(audioInputs);
+      this.videoInputDevicesSubject.next(videoInputs);
+      this.audioOutputDevicesSubject.next(audioOutputs);
+
+      // Default preferences if not set
+      if (!this.preferredMicId && audioInputs.length > 0) {
+        this.preferredMicId = audioInputs[0].deviceId;
+      }
+      if (!this.preferredCameraId && videoInputs.length > 0) {
+        this.preferredCameraId = videoInputs[0].deviceId;
+      }
+      if (!this.preferredAudioOutputId && audioOutputs.length > 0) {
+        this.preferredAudioOutputId = audioOutputs[0].deviceId;
       }
       
     } catch (error: unknown) {
       // no-op
     }
+  }
+
+  // Public helpers for devices and preferences
+  public async refreshDevices(): Promise<void> {
+    await this.enumerateDevices();
+  }
+
+  public setPreferredDevices(opts: { micId?: string | null; cameraId?: string | null; audioOutputId?: string | null }): void {
+    if (typeof opts.micId !== 'undefined') this.preferredMicId = opts.micId || null;
+    if (typeof opts.cameraId !== 'undefined') this.preferredCameraId = opts.cameraId || null;
+    if (typeof opts.audioOutputId !== 'undefined') this.preferredAudioOutputId = opts.audioOutputId || null;
+  }
+
+  public setPreJoinPreferences(opts: { enableAudio?: boolean; enableVideo?: boolean }): void {
+    if (typeof opts.enableAudio !== 'undefined') this.preJoinEnableAudio = !!opts.enableAudio;
+    if (typeof opts.enableVideo !== 'undefined') this.preJoinEnableVideo = !!opts.enableVideo;
+  }
+
+  public async setAudioOutputDevice(deviceId: string): Promise<void> {
+    this.preferredAudioOutputId = deviceId;
+    try {
+      if (JitsiMeetJS && JitsiMeetJS.mediaDevices && typeof JitsiMeetJS.mediaDevices.setAudioOutputDevice === 'function') {
+        await JitsiMeetJS.mediaDevices.setAudioOutputDevice(deviceId);
+      }
+    } catch {}
   }
 
   private async checkMediaPermissions(): Promise<void> {

@@ -14,28 +14,60 @@ export class PostsService {
   private postsSubject = new BehaviorSubject<Post[]>([]);
   posts$ = this.postsSubject.asObservable();
 
+  /** Persist liked post IDs per user to bridge server gaps */
+  private getUserKey(): string | null {
+    const current = this.authService.currentUserValue;
+    const id = (current?.user as any)?.id as string | undefined;
+    const email = current?.user?.email as string | undefined;
+    return id || email || null;
+  }
+
+  private getOverlayKey(userKey: string): string {
+    return `likedPosts:${userKey}`;
+  }
+
+  private readLikedOverlay(userKey: string): Set<string> {
+    try {
+      const raw = localStorage.getItem(this.getOverlayKey(userKey));
+      if (!raw) return new Set<string>();
+      const arr = JSON.parse(raw) as string[];
+      return new Set<string>(Array.isArray(arr) ? arr : []);
+    } catch {
+      return new Set<string>();
+    }
+  }
+
+  private writeLikedOverlay(userKey: string, likedIds: Set<string>): void {
+    localStorage.setItem(this.getOverlayKey(userKey), JSON.stringify(Array.from(likedIds)));
+  }
+
   private readonly apiUrl = 'http://localhost:8080/api/posts/sorted';
   constructor(private http: HttpClient,private authService: AuthService,
   ) {}
   /** Fetch all posts from backend */
   fetchPosts(): void {
-    this.http.get<Post[]>(this.apiUrl)
+    const token = this.authService.getToken();
+    const options = token ? { headers: { 'Authorization': `Bearer ${token}` } } : {};
+    this.http.get<Post[]>(this.apiUrl, options)
       .pipe(
-        map(posts =>
-          posts.map(post => ({
+        map(posts => {
+          const userKey = this.getUserKey();
+          const overlay = userKey ? this.readLikedOverlay(userKey) : new Set<string>();
+          return posts.map(post => ({
             ...post,
             createdAt: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
             updatedAt: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
             comments: post.comments || [],
-            isLikedByCurrentUser: post.isLikedByCurrentUser || false,
+            // Prefer server flag; if missing or false, overlay can mark liked
+            isLikedByCurrentUser: (post.isLikedByCurrentUser === true) ? true : (overlay.has(post.id) ? true : false),
             likesCount: post.likesCount || 0,
             commentsCount: post.commentsCount || 0,
             // Local UI flags (not in model)
             showComments: false,
             newComment: '',
             showDropdown: false
-          }))
-        )
+          }));
+        })
       )
       .subscribe({
         next: (data) => {
@@ -70,48 +102,100 @@ export class PostsService {
 
   /** Toggle like on a post */
   toggleLike(post: Post): void {
-    
-    
-    // Ensure likesCount has a default value
-    if (post.likesCount === undefined || post.likesCount === null) {
-      post.likesCount = 0;
+    // Find the canonical post inside the service's state
+    const index = this.posts.findIndex(p => p.id === post.id);
+    if (index === -1) {
+      // If not found, do nothing to avoid inconsistent state
+      console.warn('[PostsService] toggleLike: post not found', { id: post?.id });
+      return;
     }
-    
-    // Update local state immediately for optimistic UI
-    post.isLikedByCurrentUser = !post.isLikedByCurrentUser;
-    post.likesCount += post.isLikedByCurrentUser ? 1 : -1;
-    
 
-    // Notify subscribers of the optimistic update
+    const target = this.posts[index];
+    const prevLiked = !!target.isLikedByCurrentUser;
+    const prevLikes = target.likesCount || 0;
+    const optimisticLiked = !prevLiked;
+    console.log('[PostsService] toggleLike start', { id: target.id, prevLiked, prevLikes, optimisticLiked });
+
+    // Optimistic update on the canonical post with clamped count
+    target.isLikedByCurrentUser = optimisticLiked;
+    target.likesCount = Math.max(0, prevLikes + (optimisticLiked ? 1 : -1));
     this.updatePosts();
-    
+    console.log('[PostsService] toggleLike optimistic', { id: target.id, isLikedByCurrentUser: target.isLikedByCurrentUser, likesCount: target.likesCount });
 
     const token = this.authService.getToken();
-    
     if (token) {
-      const url = `http://localhost:8080/api/posts/${post.id}/like`;
-      
+      const url = `http://localhost:8080/api/posts/${target.id}/like`;
+      console.log('[PostsService] toggleLike request', { url, hasToken: !!token });
       this.http.post(url, {}, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}` },
+        responseType: 'text' as 'json'
       }).subscribe({
-        next: (response) => {
-          // Update the post with the response from server
-          if (response && typeof response === 'object') {
-            Object.assign(post, response);
+        next: (response: any) => {
+          // Handle plain text responses like "Post liked!" / "Post unliked!"
+          if (typeof response === 'string') {
+            const text = response;
+            const normalized = text.toLowerCase();
+            let serverLiked: boolean | null = null;
+            // Check 'unliked' BEFORE 'liked' to avoid substring collision
+            if (normalized.includes('unliked')) {
+              serverLiked = false;
+            } else if (normalized.includes('liked')) {
+              serverLiked = true;
+            }
+            if (serverLiked !== null) {
+              // If server contradicts optimistic, reconcile likesCount accordingly
+              if (serverLiked !== optimisticLiked) {
+                const current = target.likesCount ?? 0;
+                target.likesCount = Math.max(0, current + (serverLiked ? 1 : -1));
+              }
+              target.isLikedByCurrentUser = serverLiked;
+              // Update overlay for persistence across refresh
+              const userKey = this.getUserKey();
+              if (userKey) {
+                const overlay = this.readLikedOverlay(userKey);
+                if (serverLiked) overlay.add(target.id);
+                else overlay.delete(target.id);
+                this.writeLikedOverlay(userKey, overlay);
+                console.log('[PostsService] overlay updated (text)', { userKey, liked: serverLiked, id: target.id, overlaySize: overlay.size });
+              }
+            }
+            this.updatePosts();
+          } else if (response && typeof response === 'object') {
+            // Sync with server response if provided as JSON
+            if (typeof response.isLikedByCurrentUser === 'boolean') {
+              const serverLiked = response.isLikedByCurrentUser;
+              // If server contradicts optimistic and no explicit likesCount, reconcile
+              if (typeof response.likesCount !== 'number' && serverLiked !== optimisticLiked) {
+                const current = target.likesCount ?? 0;
+                target.likesCount = Math.max(0, current + (serverLiked ? 1 : -1));
+              }
+              target.isLikedByCurrentUser = serverLiked;
+              // Update overlay
+              const userKey = this.getUserKey();
+              if (userKey) {
+                const overlay = this.readLikedOverlay(userKey);
+                if (serverLiked) overlay.add(target.id);
+                else overlay.delete(target.id);
+                this.writeLikedOverlay(userKey, overlay);
+              }
+            }
+            if (typeof response.likesCount === 'number') {
+              target.likesCount = response.likesCount;
+            }
             this.updatePosts();
           }
         },
         error: (error) => {
           // Revert optimistic update on error
-          post.isLikedByCurrentUser = !post.isLikedByCurrentUser;
-          post.likesCount = (post.likesCount || 0) + (post.isLikedByCurrentUser ? 1 : -1);
+          target.isLikedByCurrentUser = prevLiked;
+          target.likesCount = prevLikes;
           this.updatePosts();
         }
       });
     } else {
       // Revert if no token
-      post.isLikedByCurrentUser = !post.isLikedByCurrentUser;
-      post.likesCount = (post.likesCount || 0) + (post.isLikedByCurrentUser ? 1 : -1);
+      target.isLikedByCurrentUser = prevLiked;
+      target.likesCount = prevLikes;
       this.updatePosts();
     }
   }
@@ -189,7 +273,9 @@ export class PostsService {
 
   /** Update BehaviorSubject */
   private updatePosts(): void {
-    this.postsSubject.next([...this.posts]);
+    const snapshot = [...this.posts];
+    this.postsSubject.next(snapshot);
+    console.log('[PostsService] updatePosts emit', { count: snapshot.length, ids: snapshot.map(p => p.id) });
   }
 
   /** Sort posts by createdAt */
@@ -200,6 +286,7 @@ export class PostsService {
       return bTime - aTime;
     });
     this.updatePosts();
+    console.log('[PostsService] sortPosts applied', { count: this.posts.length });
   }
 
 
