@@ -1,0 +1,6 @@
+<div class="live-session">
+  <div *ngIf="loading" class="loading">Joining session…</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+  <div #playerContainer class="player-container"></div>
+</div>
+

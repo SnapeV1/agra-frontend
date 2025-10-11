@@ -1,5 +1,6 @@
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
 import { LucideAngularModule, Mail, Phone, Calendar, MapPin, BarChart2, User, Globe, Briefcase } from 'lucide-angular';
 import { AppComponent } from './app.component';
 import { AuthRoutingModule } from './features/auth/auth-routing.module';
@@ -10,7 +11,6 @@ import { SharedModule } from "src/app/features/shared/shared.module";
 import { AdminModule } from './features/admin/admin.module';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from './core/services/auth/auth.service';
-import { JitsiService } from './core/services/jitsi.service';
 import { FeedModule } from './features/feed/feed.module';
 import { RouterModule } from '@angular/router';
 import { ContactModule } from './features/contact/contact.module';
@@ -30,6 +30,7 @@ export function initializeAuth(authService: AuthService) {
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     AuthRoutingModule,
     AppRoutingModule,
     AuthModule,
@@ -44,7 +45,6 @@ export function initializeAuth(authService: AuthService) {
   
 ],
   providers: [
-    JitsiService,
     {
       provide: APP_INITIALIZER,
       useFactory: initializeAuth,

@@ -4,7 +4,8 @@ import { CoursesComponent } from './components/courses/courses.component';
 import { CourseDetailsComponent } from './components/course-details/course-details.component';
 import { CourseEnrolledComponent } from './components/course-enrolled/course-enrolled.component';
 import { CertificateComponent } from './components/certificate/certificate.component';
-import { JitsiComponent } from './components/jitsi/jitsi.component';
+import { SessionListComponent } from './components/sessions/session-list/session-list.component';
+import { LiveSessionPlayerComponent } from './components/sessions/live-session-player/live-session-player.component';
 
 const routes: Routes = [
   {
@@ -14,7 +15,9 @@ const routes: Routes = [
   { path: 'course-details/:id', component: CourseDetailsComponent },
   { path: 'course-enrolled/:id', component: CourseEnrolledComponent },
   { path: 'certificate/:id', component: CertificateComponent },
-  { path: 'live-session/:roomName', component: JitsiComponent },
+  // Sessions (only player)
+  { path: ':id/sessions/:sid', component: LiveSessionPlayerComponent },
+  
 ];
 
 @NgModule({

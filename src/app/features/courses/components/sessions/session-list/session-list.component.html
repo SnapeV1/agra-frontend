@@ -1,0 +1,30 @@
+<div class="sessions-page">
+  <div class="header">
+    <h2>Live Sessions</h2>
+    <p>Upcoming and active sessions for this course.</p>
+  </div>
+
+  <div *ngIf="loading" class="loading">Loading sessions…</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <div *ngIf="!loading && !error && sessions.length === 0" class="empty">
+    No upcoming sessions.
+  </div>
+
+  <div class="session-list" *ngIf="sessions.length > 0">
+    <div class="session-item" *ngFor="let s of sessions">
+      <div class="info">
+        <div class="title">{{ s.title || 'Session' }}</div>
+        <div class="desc">{{ s.description }}</div>
+        <div class="time">
+          <span>Start: {{ s.startTime | date: 'medium' }}</span>
+          <span *ngIf="s.endTime">• End: {{ s.endTime | date: 'medium' }}</span>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn-primary" (click)="join(s.id)">Join</button>
+      </div>
+    </div>
+  </div>
+</div>
+

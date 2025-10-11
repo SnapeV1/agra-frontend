@@ -1,0 +1,11 @@
+.sessions-page { padding: 16px; }
+.header { margin-bottom: 12px; }
+.loading, .error, .empty { padding: 12px; }
+.error { color: #b91c1c; background: #fee2e2; border-radius: 6px; }
+.session-list { display: grid; gap: 12px; }
+.session-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; }
+.info .title { font-weight: 600; margin-bottom: 4px; }
+.info .desc { color: #6b7280; margin-bottom: 6px; }
+.btn-primary { background: #7c3aed; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; }
+.btn-primary:hover { background: #6d28d9; }
+

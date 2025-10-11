@@ -3,7 +3,8 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Course } from "src/app/core/models/course";
 import { CourseService } from "src/app/core/services/course/course.service";
 import { ProgressService } from "src/app/core/services/progress.service";
-import { JitsiService } from "src/app/core/services/jitsi.service";
+import { SessionService } from "src/app/core/services/session.service";
+import { CreateSessionDto } from "src/app/core/models/session.module";
 
 @Component({
   selector: "app-course-details",
@@ -19,11 +20,6 @@ export class AdminCourseDetailsComponent implements OnInit {
   uploadingVideo = false;
   uploadingFiles = false;
 
-  // Live session state
-  isLiveSessionActive = false;
-  currentRoomName: string | null = null;
-  sessionParticipants = 0;
-  sessionDuration = '00:00';
 
   // Store actual files
   selectedImageFile: File | null = null;
@@ -57,7 +53,7 @@ export class AdminCourseDetailsComponent implements OnInit {
     basicInfo: true,
     goals: true,
     media: true,
-    liveSession: true,
+    
     languages: true,
     sessions: true,
     files: true,
@@ -127,12 +123,52 @@ export class AdminCourseDetailsComponent implements OnInit {
   languages: string[] = ["Arabic", "English", "French"];
   textContentTypes: string[] = ["lesson", "assignment", "reading", "quiz", "project"];
 
+  // Create session form
+  creatingSession = false;
+  newSession: CreateSessionDto = {
+    title: '',
+    description: '',
+    startTime: new Date().toISOString(),
+    endTime: new Date(Date.now() + 60*60*1000).toISOString(),
+    lobbyEnabled: true,
+    recordingEnabled: false
+  };
+
+  createSession(): void {
+    if (!this.courseId) return;
+    this.creatingSession = true;
+    this.sessionService.create(this.courseId, this.newSession).subscribe({
+      next: (s: any) => {
+        this.formData.sessionIds = this.formData.sessionIds || [];
+        if (s?.id) this.formData.sessionIds.push(s.id);
+        this.creatingSession = false;
+      },
+      error: () => {
+        this.creatingSession = false;
+      }
+    });
+  }
+
+  onStartChange(value: string): void {
+    if (!value) return;
+    try {
+      this.newSession.startTime = new Date(value).toISOString();
+    } catch {}
+  }
+
+  onEndChange(value: string): void {
+    if (!value) return;
+    try {
+      this.newSession.endTime = new Date(value).toISOString();
+    } catch {}
+  }
+
   constructor(
     private route: ActivatedRoute, 
     private courseService: CourseService, 
     private router: Router,
     private progressService: ProgressService,
-    private jitsiService: JitsiService
+    private sessionService: SessionService
   ) {}
 
   ngOnInit(): void {
@@ -140,6 +176,12 @@ export class AdminCourseDetailsComponent implements OnInit {
     if (this.courseId && this.courseId !== "new") {
       this.loadCourse(this.courseId);
     }
+  }
+
+  // Admin: start/join a live room for a session
+  startSession(sessionId?: string): void {
+    if (!sessionId || !this.courseId) { return; }
+    this.router.navigate(['/courses', this.courseId, 'sessions', sessionId]);
   }
 
   loadCourse(id: string): void {
@@ -572,57 +614,5 @@ export class AdminCourseDetailsComponent implements OnInit {
     }
   }
 
-  // Live Session Methods
-  startLiveSession(): void {
-    if (!this.courseId) {
-      alert('Course ID is required to start a live session');
-      return;
-    }
-    // Persist only the supported flag indicating an active call
-    try {
-      this.formData.activeCall = true;
-      this.courseService.updateCourse(this.courseId, this.formData).subscribe({
-        next: (updated) => {
-          this.formData = { ...this.formData, ...updated };
-        },
-        error: () => {
-          // Non-blocking: proceed with starting session even if persistence fails
-        }
-      });
-    } catch {}
-
-    // Use a deterministic room name based on course ID, avoiding unsupported fields
-    const roomName = `course-${this.courseId}`;
-    this.currentRoomName = roomName;
-    this.isLiveSessionActive = true;
-
-    // Open the Jitsi component in a new tab with the deterministic room name
-    const url = this.router.serializeUrl(
-      this.router.createUrlTree(['/courses/live-session', roomName])
-    );
-    window.open(url, '_blank');
-  }
-
-  stopLiveSession(): void {
-    if (confirm('Are you sure you want to stop the live session? All participants will be disconnected.')) {
-      this.isLiveSessionActive = false;
-      this.currentRoomName = null;
-      this.sessionParticipants = 0;
-      this.sessionDuration = '00:00';
-      // Persist activeCall=false on the course
-      if (this.courseId) {
-        try {
-          this.formData.activeCall = false;
-          this.courseService.updateCourse(this.courseId, this.formData).subscribe({
-            next: (updated) => {
-              this.formData = { ...this.formData, ...updated };
-            },
-            error: () => {
-              // Non-blocking: UI already reflects session ended
-            }
-          });
-        } catch {}
-      }
-    }
-  }
+  
 }

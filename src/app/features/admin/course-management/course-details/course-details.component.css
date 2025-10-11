@@ -101,6 +101,46 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* Sessions Create Form */
+.session-create-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 900px) {
+  .session-create-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.session-create-desc {
+  grid-column: 1 / -1;
+  margin-bottom: 12px;
+}
+
+.session-create-flags {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.form-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.session-create-actions .btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+
 /* Live Session Styles */
 .live-session-status {
   display: flex;

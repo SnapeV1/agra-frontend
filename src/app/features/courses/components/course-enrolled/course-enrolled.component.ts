@@ -6,6 +6,8 @@ import { ProgressService, LessonProgress, CourseEnrollment } from '../../../../c
 import { CertificateService, CertificateData } from '../../../../core/services/certificate.service';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { CourseService } from '../../../../core/services/course/course.service';
+import { SessionService } from 'src/app/core/services/session.service';
+import { SessionModule } from 'src/app/core/models/session.module';
 
 @Component({
   selector: 'app-course-enrolled',
@@ -31,7 +33,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
   isFullscreen = false;
   showCompletionModal = false;
   showResources = false;
-  showLive = false;
+  showLiveSessions = false;
   certificateUrl: string | null = null;
   isGeneratingCertificate = false;
   certificateData: CertificateData | null = null;
@@ -45,17 +47,84 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     private progressService: ProgressService,
     private courseService: CourseService,
     private certificateService: CertificateService,
-    private authService: AuthService
+    private authService: AuthService,
+    private sessionService: SessionService
   ) {}
 
   ngOnInit(): void {
     this.courseId = this.route.snapshot.paramMap.get('id') || '';
     if (this.courseId) {
       this.loadCourseData();
+      this.loadSessions();
     } else {
       this.error = 'Course ID not found';
       this.loading = false;
     }
+  }
+
+  toggleLiveSessions(): void {
+    this.showLiveSessions = !this.showLiveSessions;
+  }
+
+  // Live sessions state
+  sessions: SessionModule[] = [];
+  sessionsLoading = false;
+  sessionsError: string | null = null;
+  sessionCarouselIndex = 0;
+
+  private loadSessions(): void {
+    if (!this.courseId) return;
+    this.sessionsLoading = true;
+    this.sessionsError = null;
+    this.sessionService.upcoming(this.courseId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (items) => {
+          this.sessions = items || [];
+          this.sessionCarouselIndex = 0;
+          this.sessionsLoading = false;
+        },
+        error: () => {
+          this.sessionsError = 'Failed to load live sessions';
+          this.sessionsLoading = false;
+        }
+      });
+  }
+
+  isLive(session: SessionModule): boolean {
+    const now = Date.now();
+    const start = session.startTime ? Date.parse(session.startTime) : NaN;
+    const end = session.endTime ? Date.parse(session.endTime) : NaN;
+    if (!isNaN(start) && isNaN(end)) {
+      // Consider live from start for 2 hours if no end provided
+      return now >= start && now <= start + 2 * 60 * 60 * 1000;
+    }
+    if (!isNaN(start) && !isNaN(end)) {
+      return now >= start && now <= end;
+    }
+    return false;
+  }
+
+  joinSession(sessionId?: string): void {
+    if (!sessionId) return;
+    this.router.navigate(['/courses', this.courseId, 'sessions', sessionId]);
+  }
+
+  // Carousel controls for sessions preview
+  get currentSession(): SessionModule | null {
+    if (!this.sessions || this.sessions.length === 0) return null;
+    const idx = Math.min(Math.max(this.sessionCarouselIndex, 0), this.sessions.length - 1);
+    return this.sessions[idx];
+  }
+
+  prevSession(): void {
+    if (!this.sessions || this.sessions.length <= 1) return;
+    this.sessionCarouselIndex = (this.sessionCarouselIndex - 1 + this.sessions.length) % this.sessions.length;
+  }
+
+  nextSession(): void {
+    if (!this.sessions || this.sessions.length <= 1) return;
+    this.sessionCarouselIndex = (this.sessionCarouselIndex + 1) % this.sessions.length;
   }
 
   ngOnDestroy(): void {
@@ -400,9 +469,6 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     this.showResources = !this.showResources;
   }
 
-  toggleLive(): void {
-    this.showLive = !this.showLive;
-  }
 
   getLessonProgress(lessonId: string): LessonProgress | null {
     const progress = this.courseEnrollment?.lessons.find(l => l.lessonId === lessonId) || null;
@@ -424,18 +490,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     return this.progressService.getTotalTimeSpent(this.courseEnrollment.lessons);
   }
 
-  // Live session join handler
-  joinLiveCall(): void {
-    if (!this.course?.activeCall) {
-      alert('No live session is currently active.');
-      return;
-    }
-    const roomName = `course-${this.courseId}`;
-    const url = this.router.serializeUrl(
-      this.router.createUrlTree(['/courses/live-session', roomName])
-    );
-    window.open(url, '_blank');
-  }
+  
 
   formatTime(minutes: number): string {
     const hours = Math.floor(minutes / 60);

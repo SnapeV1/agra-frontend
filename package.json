@@ -19,7 +19,6 @@
     "@angular/platform-browser-dynamic": "^15.2.0",
     "@angular/router": "^15.2.0",
     "flag-icons": "^7.5.0",
-    "lib-jitsi-meet": "^1.0.6",
     "lucide-angular": "^0.542.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
