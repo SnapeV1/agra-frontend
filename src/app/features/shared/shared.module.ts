@@ -12,13 +12,35 @@ import {
   Wrench,
   LogOut,
   AlertTriangle,
-  Eye
+  Eye,
+  MessageCircle,
+  Send,
+  X,
+  Bot,
+  Minimize2,
+  Users,
+  Award,
+  Clock,
+  MapPin,
+  Phone,
+  Mail,
+  Facebook,
+  Twitter,
+  Instagram,
+  Wheat,
+  Linkedin,
+  Youtube,
+  Github,
+  ArrowUp
 } from 'lucide-angular';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { ChatbotWidgetComponent } from './components/chatbot-widget/chatbot-widget.component';
 @NgModule({
   declarations: [
     NavigationComponent,
-    FooterComponent
+    FooterComponent,
+    ChatbotWidgetComponent
   ],
   imports: [
     CommonModule,
@@ -30,13 +52,35 @@ import { RouterModule } from '@angular/router';
       Wrench,
       LogOut,
       AlertTriangle,
-      Eye
+      Eye,
+      MessageCircle,
+      Send,
+      X,
+      Bot,
+      Minimize2,
+      Users,
+      Award,
+      Clock,
+      MapPin,
+      Phone,
+      Mail,
+      Facebook,
+      Twitter,
+      Instagram,
+      Wheat,
+      Linkedin,
+      Youtube,
+      Github,
+      ArrowUp
     }),
-    RouterModule
+    RouterModule,
+    FormsModule
   ],
   exports: [
     NavigationComponent,
-    FooterComponent
+    FooterComponent,
+    ChatbotWidgetComponent,
+    LucideAngularModule
   ]
 })
 export class SharedModule {

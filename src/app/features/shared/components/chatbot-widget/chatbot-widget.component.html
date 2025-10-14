@@ -1,0 +1,59 @@
+<!-- Chatbot Widget -->
+<div class="chatbot-widget">
+  <!-- Floating Button -->
+  <button
+    id="chat-toggle"
+    class="chat-toggle"
+    (click)="toggle()"
+    [attr.aria-expanded]="isOpen"
+    [attr.aria-label]="isOpen ? 'Close chat' : 'Open chat'"
+  >
+    <lucide-icon name="bot"></lucide-icon>
+  </button>
+  <!-- Friendly Tooltip -->
+  <div class="chat-tooltip" *ngIf="!isOpen && showTooltip">
+    Feel free to ask any question
+  </div>
+
+  <!-- Chat Window -->
+  <div id="chat-window" class="chat-window" [class.open]="isOpen">
+    <!-- Header -->
+    <div class="chat-header">
+      <div class="chat-header-icon"><lucide-icon name="bot"></lucide-icon></div>
+      <div class="chat-header-text">
+        <h3>YEFFA Assistant</h3>
+        <p>Agricultural Education Support</p>
+      </div>
+      <button id="chat-close" class="chat-close" (click)="isOpen = false" aria-label="Close chat"><lucide-icon name="x"></lucide-icon></button>
+    </div>
+
+    <!-- Messages Area -->
+    <div id="chat-messages" class="chat-messages">
+      <div class="message" *ngFor="let m of messages" [class.user]="m.from === 'user'" [class.bot]="m.from === 'bot'">
+        {{ m.text }}
+      </div>
+    </div>
+
+    <!-- Quick Replies -->
+    <div id="quick-replies" class="quick-replies">
+      <p class="quick-title">Quick topics:</p>
+      <div class="quick-buttons">
+        <button class="quick-btn" *ngFor="let topic of quickTopics" (click)="onQuick(topic)">{{ topic }}</button>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <form id="chat-form" class="chat-input-area" (ngSubmit)="send()">
+      <input
+        type="text"
+        id="chat-input"
+        class="chat-input"
+        name="chatInput"
+        [(ngModel)]="input"
+        (keydown)="onKeyDown($event)"
+        placeholder="Ask about farming..."
+      />
+      <button type="submit" class="chat-send" aria-label="Send">➤</button>
+    </form>
+  </div>
+</div>

@@ -1,115 +1,81 @@
-<!-- Footer -->
-<footer class="footer">
-    <div class="container">
-        <!-- Header Section -->
-        <div class="footer-header">
-            <div class="footer-logo">
-                <span class="footer-logo-icon">🌱</span>
-                <span>AGRA Platform</span>
-            </div>
-            <p class="footer-tagline">
-                Plateforme d'apprentissage dédiée aux jeunes agriculteurs du Maghreb. 
-                Cultivons ensemble l'avenir de l'agriculture en Afrique du Nord.
-            </p>
-        </div>
-
-        <!-- Main Grid -->
-        <div class="footer-grid">
-            <!-- Platform Links -->
-            <div class="footer-section">
-                <h3>Plateforme</h3>
-                <ul class="footer-links">
-                    <li><a href="#features">Fonctionnalités</a></li>
-                    <li><a href="#pricing">Tarification</a></li>
-                    <li><a href="/demo">Démonstration</a></li>
-                    <li><a href="/documentation">Documentation</a></li>
-                </ul>
-            </div>
-
-            <!-- Resources -->
-            <div class="footer-section">
-                <h3>Ressources</h3>
-                <ul class="footer-links">
-                    <li><a href="/formations">Formations</a></li>
-                    <li><a href="/guides">Guides Pratiques</a></li>
-                    <li><a href="/blog">Blog</a></li>
-                    <li><a href="/communaute">Communauté</a></li>
-                </ul>
-            </div>
-
-            <!-- Contact -->
-            <div class="footer-section">
-                <h3>Contact</h3>
-                <div class="contact-info">
-                    <div class="contact-item">
-                        <span class="icon">📧</span>
-                        <span>contactagra-platform.com</span>
-                    </div>
-                    <div class="contact-item">
-                        <span class="icon">📞</span>
-                        <span>+212 5XX XX XX XX</span>
-                    </div>
-                    <div class="contact-item">
-                        <span class="icon">📍</span>
-                        <span>Rabat, Maroc</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Newsletter & Social -->
-            <div class="footer-section">
-                <h3>Restez connecté</h3>
-                <form class="newsletter-form" action="#" method="post">
-                    <input 
-                        type="email" 
-                        class="newsletter-input" 
-                        placeholder="Votre email" 
-                        name="newsletterEmail"
-                        required>
-                    <button type="submit" class="newsletter-btn">S'abonner</button>
-                </form>
-                
-                <div class="social-links">
-                    <a href="#" class="social-link" title="Facebook">📘</a>
-                    <a href="#" class="social-link" title="Twitter">🐦</a>
-                    <a href="#" class="social-link" title="LinkedIn">💼</a>
-                    <a href="#" class="social-link" title="YouTube">📺</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Maghreb Countries -->
-        <div class="footer-section">
-            <h3>🤝 Union du Maghreb Arabe</h3>
-            <div class="maghreb-countries">
-                <div class="country"><span class="flag">🇲🇦</span>Maroc</div>
-                <div class="country"><span class="flag">🇩🇿</span>Algérie</div>
-                <div class="country"><span class="flag">🇹🇳</span>Tunisie</div>
-                <div class="country"><span class="flag">🇱🇾</span>Libye</div>
-                <div class="country"><span class="flag">🇲🇷</span>Mauritanie</div>
-            </div>
-        </div>
-
-        <!-- Footer Bottom -->
-        <div class="footer-bottom">
-            <div>
-                © 2025 <strong>AGRA Platform</strong>. Tous droits réservés.
-            </div>
-            
-            <div class="uma-badge">
-                🏛️ Soutenu par l'UMA
-            </div>
-            
-            <div>
-                <a href="/confidentialite">Confidentialité</a>
-                <a href="/conditions">Conditions</a>
-                <a href="/mentions-legales">Mentions légales</a>
-            </div>
-        </div>
+﻿<!-- Footer -->
+<footer class="site-footer">
+  <div class="footer-container">
+    <!-- Top brand area -->
+    <div class="brand">
+      <div class="brand-logo">
+        <img src="assets/logo2.png" alt="AGRA"/>
+        <span class="brand-name">AGRA Platform</span>
+      </div>
+      <p class="brand-tagline">Cultivating knowledge for the next generation of farmers.</p>
     </div>
-</footer>
 
-<!-- Scroll to top button -->
-<button class="scroll-to-top" title="Retour en haut" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">
-    ↑
-</button>
+    <!-- Grid -->
+    <div class="links-grid">
+      <div class="col">
+        <h4>Product</h4>
+        <ul>
+          <li><a routerLink="/home">Home</a></li>
+          <li><a routerLink="/courses">Courses</a></li>
+          <li><a routerLink="/feed">Feed</a></li>
+          <li><a routerLink="/contact">Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#" rel="noopener">Documentation</a></li>
+          <li><a href="#" rel="noopener">Help Center</a></li>
+          <li><a href="#" rel="noopener">Blog</a></li>
+        </ul>
+      </div>
+
+      <div class="col">
+        <h4>Contact</h4>
+        <ul class="contact">
+          <li>
+            <lucide-icon name="map-pin"></lucide-icon>
+            <span>Rabat, Morocco</span>
+          </li>
+          <li>
+            <lucide-icon name="phone"></lucide-icon>
+            <span>+212 5XX XX XX XX</span>
+          </li>
+          <li>
+            <lucide-icon name="mail"></lucide-icon>
+            <span>contact@agra-platform.com</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="col">
+        <h4>Stay in touch</h4>
+        <form class="newsletter" (submit)="$event.preventDefault()">
+          <input type="email" placeholder="Your email" aria-label="Email"/>
+          <button type="submit">Subscribe</button>
+        </form>
+        <div class="social">
+          <a href="#" aria-label="Facebook"><lucide-icon name="facebook"></lucide-icon></a>
+          <a href="#" aria-label="Twitter"><lucide-icon name="twitter"></lucide-icon></a>
+          <a href="#" aria-label="Instagram"><lucide-icon name="instagram"></lucide-icon></a>
+          <a href="#" aria-label="LinkedIn"><lucide-icon name="linkedin"></lucide-icon></a>
+          <a href="#" aria-label="YouTube"><lucide-icon name="youtube"></lucide-icon></a>
+          <a href="#" aria-label="GitHub"><lucide-icon name="github"></lucide-icon></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="bottom">
+      <span>&copy; {{ year }} AGRA Platform</span>
+      <div class="legal">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Legal</a>
+      </div>
+    </div>
+  </div>
+
+  <button class="to-top" (click)="scrollTop()" aria-label="Back to top"><lucide-icon name="arrow-up"></lucide-icon></button>
+</footer>
