@@ -108,7 +108,7 @@
       <!-- Course Grid -->
       <div *ngIf="!loading && filteredCourses.length > 0" class="course-grid">
         <div 
-          *ngFor="let course of getPaginatedCourses()" 
+          *ngFor="let course of getPaginatedCourses(); trackBy: trackByCourseId" 
           class="course-card"
           (click)="onCourseSelect(course)"
         >

@@ -4,7 +4,7 @@ import { Course } from "src/app/core/models/course";
 import { CourseService } from "src/app/core/services/course/course.service";
 import { ProgressService } from "src/app/core/services/progress.service";
 import { SessionService } from "src/app/core/services/session.service";
-import { CreateSessionDto } from "src/app/core/models/session.module";
+import { CreateSessionDto } from "src/app/core/models/session.model";
 
 @Component({
   selector: "app-course-details",

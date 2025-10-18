@@ -2,17 +2,36 @@
   <div class="header">
     <h2>Live Sessions</h2>
     <p>Upcoming and active sessions for this course.</p>
+    <div class="controls" role="region" aria-label="Session filters and sorting">
+      <label for="session-search" class="sr-only">Search sessions</label>
+      <input id="session-search" type="search" [value]="filter" (input)="onFilterChange($any($event.target).value)" placeholder="Search sessions" aria-label="Search sessions by title or description" />
+      <label for="session-sort" class="sr-only">Sort sessions</label>
+      <select id="session-sort" [value]="sort" (change)="onSortChange($any($event.target).value)" aria-label="Sort sessions">
+        <option value="startAsc">Start time · Asc</option>
+        <option value="startDesc">Start time · Desc</option>
+        <option value="title">Title</option>
+      </select>
+    </div>
   </div>
 
-  <div *ngIf="loading" class="loading">Loading sessions…</div>
+  <div *ngIf="loading" class="loading" aria-busy="true" aria-live="polite">
+    <div class="skeleton-list">
+      <div class="skeleton-item" *ngFor="let i of [1,2,3,4]">
+        <div class="skeleton-title"></div>
+        <div class="skeleton-text"></div>
+        <div class="skeleton-meta"></div>
+      </div>
+    </div>
+  </div>
   <div *ngIf="error" class="error">{{ error }}</div>
 
-  <div *ngIf="!loading && !error && sessions.length === 0" class="empty">
-    No upcoming sessions.
+  <div *ngIf="!loading && !error && filteredSessions.length === 0" class="empty" role="status" aria-live="polite">
+    <p>No sessions match your criteria.</p>
+    <p class="hint">Try clearing the search or changing the sort.</p>
   </div>
 
-  <div class="session-list" *ngIf="sessions.length > 0">
-    <div class="session-item" *ngFor="let s of sessions">
+  <div class="session-list" *ngIf="filteredSessions.length > 0">
+    <div class="session-item" *ngFor="let s of filteredSessions; trackBy: trackById">
       <div class="info">
         <div class="title">{{ s.title || 'Session' }}</div>
         <div class="desc">{{ s.description }}</div>
@@ -22,9 +41,10 @@
         </div>
       </div>
       <div class="actions">
-        <button class="btn-primary" (click)="join(s.id)">Join</button>
+        <button class="btn-primary" (click)="join(s.id)" [attr.aria-label]="'Join session ' + (s.title || '')">
+          Join
+        </button>
       </div>
     </div>
   </div>
 </div>
-

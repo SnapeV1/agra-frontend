@@ -1287,6 +1287,16 @@
   }
 }
 
+/* Skeleton loaders for live sessions */
+.skeleton-list { display: grid; gap: 12px; }
+.skeleton-item { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; background: #fff; }
+.skeleton-title, .skeleton-text, .skeleton-meta { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 4px; }
+.skeleton-title { height: 16px; width: 40%; margin-bottom: 8px; }
+.skeleton-text { height: 12px; width: 70%; margin-bottom: 8px; }
+.skeleton-meta { height: 12px; width: 30%; }
+
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
 /* Live Sessions Section */
 .live-sessions {
   margin: 24px 0;

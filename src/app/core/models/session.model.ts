@@ -1,26 +1,19 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-
-
-
-@NgModule({
-  declarations: [],
-  imports: [
-    CommonModule
-  ]
-})
-export class SessionModule { 
-  id?:string;
+// Session model and related DTOs
+export interface Session {
+  id?: string;
   courseId?: string;
   title?: string;
   description?: string;
   roomName?: string;
-  startTime?: string;
-  endTime?: string;
+  startTime?: string; // ISO
+  endTime?: string;   // ISO
   lobbyEnabled?: boolean;
   recordingEnabled?: boolean;
   recordingUrl?: string;
 }
+
+// Backward-compatible alias for existing imports
+export type SessionModule = Session;
 
 export interface CreateSessionDto {
   title: string;
@@ -38,3 +31,4 @@ export interface JoinResponse {
   displayName: string;
   avatarUrl?: string;
 }
+

@@ -456,6 +456,12 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     }
   }
 
+  openCourse(courseId: string): void {
+    if (!courseId) return;
+    // Always allow viewing enrolled page, even if completed
+    this.router.navigate(['/courses/course-enrolled', courseId]);
+  }
+
   getUserDisplayName(): string {
     if (this.isEditing && this.editForm.name) {
       return this.editForm.name;

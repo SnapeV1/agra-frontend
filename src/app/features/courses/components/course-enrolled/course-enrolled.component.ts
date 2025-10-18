@@ -7,7 +7,7 @@ import { CertificateService, CertificateData } from '../../../../core/services/c
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { CourseService } from '../../../../core/services/course/course.service';
 import { SessionService } from 'src/app/core/services/session.service';
-import { SessionModule } from 'src/app/core/models/session.module';
+import { SessionModule } from 'src/app/core/models/session.model';
 
 @Component({
   selector: 'app-course-enrolled',

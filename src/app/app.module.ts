@@ -1,6 +1,6 @@
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { LucideAngularModule, Mail, Phone, Calendar, MapPin, BarChart2, User, Globe, Briefcase } from 'lucide-angular';
 import { AppComponent } from './app.component';
 import { AuthRoutingModule } from './features/auth/auth-routing.module';
@@ -14,6 +14,7 @@ import { AuthService } from './core/services/auth/auth.service';
 import { FeedModule } from './features/feed/feed.module';
 import { RouterModule } from '@angular/router';
 import { ContactModule } from './features/contact/contact.module';
+import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 export function initializeAuth(authService: AuthService) {
   return () => {
     authService.refreshAuthState();
@@ -50,7 +51,8 @@ export function initializeAuth(authService: AuthService) {
       useFactory: initializeAuth,
       deps: [AuthService],
       multi: true
-    }
+    },
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

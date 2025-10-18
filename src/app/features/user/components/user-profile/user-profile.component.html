@@ -270,7 +270,8 @@
       <div *ngIf="!coursesLoading && !coursesError && enrolledCourses.length > 0" 
            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div *ngFor="let enrolledCourse of enrolledCourses" 
-             class="group bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 hover:border-green-300 hover:shadow-lg transition-all duration-300 overflow-hidden">
+             class="group bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 hover:border-green-300 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col h-full cursor-pointer"
+             (click)="openCourse(enrolledCourse.courseId)">
           
           <!-- Course Image -->
           <div class="relative h-48 overflow-hidden">
@@ -300,7 +301,7 @@
           </div>
 
           <!-- Course Content -->
-          <div class="p-6">
+          <div class="p-6 flex flex-col flex-1">
             <div class="mb-4">
               <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
                 {{ enrolledCourse.course?.title || 'Course Title' }}
@@ -411,23 +412,23 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex gap-2">
+            <div class="mt-auto flex gap-2">
               <button *ngIf="enrolledCourse.status === 'not-started'" 
-                      (click)="startCourse(enrolledCourse.courseId)"
+                      (click)="startCourse(enrolledCourse.courseId); $event.stopPropagation()"
                       class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
                 <lucide-icon name="Play" class="w-4 h-4"></lucide-icon>
                 <span>Start Course</span>
               </button>
               
               <button *ngIf="enrolledCourse.status === 'in-progress'" 
-                      (click)="continueCourse(enrolledCourse.courseId)"
+                      (click)="continueCourse(enrolledCourse.courseId); $event.stopPropagation()"
                       class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
                 <lucide-icon name="ArrowRight" class="w-4 h-4"></lucide-icon>
                 <span>Continue</span>
               </button>
               
               <button *ngIf="enrolledCourse.status === 'completed'" 
-                      (click)="viewCertificate(enrolledCourse.courseId)"
+                      (click)="viewCertificate(enrolledCourse.courseId); $event.stopPropagation()"
                       [disabled]="!enrolledCourse.progress.certificateUrl"
                       class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200">
                 <lucide-icon name="Award" class="w-4 h-4"></lucide-icon>

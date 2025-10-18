@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CourseService } from '../../../../core/services/course/course.service';
 import { Course } from '../../../../core/models/course';
 
@@ -8,7 +8,8 @@ type CountItem = { value: string; count: number };
 @Component({
   selector: 'app-courses',
   templateUrl: './courses.component.html',
-  styleUrls: ['./courses.component.css']
+  styleUrls: ['./courses.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CoursesComponent implements OnInit {
   courses: Course[] = [];
@@ -38,9 +39,17 @@ export class CoursesComponent implements OnInit {
 
   skeletonArray = Array(8).fill(0);
 
-  constructor(private courseService: CourseService, private router: Router) {}
+  constructor(private courseService: CourseService, private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
+    // Restore filters from query params
+    const qp = this.route.snapshot.queryParamMap;
+    this.searchTerm = qp.get('q') || '';
+    this.selectedLanguage = qp.get('lang') || '';
+    this.selectedCountry = qp.get('country') || '';
+    this.selectedLevel = qp.get('level') || '';
+    const page = Number(qp.get('page'));
+    this.currentPage = Number.isFinite(page) && page > 0 ? page : 1;
     this.loadCourses();
   }
 
@@ -128,6 +137,7 @@ export class CoursesComponent implements OnInit {
     });
     
     this.updatePaginatedCourses();
+    this.updateQueryParams();
   }
 
   private getCourseLevel(course: Course): string {
@@ -180,6 +190,7 @@ onCourseSelect(course: Course): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
       this.updatePaginatedCourses();
+      this.updateQueryParams();
     }
   }
 
@@ -225,4 +236,20 @@ onCourseSelect(course: Course): void {
       this.currentPage = 1;
     }
   }
+
+  private updateQueryParams(): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        q: this.searchTerm || undefined,
+        lang: this.selectedLanguage || undefined,
+        country: this.selectedCountry || undefined,
+        level: this.selectedLevel || undefined,
+        page: this.currentPage !== 1 ? this.currentPage : undefined
+      },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  trackByCourseId(index: number, course: Course) { return course.id || index; }
 }

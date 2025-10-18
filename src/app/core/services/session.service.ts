@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { CreateSessionDto, JoinResponse, SessionModule } from '../models/session.module';
+import { CreateSessionDto, JoinResponse, SessionModule } from '../models/session.model';
 import { environment } from 'src/environments/environment';
 import { AuthService } from './auth/auth.service';
 

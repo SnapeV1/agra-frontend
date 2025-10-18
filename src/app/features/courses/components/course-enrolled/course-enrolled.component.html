@@ -174,10 +174,20 @@
       </div>
     </div>
     <div class="sessions-content" [class.collapsed]="!showLiveSessions">
-      <div *ngIf="sessionsLoading" class="loading">Loading sessions…</div>
+      <div *ngIf="sessionsLoading" class="loading" aria-busy="true" aria-live="polite">
+        <div class="skeleton-list">
+          <div class="skeleton-item" *ngFor="let i of [1,2]">
+            <div class="skeleton-title"></div>
+            <div class="skeleton-text"></div>
+            <div class="skeleton-meta"></div>
+          </div>
+        </div>
+      </div>
       <div *ngIf="sessionsError" class="error">{{ sessionsError }}</div>
       <div *ngIf="!sessionsLoading && !sessionsError">
-        <div *ngIf="sessions.length === 0" class="empty">No upcoming sessions.</div>
+        <div *ngIf="sessions.length === 0" class="empty" role="status" aria-live="polite">
+          No upcoming sessions. Check back later.
+        </div>
         <div class="session-cards single" *ngIf="sessions.length > 0">
           <button class="nav-arrow left" (click)="prevSession()" [disabled]="sessions.length <= 1" aria-label="Previous session">‹</button>
           <div class="session-card">

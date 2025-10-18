@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChatbotService } from '../../services/chatbot.service';
 
 @Component({
   selector: 'app-chatbot-widget',
   templateUrl: './chatbot-widget.component.html',
-  styleUrls: ['./chatbot-widget.component.css']
+  styleUrls: ['./chatbot-widget.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChatbotWidgetComponent implements OnInit {
   isOpen = false;
@@ -11,23 +13,32 @@ export class ChatbotWidgetComponent implements OnInit {
   messages: { from: 'user' | 'bot'; text: string; timestamp: Date }[] = [
     {
       from: 'bot',
-      text: "Hello! I'm YEFFA's agricultural assistant. How can I help you learn about farming today?",
+      text: "Hello! I'm Yeffa's agricultural assistant. How can I help you learn about farming today?",
       timestamp: new Date()
     }
   ];
   input = '';
   quickTopics: string[] = ['Crop rotation tips', 'Soil health', 'Pest management', 'Irrigation methods'];
+  sending = false;
+  typing = false;
+
+  constructor(private chatbot: ChatbotService) {}
+
+  trackByMessage(index: number, item: { from: 'user'|'bot'; text: string; timestamp: Date }) {
+    return index;
+  }
+
+  trackByTopic(index: number, item: string) {
+    return item;
+  }
 
   send(): void {
     const text = this.input.trim();
     if (!text) return;
     this.messages.push({ from: 'user', text, timestamp: new Date() });
     this.input = '';
-    setTimeout(() => {
-      this.messages.push({ from: 'bot', text: this.getBotReply(text), timestamp: new Date() });
-      this.scrollToBottom();
-    }, 800);
     this.scrollToBottom();
+    this.queryBot(text);
   }
 
   onKeyDown(event: KeyboardEvent): void {
@@ -56,21 +67,28 @@ export class ChatbotWidgetComponent implements OnInit {
 
   onQuick(topic: string): void {
     this.messages.push({ from: 'user', text: topic, timestamp: new Date() });
-    setTimeout(() => {
-      this.messages.push({ from: 'bot', text: this.getBotReply(topic), timestamp: new Date() });
-      this.scrollToBottom();
-    }, 800);
     this.scrollToBottom();
+    this.queryBot(topic);
   }
 
-  private getBotReply(text: string): string {
-    const t = text.toLowerCase();
-    if (t.includes('crop')) return 'Crop rotation helps prevent soil nutrient loss and pests. Would you like examples?';
-    if (t.includes('soil')) return 'Healthy soil is key! Compost and regular testing can improve fertility.';
-    if (t.includes('pest')) return 'Use Integrated Pest Management — combining natural and cultural methods.';
-    if (t.includes('irrigation') || t.includes('water')) return 'Drip irrigation and mulching save up to 50% of water.';
-    return "That's a great question! YEFFA offers courses on farming and sustainability.";
+  private queryBot(text: string): void {
+    if (this.sending) return;
+    this.sending = true;
+    this.typing = true;
+    this.chatbot.sendMessage(text).subscribe({
+      next: (reply) => {
+        const textOut = (reply && reply.trim()) ? reply : "I'm not sure I understood that.";
+        this.messages.push({ from: 'bot', text: textOut, timestamp: new Date() });
+        this.scrollToBottom();
+      },
+      error: () => {
+        this.messages.push({ from: 'bot', text: 'Chat service unavailable. Please try again later.', timestamp: new Date() });
+        this.scrollToBottom();
+      },
+      complete: () => { this.sending = false; this.typing = false; }
+    });
   }
+
 
   private scrollToBottom(): void {
     // Defer to allow DOM to render first

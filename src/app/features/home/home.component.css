@@ -642,6 +642,9 @@ body {
 /* Course Cards */
 .course-card {
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .course-card::before {
@@ -699,6 +702,9 @@ body {
   padding: 2rem;
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
 }
 
 .course-meta {
@@ -795,6 +801,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: auto; /* push actions to bottom */
+  padding-top: 0.75rem;
 }
 
 /* Post Cards */
@@ -875,6 +883,23 @@ body {
   height: 200px;
   object-fit: cover;
   transition: transform 0.3s ease;
+}
+
+/* Placeholder when no image present */
+.post-image.placeholder {
+  height: 200px;
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  border: 1px dashed #d1d5db;
+}
+
+.post-image.placeholder .placeholder-icon {
+  width: 36px;
+  height: 36px;
+  opacity: 0.6;
 }
 
 .post-card:hover .post-image img {

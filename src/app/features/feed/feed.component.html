@@ -40,7 +40,25 @@
 
   <!-- Loading State -->
   <div *ngIf="loading" class="loading-container">
-    <p>Loading posts...</p>
+    <div class="posts-skeleton">
+      <div class="post-skeleton" *ngFor="let i of [1,2,3]">
+        <div class="skeleton-header">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-lines">
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line tiny"></div>
+          </div>
+        </div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-image"></div>
+        <div class="skeleton-actions">
+          <div class="skeleton-pill"></div>
+          <div class="skeleton-pill"></div>
+          <div class="skeleton-pill"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div *ngIf="errorMessage" class="error-container">

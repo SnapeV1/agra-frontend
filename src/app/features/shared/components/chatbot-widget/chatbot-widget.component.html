@@ -21,7 +21,7 @@
     <div class="chat-header">
       <div class="chat-header-icon"><lucide-icon name="bot"></lucide-icon></div>
       <div class="chat-header-text">
-        <h3>YEFFA Assistant</h3>
+        <h3>Yeffa Assistant</h3>
         <p>Agricultural Education Support</p>
       </div>
       <button id="chat-close" class="chat-close" (click)="isOpen = false" aria-label="Close chat"><lucide-icon name="x"></lucide-icon></button>
@@ -29,8 +29,11 @@
 
     <!-- Messages Area -->
     <div id="chat-messages" class="chat-messages">
-      <div class="message" *ngFor="let m of messages" [class.user]="m.from === 'user'" [class.bot]="m.from === 'bot'">
+      <div class="message" *ngFor="let m of messages; trackBy: trackByMessage" [class.user]="m.from === 'user'" [class.bot]="m.from === 'bot'">
         {{ m.text }}
+      </div>
+      <div class="message bot typing" *ngIf="typing">
+        <span class="typing-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
       </div>
     </div>
 
@@ -38,7 +41,7 @@
     <div id="quick-replies" class="quick-replies">
       <p class="quick-title">Quick topics:</p>
       <div class="quick-buttons">
-        <button class="quick-btn" *ngFor="let topic of quickTopics" (click)="onQuick(topic)">{{ topic }}</button>
+        <button class="quick-btn" *ngFor="let topic of quickTopics; trackBy: trackByTopic" (click)="onQuick(topic)">{{ topic }}</button>
       </div>
     </div>
 

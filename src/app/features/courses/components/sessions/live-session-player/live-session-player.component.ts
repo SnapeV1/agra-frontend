@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, NgZone, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { interval, Subscription } from 'rxjs';
 import { SessionService } from 'src/app/core/services/session.service';
@@ -13,7 +13,8 @@ declare global {
 @Component({
   selector: 'app-live-session-player',
   templateUrl: './live-session-player.component.html',
-  styleUrls: ['./live-session-player.component.css']
+  styleUrls: ['./live-session-player.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LiveSessionPlayerComponent implements OnInit, OnDestroy {
   @ViewChild('playerContainer', { static: true }) container!: ElementRef<HTMLDivElement>;
