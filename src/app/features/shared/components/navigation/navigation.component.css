@@ -155,17 +155,22 @@
   border-bottom: 1px solid #eef2f7;
   font-weight: 600; color: #111827;
 }
+.notif-header .actions { display: inline-flex; gap: 8px; }
 .notif-header .mark-read {
   background: none; border: none; color: #2563eb; cursor: pointer;
   font-weight: 500; padding: 4px 6px; border-radius: 6px;
 }
 .notif-header .mark-read:hover { background: #eaf2ff; }
 .notif-header .mark-read:disabled { color: #9ca3af; cursor: not-allowed; background: transparent; }
-.notif-list { max-height: 360px; overflow: auto; }
+.notif-list {
+  max-height: calc(4 * 64px); /* show 4 items then scroll */
+  overflow-y: auto;
+}
 .notif-empty { padding: 24px; text-align: center; color: #6b7280; font-size: 0.95rem; }
 .notif-item {
   display: flex; gap: 10px; padding: 10px 12px; cursor: pointer;
   border-bottom: 1px solid #f3f4f6; align-items: flex-start;
+  min-height: 64px; /* consistent item height for scroll calc */
 }
 .notif-item:last-child { border-bottom: none; }
 .notif-item:hover { background: #f9fafb; }

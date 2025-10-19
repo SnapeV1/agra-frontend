@@ -154,6 +154,11 @@ export class NavigationComponent implements OnInit, OnDestroy {
     this.closeNotification();
   }
 
+  clearAllNotifications(): void {
+    this.notificationService.deleteAll();
+    this.closeNotification();
+  }
+
   navigateToProfile(): void {
     this.closeDropdown();
     this.router.navigate(['/user/profile']);

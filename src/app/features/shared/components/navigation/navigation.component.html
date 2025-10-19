@@ -28,7 +28,10 @@
               <div class="notif-dropdown" [class.show]="isNotificationOpen">
                 <div class="notif-header">
                   <span>Notifications</span>
-                  <button class="mark-read" (click)="markAllNotificationsAsRead()" [disabled]="unread === 0">Mark all as read</button>
+                  <div class="actions">
+                    <button class="mark-read" (click)="markAllNotificationsAsRead()" [disabled]="unread === 0">Mark all as read</button>
+                    <button class="mark-read" (click)="clearAllNotifications()" [disabled]="notifications.length === 0">Clear all</button>
+                  </div>
                 </div>
                 <div class="notif-list" *ngIf="notifications?.length; else noNotif">
                   <div class="notif-item" *ngFor="let n of notifications" [class.unread]="!n.seen" (click)="openNotification(n)">

@@ -161,6 +161,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.closeNotif();
   }
 
+  /** Delete all notifications */
+  deleteAllNotifications(): void {
+    this.notificationService.deleteAll();
+    this.closeNotif();
+  }
+
   /** Handle settings click */
   onSettingsClick() {
     this.settingsClick.emit();
@@ -207,3 +213,4 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
   }
 }
+

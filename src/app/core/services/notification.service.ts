@@ -26,7 +26,8 @@ export class NotificationService {
       onConnect: () => {
         console.log('✅ Connected to WebSocket');
         this.stompClient.subscribe('/topic/notifications', (message: IMessage) => {
-          const data: NotificationItem = JSON.parse(message.body);
+          const parsed = JSON.parse(message.body) as NotificationItem;
+          const data: NotificationItem = { ...parsed, seen: !!parsed.seen };
           this.notifications$.next([data, ...this.notifications$.value]);
           this.incoming$.next(data);
           this.showToast(data);
@@ -51,11 +52,12 @@ export class NotificationService {
     return this.all$;
   }
 
-  // Load unseen notifications for current user and seed store
+  // Load notifications for the current user using /me and seed store
   fetchAll(): void {
-    this.http.get<NotificationItem[]>(`${this.apiUrl}/unseen`).subscribe({
+    this.http.get<NotificationItem[]>(`${this.apiUrl}/me`).subscribe({
       next: (list) => {
-        const sorted = [...list].sort((a, b) => {
+        const normalized = (list || []).map(n => ({ ...n, seen: !!n.seen })) as NotificationItem[];
+        const sorted = normalized.sort((a, b) => {
           const ta = a.timestamp ? Date.parse(a.timestamp) : 0;
           const tb = b.timestamp ? Date.parse(b.timestamp) : 0;
           return tb - ta;
@@ -106,6 +108,20 @@ export class NotificationService {
           this.notifications$.next(prev);
         }
       });
+  }
+
+  // Delete all notifications for current user
+  deleteAll(): void {
+    const prev = this.notifications$.value;
+    // Optimistic clear
+    this.notifications$.next([]);
+    this.http.delete(`${this.apiUrl}`).subscribe({
+      error: (err) => {
+        console.error('Failed to delete all notifications', err);
+        // Revert on failure
+        this.notifications$.next(prev);
+      }
+    });
   }
 
   private showToast(notification: NotificationItem): void {
