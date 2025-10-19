@@ -9,6 +9,8 @@ import {
 } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { NotificationService } from 'src/app/core/services/notification.service';
+import { NotificationItem } from 'src/app/core/models/notification.model';
 import { filter } from 'rxjs/operators';
 import { AuthUser } from 'src/app/core/models/auth-user.model';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
@@ -26,7 +28,9 @@ export interface BreadcrumbItem {
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   user: AuthUser | null = null;
-  notificationCount: number = 3;
+  notificationCount: number = 0;
+  notifications: NotificationItem[] = [];
+  isNotifOpen = false;
   pageTitle: string = 'Dashboard';
   breadcrumbs: BreadcrumbItem[] = [];
   searchQuery: string = '';
@@ -39,11 +43,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   private routerSubscription!: Subscription;
   private userSubscription!: Subscription;
+  private notifSubs: Subscription[] = [];
 
   constructor(
     private router: Router,
     private authService: AuthService,
     private eRef: ElementRef,
+    private notificationService: NotificationService,
     public sidebarService: SidebarService
   ) {}
 
@@ -60,11 +66,22 @@ export class NavbarComponent implements OnInit, OnDestroy {
     
     // Initialize page info for current route
     this.updatePageInfo(this.router.url);
+
+    // Initialize notifications: fetch unseen from DB and connect to WS
+    this.notificationService.fetchAll();
+    this.notificationService.connect();
+    this.notifSubs.push(
+      this.notificationService.getAll().subscribe(list => (this.notifications = list))
+    );
+    this.notifSubs.push(
+      this.notificationService.unreadCount().subscribe(count => (this.notificationCount = count))
+    );
   }
 
   ngOnDestroy() {
     if (this.routerSubscription) this.routerSubscription.unsubscribe();
     if (this.userSubscription) this.userSubscription.unsubscribe();
+    this.notifSubs.forEach(s => s.unsubscribe());
   }
 
   /** Get user's name */
@@ -122,6 +139,28 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.notificationClick.emit();
   }
 
+  /** Toggle notifications dropdown */
+  toggleNotif(): void {
+    this.isNotifOpen = !this.isNotifOpen;
+    if (this.isNotifOpen) this.isDropdownOpen = false;
+  }
+
+  /** Close notifications dropdown */
+  closeNotif(): void {
+    this.isNotifOpen = false;
+  }
+
+  /** Mark all notifications as read */
+  markAllNotificationsAsRead(): void {
+    this.notificationService.markAllAsRead();
+  }
+
+  /** Open a notification: mark it read */
+  openNotification(n: NotificationItem): void {
+    this.notificationService.markAsRead(n.id);
+    this.closeNotif();
+  }
+
   /** Handle settings click */
   onSettingsClick() {
     this.settingsClick.emit();
@@ -162,6 +201,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   clickOutside(event: MouseEvent) {
     if (this.isDropdownOpen && !this.eRef.nativeElement.contains(event.target)) {
       this.isDropdownOpen = false;
+    }
+    if (this.isNotifOpen && !this.eRef.nativeElement.contains(event.target)) {
+      this.isNotifOpen = false;
     }
   }
 }

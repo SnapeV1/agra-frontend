@@ -3,19 +3,47 @@
         <div class="nav-brand">
             <span class="nav-logo">  <img src="assets/logo2.png" alt="App Logo"></span>
         </div>
-        
+            
+            <!-- Notifications bell and dropdown -->
+          
+
 <div class="nav-menu">
     <a [routerLink]="'/home'" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="onNavLinkClick()">Home</a>
     <a [routerLink]="'/courses'" routerLinkActive="active" (click)="onNavLinkClick()">Courses</a>
     <a [routerLink]="'/feed'" routerLinkActive="active" (click)="onNavLinkClick()">Feed</a>
     <a [routerLink]="'/contact'" routerLinkActive="active" (click)="onNavLinkClick()">Contact us</a>
 </div>
-
         <div class="nav-auth">
           
                <a href="/admin/dashboard" class="admin-view-btn" title="View as Admin" *ngIf="isLoggedIn && isAdmin()">
     <span class="material-symbols-outlined">visibility</span>
 </a>
+
+            <!-- Notifications placed just right of the Admin View button -->
+            <div *ngIf="isLoggedIn" class="notif-menu">
+              <button class="notif-button" (click)="toggleNotification()" aria-label="Notifications" [class.has-unread]="unread > 0">
+                <lucide-icon name="bell" size="20" [strokeWidth]="2.2"></lucide-icon>
+                <span *ngIf="unread > 0" class="notif-badge">{{ unread }}</span>
+              </button>
+              <div class="notif-dropdown" [class.show]="isNotificationOpen">
+                <div class="notif-header">
+                  <span>Notifications</span>
+                  <button class="mark-read" (click)="markAllNotificationsAsRead()" [disabled]="unread === 0">Mark all as read</button>
+                </div>
+                <div class="notif-list" *ngIf="notifications?.length; else noNotif">
+                  <div class="notif-item" *ngFor="let n of notifications" [class.unread]="!n.seen" (click)="openNotification(n)">
+                    <div class="notif-dot" *ngIf="!n.seen"></div>
+                    <div class="notif-content">
+                      <div class="notif-title">{{ n.content }}</div>
+                      <div class="notif-time">{{ n.timestamp | date:'short' }}</div>
+                    </div>
+                  </div>
+                </div>
+                <ng-template #noNotif>
+                  <div class="notif-empty">You're all caught up!</div>
+                </ng-template>
+              </div>
+            </div>
 
 
             <button 

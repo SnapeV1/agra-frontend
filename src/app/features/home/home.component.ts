@@ -6,6 +6,7 @@ import { Course } from 'src/app/core/models/course';
 import { CourseService } from 'src/app/core/services/course/course.service';
 import { Subscription } from 'rxjs';
 import { PostsService } from 'src/app/features/admin/services/posts.service';
+import { NotificationService } from 'src/app/core/services/notification.service';
 
 @Component({
   selector: 'app-home',
@@ -52,7 +53,8 @@ featuredPosts: any[] = [];
   constructor(
     private router: Router,
     private courseService: CourseService, 
-    private postsService: PostsService
+    private postsService: PostsService,
+    private notificationService: NotificationService
 
   ) {}
 

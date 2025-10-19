@@ -31,15 +31,36 @@
   </div>
 
   <div class="navbar-right">
-    <button 
-      class="action-btn" 
-      (click)="onNotificationClick()" 
-      title="Notifications"
-      type="button"
-    >
-      <span class="material-symbols-outlined"></span>
-      <span class="notification-badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
-    </button>
+    <div class="notif-menu">
+      <button 
+        class="action-btn" 
+        (click)="toggleNotif()" 
+        aria-label="Notifications"
+        title="Notifications"
+        type="button"
+      >
+        <span class="material-symbols-outlined"></span>
+        <span class="notification-badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
+      </button>
+      <div class="notif-dropdown" [class.show]="isNotifOpen">
+        <div class="notif-header">
+          <span>Notifications</span>
+          <button class="mark-read" (click)="markAllNotificationsAsRead()" [disabled]="notificationCount === 0">Mark all as read</button>
+        </div>
+        <div class="notif-list" *ngIf="notifications?.length; else noAdminNotif">
+          <div class="notif-item" *ngFor="let n of notifications" [class.unread]="!n.seen" (click)="openNotification(n)">
+            <div class="notif-dot" *ngIf="!n.seen"></div>
+            <div class="notif-content">
+              <div class="notif-title">{{ n.content }}</div>
+              <div class="notif-time">{{ n.timestamp | date:'short' }}</div>
+            </div>
+          </div>
+        </div>
+        <ng-template #noAdminNotif>
+          <div class="notif-empty">You're all caught up!</div>
+        </ng-template>
+      </div>
+    </div>
 
     <button 
       class="action-btn" 

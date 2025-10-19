@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { AuthUser } from 'src/app/core/models/auth-user.model';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { NotificationService } from 'src/app/core/services/notification.service';
+import { NotificationItem } from 'src/app/core/models/notification.model';
 
 @Component({
   selector: 'app-navigation',
@@ -15,18 +17,31 @@ export class NavigationComponent implements OnInit, OnDestroy {
   activeSection = 'overview';
   isDropdownOpen = false;
   isMobileMenuOpen = false;
+  isNotificationOpen = false;
   user: AuthUser | null = null;
+  notifications: NotificationItem[] = [];
+  unread = 0;
 
   private destroy$ = new Subject<void>();
 
   constructor(
     public router: Router,
-    public authService: AuthService
+    public authService: AuthService,
+    private notificationService: NotificationService,
   ) {}
 
   ngOnInit(): void {
     this.subscribeToAuthState();
     this.checkTokenExpiration();
+    // Initialize notifications: fetch current DB list and connect to WS
+    this.notificationService.fetchAll();
+    this.notificationService.connect();
+    this.notificationService.getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(list => this.notifications = list);
+    this.notificationService.unreadCount()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(c => this.unread = c);
   }
 
   ngOnDestroy(): void {
@@ -44,11 +59,15 @@ export class NavigationComponent implements OnInit, OnDestroy {
   onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;
     const dropdown = target.closest('.user-menu');
+    const notif = target.closest('.notif-menu');
     const mobileToggle = target.closest('.mobile-toggle');
     const mobileMenu = target.closest('.nav-menu');
     
     if (!dropdown && this.isDropdownOpen) {
       this.closeDropdown();
+    }
+    if (!notif && this.isNotificationOpen) {
+      this.closeNotification();
     }
     
     if (!mobileToggle && !mobileMenu && this.isMobileMenuOpen) {
@@ -110,10 +129,29 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   toggleDropdown(): void {
     this.isDropdownOpen = !this.isDropdownOpen;
+    if (this.isDropdownOpen) this.isNotificationOpen = false;
   }
 
   closeDropdown(): void {
     this.isDropdownOpen = false;
+  }
+
+  toggleNotification(): void {
+    this.isNotificationOpen = !this.isNotificationOpen;
+    if (this.isNotificationOpen) this.isDropdownOpen = false;
+  }
+
+  closeNotification(): void {
+    this.isNotificationOpen = false;
+  }
+
+  markAllNotificationsAsRead(): void {
+    this.notificationService.markAllAsRead();
+  }
+
+  openNotification(n: NotificationItem): void {
+    this.notificationService.markAsRead(n.id);
+    this.closeNotification();
   }
 
   navigateToProfile(): void {
