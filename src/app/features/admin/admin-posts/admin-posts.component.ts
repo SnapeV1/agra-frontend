@@ -73,6 +73,7 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
             id: this.generateUserIdFromEmail(authUser.user.email).toString(),
             name: authUser.user.name || this.extractNameFromEmail(authUser.user.email),
             email: authUser.user.email,
+            picture: authUser.user.picture,
             role: authUser.user.role,
             registeredAt: authUser.user.registeredAt,
             archived: authUser.user.archived
@@ -363,6 +364,12 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
   // Comment functionality
   toggleComments(post: Post): void { 
     post.showComments = !post.showComments; 
+    if (post.showComments) {
+      const needsFetch = !post.comments || (post.commentsCount || 0) > (post.comments?.length || 0);
+      if (needsFetch) {
+        this.postsService.loadCommentsForPost(post.id);
+      }
+    }
   }
 
   addComment(post: Post): void {

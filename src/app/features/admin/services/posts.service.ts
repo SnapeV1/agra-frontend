@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import {map } from 'rxjs/operators';
+import {map, switchMap, tap } from 'rxjs/operators';
 import { Post } from '../../../core/models/post.module';
 import { PostComment } from '../../../core/models/post-comment.module';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { UsersService } from '../services/users.service';
+import { User } from '../../../core/models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -15,8 +17,62 @@ export class PostsService {
   posts$ = this.postsSubject.asObservable();
 
   private readonly apiUrl = 'http://localhost:8080/api/posts/sorted';
+  private usersIndex: Map<string, User> | null = null;
   constructor(private http: HttpClient,private authService: AuthService,
-  ) {}
+              private usersService: UsersService,
+  ) {
+    // When auth user changes (login/logout), re-apply liked flags from local cache
+    this.authService.currentUser.subscribe(() => {
+      this.applyLikedCacheToPosts();
+    });
+  }
+
+  private getCurrentUserId(): string | null {
+    try {
+      return this.authService.currentUserValue?.user?.id || null;
+    } catch {
+      return null;
+    }
+  }
+
+  private likedStorageKey(userId: string): string {
+    return `liked_posts_${userId}`;
+  }
+
+  private loadLikedSet(userId: string): Set<string> {
+    try {
+      const raw = localStorage.getItem(this.likedStorageKey(userId));
+      if (!raw) return new Set();
+      const arr = JSON.parse(raw);
+      return new Set(Array.isArray(arr) ? arr : []);
+    } catch {
+      return new Set();
+    }
+  }
+
+  private saveLikedSet(userId: string, ids: Set<string>): void {
+    try {
+      localStorage.setItem(this.likedStorageKey(userId), JSON.stringify(Array.from(ids)));
+    } catch {}
+  }
+
+  private applyLikedCacheToPosts(): void {
+    if (!this.posts || this.posts.length === 0) return;
+    const userId = this.getCurrentUserId();
+    if (!userId) {
+      // Logged out: clear liked UI flags
+      this.posts = this.posts.map(p => ({ ...p, isLikedByCurrentUser: false }));
+      this.updatePosts();
+      return;
+    }
+    const likedSet = this.loadLikedSet(userId);
+    const updated = this.posts.map(p => ({
+      ...p,
+      isLikedByCurrentUser: p.isLikedByCurrentUser === true ? true : likedSet.has(p.id)
+    }));
+    this.posts = updated;
+    this.updatePosts();
+  }
   /** Fetch all posts from backend */
   fetchPosts(): void {
     const token = this.authService.getToken();
@@ -24,26 +80,38 @@ export class PostsService {
     this.http.get<Post[]>(this.apiUrl, options)
       .pipe(
         map(posts => {
-          return posts.map(post => ({
-            ...post,
-            createdAt: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
-            updatedAt: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
-            comments: post.comments || [],
-            // Trust server-provided liked flag; default to false if absent
-            isLikedByCurrentUser: post.isLikedByCurrentUser === true,
-            likesCount: post.likesCount || 0,
-            commentsCount: post.commentsCount || 0,
-            // Local UI flags (not in model)
-            showComments: false,
-            newComment: '',
-            showDropdown: false
-          }));
+          const userId = this.getCurrentUserId();
+          const likedSet = userId ? this.loadLikedSet(userId) : new Set<string>();
+          return posts.map(post => {
+            const normalized: Post = {
+              ...post,
+              createdAt: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+              updatedAt: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
+              comments: post.comments || [],
+              // Use server flag if present; otherwise fall back to local cache
+              isLikedByCurrentUser: (post as any).isLikedByCurrentUser === true
+                ? true
+                : (likedSet.has(post.id)),
+              likesCount: post.likesCount || 0,
+              commentsCount: post.commentsCount || 0,
+              // Local UI flags (not in model)
+              showComments: false,
+              newComment: '',
+              showDropdown: false
+            } as Post;
+            return normalized;
+          });
         })
       )
       .subscribe({
         next: (data) => {
           this.posts = data;
           this.sortPosts();
+          // Preload comments for posts that have them but arrived without embedded comments
+          try {
+            const toFetch = this.posts.filter(p => (p.commentsCount || 0) > 0 && (!p.comments || p.comments.length < (p.commentsCount || 0)));
+            toFetch.forEach(p => this.loadCommentsForPost(p.id));
+          } catch {}
         },
         error: () => {
         }
@@ -120,6 +188,13 @@ export class PostsService {
                 target.likesCount = Math.max(0, current + (serverLiked ? 1 : -1));
               }
               target.isLikedByCurrentUser = serverLiked;
+              // Persist per-user liked state locally for refresh persistence
+              const userId = this.getCurrentUserId();
+              if (userId) {
+                const set = this.loadLikedSet(userId);
+                if (serverLiked) set.add(target.id); else set.delete(target.id);
+                this.saveLikedSet(userId, set);
+              }
             }
             this.updatePosts();
           } else if (response && typeof response === 'object') {
@@ -132,6 +207,12 @@ export class PostsService {
                 target.likesCount = Math.max(0, current + (serverLiked ? 1 : -1));
               }
               target.isLikedByCurrentUser = serverLiked;
+              const userId = this.getCurrentUserId();
+              if (userId) {
+                const set = this.loadLikedSet(userId);
+                if (serverLiked) set.add(target.id); else set.delete(target.id);
+                this.saveLikedSet(userId, set);
+              }
             }
             if (typeof response.likesCount === 'number') {
               target.likesCount = response.likesCount;
@@ -188,18 +269,78 @@ export class PostsService {
     }
   }
 
+  /** Fetch all comments for a post from backend and merge into local state */
+  loadCommentsForPost(postId: string): void {
+    const index = this.posts.findIndex(p => p.id === postId);
+    if (index === -1) return;
+    const token = this.authService.getToken();
+    const url = `http://localhost:8080/api/posts/${postId}/comments`;
+    const options = token ? { headers: { 'Authorization': `Bearer ${token}` } } : {};
+    this.http.get<PostComment[]>(url, options).pipe(
+      switchMap((comments) => {
+        const normalized = (comments || []).map(c => ({
+          ...c,
+          likesCount: c.likesCount || 0,
+          isLikedByCurrentUser: c.isLikedByCurrentUser === true,
+        } as PostComment));
+        const needsEnrich = normalized.some(c => (!c.userInfo || !c.userInfo.picture) && !!c.userId);
+        if (!needsEnrich) return of(normalized);
+        return this.ensureUsersIndex().pipe(
+          map(() => {
+            const idx = this.usersIndex || new Map<string, User>();
+            normalized.forEach(c => {
+              if ((!c.userInfo || !c.userInfo.picture) && c.userId) {
+                const u = idx.get(c.userId);
+                if (u) c.userInfo = { ...u };
+              }
+            });
+            return normalized;
+          })
+        );
+      })
+    ).subscribe({
+      next: (normalized) => {
+        this.posts[index].comments = normalized;
+        this.posts[index].commentsCount = normalized.length;
+        this.updatePosts();
+      },
+      error: () => {
+        // Silently ignore; keep current local comments if any
+      }
+    });
+  }
+
+  private ensureUsersIndex(): Observable<void> {
+    if (this.usersIndex) return of(void 0);
+    return this.usersService.getAllUsers().pipe(
+      tap((users: User[]) => {
+        const mapIdx = new Map<string, User>();
+        (users || []).forEach(u => { if (u?.id) mapIdx.set(u.id, u); });
+        this.usersIndex = mapIdx;
+      }),
+      map(() => void 0)
+    );
+  }
+
   /** Add a comment to a post */
   addComment(post: Post, comment: PostComment): void {
+    // Find the canonical post by id to avoid mutating caller's copy
+    const index = this.posts.findIndex(p => p.id === post.id);
+    if (index === -1) {
+      console.warn('[PostsService] addComment: post not found', { id: post?.id });
+      return;
+    }
+    const target = this.posts[index];
     // Update local state immediately for better UX
-    post.comments = post.comments || [];
-    post.comments.push(comment);
-    post.commentsCount = (post.commentsCount || 0) + 1;
+    target.comments = target.comments || [];
+    target.comments.push(comment);
+    target.commentsCount = (target.commentsCount || 0) + 1;
     this.updatePosts();
 
     // Make API call to persist the comment
     const token = this.authService.getToken();
     if (token) {
-      this.http.post(`http://localhost:8080/api/posts/${post.id}/comments`, {
+      this.http.post(`http://localhost:8080/api/posts/${target.id}/comments`, {
         content: comment.content
       }, {
         headers: {
@@ -215,10 +356,13 @@ export class PostsService {
           }
         },
         error: (error) => {
-          
           // Remove the comment from local state on error
-          post.comments = post.comments?.filter(c => c.id !== comment.id) || [];
-          post.commentsCount = Math.max(0, (post.commentsCount || 1) - 1);
+          const idx = this.posts.findIndex(p => p.id === target.id);
+          if (idx !== -1) {
+            const t = this.posts[idx];
+            t.comments = (t.comments || []).filter(c => c !== comment && c.id !== comment.id);
+            t.commentsCount = Math.max(0, (t.commentsCount || 1) - 1);
+          }
           this.updatePosts();
         }
       });

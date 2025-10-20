@@ -9,9 +9,16 @@
     <!-- Post Creator -->
     <div class="post-creator" [class.creating]="isCreatingPost">
       <div class="creator-header" *ngIf="!showCreateForm">
-        <div class="avatar">
-          {{ currentUser?.name?.charAt(0) || 'A' }}
-        </div>
+        <ng-container *ngIf="currentUser?.picture; else nameInitialAvatar">
+          <img [src]="currentUser?.picture"
+               [alt]="currentUser?.name || 'User avatar'"
+               class="post-avatar">
+        </ng-container>
+        <ng-template #nameInitialAvatar>
+          <div class="avatar">
+            {{ currentUser?.name?.charAt(0) || 'A' }}
+          </div>
+        </ng-template>
         <div class="post-input" (click)="toggleCreateForm()" [class.disabled]="isCreatingPost">
           What's on your mind?
         </div>
@@ -19,9 +26,16 @@
 
       <div class="post-form" [class.active]="showCreateForm">
         <div class="form-header">
-          <div class="avatar">
-            {{ currentUser?.name?.charAt(0) || 'A' }}
-          </div>
+          <ng-container *ngIf="currentUser?.picture; else nameInitialAvatarForm">
+            <img [src]="currentUser?.picture"
+                 [alt]="currentUser?.name || 'User avatar'"
+                 class="post-avatar">
+          </ng-container>
+          <ng-template #nameInitialAvatarForm>
+            <div class="avatar">
+              {{ currentUser?.name?.charAt(0) || 'A' }}
+            </div>
+          </ng-template>
           <textarea 
             class="post-textarea" 
             placeholder="What's on your mind?"

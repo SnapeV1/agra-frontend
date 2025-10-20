@@ -139,9 +139,10 @@
         <!-- Existing Comments -->
         <div class="comments-list" *ngIf="post.comments">
           <div class="comment" *ngFor="let comment of post.comments">
-            <img [src]="comment.userInfo?.picture || 'https://via.placeholder.com/32x32/cccccc/666666?text=?'"
+            <img [src]="comment.userInfo?.picture"
                  [alt]="comment.userInfo?.name || 'User'"
-                 class="comment-avatar">
+                 class="comment-avatar"
+                 (error)="onCommentAvatarError(comment)">
             <div class="comment-content">
               <div class="comment-header">
                 <span class="comment-user">{{ comment.userInfo?.name }}</span>

@@ -81,26 +81,22 @@ export class FeedComponent implements OnInit, OnDestroy {
             const existingPost = this.posts.find(p => p.id === servicePost.id);
             return {
               ...servicePost,
-              user: servicePost.userInfo,
-              content: servicePost.content || '',
-              image: servicePost.imageUrl,
-              timestamp: servicePost.createdAt ? new Date(servicePost.createdAt) : new Date(),
-              // Use canonical like state from service to avoid double updates and drift
-              isLikedByCurrentUser: servicePost.isLikedByCurrentUser ?? false,
-              likesCount: servicePost.likesCount ?? 0,
-              comments: (servicePost.comments || []).map(comment => ({
-                id: comment.id,
-                user: comment.userInfo ? comment.userInfo : this.getDefaultUser(),
-                content: comment.content,
-                timestamp: comment.createdAt ? new Date(comment.createdAt) : new Date(),
-                likes: comment.likesCount || 0,
-                isLiked: comment.isLikedByCurrentUser || false
-              })),
+              // Keep comments as provided by service to match template bindings
+              comments: servicePost.comments || [],
               // Preserve UI state from existing post
               showComments: existingPost?.showComments || servicePost.showComments || false,
               newComment: existingPost?.newComment || servicePost.newComment || ''
             };
           });
+          // Debug: log commenter userInfo to inspect picture field presence
+          try {
+            updatedPosts.forEach(p => (p.comments || []).forEach((c: any) => {
+              // Only log when picture missing or load issues suspected
+              if (!c?.userInfo?.picture) {
+                console.log('[Feed] comment.userInfo (no picture)', c?.userInfo, 'commentId=', c?.id, 'postId=', p.id);
+              }
+            }));
+          } catch {}
           
           this.posts = updatedPosts;
           this.loading = false;
@@ -195,6 +191,13 @@ export class FeedComponent implements OnInit, OnDestroy {
     const postIndex = this.posts.findIndex(p => p.id === post.id);
     if (postIndex !== -1) {
       this.posts[postIndex].showComments = post.showComments;
+      if (post.showComments) {
+        const p = this.posts[postIndex];
+        const needsFetch = !p.comments || ((p.commentsCount || 0) > (p.comments?.length || 0));
+        if (needsFetch) {
+          this.postsService.loadCommentsForPost(p.id);
+        }
+      }
     }
   }
 
@@ -223,17 +226,6 @@ export class FeedComponent implements OnInit, OnDestroy {
         };
 
         this.postsService.addComment(originalPost, newComment);
-        
-        const displayComment = {
-          id: newComment.id,
-          user: this.currentUser,
-          content: newComment.content,
-          timestamp: new Date(),
-          likes: 0,
-          isLiked: false
-        };
-        
-        post.comments.push(displayComment);
         post.newComment = '';
         post.showComments = true;
       }
@@ -279,6 +271,13 @@ export class FeedComponent implements OnInit, OnDestroy {
       event.preventDefault();
       this.addComment(post);
     }
+  }
+
+  // Image error handler to log userInfo when avatar fails to load
+  onCommentAvatarError(comment: any): void {
+    try {
+      console.warn('[Feed] comment avatar failed to load', { userInfo: comment?.userInfo, commentId: comment?.id });
+    } catch {}
   }
 
   canInteract(): boolean {
