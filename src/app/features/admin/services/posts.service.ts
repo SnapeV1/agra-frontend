@@ -85,9 +85,15 @@ export class PostsService {
           return posts.map(post => {
             const normalized: Post = {
               ...post,
-              createdAt: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
-              updatedAt: post.updatedAt ? new Date(post.updatedAt).toISOString() : undefined,
-              comments: post.comments || [],
+              createdAt: this.normalizeIsoUtc(post.createdAt),
+              updatedAt: this.normalizeIsoUtc(post.updatedAt),
+              comments: (post.comments || []).map(c => ({
+                ...c,
+                createdAt: this.normalizeIsoUtc(c.createdAt),
+                updatedAt: this.normalizeIsoUtc(c.updatedAt),
+                likesCount: c.likesCount || 0,
+                isLikedByCurrentUser: c.isLikedByCurrentUser === true,
+              } as PostComment)),
               // Use server flag if present; otherwise fall back to local cache
               isLikedByCurrentUser: (post as any).isLikedByCurrentUser === true
                 ? true
@@ -280,6 +286,8 @@ export class PostsService {
       switchMap((comments) => {
         const normalized = (comments || []).map(c => ({
           ...c,
+          createdAt: this.normalizeIsoUtc(c.createdAt),
+          updatedAt: this.normalizeIsoUtc(c.updatedAt),
           likesCount: c.likesCount || 0,
           isLikedByCurrentUser: c.isLikedByCurrentUser === true,
         } as PostComment));
@@ -308,6 +316,17 @@ export class PostsService {
         // Silently ignore; keep current local comments if any
       }
     });
+  }
+
+  private normalizeIsoUtc(input?: string): string | undefined {
+    if (!input) return undefined;
+    try {
+      const hasTz = /Z|[+-]\d{2}:\d{2}$/.test(input);
+      const iso = hasTz ? new Date(input) : new Date(input + 'Z');
+      return isNaN(iso.getTime()) ? undefined : iso.toISOString();
+    } catch {
+      return undefined;
+    }
   }
 
   private ensureUsersIndex(): Observable<void> {

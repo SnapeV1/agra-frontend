@@ -85,7 +85,8 @@ export class FeedComponent implements OnInit, OnDestroy {
               comments: servicePost.comments || [],
               // Preserve UI state from existing post
               showComments: existingPost?.showComments || servicePost.showComments || false,
-              newComment: existingPost?.newComment || servicePost.newComment || ''
+              // Always reset the composer after updates to avoid stale text lingering
+              newComment: ''
             };
           });
           // Debug: log commenter userInfo to inspect picture field presence
@@ -248,8 +249,8 @@ export class FeedComponent implements OnInit, OnDestroy {
       return 'Unknown time';
     }
 
-    const nowUtc = Date.now();
-    let diffInMilliseconds = nowUtc - date.getTime() - 3600000;
+    // Compute difference without hardcoded timezone offsets
+    let diffInMilliseconds = Date.now() - date.getTime();
 
     if (diffInMilliseconds < 0) diffInMilliseconds = 0;
 
@@ -258,10 +259,10 @@ export class FeedComponent implements OnInit, OnDestroy {
     const diffInHours = Math.floor(diffInMinutes / 60);
     const diffInDays = Math.floor(diffInHours / 24);
 
-    if (diffInSeconds < 60) return diffInSeconds <= 1 ? 'Just now' : `${diffInSeconds}s ago`;
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    if (diffInDays < 7) return `${diffInDays}d ago`;
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'} ago`;
+    if (diffInHours < 24) return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
+    if (diffInDays < 2) return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
 
     return date.toLocaleDateString();
   }
