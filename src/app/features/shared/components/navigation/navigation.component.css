@@ -286,7 +286,7 @@
   padding: 1rem;
   background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
   border-radius: 12px 12px 0 0;
-  color: white;
+
 }
 
 .dropdown-avatar {

@@ -1,18 +1,24 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { Observable, map } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ChatbotService {
-  private endpoint = `${environment.chatbotApiUrl}/chat`;
+  private endpoint = `${environment.chatbotApiUrl}/respond`;
 
   constructor(private http: HttpClient) {}
 
   sendMessage(message: string): Observable<string> {
     return this.http
-      .post<{ response: string }>(this.endpoint, { message })
-      .pipe(map((res) => (res && res.response ? res.response : '')));
+      .post<{ id: string; answer: string; confidence: string; matchedTags: string[] }>(this.endpoint, { message })
+      .pipe(
+        tap((res) => console.log('Chatbot respond:', res)),
+        map((res) => (res && res.answer ? res.answer : ''))
+      );
   }
 }
+
+
+
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ChatbotService } from '../../services/chatbot.service';
 
 @Component({
@@ -18,11 +18,11 @@ export class ChatbotWidgetComponent implements OnInit {
     }
   ];
   input = '';
-  quickTopics: string[] = ['Crop rotation tips', 'Soil health', 'Pest management', 'Irrigation methods'];
+  quickTopics: string[] = ['How are you doing today?', 'introduce yourself', 'contact support', 'Irrigation methods'];
   sending = false;
   typing = false;
 
-  constructor(private chatbot: ChatbotService) {}
+  constructor(private chatbot: ChatbotService, private cdr: ChangeDetectorRef) {}
 
   trackByMessage(index: number, item: { from: 'user'|'bot'; text: string; timestamp: Date }) {
     return index;
@@ -38,6 +38,7 @@ export class ChatbotWidgetComponent implements OnInit {
     this.messages.push({ from: 'user', text, timestamp: new Date() });
     this.input = '';
     this.scrollToBottom();
+    this.cdr.markForCheck();
     this.queryBot(text);
   }
 
@@ -68,6 +69,7 @@ export class ChatbotWidgetComponent implements OnInit {
   onQuick(topic: string): void {
     this.messages.push({ from: 'user', text: topic, timestamp: new Date() });
     this.scrollToBottom();
+    this.cdr.markForCheck();
     this.queryBot(topic);
   }
 
@@ -75,17 +77,35 @@ export class ChatbotWidgetComponent implements OnInit {
     if (this.sending) return;
     this.sending = true;
     this.typing = true;
+    const startedAt = Date.now();
+
     this.chatbot.sendMessage(text).subscribe({
       next: (reply) => {
-        const textOut = (reply && reply.trim()) ? reply : "I'm not sure I understood that.";
-        this.messages.push({ from: 'bot', text: textOut, timestamp: new Date() });
-        this.scrollToBottom();
+        const show = () => {
+          const textOut = (reply && reply.trim()) ? reply : "I'm not sure I understood that.";
+          this.messages.push({ from: 'bot', text: textOut, timestamp: new Date() });
+          this.scrollToBottom();
+          this.sending = false;
+          this.typing = false;
+          this.cdr.markForCheck();
+        };
+        const elapsed = Date.now() - startedAt;
+        const delay = Math.max(0, 2000 - elapsed);
+        setTimeout(show, delay);
       },
       error: () => {
-        this.messages.push({ from: 'bot', text: 'Chat service unavailable. Please try again later.', timestamp: new Date() });
-        this.scrollToBottom();
+        const show = () => {
+          this.messages.push({ from: 'bot', text: 'Chat service unavailable. Please try again later.', timestamp: new Date() });
+          this.scrollToBottom();
+          this.sending = false;
+          this.typing = false;
+          this.cdr.markForCheck();
+        };
+        const elapsed = Date.now() - startedAt;
+        const delay = Math.max(0, 2000 - elapsed);
+        setTimeout(show, delay);
       },
-      complete: () => { this.sending = false; this.typing = false; }
+      complete: () => { /* handled after delay */ }
     });
   }
 

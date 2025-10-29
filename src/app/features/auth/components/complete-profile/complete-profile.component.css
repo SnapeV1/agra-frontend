@@ -1,0 +1,18 @@
+/* Minimal styles aligned with auth pages */
+.complete-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; padding-top: 100px; position: relative; font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+.complete-bg { position: absolute; inset: 0; background: linear-gradient(135deg,#065f46 0%,#047857 25%,#059669 50%,#10b981 75%,#34d399 100%); }
+.background-overlay { position: absolute; inset: 0; opacity: .3; }
+.complete-card { background: #fff; border-radius: 24px; padding: 2rem; width: 100%; max-width: 560px; position: relative; z-index: 1; box-shadow: 0 20px 40px rgba(0,0,0,.15); }
+.complete-header { text-align: center; margin-bottom: 1rem; }
+.logo img { height: 60px; }
+.form-group { margin-bottom: 1rem; }
+.input-wrapper { position: relative; display: flex; align-items: center; }
+.input-wrapper input, .input-wrapper select { width: 100%; padding: .9rem 1rem; border: 2px solid #e5e7eb; border-radius: 12px; font-size: .95rem; }
+.input-wrapper input:placeholder-shown { border-color: #ef4444; }
+.input-wrapper select:invalid { border-color: #ef4444; }
+.notice { background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; padding: .75rem 1rem; border-radius: 12px; margin-bottom: 1rem; }
+.password-toggle { position: absolute; right: .5rem; background: none; border: none; color: #6b7280; cursor: pointer; }
+.primary { width: 100%; background: linear-gradient(135deg,#10b981 0%,#059669 100%); color: #fff; border: none; padding: .9rem 1rem; border-radius: 12px; font-weight: 600; }
+.error { color: #ef4444; margin:.5rem 0; }
+.success { color: #059669; margin:.5rem 0; }
+@import '../register/register.component.css';

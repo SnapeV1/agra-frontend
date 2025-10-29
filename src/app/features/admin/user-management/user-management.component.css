@@ -63,6 +63,7 @@
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .user-table {
@@ -485,11 +486,35 @@
 
 @media (max-width: 640px) {
   .user-table {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
+    min-width: 0;
+    border-collapse: separate;
   }
-  
-  .user-table th,
+  .user-table thead {
+    display: none;
+  }
+  .user-table tbody tr {
+    display: block;
+    margin: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+    overflow: hidden;
+  }
+  .user-table tbody tr:hover { background: #fff; }
   .user-table td {
-    padding: 0.75rem 0.5rem;
+    display: grid;
+    grid-template-columns: 40% 60%;
+    padding: 0.75rem 0.75rem;
+    border-bottom: 1px solid #f1f5f9;
   }
+  .user-table td:last-child { border-bottom: none; }
+  .user-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #475569;
+    padding-right: 0.75rem;
+  }
+  .actions { display: flex; gap: 0.5rem; }
+  .btn { padding: 0.5rem 0.75rem; font-size: 0.85rem; }
 }

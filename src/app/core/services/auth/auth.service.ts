@@ -1,10 +1,11 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, NgZone } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { AuthUser } from 'src/app/core/models/auth-user.model';
 import { User } from 'src/app/core/models/user.model';
+import { environment } from 'src/environments/environment';
 
 export interface LoginResponse {
   token: string;
@@ -30,7 +31,7 @@ export class AuthService implements OnDestroy {
   private isAuthenticatedSubject: BehaviorSubject<boolean>;
   public isAuthenticated$: Observable<boolean>;
   
-  public redirectUrl: string = '/home';
+  public redirectUrl: string | null = null;
   private refreshTokenTimeout: any;
   private isRefreshing = false;
 
@@ -42,7 +43,7 @@ export class AuthService implements OnDestroy {
   private readonly PICTURE_KEY = 'user_picture';
   private readonly TOKEN_REFRESH_THRESHOLD = 5 * 60; 
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(private http: HttpClient, private router: Router, private ngZone: NgZone) {
     this.currentUserSubject = new BehaviorSubject<AuthUser | null>(null);
     this.currentUser = this.currentUserSubject.asObservable();
     this.isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
@@ -86,6 +87,52 @@ export class AuthService implements OnDestroy {
     );
   }
 
+  // Simple connectivity test to the backend health endpoint
+  testConnection(): Observable<any> {
+    const base = (environment as any)?.apiBaseUrl || 'http://localhost:8080/api';
+    const url = `${base}/auth/health/google`;
+    return this.http.get(url, { observe: 'response' }).pipe(
+      tap(() => {}),
+      catchError(this.handleError)
+    );
+  }
+
+  // Backend-verified Google login. Sends the Google ID token to backend `/api/auth/google`.
+  // On success, persists returned JWT, refresh token (if any), and user profile.
+  loginWithGoogleIdToken(idToken: string): void {
+    this.http
+      .post<LoginResponse>(`${this.apiUrl}/google`, { token: idToken })
+      .pipe(
+        tap((response) => {
+          try {
+            if (response?.user) {
+              const { email, name, role } = response.user;
+              const picture = (response.user as any)?.picture;
+              console.log('[Auth][Google] Backend user', { email, name, role, picture });
+            }
+          } catch {}
+          this.handleSuccessfulAuth(response);
+        }),
+        catchError(this.handleError)
+      )
+      .subscribe({
+        next: () => {},
+        error: () => {}
+      });
+  }
+
+  // Completes signup by setting a password for the current (Google-authenticated) user
+  setPassword(newPassword: string): Observable<any> {
+    const token = this.getStoredItem(this.TOKEN_KEY);
+    if (!token) return throwError(() => new Error('Not authenticated'));
+    return this.http.post<any>(`${this.apiUrl}/set-password`, { password: newPassword }, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    }).pipe(
+      tap(() => {}),
+      catchError(this.handleError)
+    );
+  }
+
   private handleSuccessfulAuth(response: LoginResponse): void {
   this.setStoredItem(this.TOKEN_KEY, response.token);
   this.setStoredItem(this.EMAIL_KEY, response.user.email);
@@ -103,14 +150,16 @@ export class AuthService implements OnDestroy {
   this.currentUserSubject.next(authUser);
   this.isAuthenticatedSubject.next(true);
   this.setupTokenRefreshTimer();
-  this.router.navigate([this.redirectUrl || '/home']);
-  this.redirectUrl = '/home';
+  const fallback = this.isProfileComplete(response.user) ? '/home' : '/complete-profile';
+  const target = this.redirectUrl ?? fallback;
+  this.ngZone.run(() => this.router.navigate([target]));
+  this.redirectUrl = null;
 }
 
 
   logout(redirectTo: string = '/login'): void {
     this.clearAuthData();
-    this.router.navigate([redirectTo]);
+    this.ngZone.run(() => this.router.navigate([redirectTo]));
   }
 
   public get currentUserValue(): AuthUser | null {
@@ -127,6 +176,13 @@ export class AuthService implements OnDestroy {
   getUserPicture(): string | null {
   return this.getStoredItem(this.PICTURE_KEY);
 }
+
+  private isProfileComplete(user: User | null | undefined): boolean {
+    if (!user) return false;
+    const hasPhone = !!user.phone;
+    const hasRole = !!user.role;
+    return hasPhone && hasRole;
+  }
 
 
   refreshToken(): Observable<RefreshTokenResponse> {
@@ -279,7 +335,11 @@ isUser(): boolean {
 
  getCurrentUserFromBackend(): Observable<User> {
     const token = this.getStoredItem(this.TOKEN_KEY);
-    if (!token) return throwError(() => new Error('No auth token found'));
+    if (!token) {
+      // No token present; ensure logout state
+      this.logout();
+      return throwError(() => new Error('No auth token found'));
+    }
 
     return this.http.get<User>(this.USER_ME_URL, {
       headers: {
@@ -294,6 +354,8 @@ isUser(): boolean {
         }
       }),
       catchError(err => {
+        // If user retrieval fails for any reason, log them out
+        try { this.logout(); } catch {}
         return throwError(() => err);
       })
     );
@@ -331,5 +393,19 @@ isUser(): boolean {
 getToken(): string | null {
   return localStorage.getItem('auth_token');
 }
+
+  // Keeping decodeJwt helper in case it is useful elsewhere; not used in the Google flow now.
+  private decodeJwt(token: string): any | null {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    } catch {
+      return null;
+    }
+  }
 
 }

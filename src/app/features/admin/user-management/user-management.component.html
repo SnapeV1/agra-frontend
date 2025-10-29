@@ -36,21 +36,21 @@
       </thead>
       <tbody>
         <tr *ngFor="let user of filteredUsers" class="fade-in">
-          <td>
+          <td data-label="Name">
             <div class="user-name">{{ user.name }}</div>
           </td>
-          <td>
+          <td data-label="Email">
             <div class="user-email">{{ user.email }}</div>
           </td>
-          <td>{{ user.phone || '-' }}</td>
-          <td>{{ user.country || '-' }}</td>
-          <td>{{ user.language || '-' }}</td>
-          <td>{{ user.domain || '-' }}</td>
-          <td>
+          <td data-label="Phone">{{ user.phone || '-' }}</td>
+          <td data-label="Country">{{ user.country || '-' }}</td>
+          <td data-label="Language">{{ user.language || '-' }}</td>
+          <td data-label="Domain">{{ user.domain || '-' }}</td>
+          <td data-label="Role">
             <span class="role-badge">{{ user.role }}</span>
           </td>
-          <td>{{ user.registeredAt | date:'mediumDate' }}</td>
-          <td>
+          <td data-label="Registered">{{ user.registeredAt | date:'mediumDate' }}</td>
+          <td data-label="Status">
             <span 
               class="status-badge" 
               [ngClass]="{
@@ -61,7 +61,7 @@
               {{ user.archived ? 'Archived' : 'Active' }}
             </span>
           </td>
-          <td>
+          <td data-label="Actions">
             <div class="actions">
               <button 
                 class="btn btn-edit"

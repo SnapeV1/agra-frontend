@@ -44,24 +44,6 @@
                </option>
              </select>
            </div>
-           
-           <div class="filter-dropdown">
-             <svg class="filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-             </svg>
-             <select 
-               class="filter-select"
-               [(ngModel)]="selectedLevel"
-               (change)="onLevelChange($event)"
-             >
-               <option 
-                 *ngFor="let level of levelOptions" 
-                 [value]="level.value"
-               >
-                 {{ level.label }}
-               </option>
-             </select>
-           </div>
          </div>
       </div>
     </div>
@@ -138,7 +120,7 @@
             
             <div class="course-instructor">
               <img 
-                src="https://via.placeholder.com/32x32/667eea/ffffff?text=I" 
+                src="/assets/umnagrilogo.png"
                 alt="Instructor" 
                 class="instructor-avatar"
               />

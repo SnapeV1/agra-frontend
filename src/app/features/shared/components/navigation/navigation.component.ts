@@ -33,9 +33,11 @@ export class NavigationComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscribeToAuthState();
     this.checkTokenExpiration();
-    // Initialize notifications: fetch current DB list and connect to WS
-    this.notificationService.fetchAll();
-    this.notificationService.connect();
+    // Initialize notifications only when authenticated
+    if (this.authService.isAuthenticated()) {
+      this.notificationService.fetchAll();
+      this.notificationService.connect();
+    }
     this.notificationService.getAll()
       .pipe(takeUntil(this.destroy$))
       .subscribe(list => this.notifications = list);
@@ -81,6 +83,13 @@ export class NavigationComponent implements OnInit, OnDestroy {
       .subscribe(isAuthenticated => {
         this.isLoggedIn = isAuthenticated;
         if (!isAuthenticated) this.user = null;
+        // Connect or disconnect notifications based on auth state
+        if (isAuthenticated) {
+          this.notificationService.fetchAll();
+          this.notificationService.connect();
+        } else {
+          this.notificationService.disconnect();
+        }
       });
 
     this.authService.currentUser

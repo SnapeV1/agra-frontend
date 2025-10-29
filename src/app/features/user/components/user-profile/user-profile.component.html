@@ -159,11 +159,40 @@
               <lucide-icon name="Phone" class="w-4 h-4"></lucide-icon>
               Phone Number
             </label>
-            <input *ngIf="isEditing" 
-                   [(ngModel)]="editForm.phone" 
-                   type="tel" 
-                   placeholder="Enter your phone number"
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            <div *ngIf="isEditing" class="phone-input-container">
+              <div class="country-code-wrapper">
+                <div class="custom-select" [class.open]="isCountryDropdownOpen" (keydown)="onDropdownKeydown($event)" tabindex="0">
+                  <div class="select-trigger" (click)="toggleCountryDropdown()">
+                    <span class="selected-country">
+                      <span class="fi fi-{{ getSelectedCountry().country.toLowerCase() }}"></span>
+                      {{ editSelectedCountryCode || 'Select' }}
+                    </span>
+                    <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                      <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div class="select-options" *ngIf="isCountryDropdownOpen">
+                    <div class="select-option country-option"
+                         *ngFor="let country of countryCodes"
+                         (click)="selectCountry(country)"
+                         [class.selected]="editSelectedCountryCode === country.code"
+                         [class.highlighted]="highlightedCountry && highlightedCountry.code === country.code">
+                      <span class="fi fi-{{ country.country.toLowerCase() }}"></span>
+                      <span class="country-code">{{ country.code }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="phone-input-wrapper">
+                <input
+                  type="tel"
+                  [(ngModel)]="editPhoneRaw"
+                  (input)="onPhoneInput($event)"
+                  (keydown)="onPhoneKeydown($event)"
+                  placeholder="123-456-7890"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+              </div>
+            </div>
             <p *ngIf="!isEditing" class="px-3 py-2 bg-gray-50 rounded-lg">{{ getUserPhone() }}</p>
           </div>
 
@@ -173,7 +202,18 @@
               <lucide-icon name="Globe" class="w-4 h-4"></lucide-icon>
               Language
             </label>
-            <p class="px-3 py-2 bg-gray-50 rounded-lg">English</p>
+            <ng-container *ngIf="isEditing; else displayLanguage">
+              <select [(ngModel)]="editForm.language"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <option value="">Select language</option>
+                <option value="en">English</option>
+                <option value="fr">French</option>
+                <option value="ar">Arabic</option>
+              </select>
+            </ng-container>
+            <ng-template #displayLanguage>
+              <p class="px-3 py-2 bg-gray-50 rounded-lg">{{ getLanguageLabel() }}</p>
+            </ng-template>
           </div>
         </div>
 

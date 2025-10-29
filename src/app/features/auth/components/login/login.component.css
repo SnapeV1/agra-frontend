@@ -80,6 +80,12 @@
   margin-bottom: 1.5rem;
 }
 
+.logo img {
+  height: 70px;
+  width: auto;
+  display: block;
+}
+
 .logo span {
   font-size: 1.5rem;
   font-weight: 700;

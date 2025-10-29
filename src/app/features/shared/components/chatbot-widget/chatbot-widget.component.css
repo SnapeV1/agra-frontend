@@ -6,6 +6,13 @@
   font-family: "Segoe UI", sans-serif;
   z-index: 1000;
 }
+/* Respect device safe areas (iOS notch) */
+@supports (bottom: env(safe-area-inset-bottom)) {
+  .chatbot-widget {
+    bottom: calc(24px + env(safe-area-inset-bottom));
+    right: calc(24px + env(safe-area-inset-right));
+  }
+}
 
 /* Floating Button */
 .chat-toggle {
@@ -57,6 +64,7 @@
   flex-direction: column;
   overflow: hidden;
   transition: all 0.3s ease;
+  max-height: calc(100vh - 120px);
 }
 .chat-window.open {
   display: flex;
@@ -265,4 +273,45 @@
 }
 .chat-send:hover {
   transform: scale(1.1);
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .chat-window {
+    width: 92vw;
+    height: 65vh;
+    bottom: 80px;
+    right: -6px;
+    max-height: calc(100vh - 100px);
+  }
+  .chat-header {
+    padding: 10px 12px;
+  }
+  .chat-messages {
+    padding: 12px;
+  }
+  .message { max-width: 85%; }
+}
+
+@media (max-width: 480px) {
+  .chat-toggle { width: 56px; height: 56px; }
+  .chat-toggle lucide-icon { width: 28px; height: 28px; }
+  .chat-window {
+    width: calc(100vw - 16px);
+    height: 70vh;
+    right: -8px;
+    bottom: 78px;
+    border-radius: 12px;
+  }
+  .chat-tooltip { display: none; }
+  .chat-input { font-size: 13px; }
+  .chat-send { width: 34px; height: 34px; }
+}
+
+@media (max-width: 360px) {
+  .chat-window {
+    width: 100vw;
+    right: -12px;
+    height: 72vh;
+  }
 }

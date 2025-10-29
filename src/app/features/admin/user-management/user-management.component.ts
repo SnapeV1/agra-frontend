@@ -71,25 +71,27 @@ export class UserManagementComponent implements OnInit {
 
   saveUser(): void {
     if (this.selectedUser) {
-      // Find the original user and update it
-      const index = this.users.findIndex(u => u.id === this.selectedUser!.id);
+      const pending = { ...this.selectedUser };
+      // Optimistically update local list to reflect changes
+      const index = this.users.findIndex(u => u.id === pending.id);
       if (index !== -1) {
-        this.users[index] = { ...this.selectedUser };
+        this.users[index] = { ...pending };
       }
-
-      // Optionally call service to update on backend
-      // this.usersService.updateUser(this.selectedUser).subscribe({
-      //   next: () => {
-      //     console.log('User updated successfully');
-      //     this.closeEditModal();
-      //   },
-      //   error: (err) => {
-      //     console.error('Error updating user:', err);
-      //     // Handle error (show toast, etc.)
-      //   }
-      // });
-
-      this.closeEditModal();
+      // Persist to backend using UsersService (aligned with current User model)
+      this.usersService.updateUser(pending).subscribe({
+        next: (updated) => {
+          const i = this.users.findIndex(u => u.id === updated.id);
+          if (i !== -1) {
+            this.users[i] = { ...updated };
+          }
+          this.closeEditModal();
+        },
+        error: () => {
+          // On failure, revert optimistic change by reloading users
+          this.loadUsers();
+          this.closeEditModal();
+        }
+      });
     }
   }
 

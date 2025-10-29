@@ -1,13 +1,16 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { environment } from 'src/environments/environment';
+
+declare const google: any;
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
   registerData = {
     name: '',
     email: '',
@@ -140,6 +143,87 @@ export class RegisterComponent {
   ];
 
 constructor(private router: Router, private authService: AuthService) {}
+
+  ngOnInit(): void {
+    this.initGoogleButton();
+  }
+
+  private initGoogleButton() {
+    this.loadGoogleScript()
+      .then(() => {
+        if (!environment.googleClientId) return;
+        try {
+          google.accounts.id.initialize({
+            client_id: environment.googleClientId,
+            callback: (response: any) => {
+              const idToken = response?.credential;
+              if (idToken) {
+                try {
+                  const claims = this.decodeJwt(idToken);
+                  if (claims) {
+                    const { sub, email, name, picture } = claims as any;
+                    console.log('[Google][Register] ID token claims', { sub, email, name, picture });
+                  }
+                } catch {}
+                // After Google sign-up, direct user to complete profile to fill missing fields
+                this.authService.redirectUrl = '/complete-profile';
+                this.authService.loginWithGoogleIdToken(idToken);
+              }
+            }
+          });
+          const btnContainer = document.getElementById('gsi-signup');
+          if (btnContainer && btnContainer.childElementCount === 0) {
+            google.accounts.id.renderButton(btnContainer, {
+              type: 'standard',
+              theme: 'filled_black',
+              size: 'large',
+              text: 'continue_with',
+              shape: 'pill',
+              logo_alignment: 'left',
+              width: 360
+            });
+          }
+        } catch {}
+      })
+      .catch(() => {});
+  }
+
+  onGooglePrompt() { try { google.accounts.id.prompt(); } catch {} }
+
+  private loadGoogleScript(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if ((window as any).google && (window as any).google.accounts) {
+        resolve();
+        return;
+      }
+      const id = 'google-identity-services';
+      const existing = document.getElementById(id) as HTMLScriptElement | null;
+      if (existing) {
+        existing.addEventListener('load', () => resolve());
+        existing.addEventListener('error', () => reject());
+        return;
+      }
+      const script = document.createElement('script');
+      script.id = id;
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject();
+      document.head.appendChild(script);
+    });
+  }
+
+  private decodeJwt(token: string): any | null {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      return JSON.parse(jsonPayload);
+    } catch {
+      return null;
+    }
+  }
 
   onRegister() {
     if (this.isLoading) return;

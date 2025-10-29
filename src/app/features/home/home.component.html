@@ -188,7 +188,7 @@
        *ngFor="let course of featuredCourses | slice:0:3" 
        (click)="onCourseSelect(course)">
     <div class="course-image">
-      <img [src]="course.imageUrl || '/assets/images/course-placeholder.svg'" 
+      <img [src]="course.imageUrl " 
            [alt]="course.title" 
            onerror="this.onerror=null; this.src='/assets/images/course-placeholder.svg'">
       <div class="course-duration">{{ '4 semaines' }}</div>
