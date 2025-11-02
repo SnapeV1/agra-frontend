@@ -236,6 +236,15 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
     this.activeTab = tab;
   }
 
+  formatFileSize(bytes: number): string {
+    if (!bytes || bytes <= 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    const value = (bytes / Math.pow(k, i));
+    return `${value.toFixed(value >= 100 ? 0 : value >= 10 ? 1 : 2)} ${sizes[i]}`;
+  }
+
   private loadRelatedCourses(): void {
     if (!this.course) {
       return;

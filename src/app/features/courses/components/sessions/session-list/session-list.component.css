@@ -24,3 +24,14 @@
 
 /* Visually hidden for screen-readers only */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+/* Theme-friendly session list */
+:host {
+  --bg: var(--bg-primary);
+  --text: var(--text-primary);
+  --muted: var(--text-secondary);
+  --border: var(--border-primary);
+}
+
+.session-list, .session-card { background: var(--bg); color: var(--text); }
+.session-card { border: 1px solid var(--border); }
+.session-meta { color: var(--muted); }

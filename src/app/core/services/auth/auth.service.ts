@@ -133,6 +133,30 @@ export class AuthService implements OnDestroy {
     );
   }
 
+  // Change password for authenticated user
+  changePassword(currentPassword: string, newPassword: string): Observable<any> {
+    const token = this.getStoredItem(this.TOKEN_KEY);
+    if (!token) return throwError(() => new Error('Not authenticated'));
+    return this.http.post<any>(`${this.apiUrl}/changePassword`, { currentPassword, newPassword }, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    }).pipe(
+      tap(() => {}),
+      catchError(this.handleError)
+    );
+  }
+
+  // Change email for authenticated user (endpoint may vary on backend)
+  changeEmail(newEmail: string, password: string): Observable<any> {
+    const token = this.getStoredItem(this.TOKEN_KEY);
+    if (!token) return throwError(() => new Error('Not authenticated'));
+    return this.http.post<any>(`${this.apiUrl}/changeEmail`, { newEmail, password }, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    }).pipe(
+      tap(() => {}),
+      catchError(this.handleError)
+    );
+  }
+
   private handleSuccessfulAuth(response: LoginResponse): void {
   this.setStoredItem(this.TOKEN_KEY, response.token);
   this.setStoredItem(this.EMAIL_KEY, response.user.email);
@@ -160,6 +184,16 @@ export class AuthService implements OnDestroy {
   logout(redirectTo: string = '/login'): void {
     this.clearAuthData();
     this.ngZone.run(() => this.router.navigate([redirectTo]));
+  }
+
+  // Used for browser/tab close or unload scenarios where routing is unreliable.
+  // Clears local auth state without attempting navigation.
+  logoutOnUnload(): void {
+    try {
+      this.clearAuthData();
+    } catch {
+      // Swallow any errors during unload
+    }
   }
 
   public get currentUserValue(): AuthUser | null {
@@ -336,8 +370,7 @@ isUser(): boolean {
  getCurrentUserFromBackend(): Observable<User> {
     const token = this.getStoredItem(this.TOKEN_KEY);
     if (!token) {
-      // No token present; ensure logout state
-      this.logout();
+      // No token present; do not redirect; just error for callers to handle
       return throwError(() => new Error('No auth token found'));
     }
 
@@ -354,8 +387,7 @@ isUser(): boolean {
         }
       }),
       catchError(err => {
-        // If user retrieval fails for any reason, log them out
-        try { this.logout(); } catch {}
+        // Propagate error; let guards/services decide what to do
         return throwError(() => err);
       })
     );

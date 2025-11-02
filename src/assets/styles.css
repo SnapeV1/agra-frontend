@@ -8,8 +8,8 @@
 body {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.6;
-  color: #1a1a1a;
-  background-color: #ffffff;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
 }
 
 .container {
@@ -20,8 +20,8 @@ body {
 
 /* Header */
 .header {
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-primary);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -34,11 +34,7 @@ body {
   height: 64px;
 }
 
-.logo {
-  font-size: 24px;
-  font-weight: 700;
-  color: #7c3aed;
-}
+.logo { font-size: 24px; font-weight: 700; color: var(--accent-600); }
 
 .nav-links {
   display: flex;
@@ -46,16 +42,9 @@ body {
   gap: 32px;
 }
 
-.nav-link {
-  text-decoration: none;
-  color: #6b7280;
-  font-weight: 500;
-  transition: color 0.2s;
-}
+.nav-link { text-decoration: none; color: var(--text-secondary); font-weight: 500; transition: color 0.2s; }
 
-.nav-link:hover {
-  color: #7c3aed;
-}
+.nav-link:hover { color: var(--accent-600); }
 
 /* Buttons */
 .btn-primary {

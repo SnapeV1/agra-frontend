@@ -208,82 +208,38 @@
     </div>
   </div>
 
-  <!-- Static Resources Section -->
+  <!-- Course Resources Section (dynamic from course.files) -->
   <div class="course-resources">
     <div class="resources-header" (click)="toggleResources()">
       <h3>Course Resources</h3>
       <lucide-icon [name]="showResources ? 'X' : 'Plus'" class="toggle-icon"></lucide-icon>
     </div>
     <div class="resources-content" [class.collapsed]="!showResources">
-      <div class="resource-category">
-        <h4>Study Materials</h4>
+      <div class="resource-category" *ngIf="course.files && course.files.length > 0; else noDynamicFiles">
+        <h4>Downloads</h4>
         <div class="resource-list">
-          <a href="/assets/sustainable-agriculture-handbook.pdf" target="_blank" class="resource-item">
-            <lucide-icon name="FileText" class="resource-icon"></lucide-icon>
-            <span class="resource-name">Sustainable Agriculture Handbook</span>
-            <span class="resource-type">PDF</span>
-          </a>
-          <a href="/assets/crop-management-templates.xlsx" target="_blank" class="resource-item">
-            <lucide-icon name="FileText" class="resource-icon"></lucide-icon>
-            <span class="resource-name">Crop Management Templates</span>
-            <span class="resource-type">Excel</span>
-          </a>
-          <a href="/assets/soil-testing-guide.pdf" target="_blank" class="resource-item">
-            <lucide-icon name="FileText" class="resource-icon"></lucide-icon>
-            <span class="resource-name">Soil Testing Guide</span>
-            <span class="resource-type">PDF</span>
+          <a *ngFor="let file of course.files"
+             [href]="file.url"
+             target="_blank"
+             class="resource-item">
+            <lucide-icon [name]="getFileIcon(file)" class="resource-icon"></lucide-icon>
+            <span class="resource-name">{{ file.name }}</span>
+            <span class="resource-type">{{ getFileType(file) }}</span>
           </a>
         </div>
       </div>
-      
-      <div class="resource-category">
-        <h4>Tools & Software</h4>
-        <div class="resource-list">
-          <a href="/assets/precision-agriculture-tools.zip" target="_blank" class="resource-item">
-            <lucide-icon name="FileText" class="resource-icon"></lucide-icon>
-            <span class="resource-name">Precision Agriculture Tools</span>
-            <span class="resource-type">ZIP</span>
-          </a>
-          <a href="https://example.com/farm-calculator" target="_blank" class="resource-item">
-            <lucide-icon name="Clock" class="resource-icon"></lucide-icon>
-            <span class="resource-name">Farm Yield Calculator</span>
-            <span class="resource-type">Online Tool</span>
-          </a>
+      <ng-template #noDynamicFiles>
+        <div class="resource-category">
+          <h4>Downloads</h4>
+          <div class="resource-list">
+            <div class="resource-item" style="opacity:.7;pointer-events:none;">
+              <lucide-icon name="File" class="resource-icon"></lucide-icon>
+              <span class="resource-name">No resources available yet</span>
+              <span class="resource-type"></span>
+            </div>
+          </div>
         </div>
-      </div>
-      
-      <div class="resource-category">
-        <h4>Additional Reading</h4>
-        <div class="resource-list">
-          <a href="https://example.com/sustainable-farming-blog" target="_blank" class="resource-item">
-            <lucide-icon name="ExternalLink" class="resource-icon"></lucide-icon>
-            <span class="resource-name">Sustainable Farming Blog</span>
-            <span class="resource-type">Website</span>
-          </a>
-          <a href="https://example.com/agriculture-research" target="_blank" class="resource-item">
-            <lucide-icon name="ExternalLink" class="resource-icon"></lucide-icon>
-            <span class="resource-name">Latest Agriculture Research</span>
-            <span class="resource-type">Website</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Dynamic Course Files Section (if any) -->
-  <div *ngIf="course.files && course.files.length > 0" class="course-files">
-    <div class="files-header">
-      <h3>Course Files</h3>
-    </div>
-    <div class="files-list">
-      <a *ngFor="let file of course.files" 
-         [href]="file.url" 
-         target="_blank" 
-         class="file-item">
-        <lucide-icon name="FileText" class="file-icon"></lucide-icon>
-        <span class="file-name">{{ file.name }}</span>
-        <span class="file-size">{{ (file.size / 1024 / 1024).toFixed(1) }} MB</span>
-      </a>
+      </ng-template>
     </div>
   </div>
 </div>

@@ -7,6 +7,7 @@ import { AuthRoutingModule } from './features/auth/auth-routing.module';
 import { AuthModule } from './features/auth/auth.module';
 import { AppRoutingModule } from './app-routing.module';
 import { HomeComponent } from './features/home/home.component';
+import { SettingsComponent } from './features/settings/settings.component';
 import { SharedModule } from "src/app/features/shared/shared.module";
 import { AdminModule } from './features/admin/admin.module';
 import { FormsModule } from '@angular/forms';
@@ -27,6 +28,7 @@ export function initializeAuth(authService: AuthService) {
   declarations: [
     AppComponent,
     HomeComponent,
+    SettingsComponent,
 
     
   

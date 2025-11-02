@@ -469,6 +469,33 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     this.showResources = !this.showResources;
   }
 
+  // Removed URL editing helper; using file.url as-is
+
+  getFileType(file: { name?: string; type?: string }): string {
+    if (file?.type) {
+      const subtype = file.type.split('/')[1] || file.type;
+      return (subtype || '').toUpperCase();
+    }
+    const name = file?.name || '';
+    const dot = name.lastIndexOf('.')
+    return dot !== -1 ? name.substring(dot + 1).toUpperCase() : 'FILE';
+  }
+
+  getFileIcon(file: { name?: string; type?: string }): string {
+    const type = (file?.type || '').toLowerCase();
+    const name = (file?.name || '').toLowerCase();
+    const is = (ext: string) => name.endsWith('.' + ext) || type.includes(ext);
+    if (is('pdf')) return 'FileText';
+    if (is('zip') || is('rar') || is('7z')) return 'File';
+    if (is('xls') || is('xlsx') || is('csv')) return 'FileText';
+    if (is('doc') || is('docx')) return 'FileText';
+    if (is('ppt') || is('pptx')) return 'FileText';
+    if (type.startsWith('image/')) return 'Image';
+    if (type.startsWith('video/')) return 'Video';
+    if (type.startsWith('audio/')) return 'Music';
+    return 'File';
+  }
+
 
   getLessonProgress(lessonId: string): LessonProgress | null {
     const progress = this.courseEnrollment?.lessons.find(l => l.lessonId === lessonId) || null;

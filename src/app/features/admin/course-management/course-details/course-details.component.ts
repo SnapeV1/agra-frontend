@@ -5,6 +5,8 @@ import { CourseService } from "src/app/core/services/course/course.service";
 import { ProgressService } from "src/app/core/services/progress.service";
 import { SessionService } from "src/app/core/services/session.service";
 import { CreateSessionDto } from "src/app/core/models/session.model";
+import { forkJoin, of } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
 
 @Component({
   selector: "app-course-details",
@@ -25,6 +27,7 @@ export class AdminCourseDetailsComponent implements OnInit {
   selectedImageFile: File | null = null;
   selectedVideoFile: File | null = null;
   selectedFiles: File[] = [];
+  pendingDeleteFileIds: string[] = [];
 
   formData: Course = {
     id: "",
@@ -421,37 +424,95 @@ export class AdminCourseDetailsComponent implements OnInit {
     this.selectedVideoFile = null;
   }
 
+  removeFileStaged(index: number): void {
+    const currentFiles = this.formData.files || [];
+    const target = currentFiles[index];
+    if (!target) return;
+
+    if (target.id) {
+      if (!confirm(`Delete file "${target.name}"? Changes will persist on Save.`)) return;
+      this.pendingDeleteFileIds = [...this.pendingDeleteFileIds, target.id];
+    } else {
+      const toRemoveIdx = this.selectedFiles.findIndex(f => f.name === target.name && f.size === target.size);
+      if (toRemoveIdx !== -1) {
+        this.selectedFiles.splice(toRemoveIdx, 1);
+      }
+    }
+    this.formData.files = currentFiles.filter((_, i) => i !== index);
+  }
+
   handleFileUpload(event: any): void {
     const files = Array.from(event.target.files || []) as File[];
     if (files.length === 0) return;
 
-    this.uploadingFiles = true;
-    
-    setTimeout(() => {
-      // Store actual files
-      this.selectedFiles = [...this.selectedFiles, ...files];
-      
-      const newFiles = files.map((file) => ({
-        name: file.name,
-        size: file.size,
-        url: URL.createObjectURL(file),
-        type: file.type || ""
-      }));
-      
-      const currentFiles = this.formData.files || [];
-      this.formData.files = [...currentFiles, ...newFiles];
-      this.uploadingFiles = false;
-      
+    // Validate file types: allow images and common document types only
+    const allowedExtensions = ['pdf','doc','docx','xls','xlsx','csv','ppt','pptx','txt'];
+    const isAllowed = (f: File) => {
+      const mime = (f.type || '').toLowerCase();
+      const name = (f.name || '').toLowerCase();
+      const ext = name.includes('.') ? name.substring(name.lastIndexOf('.')+1) : '';
+      return mime.startsWith('image/') || allowedExtensions.includes(ext);
+    };
+
+    const invalid = files.filter(f => !isAllowed(f));
+    if (invalid.length > 0) {
+      const names = invalid.map(f => f.name).join(', ');
+      alert(`These files are not allowed and will be skipped: ${names}.\nAllowed: images, PDF, DOC/DOCX, XLS/XLSX/CSV, PPT/PPTX, TXT.`);
+    }
+
+    const validFiles = files.filter(isAllowed);
+    if (validFiles.length === 0) {
       event.target.value = '';
-    }, 2000);
+      return;
+    }
+
+    // Stage files locally; upload will happen on Save
+    try {
+      console.log('[Course Admin] Staging files for upload:', validFiles.map(f => ({ name: f.name, type: f.type, size: f.size })));
+    } catch {}
+    this.selectedFiles = [...this.selectedFiles, ...validFiles];
+
+    const newFiles = validFiles.map((file) => ({
+      name: file.name,
+      size: file.size,
+      url: URL.createObjectURL(file),
+      type: file.type || ''
+    }));
+
+    const currentFiles = this.formData.files || [];
+    this.formData.files = [...currentFiles, ...newFiles];
+
+    event.target.value = '';
   }
 
   removeFile(index: number): void {
     const currentFiles = this.formData.files || [];
-    this.formData.files = currentFiles.filter((_, i) => i !== index);
-    // Also remove from selectedFiles array
-    this.selectedFiles = this.selectedFiles.filter((_, i) => i !== index);
+    const target = currentFiles[index];
+    if (!target) return;
+
+    // If file has an id and course is saved, delete from backend
+    if (this.formData.id && target.id) {
+      if (!confirm(`Delete file "${target.name}"?`)) return;
+      this.uploadingFiles = true;
+      this.courseService.deleteCourseFile(this.formData.id, target.id)
+        .pipe(finalize(() => this.uploadingFiles = false))
+        .subscribe({
+          next: () => {
+            this.formData.files = currentFiles.filter((_, i) => i !== index);
+          },
+          error: (err) => {
+            console.error('Failed to delete file', err);
+            alert('Failed to delete file.');
+          }
+        });
+    } else {
+      // Otherwise just remove locally
+      this.formData.files = currentFiles.filter((_, i) => i !== index);
+      this.selectedFiles = this.selectedFiles.filter((_, i) => i !== index);
+    }
   }
+
+  // Removed URL editing helper; using file.url as-is
 
   formatFileSize(bytes: number): string {
     if (bytes === 0) return "0 Bytes";
@@ -506,12 +567,14 @@ export class AdminCourseDetailsComponent implements OnInit {
       this.formData.createdAt = new Date();
     }
 
-    // Filter out empty goals before saving
+    // Filter out empty goals before saving and exclude files from payload
+    // Files are managed exclusively via upload/delete endpoints to avoid overwriting server state
     const filteredGoals = this.formData.goals.filter(goal => goal.trim() !== "");
+    const { files: _omitFiles, ...rest } = this.formData as any;
     const courseDataToSave = {
-      ...this.formData,
+      ...rest,
       goals: filteredGoals
-    };
+    } as Course;
 
     const saveCall = this.courseId === "new"
       ? this.courseService.addCourse(courseDataToSave, this.selectedImageFile ?? undefined, this.selectedVideoFile ?? undefined)
@@ -540,22 +603,48 @@ export class AdminCourseDetailsComponent implements OnInit {
           // This ensures the completion percentage reflects the new lesson count
         }
 
-        this.loading = false;
-        alert("Course saved successfully!");
-        
-
-        // Log other files for future implementation
-        if (this.selectedFiles.length > 0) {
-          
+        // After course is saved, process staged file uploads and deletions
+        const ops: Array<any> = [];
+        const courseId = this.formData.id || savedCourse.id;
+        if (courseId) {
+          if (this.selectedFiles.length > 0) {
+            try {
+              console.log('[Course Admin] Uploading staged files:', this.selectedFiles.map(f => ({ name: f.name, type: f.type, size: f.size })));
+            } catch {}
+            const uploadOps = this.selectedFiles.map(f => this.courseService.uploadCourseFile(courseId, f).pipe(catchError((e) => { try { console.error('[Course Admin] Upload failed for', f?.name, e); } catch {} return of(null); })));
+            ops.push(...uploadOps);
+          }
+          if (this.pendingDeleteFileIds.length > 0) {
+            try {
+              console.log('[Course Admin] Deleting files:', this.pendingDeleteFileIds);
+            } catch {}
+            const deleteOps = this.pendingDeleteFileIds.map(fid => this.courseService.deleteCourseFile(courseId, fid).pipe(catchError((e) => { try { console.error('[Course Admin] Delete failed for', fid, e); } catch {} return of(null); })));
+            ops.push(...deleteOps);
+          }
         }
-        
-        // Clear selected files after successful save
-        this.selectedImageFile = null;
-        this.selectedVideoFile = null;
-        this.selectedFiles = [];
 
-        // Redirect to courses page after successful save
-        this.router.navigate(['/admin/courses']);
+        if (ops.length > 0) {
+          this.uploadingFiles = true;
+          forkJoin(ops).pipe(finalize(() => this.uploadingFiles = false)).subscribe({
+            next: (results) => {
+              try {
+                console.log('[Course Admin] Upload/Delete results:', results);
+              } catch {}
+              const newFiles = (results || []).filter((r: any) => r && r.url);
+              if (newFiles.length > 0) {
+                this.formData.files = [ ...(this.formData.files || []), ...newFiles ];
+              }
+            },
+            complete: () => {
+              this.finishSaveCleanup();
+            },
+            error: () => {
+              this.finishSaveCleanup();
+            }
+          });
+        } else {
+          this.finishSaveCleanup();
+        }
       },
       error: (err) => {
         
@@ -563,6 +652,18 @@ export class AdminCourseDetailsComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+
+  private finishSaveCleanup(): void {
+    this.loading = false;
+    alert("Course saved successfully!");
+    // Clear staged files and pending deletes
+    this.selectedImageFile = null;
+    this.selectedVideoFile = null;
+    this.selectedFiles = [];
+    this.pendingDeleteFileIds = [];
+    // Redirect after everything is done
+    this.router.navigate(['/admin/courses']);
   }
   
 

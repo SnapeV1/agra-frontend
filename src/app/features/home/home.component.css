@@ -647,6 +647,9 @@ body {
   flex-direction: column;
 }
 
+/* Ensure readable text colors inside post cards */
+.post-card, .post-card p { color: var(--text); }
+
 .course-card::before {
   content: '';
   position: absolute;
@@ -742,6 +745,8 @@ body {
   line-clamp:inherit;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  /* Reserve consistent space across cards so layout doesn't shift */
+  min-height: 4.8em; /* 3 lines x 1.6 line-height */
 }
 
 /* Rating & Stats */
@@ -750,6 +755,7 @@ body {
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
+  min-height: 24px; /* keep space even when rating absent */
 }
 
 .stars {
@@ -776,6 +782,7 @@ body {
 .course-stats {
   display: flex;
   gap: 1.5rem;
+  margin-top: auto; /* push footer block to bottom regardless of description */
   margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #f0f0f0;
@@ -801,7 +808,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: auto; /* push actions to bottom */
+  margin-top: 0;
   padding-top: 0.75rem;
 }
 
@@ -846,13 +853,13 @@ body {
 .post-username {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text);
   margin: 0 0 0.25rem 0;
 }
 
 .post-date {
   font-size: 0.8rem;
-  color: #6b7280;
+  color: var(--muted);
 }
 
 .post-content {
@@ -862,7 +869,7 @@ body {
 .post-text {
   font-size: 0.9rem;
   line-height: 1.6;
-  color: #374151;
+  color: var(--text);
   margin: 0 0 1rem 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -1979,4 +1986,160 @@ body {
   .timeline-content::before {
     display: none;
   }
+}
+
+/* ==========================================================================
+   THEME OVERRIDES (light/dark via global CSS vars)
+   ========================================================================== */
+:host {
+  --bg: var(--bg-primary);
+  --bg-soft: var(--bg-secondary);
+  --text: var(--text-primary);
+  --muted: var(--text-secondary);
+  --tertiary: var(--text-tertiary);
+  --border: var(--border-primary);
+}
+
+/* Sections and copy */
+.alt-bg { background: var(--bg); }
+.section-title { color: var(--text); }
+.section-subtitle { color: var(--muted); }
+.nav-links a { color: var(--text); }
+
+/* Hero */
+.hero { background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%); }
+.hero-title { color: var(--text); }
+.hero-subtitle { color: var(--muted); }
+.stat-number { color: var(--primary-600); }
+.stat-label { color: var(--muted); }
+.stat-description { color: var(--tertiary); }
+
+/* Floating cards */
+.floating-card { background: var(--bg); border: 1px solid var(--border); }
+.card-text { color: var(--text); }
+
+/* Cards */
+.overview-card,
+.feature-card,
+.course-card,
+.post-card { background: var(--card-bg); border: 1px solid var(--card-border); }
+.feature-card { background: var(--card-bg); }
+.overview-card h3,
+.feature-card h3,
+.course-title { color: var(--text); }
+.overview-card p,
+.feature-list li,
+.course-description { color: var(--muted); }
+.feature-card:hover .feature-list li { color: var(--text); }
+
+/* Course tags */
+.course-domain,
+.course-country {
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+  color: var(--primary-700);
+  border: 1px solid var(--border);
+}
+
+/* Lists and posts */
+.view-all-comments { color: var(--muted); }
+.view-all-comments:hover { color: var(--text); }
+.action-btn { color: var(--muted); }
+.action-btn:hover { background-color: var(--bg-soft); color: var(--text); }
+
+/* Buttons */
+.cta-secondary,
+.btn-view-more { color: var(--primary-700); border-color: var(--primary-700); }
+.cta-secondary:hover,
+.btn-view-more:hover { background: var(--primary-700); }
+
+/* ==========================================================================
+   POSTS GRID — visual refresh
+   ========================================================================== */
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem 1.25rem;
+  align-items: stretch;
+}
+
+.post-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  overflow: hidden;
+}
+
+/* Subtle gradient edge for a premium feel */
+.post-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  padding: 1px; /* border size */
+  background: linear-gradient(135deg, rgba(34,197,94,.25), rgba(99,102,241,.25));
+  -webkit-mask: 
+    linear-gradient(#000 0 0) content-box, 
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+.post-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-primary);
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.2rem;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.post-avatar { width: 42px; height: 42px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+.post-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 2px solid var(--border-primary); }
+
+.post-user-info { flex: 1; min-width: 0; }
+.post-username { color: var(--text); font-weight: 700; font-size: 1rem; letter-spacing: .1px; }
+.post-date { color: var(--muted); font-size: .8rem; }
+
+.post-content { padding: 0.75rem 1.25rem 1rem; }
+.post-text { color: var(--text); margin: 0 0 0.75rem 0; line-height: 1.65; font-size: .95rem; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+.post-image { margin: 0.25rem 1.25rem 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--card-border); }
+.post-image img { display: block; width: 100%; height: 220px; object-fit: cover; transition: transform 0.25s ease; }
+.post-card:hover .post-image img { transform: scale(1.02); }
+
+.post-actions { display: flex; gap: 0.5rem; padding: 0.6rem 1.25rem 1rem; border-top: 1px solid var(--card-border); }
+.post-actions .action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 9999px;
+  background: transparent;
+  border: 1px solid var(--card-border);
+  color: var(--muted);
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.08s ease;
+}
+.post-actions .action-btn:hover { background: var(--card-hover-bg); color: var(--text); border-color: var(--border-primary); }
+.post-actions .action-btn:active { transform: scale(0.98); }
+.post-actions .action-btn .action-icon { width: 18px; height: 18px; }
+.post-actions .action-btn .action-count { font-weight: 600; color: var(--text); }
+
+.post-actions .like-btn.liked { color: var(--like-color, #ef4444); border-color: var(--like-color, #ef4444); background: rgba(239, 68, 68, 0.12); }
+
+@media (max-width: 768px) {
+  .posts-grid { grid-template-columns: 1fr; gap: 1rem; }
+}
+:host-context([data-theme="dark"]) .section {
+  background: var(--bg-secondary);
 }

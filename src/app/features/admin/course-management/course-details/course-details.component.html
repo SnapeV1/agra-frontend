@@ -372,9 +372,9 @@
                 <h2 class="card-title">Course Files</h2>
                 <p class="card-description">Upload supporting materials and resources</p>
               </div>
-              <div class="header-actions">
-                <input type="file" multiple (change)="handleFileUpload($event)" class="file-input" id="file-upload">
-                <label for="file-upload" class="btn btn-primary btn-sm" [class.loading]="uploadingFiles" (click)="$event.stopPropagation()">
+              <div class="header-actions" (click)="$event.stopPropagation()">
+                <input type="file" multiple (click)="$event.stopPropagation()" (change)="handleFileUpload($event)" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" class="file-input" id="file-upload" [disabled]="courseId === 'new'">
+                <label for="file-upload" class="btn btn-primary btn-sm" [class.loading]="uploadingFiles" (click)="$event.stopPropagation()" [attr.title]="courseId === 'new' ? 'Save course before uploading files' : null">
                   <i *ngIf="!uploadingFiles" class="icon-upload"></i>
                   <div *ngIf="uploadingFiles" class="spinner"></div>
                   {{ uploadingFiles ? 'Uploading...' : 'Upload Files' }}
@@ -392,11 +392,14 @@
                 <div class="file-info">
                   <i class="icon-file"></i>
                   <div class="file-details">
-                    <p class="file-name">{{ file.name }}</p>
+                    <p class="file-name">
+                      <a *ngIf="file.url" [href]="file.url" [attr.download]="file.name" target="_blank" rel="noopener noreferrer">{{ file.name }}</a>
+                      <span *ngIf="!file.url">{{ file.name }}</span>
+                    </p>
                     <p class="file-size">{{ formatFileSize(file.size) }}</p>
                   </div>
                 </div>
-                <button type="button" class="btn btn-danger btn-sm" (click)="removeFile(i)">
+                <button type="button" class="btn btn-danger btn-sm" (click)="removeFileStaged(i)">
                   <i class="icon-trash"></i>
                 </button>
               </div>

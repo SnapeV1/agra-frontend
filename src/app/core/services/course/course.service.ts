@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { Course, CourseProgress } from 'src/app/core/models/course';
+import { Course, CourseFile, CourseProgress } from 'src/app/core/models/course';
 import { AuthService } from '../auth/auth.service';
 import { MockDataService } from '../mock-data.service';
 
@@ -127,6 +127,22 @@ updateCourse(id: string, course: Course, image?: File, video?: File, attachments
     }
     
     return this.http.post<any>(`${this.apiUrl}/${courseId}/upload-video`, formData);
+  }
+
+  // Upload a generic course file (PDF, doc, zip, etc.) to /{id}/files
+  uploadCourseFile(courseId: string, file: File): Observable<CourseFile> {
+    const token = this.authService.getToken();
+    const headers = token ? new HttpHeaders({ 'Authorization': `Bearer ${token}` }) : undefined;
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<CourseFile>(`${this.apiUrl}/${courseId}/files`, formData, { headers });
+  }
+
+  // Delete a course file by fileId at /{id}/files/{fileId}
+  deleteCourseFile(courseId: string, fileId: string): Observable<void> {
+    const token = this.authService.getToken();
+    const headers = token ? new HttpHeaders({ 'Authorization': `Bearer ${token}` }) : undefined;
+    return this.http.delete<void>(`${this.apiUrl}/${courseId}/files/${fileId}`, { headers });
   }
 
   enrollInCourse(courseId: string): Observable<any> {

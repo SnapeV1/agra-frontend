@@ -6,21 +6,16 @@ import { AuthGuard } from './core/guards/authguards.guard';
 import { AdminGuard } from './core/guards/admin.guard';
 import { FeedComponent } from './features/feed/feed.component';
 import { ContactComponent } from './features/contact/contact.component';
+import { SettingsComponent } from './features/settings/settings.component';
 
 
 
 const routes: Routes = [
-  {
-    path: '',
-    loadChildren: () =>
-      import('./features/auth/auth.module').then(m => m.AuthModule),
-    canActivate: [AuthGuard] 
-  },
+  // Default route shows Home at root
+  { path: '', component: HomeComponent, pathMatch: 'full' },
 
-  { 
-    path: 'home', 
-    component: HomeComponent,
-  },
+  { path: 'home', component: HomeComponent },
+  { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
    { 
     path: 'contact', 
     component: ContactComponent,
@@ -61,8 +56,8 @@ const routes: Routes = [
   //   data: { roles: ['ADMIN'] }
   // },
 
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: '**', redirectTo: '/login' }
+  // Wildcard: redirect unknown routes to home
+  { path: '**', redirectTo: '/home' }
 ];
 
 @NgModule({

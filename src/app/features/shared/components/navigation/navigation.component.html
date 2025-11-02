@@ -84,7 +84,7 @@
                     <div class="dropdown-divider"></div>
                     
                     <!-- Dashboard link -->
-                    <a href="#" class="dropdown-item" (click)="navigateToDashboard()">
+                    <a class="dropdown-item" (click)="navigateToDashboard()">
             <lucide-icon name="bar-chart-2" class="w-4 h-4"></lucide-icon>
                         <span *ngIf="isAdmin()">Admin Dashboard</span>
                         <span *ngIf="!isAdmin()">Dashboard</span>
@@ -97,9 +97,9 @@
                     </a>
                     
                     <!-- Settings link -->
-                    <a href="#" class="dropdown-item" (click)="navigateToSettings()">
+                    <a class="dropdown-item" (click)="navigateToSettings()">
             <lucide-icon name="settings" class="w-4 h-4"></lucide-icon>
-                        Paramètres
+                        Settings
                     </a>
                     
                     <!-- Admin-only section -->

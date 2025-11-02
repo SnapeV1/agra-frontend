@@ -20,6 +20,17 @@
   --radius-full: 9999px;
 }
 
+/* Dark theme mapping */
+:host-context([data-theme="dark"]) {
+  --background: var(--bg-primary);
+  --surface: #0b1220;
+  --surface-hover: #111827;
+  --border-color: var(--border-primary);
+  --text-primary: var(--text-primary);
+  --text-secondary: var(--text-secondary);
+  --text-muted: var(--text-tertiary);
+}
+
 /* Layout */
 .feed-layout {
   display: grid;
@@ -47,8 +58,8 @@
   position: sticky;
   top: 5rem; /* push below navbar */
   height: fit-content;
-  background: var(--background);
-  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   box-shadow: var(--shadow-sm);
@@ -130,7 +141,7 @@
 .view-more-btn {
   width: 100%;
   padding: 0.625rem;
-  background: #10b981; /* static blue */
+  background: var(--primary-600);
   color: white;
   border: none;
   border-radius: var(--radius-md);
@@ -141,7 +152,7 @@
 }
 
 .view-more-btn:hover {
-  background: #57b196; /* darker blue */
+  background: var(--primary-700);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
@@ -195,7 +206,7 @@
 .error-container {
   text-align: center;
   padding: 3rem 1.5rem;
-  background: var(--surface);
+  background: var(--card-bg);
   border-radius: var(--radius-lg);
   margin-bottom: 1.5rem;
 }
@@ -228,8 +239,8 @@
 
 /* Post Card */
 .post {
-  background: var(--background);
-  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   box-shadow: var(--shadow-sm);

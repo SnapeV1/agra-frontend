@@ -1434,3 +1434,15 @@
   cursor: pointer;
 }
 .live-sessions .nav-arrow:disabled { opacity: 0.4; cursor: not-allowed; }
+/* Theme-friendly overrides */
+:host {
+  --bg: var(--bg-primary);
+  --text: var(--text-primary);
+  --muted: var(--text-secondary);
+  --border: var(--border-primary);
+}
+
+.enrolled-card { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+.enrolled-section { background: var(--bg); }
+.enrolled-title { color: var(--text); }
+.enrolled-subtitle { color: var(--muted); }

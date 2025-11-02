@@ -2,3 +2,14 @@
 .loading, .error { padding: 12px; }
 .error { color: #b91c1c; background: #fee2e2; border-radius: 6px; }
 .player-container { width: 100%; min-height: 480px; background: #0b0f19; border-radius: 8px; overflow: hidden; }
+/* Theme-friendly live session player */
+:host {
+  --bg: var(--bg-primary);
+  --text: var(--text-primary);
+  --muted: var(--text-secondary);
+  --border: var(--border-primary);
+}
+
+.player-shell { background: var(--bg); color: var(--text); }
+.player-controls { background: var(--bg); border-top: 1px solid var(--border); }
+.player-meta { color: var(--muted); }

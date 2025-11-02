@@ -175,7 +175,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   navigateToSettings(): void {
     this.closeDropdown();
-    this.router.navigate(['/user/settings']);
+    this.router.navigate(['/settings']);
   }
 
   navigateToDashboard(): void {

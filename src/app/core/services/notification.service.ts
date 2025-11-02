@@ -80,8 +80,8 @@ export class NotificationService implements OnDestroy {
     const initialId = this.authService.currentUserValue?.user?.id;
     if (initialId) {
       this.userId = initialId;
-    } else {
-      // Fetch the full user profile to populate the id, then (re)subscribe
+    } else if (this.authService.isAuthenticated()) {
+      // Only attempt fetch if authenticated; otherwise remain on global channel
       this.authService.getCurrentUserFromBackend().subscribe({
         next: (user) => {
           this.userId = user?.id || undefined;

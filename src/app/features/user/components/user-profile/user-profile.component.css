@@ -3,6 +3,17 @@
   margin-top: 3%;
 }
 
+/* Theme variables */
+:host {
+  --bg: var(--bg-primary);
+  --surface: var(--bg-primary);
+  --surface-soft: var(--bg-secondary);
+  --text: var(--text-primary);
+  --muted: var(--text-secondary);
+  --border: var(--border-primary);
+  --accent: var(--primary-600);
+}
+
 /* General Cards */
 .card-section {
     background: #ffffff;
@@ -16,6 +27,17 @@
     transform: translateY(-4px) scale(1.005);
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
+
+/* Light/dark overrides */
+.card-section { background: var(--card-bg); box-shadow: var(--shadow-md); }
+.section-header h2 { color: var(--text); }
+.input-box { background: var(--card-bg); border-color: var(--border); }
+.select-trigger { border-color: var(--border); background: var(--card-bg); color: var(--text); }
+.custom-select.open .select-trigger, .custom-select:focus .select-trigger { border-color: var(--accent); }
+.phone-input-wrapper input { border-color: var(--border); background: var(--card-bg); color: var(--text); }
+.phone-input-wrapper input::placeholder { color: var(--muted); }
+.btn-primary { background-color: var(--primary-600); box-shadow: var(--shadow-md); }
+.btn-primary:hover { background-color: var(--primary-700); box-shadow: var(--shadow-lg); }
 
 /* Section Header */
 .section-header {
