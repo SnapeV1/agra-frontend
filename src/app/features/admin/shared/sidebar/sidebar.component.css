@@ -257,3 +257,38 @@
     display: none;
   }
 }
+
+/* Light-dark overrides for sidebar */
+:host-context([data-theme="dark"]) .sidebar {
+  background: #0f172a;
+  border-right-color: #1f2937;
+}
+
+:host-context([data-theme="dark"]) .sidebar-header {
+  background: #0b1220;
+  border-bottom-color: #1f2937;
+}
+
+:host-context([data-theme="dark"]) .sidebar-title { color: #e5e7eb; }
+
+:host-context([data-theme="dark"]) .hamburger-bar { background: #cbd5e1; }
+
+:host-context([data-theme="dark"]) .toggle-btn:hover { background: rgba(148,163,184,0.12); }
+
+:host-context([data-theme="dark"]) .sidebar-menu .menu-item {
+  color: #cbd5e1;
+}
+
+:host-context([data-theme="dark"]) .sidebar-menu .menu-item:hover {
+  background: #111827;
+  color: #e5e7eb;
+}
+
+:host-context([data-theme="dark"]) .sidebar-menu .menu-item.active {
+  background: #052e2b;
+  color: #10b981;
+  border-left-color: #10b981;
+}
+
+:host-context([data-theme="dark"]) .sidebar.collapsed .menu-item::after { background: #111827; color: #e5e7eb; }
+:host-context([data-theme="dark"]) .sidebar.collapsed .menu-item::before { border-color: transparent #111827 transparent transparent; }

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CourseService } from '../../../../core/services/course/course.service';
 import { Course } from '../../../../core/models/course';
@@ -31,6 +31,7 @@ export class CoursesComponent implements OnInit {
 
   loading = true;
   error = '';
+  private loadingTimer: any;
 
   // Pagination properties
   currentPage = 1;
@@ -39,7 +40,12 @@ export class CoursesComponent implements OnInit {
 
   skeletonArray = Array(8).fill(0);
 
-  constructor(private courseService: CourseService, private router: Router, private route: ActivatedRoute) {}
+  constructor(
+    private courseService: CourseService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     // Restore filters from query params
@@ -56,6 +62,12 @@ export class CoursesComponent implements OnInit {
   loadCourses(): void {
     this.loading = true;
     this.error = '';
+    // Safety timeout to prevent infinite skeletons
+    if (this.loadingTimer) clearTimeout(this.loadingTimer);
+    this.loadingTimer = setTimeout(() => {
+      this.loading = false;
+      this.cdr.markForCheck();
+    }, 2000);
 
     this.courseService.getAllCourses().subscribe({
       next: (courses) => {
@@ -64,11 +76,15 @@ export class CoursesComponent implements OnInit {
         this.buildLanguageList();
         this.buildCountryList();
         this.loading = false;
+        if (this.loadingTimer) clearTimeout(this.loadingTimer);
+        this.cdr.markForCheck();
       },
       error: (error) => {
     
         this.error = 'Failed to load courses. Please try again later.';
         this.loading = false;
+        if (this.loadingTimer) clearTimeout(this.loadingTimer);
+        this.cdr.markForCheck();
       }
     });
   }

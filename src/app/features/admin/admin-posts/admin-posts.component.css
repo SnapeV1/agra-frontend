@@ -7,6 +7,30 @@
   min-height: 100vh;
 }
 
+/* Light-dark overrides */
+:host-context([data-theme="dark"]) .container { background: #0f172a; }
+:host-context([data-theme="dark"]) .header h1 { color: #e5e7eb; }
+:host-context([data-theme="dark"]) .header p { color: #94a3b8; }
+
+:host-context([data-theme="dark"]) .post-creator { background: #0b1220; border-color: #1f2937; box-shadow: 0 2px 10px rgba(0,0,0,0.35); }
+:host-context([data-theme="dark"]) .post-input { background: #111827; color: #cbd5e1; }
+:host-context([data-theme="dark"]) .post-input:hover { background: #1f2937; }
+
+:host-context([data-theme="dark"]) .post-textarea { color: #e5e7eb; }
+:host-context([data-theme="dark"]) .post-textarea::placeholder { color: #94a3b8; }
+
+:host-context([data-theme="dark"]) .image-input { background: #0b1220; border-color: #1f2937; color: #e5e7eb; }
+:host-context([data-theme="dark"]) .remove-image-btn { color: #94a3b8; }
+:host-context([data-theme="dark"]) .remove-image-btn:hover { background: #111827; color: #e5e7eb; }
+
+:host-context([data-theme="dark"]) .post-actions { border-top-color: #1f2937; }
+:host-context([data-theme="dark"]) .media-btn { color: #cbd5e1; }
+:host-context([data-theme="dark"]) .media-btn:hover { background: #111827; }
+:host-context([data-theme="dark"]) .media-btn:disabled { background: #0b1220; color: #475569; }
+
+:host-context([data-theme="dark"]) .cancel-btn { background: #111827; color: #cbd5e1; }
+:host-context([data-theme="dark"]) .cancel-btn:hover { background: #1f2937; }
+
 /* Header */
 .header {
   text-align: center;

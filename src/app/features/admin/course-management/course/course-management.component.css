@@ -57,6 +57,23 @@
     radial-gradient(at 0% 50%, rgba(167, 139, 250, 0.03) 0px, transparent 50%);
 }
 
+/* Light-dark overrides */
+:host-context([data-theme="dark"]) .course-management {
+  background-color: #0f172a;
+  background-image: none;
+}
+
+:host-context([data-theme="dark"]) .header {
+  background: linear-gradient(135deg, #0b1220 0%, #0f172a 100%);
+  border-color: #1f2937;
+  box-shadow: 0 10px 30px -5px rgba(0,0,0,0.35);
+}
+:host-context([data-theme="dark"]) .title-section h1 { -webkit-text-fill-color: initial; color: #e5e7eb; background: none; }
+:host-context([data-theme="dark"]) .title-section p { color: #94a3b8; }
+
+:host-context([data-theme="dark"]) .btn-primary { box-shadow: 0 4px 15px rgba(16,185,129,0.25); background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+:host-context([data-theme="dark"]) .btn-primary:hover { background: linear-gradient(135deg, #059669 0%, #047857 100%); box-shadow: 0 8px 25px rgba(16,185,129,0.35); }
+
 /* =========================
    HEADER & NAVIGATION
    ========================= */

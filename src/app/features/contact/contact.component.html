@@ -1,48 +1,45 @@
 <app-navigation></app-navigation>
-<div class="min-h-screen bg-white">
-  <header class="relative bg-slate-900 text-white overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900"></div>
-    <div class="absolute inset-0 bg-[url('/modern-agricultural-field-pattern.jpg')] opacity-10 bg-cover bg-center"></div>
-    <div class="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent"></div>
-    <div class="relative z-10 container mx-auto px-6 py-24 lg:py-32">
-      <div class="max-w-3xl">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="p-3 bg-emerald-500/20 rounded-xl backdrop-blur-sm border border-emerald-400/30">
-            <lucide-icon name="leaf" class="w-8 h-8 text-emerald-400"></lucide-icon>
-          </div>
-          <span class="text-emerald-300 font-medium tracking-wide">Agricultural Education</span>
+<div class="min-h-screen contact-root">
+<header class="contact-hero">
+  <div class="container mx-auto px-6 py-24 lg:py-32">
+    <div class="max-w-3xl">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="icon-badge-lg">
+          <lucide-icon name="leaf" class="w-8 h-8"></lucide-icon>
         </div>
-        <h1 class="text-5xl lg:text-7xl font-bold mb-6 text-balance leading-tight text-white">Let's Connect</h1>
-        <p class="text-xl lg:text-2xl text-slate-200 max-w-2xl text-pretty leading-relaxed">
-          Ready to grow your agricultural knowledge? We're here to help you cultivate success.
-        </p>
+        <span class="contact-hero-kicker">Agricultural Education</span>
       </div>
+      <h1 class="contact-hero-title">Let's Connect</h1>
+      <p class="contact-hero-subtitle">
+        Ready to grow your agricultural knowledge? We're here to help you cultivate success.
+      </p>
     </div>
-  </header>
+  </div>
+</header>
 
   <main class="container mx-auto px-6 py-16 lg:py-24">
     <!-- Statistics Section -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-      <div class="text-center p-8 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100">
-        <div class="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <lucide-icon name="users" class="w-8 h-8 text-white"></lucide-icon>
+      <div class="stat-card text-center p-8 rounded-2xl">
+        <div class="icon-badge mx-auto mb-4">
+          <lucide-icon name="users" class="w-8 h-8"></lucide-icon>
         </div>
-        <h3 class="text-2xl font-bold text-slate-900 mb-2">5,000+</h3>
-        <p class="text-slate-600">Students Educated</p>
+        <h3 class="stat-number text-2xl font-bold mb-2">5,000+</h3>
+        <p class="stat-label">Students Educated</p>
       </div>
-      <div class="text-center p-8 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100">
-        <div class="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <lucide-icon name="award" class="w-8 h-8 text-white"></lucide-icon>
+      <div class="stat-card text-center p-8 rounded-2xl">
+        <div class="icon-badge mx-auto mb-4">
+          <lucide-icon name="award" class="w-8 h-8"></lucide-icon>
         </div>
-        <h3 class="text-2xl font-bold text-slate-900 mb-2">25+</h3>
-        <p class="text-slate-600">Years Experience</p>
+        <h3 class="stat-number text-2xl font-bold mb-2">25+</h3>
+        <p class="stat-label">Years Experience</p>
       </div>
-      <div class="text-center p-8 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100">
-        <div class="w-16 h-16 bg-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <lucide-icon name="clock" class="w-8 h-8 text-white"></lucide-icon>
+      <div class="stat-card text-center p-8 rounded-2xl">
+        <div class="icon-badge mx-auto mb-4">
+          <lucide-icon name="clock" class="w-8 h-8"></lucide-icon>
         </div>
-        <h3 class="text-2xl font-bold text-slate-900 mb-2">24hr</h3>
-        <p class="text-slate-600">Response Time</p>
+        <h3 class="stat-number text-2xl font-bold mb-2">24hr</h3>
+        <p class="stat-label">Response Time</p>
       </div>
     </div>
 
@@ -205,7 +202,7 @@
     </div>
 
     <!-- Quick Resources Section -->
-    <div class="mt-24 max-w-6xl mx-auto">
+    <div class="mt-24 max-w-6xl mx-auto resources-section">
       <div class="text-center mb-16">
         <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 mb-4">Quick Resources</h2>
         <p class="text-xl text-slate-600 max-w-2xl mx-auto">
@@ -214,45 +211,45 @@
       </div>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="resource-card border-0 shadow-lg shadow-slate-200/50 rounded-2xl p-6 hover:shadow-xl transition-shadow duration-200">
-          <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center mb-4">
-            <lucide-icon name="users" class="w-6 h-6 text-emerald-600"></lucide-icon>
+        <div class="resource-card border-0 rounded-2xl p-6">
+          <div class="icon-badge mb-4">
+            <lucide-icon name="users" class="w-6 h-6"></lucide-icon>
           </div>
-          <h3 class="font-semibold text-slate-900 mb-2">Program Enrollment</h3>
-          <p class="text-sm text-slate-600 mb-4">Learn about admission requirements and application process</p>
+          <h3 class="font-semibold mb-2">Program Enrollment</h3>
+          <p class="text-sm mb-4">Learn about admission requirements and application process</p>
           <button class="btn-outline w-full rounded-xl bg-transparent">
             Learn More
           </button>
         </div>
 
-        <div class="resource-card border-0 shadow-lg shadow-slate-200/50 rounded-2xl p-6 hover:shadow-xl transition-shadow duration-200">
-          <div class="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center mb-4">
-            <lucide-icon name="clock" class="w-6 h-6 text-blue-600"></lucide-icon>
+        <div class="resource-card border-0 rounded-2xl p-6">
+          <div class="icon-badge mb-4">
+            <lucide-icon name="clock" class="w-6 h-6"></lucide-icon>
           </div>
-          <h3 class="font-semibold text-slate-900 mb-2">Course Schedules</h3>
-          <p class="text-sm text-slate-600 mb-4">View current semester schedules and upcoming workshops</p>
+          <h3 class="font-semibold mb-2">Course Schedules</h3>
+          <p class="text-sm mb-4">View current semester schedules and upcoming workshops</p>
           <button class="btn-outline w-full rounded-xl bg-transparent">
             View Schedule
           </button>
         </div>
 
-        <div class="resource-card border-0 shadow-lg shadow-slate-200/50 rounded-2xl p-6 hover:shadow-xl transition-shadow duration-200">
-          <div class="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center mb-4">
-            <lucide-icon name="award" class="w-6 h-6 text-purple-600"></lucide-icon>
+        <div class="resource-card border-0 rounded-2xl p-6">
+          <div class="icon-badge mb-4">
+            <lucide-icon name="award" class="w-6 h-6"></lucide-icon>
           </div>
-          <h3 class="font-semibold text-slate-900 mb-2">Student Portal</h3>
-          <p class="text-sm text-slate-600 mb-4">Access your courses, grades, and academic resources</p>
+          <h3 class="font-semibold mb-2">Student Portal</h3>
+          <p class="text-sm mb-4">Access your courses, grades, and academic resources</p>
           <button class="btn-outline w-full rounded-xl bg-transparent">
             Access Portal
           </button>
         </div>
 
-        <div class="resource-card border-0 shadow-lg shadow-slate-200/50 rounded-2xl p-6 hover:shadow-xl transition-shadow duration-200">
-          <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center mb-4">
-            <lucide-icon name="wheat" class="w-6 h-6 text-amber-600"></lucide-icon>
+        <div class="resource-card border-0 rounded-2xl p-6">
+          <div class="icon-badge mb-4">
+            <lucide-icon name="wheat" class="w-6 h-6"></lucide-icon>
           </div>
-          <h3 class="font-semibold text-slate-900 mb-2">Course Catalog</h3>
-          <p class="text-sm text-slate-600 mb-4">Explore our comprehensive agricultural education programs</p>
+          <h3 class="font-semibold mb-2">Course Catalog</h3>
+          <p class="text-sm mb-4">Explore our comprehensive agricultural education programs</p>
           <button class="btn-outline w-full rounded-xl bg-transparent">
             Browse Catalog
           </button>

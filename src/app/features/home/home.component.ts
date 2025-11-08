@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, HostListener, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
 
 import { trigger, state, style, transition, animate, query, stagger } from '@angular/animations';
 import { Course } from 'src/app/core/models/course';
@@ -7,6 +8,7 @@ import { CourseService } from 'src/app/core/services/course/course.service';
 import { Subscription } from 'rxjs';
 import { PostsService } from 'src/app/features/admin/services/posts.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
+// Google sign-in is handled in dedicated Auth components (Login/Register).
 
 @Component({
   selector: 'app-home',
@@ -54,7 +56,8 @@ featuredPosts: any[] = [];
     private router: Router,
     private courseService: CourseService, 
     private postsService: PostsService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private authService: AuthService
 
   ) {}
 
@@ -73,11 +76,13 @@ featuredPosts: any[] = [];
 
 
   checkAuthStatus(): void {
-    const token = localStorage.getItem('jwt') || 
-                  localStorage.getItem('token') || 
-                  localStorage.getItem('auth_token') ||
-                  localStorage.getItem('access_token');
-    this.isLoggedIn =!!token;
+    const ls = (k: string) => { try { return localStorage.getItem(k); } catch { return null; } };
+    const ss = (k: string) => { try { return sessionStorage.getItem(k); } catch { return null; } };
+    const token = ls('jwt') || ss('jwt') ||
+                  ls('token') || ss('token') ||
+                  ls('auth_token') || ss('auth_token') ||
+                  ls('access_token') || ss('access_token');
+    this.isLoggedIn = !!token;
   
     
   }
@@ -90,14 +95,7 @@ featuredPosts: any[] = [];
   }
 
   signOut(): void {
-    localStorage.removeItem('jwt');
-    localStorage.removeItem('token');
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    
-    this.isLoggedIn = false;
-    
+    this.authService.logout();
   }
 
 
@@ -255,6 +253,9 @@ featuredPosts: any[] = [];
       behavior: 'smooth'
     });
   }
+
+  // Google Sign-In logic intentionally omitted here to keep auth
+  // concerns encapsulated in Login/Register components.
 
 
 loadFeaturedPosts(): void {

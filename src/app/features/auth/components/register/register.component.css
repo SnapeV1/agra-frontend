@@ -1,4 +1,4 @@
-/* register.component.css */
+﻿/* register.component.css */
 
 /* Global box-sizing */
 *, *::before, *::after {
@@ -17,9 +17,9 @@ body, html {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
-  padding-top: 100px; /* Account for fixed navigation height */
-  padding-bottom: 2rem;
+  padding: 0.75rem;
+  padding-top: 72px; /* Account for fixed navigation height */
+  padding-bottom: 1.25rem;
   position: relative;
   font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow: hidden;
@@ -74,7 +74,7 @@ body, html {
 
 
 .register-left {
-  padding: 2.5rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -149,7 +149,7 @@ body, html {
 }
 
 .features-list li::before {
-  content: '✓';
+  content: 'âœ“';
   background: #10b981;
   color: white;
   width: 20px;
@@ -164,7 +164,7 @@ body, html {
 }
 
 .register-right {
-  padding: 2.5rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   background: white;
@@ -204,7 +204,7 @@ body, html {
 
 .register-header {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .register-header h2 {
@@ -291,10 +291,7 @@ body, html {
 }
 
 .input-wrapper input:hover:not(:focus),
-.input-wrapper select:hover:not(:focus) {
-  border-color: #d1d5db;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
+.input-wrapper select:hover:not(:focus) {}
 
 .input-wrapper input::placeholder {
   color: #9ca3af;
@@ -334,18 +331,13 @@ body, html {
   min-height: 52px;
 }
 
-.select-trigger:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
+.select-trigger:hover {}
 
 .custom-select.open .select-trigger,
 .custom-select:focus .select-trigger {
   border-color: #10b981;
   background: rgba(255, 255, 255, 0.95);
-  box-shadow: 
-    0 0 0 4px rgba(16, 185, 129, 0.12),
-    0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
   transform: translateY(-1px);
 }
 
@@ -398,9 +390,7 @@ body, html {
   border-bottom: none;
 }
 
-.select-option:hover {
-  background-color: #f9fafb;
-}
+.select-option:hover {}
 
 .select-option.selected {
   background-color: #ecfdf5;
@@ -458,10 +448,7 @@ body, html {
   transform: translateY(-1px);
 }
 
-.phone-input-wrapper input:hover:not(:focus) {
-  border-color: #d1d5db;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
+.phone-input-wrapper input:hover:not(:focus) {}
 
 .phone-input-wrapper input::placeholder {
   color: #9ca3af;
@@ -497,9 +484,7 @@ body, html {
   justify-content: center;
 }
 
-.password-toggle:hover {
-  background-color: #f3f4f6;
-}
+.password-toggle:hover {}
 
 .error-message {
   color: #ef4444;
@@ -555,13 +540,13 @@ body, html {
 .checkbox-wrapper input[type="checkbox"]:checked + .checkmark::after {
   content: '';
   position: absolute;
-  left: 4px;
-  top: 1px;
-  width: 3px;
-  height: 7px;
-  border: solid white;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 8px;
+  border: solid #ffffff;
   border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+  transform: translate(-50%, -58%) rotate(45deg);
 }
 
 .link {
@@ -571,10 +556,7 @@ body, html {
   transition: color 0.2s ease;
 }
 
-.link:hover {
-  color: #059669;
-  text-decoration: underline;
-}
+.link:hover {}
 
 .register-btn {
   width: 100%;
@@ -610,17 +592,9 @@ body, html {
   transition: left 0.5s;
 }
 
-.register-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 
-    0 8px 25px rgba(16, 185, 129, 0.35),
-    0 4px 12px rgba(0, 0, 0, 0.15);
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-}
+.register-btn:hover:not(:disabled) {}
 
-.register-btn:hover:not(:disabled)::before {
-  left: 100%;
-}
+.register-btn:hover:not(:disabled)::before {}
 
 .register-btn:active:not(:disabled) {
   transform: translateY(-1px);
@@ -672,6 +646,11 @@ body, html {
   display: flex;
   justify-content: center;
   margin-bottom: 1rem;
+  /* Match surface to current theme */
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 12px;
 }
 
 .social-btn {
@@ -691,16 +670,9 @@ body, html {
   transition: all 0.2s ease;
 }
 
-.social-btn:hover {
-  border-color: #d1d5db;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1);
-}
+.social-btn:hover {}
 
-.google-btn:hover {
-  border-color: #4285f4;
-  box-shadow: 0 4px 12px -2px rgba(66, 133, 244, 0.2);
-}
+.google-btn:hover {}
 
 .login-link {
   text-align: center;
@@ -860,3 +832,129 @@ body, html {
   .form-row {
     margin-bottom: 0.75rem;
   }
+/* Dark mode overrides */
+:host-context([data-theme="dark"]) .register-card { background: var(--card-bg); border-color: var(--card-border); }
+:host-context([data-theme="dark"]) .register-right { background: var(--card-bg); }
+:host-context([data-theme="dark"]) .register-header h2,
+:host-context([data-theme="dark"]) .register-header p,
+:host-context([data-theme="dark"]) .welcome-content h1,
+:host-context([data-theme="dark"]) .welcome-content p,
+:host-context([data-theme="dark"]) .features-list li { color: var(--text-primary); }
+
+:host-context([data-theme="dark"]) .form-group label { color: var(--text-primary); }
+:host-context([data-theme="dark"]) .form-group label .optional { color: var(--text-secondary); }
+
+:host-context([data-theme="dark"]) .input-wrapper input,
+:host-context([data-theme="dark"]) .input-wrapper select {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border-color: var(--card-border);
+}
+:host-context([data-theme="dark"]) .input-wrapper input::placeholder { color: var(--text-secondary); }
+
+:host-context([data-theme="dark"]) .register-right::-webkit-scrollbar-track { background: var(--card-bg); }
+:host-context([data-theme="dark"]) .register-right::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #6b7280, #4b5563); }
+
+/* Divider styling for dark mode */
+:host-context([data-theme="dark"]) .divider::before { background: var(--card-border); }
+:host-context([data-theme="dark"]) .divider span { background: var(--card-bg); color: var(--text-primary); }
+
+/* Improve readability of small/supporting text in dark mode */
+:host-context([data-theme="dark"]) .checkbox-wrapper { color: var(--text-primary); }
+:host-context([data-theme="dark"]) .login-link p { color: var(--text-primary); }
+
+/* Improve icon visibility in dark mode */
+:host-context([data-theme="dark"]) .input-icon path,
+:host-context([data-theme="dark"]) .input-icon circle,
+:host-context([data-theme="dark"]) .input-icon polyline { stroke: var(--text-primary) !important; }
+
+:host-context([data-theme="dark"]) .password-toggle svg path,
+:host-context([data-theme="dark"]) .password-toggle svg circle,
+:host-context([data-theme="dark"]) .password-toggle svg polyline { stroke: var(--text-primary) !important; }
+
+:host-context([data-theme="dark"]) .dropdown-arrow { color: var(--text-primary); }
+
+/* Ensure titles are bright enough */
+:host-context([data-theme="dark"]) .register-header h2,
+:host-context([data-theme="dark"]) .welcome-content h1 { color: var(--text-primary); }
+
+/* Make Google container blend with dark */
+:host-context([data-theme="dark"]) .social-login {
+  background: var(--card-bg, #0b1220);
+  border: 1px solid var(--card-border, #374151);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+/* Phone field (country code select + input) dark theme */
+:host-context([data-theme="dark"]) .select-trigger {
+  border-color: var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-primary);
+}
+:host-context([data-theme="dark"]) .custom-select.open .select-trigger,
+:host-context([data-theme="dark"]) .custom-select:focus .select-trigger {
+  border-color: var(--primary-600);
+  background: var(--card-bg);
+  box-shadow: 0 0 0 4px rgba(16,185,129,0.12), 0 4px 12px rgba(0,0,0,0.2);
+}
+:host-context([data-theme="dark"]) .select-options {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+}
+:host-context([data-theme="dark"]) .select-option {
+  color: var(--text-primary);
+  border-bottom-color: var(--card-border);
+}
+:host-context([data-theme="dark"]) .select-option:hover {}
+:host-context([data-theme="dark"]) .select-option.selected {
+  background: rgba(16,185,129,0.12);
+  color: var(--primary-600);
+}
+:host-context([data-theme="dark"]) .dropdown-arrow { color: var(--text-primary); }
+
+:host-context([data-theme="dark"]) .phone-input-wrapper input {
+  border-color: var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-primary);
+}
+:host-context([data-theme="dark"]) .phone-input-wrapper input::placeholder { color: var(--text-secondary); }
+
+
+
+/* Google Sign-In wrapper: themed background + clipping */
+.gsi-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Clip the iframe to the pill height to hide any white gutters */
+  height: 40px;            /* GIS large button height */
+  border-radius: 9999px;   /* pill */
+  overflow: hidden;        /* hide white area inside iframe */
+  line-height: 0;          /* avoid extra inline spacing */
+  background: #202124;     /* match 'filled_black' in all modes */
+  position: relative;      /* allow inner masking pseudo-element */
+}
+
+/* Ensure the iframe doesn't introduce stray spacing */
+.gsi-wrapper iframe {
+  display: block !important;
+  width: 360px !important;   /* match renderButton width */
+  height: 40px !important;   /* match button height */
+  margin: -2px -3px !important; /* crop minor internal gutters */
+  border: 0 !important;
+  background: transparent !important;
+}
+
+/* Mask any residual white outline inside the iframe by overlaying
+   a 1px inner shadow that matches the wrapper background. */
+.gsi-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px #202124;
+  pointer-events: none;
+}
+
+

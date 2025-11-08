@@ -38,3 +38,13 @@
     justify-content: center;
   }
 }
+
+/* Light-dark overrides */
+:host-context([data-theme="dark"]) .footer {
+  background: #0b1220;
+  border-top-color: #1f2937;
+  color: #cbd5e1;
+}
+
+:host-context([data-theme="dark"]) .footer-links a { color: #10b981; }
+:host-context([data-theme="dark"]) .footer-links a:hover { color: #34d399; }

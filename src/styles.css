@@ -129,6 +129,29 @@ html[data-theme="dark"] .resource-card:hover {
   background: var(--card-hover-bg) !important;
 }
 
+/* Themed Toastr (ngx-toastr) */
+.toast-container .ngx-toastr {
+  background: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--card-border) !important;
+  box-shadow: var(--shadow-lg) !important;
+  border-radius: 10px !important;
+  padding: 12px 14px !important;
+}
+.toast-container .ngx-toastr .toast-title { color: var(--text-primary) !important; font-weight: 700; }
+.toast-container .ngx-toastr .toast-message { color: var(--text-secondary) !important; }
+.toast-container .ngx-toastr .toast-close-button { color: var(--text-secondary) !important; opacity: .7; }
+.toast-container .ngx-toastr .toast-close-button:hover { opacity: 1; }
+
+/* Accents per type */
+.toast-success { border-left: 4px solid var(--success-600) !important; }
+.toast-info    { border-left: 4px solid var(--accent-500) !important; }
+.toast-warning { border-left: 4px solid var(--warning-600) !important; }
+.toast-error   { border-left: 4px solid var(--error-600) !important; }
+
+/* Progress bar */
+.toast-container .ngx-toastr .toast-progress { background: var(--accent-500) !important; opacity: .6; }
+
 /* Base Styles */
 * {
   box-sizing: border-box;

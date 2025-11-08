@@ -124,7 +124,7 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
           this.isEnrolled = true;
         } else if (error.status === 401) {
           this.enrollmentError = 'Authentication required. Please log in again.';
-          this.authService.logout('/login');
+          this.authService.logout();
         } else if (error.status === 404) {
           this.enrollmentError = 'Course not found.';
         } else {

@@ -65,6 +65,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   enrolledCourses: EnrolledCourse[] = [];
   coursesLoading = false;
   coursesError = '';
+  private coursesLoadingTimer: any;
 
   stats: ProfileStats[] = [
     {
@@ -182,6 +183,11 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
     this.coursesLoading = true;
     this.coursesError = '';
+    // Safety: auto-hide skeleton after 2s to avoid infinite loading
+    if (this.coursesLoadingTimer) clearTimeout(this.coursesLoadingTimer);
+    this.coursesLoadingTimer = setTimeout(() => {
+      this.coursesLoading = false;
+    }, 2000);
 
     this.courseService.getUserEnrolledCourses()
       .pipe(takeUntil(this.destroy$))
@@ -211,6 +217,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     
           this.coursesError = 'Failed to load enrolled courses';
           this.coursesLoading = false;
+          if (this.coursesLoadingTimer) clearTimeout(this.coursesLoadingTimer);
         }
       });
   }
@@ -222,6 +229,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     if (totalRequests === 0) {
       this.coursesLoading = false;
       this.updateStats();
+      if (this.coursesLoadingTimer) clearTimeout(this.coursesLoadingTimer);
       return;
     }
 
@@ -262,6 +270,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             if (completedRequests === totalRequests) {
               this.coursesLoading = false;
               this.updateStats();
+              if (this.coursesLoadingTimer) clearTimeout(this.coursesLoadingTimer);
             }
           },
           error: (error) => {
@@ -290,6 +299,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             if (completedRequests === totalRequests) {
               this.coursesLoading = false;
               this.updateStats();
+              if (this.coursesLoadingTimer) clearTimeout(this.coursesLoadingTimer);
             }
           }
         });
@@ -403,7 +413,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           
           if (error.status === 401) {
             
-            this.authService.logout('/login');
+            this.authService.logout();
           } else if (error.status === 400) {
             
           } else {

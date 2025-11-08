@@ -1,6 +1,6 @@
 .dashboard-container {
   padding: 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f8fafc;
   min-height: 100vh;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -199,6 +199,30 @@
   border-radius: 3px;
   transition: width 0.3s ease;
 }
+
+/* Light-dark overrides */
+:host-context([data-theme="dark"]) .dashboard-container {
+  background: #0f172a;
+}
+
+:host-context([data-theme="dark"]) .dashboard-header { color: #e5e7eb; }
+:host-context([data-theme="dark"]) .dashboard-header h1 { text-shadow: none; }
+
+:host-context([data-theme="dark"]) .metric-card,
+:host-context([data-theme="dark"]) .analytics-card {
+  background: #0b1220;
+  border-color: #1f2937;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+}
+
+:host-context([data-theme="dark"]) .metric-title { color: #9ca3af; }
+:host-context([data-theme="dark"]) .metric-value { color: #f3f4f6; }
+
+:host-context([data-theme="dark"]) .country-item { border-bottom-color: #1f2937; }
+:host-context([data-theme="dark"]) .country-name { color: #e5e7eb; }
+:host-context([data-theme="dark"]) .country-count { color: #f3f4f6; }
+:host-context([data-theme="dark"]) .progress-bar { background: #1f2937; }
+:host-context([data-theme="dark"]) .progress-fill { background: linear-gradient(90deg, #10b981, #34d399); }
 
 .country-percentage {
   font-size: 0.9rem;

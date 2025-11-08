@@ -198,7 +198,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   signOut(): void {
     this.closeDropdown();
-    this.authService.logout('/login');
+    this.authService.logout();
   }
 
   private updateActiveSection(): void {

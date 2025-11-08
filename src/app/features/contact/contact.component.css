@@ -7,22 +7,96 @@
   --accent: var(--primary-600);
 }
 
-.contact-card { background: var(--card-bg); border: 1px solid var(--card-border); }
+/* Page root background matches theme */
+.contact-root { background: var(--bg-primary); color: var(--text-primary); }
 
-.resource-card { background: var(--card-bg); border: 1px solid var(--card-border); }
+/* Minimal hero: subtle gradient driven by theme tokens */
+.contact-hero {
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+  color: var(--text-primary);
+}
+.contact-hero-title {
+  font-size: clamp(2.25rem, 4vw, 3.75rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 1rem 0;
+}
+.contact-hero-subtitle {
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  color: var(--text-secondary);
+  max-width: 42ch;
+}
+.contact-hero-kicker { color: var(--primary-600); font-weight: 600; }
+
+.contact-card { 
+  background: var(--card-bg); 
+  border: 1px solid var(--card-border); 
+  border-radius: 16px; 
+  box-shadow: var(--shadow-md);
+  transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+.contact-card:hover { 
+  background: var(--card-hover-bg);
+  box-shadow: var(--shadow-md);
+  /* reduced motion: no lift */
+}
+
+.resource-card { 
+  background: var(--card-bg); 
+  border: 1px solid var(--card-border); 
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
+  transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+.resource-card:hover { 
+  background: var(--card-hover-bg);
+  box-shadow: var(--shadow-sm);
+  /* reduced motion: no lift */
+}
+
+/* Ensure text in cards respects theme, overriding Tailwind text-slate utilities */
+.resource-card h3 { color: var(--text-primary) !important; }
+.resource-card p { color: var(--text-secondary) !important; }
+
+/* Statistics cards adopt themed surface */
+.stat-card { background: var(--card-bg) !important; border: 1px solid var(--card-border) !important; }
+.stat-card h3 { color: var(--text-primary) !important; }
+.stat-card p { color: var(--text-secondary) !important; }
+.stat-number { color: var(--text-primary); }
+.stat-label  { color: var(--text-secondary); }
+
+/* Icon badges (shared) */
+.icon-badge { width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: var(--primary-50); color: var(--primary-600); }
+.icon-badge-lg { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: var(--primary-50); color: var(--primary-600); }
+
+/* Section titles/paragraphs use theme colors */
+.resources-section h2 { color: var(--text-primary) !important; }
+.resources-section p { color: var(--text-secondary) !important; }
+
+/* Generic typography inside contact cards to match theme */
+.contact-card h1,
+.contact-card h2,
+.contact-card h3,
+.contact-card h4,
+.contact-card h5,
+.contact-card h6 { color: var(--text-primary) !important; }
+.contact-card p { color: var(--text-secondary) !important; }
 
 /* Form Styles */
 .form-input,
 .form-textarea {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 2px solid var(--border);
-  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
   font-size: 1.125rem;
   transition: all 0.2s ease;
   background: var(--card-bg);
   color: var(--text);
 }
+
+/* Labels inside contact forms respect theme */
+.contact-card label { color: var(--muted) !important; }
 
 .form-input:focus,
 .form-textarea:focus {
@@ -43,10 +117,19 @@
   justify-content: center;
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 0.75rem;
+  border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  /* reduced motion: no lift */
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+  box-shadow: var(--shadow-md);
 }
 
 .btn-primary:disabled {
@@ -59,18 +142,19 @@
   align-items: center;
   justify-content: center;
   padding: 0.5rem 1rem;
-  border: 2px solid var(--border);
-  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
   background: transparent;
-  color: var(--muted);
+  color: var(--text-secondary);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform .15s ease, background-color .15s ease, border-color .15s ease;
 }
 
 .btn-outline:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: var(--primary-500);
+  /* keep color change, drop background fill for subtlety */
+  color: var(--primary-600);
 }
 
 .social-btn {

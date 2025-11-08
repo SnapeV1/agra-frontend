@@ -15,3 +15,13 @@ app-sidebar {
   margin-left: 70px; 
   transition: margin-left 0.3s ease;
 }
+
+/* Light-dark theme (admin) */
+:host-context([data-theme="dark"]) .dashboard-container {
+  background: #0f172a; /* slate-900 */
+  color: #e5e7eb;      /* text-slate-200 */
+}
+
+:host-context([data-theme="dark"]) .main-content {
+  background: #0f172a;
+}

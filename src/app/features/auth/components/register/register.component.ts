@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+﻿import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { environment } from 'src/environments/environment';
@@ -148,49 +148,57 @@ constructor(private router: Router, private authService: AuthService) {}
     this.initGoogleButton();
   }
 
-  private initGoogleButton() {
-    this.loadGoogleScript()
-      .then(() => {
-        if (!environment.googleClientId) return;
-        try {
-          google.accounts.id.initialize({
-            client_id: environment.googleClientId,
-            callback: (response: any) => {
-              const idToken = response?.credential;
-              if (idToken) {
-                try {
-                  const claims = this.decodeJwt(idToken);
-                  if (claims) {
-                    const { sub, email, name, picture } = claims as any;
-                    console.log('[Google][Register] ID token claims', { sub, email, name, picture });
-                  }
-                } catch {}
-                // After Google sign-up, direct user to complete profile to fill missing fields
-                this.authService.redirectUrl = '/complete-profile';
-                this.authService.loginWithGoogleIdToken(idToken);
-              }
-            }
-          });
-          const btnContainer = document.getElementById('gsi-signup');
-          if (btnContainer && btnContainer.childElementCount === 0) {
-            google.accounts.id.renderButton(btnContainer, {
-              type: 'standard',
-              theme: 'filled_black',
-              size: 'large',
-              text: 'continue_with',
-              shape: 'pill',
-              logo_alignment: 'left',
-              width: 360
-            });
-          }
-        } catch {}
-      })
-      .catch(() => {});
-  }
+private initGoogleButton() {
+  this.loadGoogleScript()
+    .then(() => {
+      if (!environment.googleClientId) return;
 
-  onGooglePrompt() { try { google.accounts.id.prompt(); } catch {} }
+      try {
+        // 👇 disable all automatic One-Tap or remembered sessions
+        google.accounts.id.disableAutoSelect();
+        google.accounts.id.cancel();
+
+        google.accounts.id.initialize({
+          client_id: environment.googleClientId,
+          use_fedcm_for_prompt: false,
+          auto_select: false,
+          callback: (response: any) => {
+            const idToken = response?.credential;
+            if (idToken) {
+              try {
+                const claims = this.decodeJwt(idToken);
+                if (claims) {
+                  const { sub, email, name, picture } = claims as any;
+                  console.log('[Google][Register] ID token claims', { sub, email, name, picture });
+                }
+              } catch {}
+              this.authService.redirectUrl = '/complete-profile';
+              this.authService.loginWithGoogleIdToken(idToken);
+            }
+          }
+        });
+
+        const btnContainer = document.getElementById('gsi-signup');
+        if (btnContainer && btnContainer.childElementCount === 0) {
+          google.accounts.id.renderButton(btnContainer, {
+            type: 'standard',
+            theme: 'filled_black',
+            size: 'large',
+            text: 'signin_with',
+            shape: 'pill',
+            logo_alignment: 'left',
+            width: 360,
+          });
+        }
+      } catch (err) {
+        console.error('Google Sign-In init error', err);
+      }
+    })
+    .catch(() => {});
+}
 
   private loadGoogleScript(): Promise<void> {
+    
     return new Promise((resolve, reject) => {
       if ((window as any).google && (window as any).google.accounts) {
         resolve();
@@ -444,3 +452,4 @@ constructor(private router: Router, private authService: AuthService) {}
     this.isCountryDropdownOpen = false;
   }
 }
+

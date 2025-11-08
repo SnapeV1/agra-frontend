@@ -39,6 +39,68 @@
 .btn-primary { background-color: var(--primary-600); box-shadow: var(--shadow-md); }
 .btn-primary:hover { background-color: var(--primary-700); box-shadow: var(--shadow-lg); }
 
+/* Dark theme overrides (profile-specific) */
+/* Container + general surfaces */
+:host-context([data-theme="dark"]) .profile-container {
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+}
+
+/* Tailwind utility overrides inside this component for dark mode */
+:host-context([data-theme="dark"]) .bg-white { background-color: var(--card-bg) !important; }
+:host-context([data-theme="dark"]) .bg-gray-50 { background-color: var(--bg-secondary) !important; }
+:host-context([data-theme="dark"]) .text-gray-900 { color: var(--text-primary) !important; }
+:host-context([data-theme="dark"]) .border-gray-300 { border-color: var(--border-primary) !important; }
+
+/* Dropdown + phone input surfaces */
+:host-context([data-theme="dark"]) .select-options {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+}
+:host-context([data-theme="dark"]) .select-option {
+  border-bottom-color: var(--border-primary);
+  color: var(--text-primary);
+}
+:host-context([data-theme="dark"]) .select-option:hover { background: var(--card-hover-bg); }
+:host-context([data-theme="dark"]) .select-option.selected {
+  background: rgba(16,185,129,0.12);
+  color: var(--accent);
+}
+:host-context([data-theme="dark"]) .dropdown-arrow { color: var(--muted); }
+
+/* Improve text contrast for Tailwind gray utilities in dark mode */
+:host-context([data-theme="dark"]) .text-gray-900,
+:host-context([data-theme="dark"]) .text-gray-800,
+:host-context([data-theme="dark"]) .text-gray-700,
+:host-context([data-theme="dark"]) .text-xl.font-semibold { color: var(--text-primary) !important; }
+
+:host-context([data-theme="dark"]) .text-gray-600,
+:host-context([data-theme="dark"]) .text-gray-500,
+:host-context([data-theme="dark"]) .text-gray-400,
+:host-context([data-theme="dark"]) .text-sm.text-gray-600,
+:host-context([data-theme="dark"]) .text-xs.text-gray-500 { color: var(--text-secondary) !important; }
+
+/* Accent chips/icons used in section headers */
+:host-context([data-theme="dark"]) .bg-blue-100 { background-color: rgba(59,130,246,0.18) !important; }
+:host-context([data-theme="dark"]) .text-blue-600 { color: #93c5fd !important; }
+
+/* Courses section: surfaces, borders, gradients */
+:host-context([data-theme="dark"]) .bg-gray-100 { background-color: var(--bg-secondary) !important; }
+:host-context([data-theme="dark"]) .bg-gray-200 { background-color: var(--border-secondary) !important; }
+:host-context([data-theme="dark"]) .bg-gray-300 { background-color: var(--border-accent) !important; }
+:host-context([data-theme="dark"]) .border-gray-200 { border-color: var(--card-border) !important; }
+
+/* Flatten white gradients on course cards in dark mode */
+:host-context([data-theme="dark"]) .from-white.to-gray-50 {
+  --tw-gradient-from: var(--card-bg) !important;
+  --tw-gradient-to: var(--card-bg) !important;
+  background: var(--card-bg) !important;
+  background-image: none !important;
+}
+
+/* Progress and session details containers */
+:host-context([data-theme="dark"]) .bg-gray-50 { background-color: var(--bg-secondary) !important; }
+:host-context([data-theme="dark"]) .border-t.border-gray-200 { border-color: var(--card-border) !important; }
+
 /* Section Header */
 .section-header {
   display: flex;

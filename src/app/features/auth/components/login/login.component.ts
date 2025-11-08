@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { environment } from 'src/environments/environment';
+import { OnDestroy } from '@angular/core';
 
 declare const google: any;
 
@@ -10,17 +11,31 @@ declare const google: any;
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   isLoading = false;
   email = '';
   password = '';
   showPassword = false;
   errorMessage: string | null = null;
+  infoMessage: string | null = null;
+  rememberMe = false;
+  // Forgot-password cooldown state
+  forgotCooldown = 0; // seconds remaining
+  private forgotTimer: any = null;
+  private readonly RESET_COOLDOWN_KEY = 'pwd_reset_cooldown_until';
 
   constructor(private router: Router, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.initGoogleButton();
+    this.restoreForgotCooldown();
+  }
+
+  ngOnDestroy(): void {
+    if (this.forgotTimer) {
+      clearInterval(this.forgotTimer);
+      this.forgotTimer = null;
+    }
   }
 
   private initGoogleButton() {
@@ -36,6 +51,7 @@ export class LoginComponent implements OnInit {
           client_id: environment.googleClientId,
           // Avoid auto-using FedCM prompt; only on explicit user action
           use_fedcm_for_prompt: false,
+          auto_select: false,
           callback: (response: any) => {
             const idToken = response?.credential;
             if (!idToken) {
@@ -50,6 +66,7 @@ export class LoginComponent implements OnInit {
                 console.log('[Google][Login] ID token claims', { sub, email, name, picture });
               }
             } catch {}
+            try { this.authService.setRememberMe(!!this.rememberMe); } catch {}
             this.authService.loginWithGoogleIdToken(idToken);
             this.isLoading = false;
           }
@@ -59,9 +76,9 @@ export class LoginComponent implements OnInit {
         if (btnContainer && btnContainer.childElementCount === 0) {
           google.accounts.id.renderButton(btnContainer, {
             type: 'standard',
-            theme: 'white',
+            theme: 'filled_black',
             size: 'large',
-            text: 'continue_with',
+            text: 'signin_with',
             shape: 'pill',
             logo_alignment: 'left',
             width: 360
@@ -101,6 +118,7 @@ export class LoginComponent implements OnInit {
     }
 
     this.isLoading = true;
+    try { this.authService.setRememberMe(!!this.rememberMe); } catch {}
     this.authService.login({ email, password }).subscribe({
       next: () => {
         this.isLoading = false;
@@ -110,6 +128,67 @@ export class LoginComponent implements OnInit {
         this.errorMessage = 'Invalid email or password.';
       }
     });
+  }
+
+  onForgotPassword(event: Event) {
+    event.preventDefault();
+    this.errorMessage = null;
+    this.infoMessage = null;
+    if (this.forgotCooldown > 0) {
+      // Ignore clicks during cooldown
+      return;
+    }
+    const email = (this.email || '').trim();
+    if (!email) {
+      this.errorMessage = 'Enter your email above to reset your password.';
+      return;
+    }
+    this.isLoading = true;
+    this.authService.requestPasswordReset(email).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.infoMessage = 'If an account exists, a reset link has been sent.';
+        this.startForgotCooldown(60);
+      },
+      error: () => {
+        this.isLoading = false;
+        // Do not reveal whether email exists
+        this.infoMessage = 'If an account exists, a reset link has been sent.';
+        this.startForgotCooldown(60);
+      }
+    });
+  }
+
+  private startForgotCooldown(seconds: number) {
+    try {
+      const until = Date.now() + seconds * 1000;
+      localStorage.setItem(this.RESET_COOLDOWN_KEY, String(until));
+    } catch {}
+    this.forgotCooldown = seconds;
+    if (this.forgotTimer) clearInterval(this.forgotTimer);
+    this.forgotTimer = setInterval(() => {
+      this.forgotCooldown = Math.max(0, this.forgotCooldown - 1);
+      if (this.forgotCooldown === 0) {
+        clearInterval(this.forgotTimer);
+        this.forgotTimer = null;
+      }
+    }, 1000);
+  }
+
+  private restoreForgotCooldown() {
+    try {
+      const untilStr = localStorage.getItem(this.RESET_COOLDOWN_KEY);
+      if (!untilStr) return;
+      const until = parseInt(untilStr, 10);
+      if (isNaN(until)) return;
+      const remainingMs = until - Date.now();
+      if (remainingMs > 0) {
+        const seconds = Math.ceil(remainingMs / 1000);
+        this.startForgotCooldown(seconds);
+      } else {
+        localStorage.removeItem(this.RESET_COOLDOWN_KEY);
+      }
+    } catch {}
   }
 
   private loadGoogleScript(): Promise<void> {
@@ -147,3 +226,4 @@ export class LoginComponent implements OnInit {
     }
   }
 }
+

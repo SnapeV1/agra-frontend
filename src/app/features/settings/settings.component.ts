@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { ProfileService } from 'src/app/core/services/profile/profile.service';
 
 @Component({
   selector: 'app-settings',
@@ -21,7 +22,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
   emailError = '';
 
   // Preferences
-  theme: 'light' | 'dark' | 'auto' = (localStorage.getItem('pref_theme') as any) || 'light';
+  theme: 'light' | 'dark' = (() => {
+    const stored = localStorage.getItem('pref_theme');
+    if (stored === 'dark' || stored === 'light') return stored as 'light' | 'dark';
+    // Coerce legacy 'auto' to system preference once and persist
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const resolved = prefersDark ? 'dark' : 'light';
+    try { localStorage.setItem('pref_theme', resolved); } catch {}
+    return resolved as 'light' | 'dark';
+  })();
   language = localStorage.getItem('pref_lang') || 'en';
 
   // Notification preferences (local only for now)
@@ -34,24 +43,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
   showPasswordModal = false;
   showDeleteModal = false;
 
-  private mediaQueryDark: MediaQueryList | null = null;
-
-  constructor(private auth: AuthService) {}
+  constructor(private auth: AuthService, private profileService: ProfileService) {}
 
   ngOnInit(): void {
     this.applyTheme(this.theme, false);
-    // Watch system theme when in auto mode
-    try {
-      this.mediaQueryDark = window.matchMedia('(prefers-color-scheme: dark)');
-      const listener = () => {
-        if (this.theme === 'auto') this.applyTheme('auto', false);
-      };
-      // @ts-ignore - addEventListener not on older types
-      this.mediaQueryDark.addEventListener?.('change', listener);
-      // Fallback
-      // @ts-ignore
-      this.mediaQueryDark.addListener?.(listener);
-    } catch {}
+    // No system-watch needed; 'auto' removed.
   }
 
   ngOnDestroy(): void {
@@ -61,13 +57,25 @@ export class SettingsComponent implements OnInit, OnDestroy {
   saveTheme(): void {
     localStorage.setItem('pref_theme', this.theme);
     this.applyTheme(this.theme, true);
+    // Persist to backend profile as themePreference
+    this.profileService.updateUserProfile({ themePreference: this.theme }).subscribe({
+      next: () => {
+        const current = this.auth.currentUserValue?.user;
+        if (current) {
+          this.auth.updateCurrentUser({ ...current, themePreference: this.theme } as any);
+        }
+      },
+      error: () => {
+        // Keep UI applied locally even if backend fails
+      }
+    });
   }
 
   saveLanguage(): void {
     localStorage.setItem('pref_lang', this.language);
   }
 
-  private applyTheme(theme: 'light' | 'dark' | 'auto', persistSelection = false): void {
+  private applyTheme(theme: 'light' | 'dark', persistSelection = false): void {
     try {
       if (persistSelection) localStorage.setItem('pref_theme', theme);
       const root = document.documentElement;
@@ -75,11 +83,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         root.setAttribute('data-theme', 'dark');
       } else if (theme === 'light') {
         root.removeAttribute('data-theme');
-      } else {
-        // auto
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (prefersDark) root.setAttribute('data-theme', 'dark');
-        else root.removeAttribute('data-theme');
       }
     } catch {}
   }

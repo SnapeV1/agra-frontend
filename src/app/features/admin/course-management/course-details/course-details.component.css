@@ -4,6 +4,18 @@
   background-color: #fafafa;
 }
 
+/* Light-dark overrides */
+:host-context([data-theme="dark"]) .course-management-container { background-color: #0f172a; }
+:host-context([data-theme="dark"]) .header-section { background: #0b1220; border-bottom-color: #1f2937; }
+:host-context([data-theme="dark"]) .header-title { color: #e5e7eb; }
+:host-context([data-theme="dark"]) .header-subtitle { color: #94a3b8; }
+:host-context([data-theme="dark"]) .card { background: #0b1220; border-color: #1f2937; box-shadow: 0 1px 8px rgba(0,0,0,0.35); }
+:host-context([data-theme="dark"]) .live-session-status { background: linear-gradient(135deg, #0f172a 0%, #0b1220 100%); border-color: #1f2937; }
+:host-context([data-theme="dark"]) .status-info h3 { color: #e5e7eb; }
+:host-context([data-theme="dark"]) .status-description { color: #94a3b8; }
+:host-context([data-theme="dark"]) .stat-label { color: #94a3b8; }
+:host-context([data-theme="dark"]) .stat-value { color: #e5e7eb; }
+
 /* Header Section */
 .header-section {
   background: rgba(255, 255, 255, 0.8);

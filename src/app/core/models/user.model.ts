@@ -11,9 +11,10 @@ export interface User {
   language?: string;
   domain?: string;
   role: string;
+  // User-selected theme preference persisted server-side
+  themePreference?: 'light' | 'dark' | 'auto' | string;
   registeredAt: string; 
   progress?: CourseProgress[];
   archived: boolean;
 
 }
-

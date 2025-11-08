@@ -1525,7 +1525,8 @@ body {
 .scroll-to-top {
   position: fixed;
   bottom: 2rem;
-  right: 2rem;
+  /* Offset from chatbot toggle (64px) + gap (16px) + base (24px) */
+  right: 104px;
   width: 50px;
   height: 50px;
   background: linear-gradient(135deg, #4a7c22, #6bb033);
@@ -1551,6 +1552,12 @@ body {
   transform: translateY(-3px);
   box-shadow: 0 6px 20px rgba(74, 124, 34, 0.4);
 }
+
+@media (max-width: 640px) {
+  .scroll-to-top { right: 88px; bottom: 1.5rem; }
+}
+
+
 
 .arrow-icon {
   width: 20px;
@@ -2142,4 +2149,31 @@ body {
 }
 :host-context([data-theme="dark"]) .section {
   background: var(--bg-secondary);
+}
+
+/* Google Sign-In wrapper to ensure dark background around the iframe */
+.gsi-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px;
+  max-width: 400px;
+  margin: 0 auto;
+  overflow: hidden; /* hides any negative margins the iframe may set */
+}
+
+.gsi-wrapper iframe {
+  display: block !important;
+  background: transparent !important;
+  border: 0 !important;
+  margin: 0 !important; /* neutralize inline negative margins */
+}
+
+:host-context([data-theme="dark"]) .gsi-wrapper {
+  background: #0b1220; /* deep surface */
+  border-color: #374151; /* slate border */
 }

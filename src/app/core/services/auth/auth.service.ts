@@ -42,6 +42,9 @@ export class AuthService implements OnDestroy {
   private readonly NAME_KEY = 'user_name';
   private readonly PICTURE_KEY = 'user_picture';
   private readonly TOKEN_REFRESH_THRESHOLD = 5 * 60; 
+  private readonly THEME_KEY = 'pref_theme';
+  // Storage preference: false => localStorage (remember), true => sessionStorage (no remember)
+  private useSessionStorage = false;
 
   constructor(private http: HttpClient, private router: Router, private ngZone: NgZone) {
     this.currentUserSubject = new BehaviorSubject<AuthUser | null>(null);
@@ -49,6 +52,7 @@ export class AuthService implements OnDestroy {
     this.isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
     this.isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
+    this.detectStoragePreference();
     this.initializeAuthState();
     this.setupTokenRefreshTimer();
     this.autoLogout();
@@ -83,6 +87,26 @@ export class AuthService implements OnDestroy {
   login(credentials: any): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => this.handleSuccessfulAuth(response)),
+      catchError(this.handleError)
+    );
+  }
+
+  // Set from UI before login to decide persistence
+  setRememberMe(remember: boolean): void {
+    this.useSessionStorage = !remember;
+  }
+
+  requestPasswordReset(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/forgot-password`, { email }).pipe(
+      tap(() => {}),
+      catchError(this.handleError)
+    );
+  }
+
+  // Reset password using token from email link
+  resetPassword(token: string, password: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/reset-password`, { token, password }).pipe(
+      tap(() => {}),
       catchError(this.handleError)
     );
   }
@@ -164,6 +188,8 @@ export class AuthService implements OnDestroy {
   if (response.user.name) this.setStoredItem(this.NAME_KEY, response.user.name);
   if (response.user.picture) this.setStoredItem(this.PICTURE_KEY, response.user.picture); 
   if (response.refreshToken) this.setStoredItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
+  // Sync theme preference from backend if provided
+  try { this.applyThemePreference((response.user as any)?.themePreference); } catch {}
 
   const authUser: AuthUser = {
     token: response.token,
@@ -181,18 +207,14 @@ export class AuthService implements OnDestroy {
 }
 
 
-  logout(redirectTo: string = '/login'): void {
+  logout(): void {
     this.clearAuthData();
-    this.ngZone.run(() => this.router.navigate([redirectTo]));
   }
 
-  // Used for browser/tab close or unload scenarios where routing is unreliable.
-  // Clears local auth state without attempting navigation.
   logoutOnUnload(): void {
     try {
       this.clearAuthData();
     } catch {
-      // Swallow any errors during unload
     }
   }
 
@@ -252,6 +274,11 @@ private clearAuthData(): void {
   this.removeStoredItem(this.ROLE_KEY);
   this.removeStoredItem(this.NAME_KEY);
   this.removeStoredItem(this.PICTURE_KEY); 
+  // Clear theme so logged-out state doesn't keep last user's preference
+  try {
+    this.removeStoredItem(this.THEME_KEY);
+    document.documentElement.removeAttribute('data-theme');
+  } catch {}
   this.currentUserSubject.next(null);
   this.isAuthenticatedSubject.next(false);
   if (this.refreshTokenTimeout) clearTimeout(this.refreshTokenTimeout);
@@ -259,15 +286,30 @@ private clearAuthData(): void {
 
 
   private setStoredItem(key: string, value: string) {
-    localStorage.setItem(key, value);
+    try {
+      const store = this.useSessionStorage ? sessionStorage : localStorage;
+      store.setItem(key, value);
+    } catch {}
   }
 
   private getStoredItem(key: string): string | null {
-    return localStorage.getItem(key);
+    try {
+      // Prefer current storage, fall back to the other
+      const primary = this.useSessionStorage ? sessionStorage : localStorage;
+      const secondary = this.useSessionStorage ? localStorage : sessionStorage;
+      const fromPrimary = primary.getItem(key);
+      if (fromPrimary !== null) return fromPrimary;
+      const fromSecondary = secondary.getItem(key);
+      if (fromSecondary !== null) return fromSecondary;
+      return null;
+    } catch {
+      return null;
+    }
   }
 
   private removeStoredItem(key: string) {
-    localStorage.removeItem(key);
+    try { localStorage.removeItem(key); } catch {}
+    try { sessionStorage.removeItem(key); } catch {}
   }
 
   private handleError = (error: HttpErrorResponse): Observable<never> => {
@@ -358,12 +400,11 @@ public refreshAuthState(): void {
   this.initializeAuthState();
 }
 isAdmin(): boolean {
-  const role = localStorage.getItem('user_role');
-
+  const role = this.getStoredItem(this.ROLE_KEY);
   return role === 'ADMIN'; 
 }
 isUser(): boolean {
-  const role = localStorage.getItem('user_role');
+  const role = this.getStoredItem(this.ROLE_KEY);
   return role === 'USER'; 
 }
 
@@ -385,6 +426,7 @@ isUser(): boolean {
           currentAuthUser.user = user;
           this.currentUserSubject.next(currentAuthUser);
         }
+        try { this.applyThemePreference((user as any)?.themePreference); } catch {}
       }),
       catchError(err => {
         // Propagate error; let guards/services decide what to do
@@ -418,13 +460,35 @@ isUser(): boolean {
     } else {
       this.removeStoredItem(this.PICTURE_KEY);
     }
-    
+    // Apply any updated theme preference
+    try { this.applyThemePreference((updatedUser as any)?.themePreference); } catch {}
     
   }
   }
 getToken(): string | null {
-  return localStorage.getItem('auth_token');
-}
+  try {
+    return localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+  } catch {
+    return null;
+  }
+  }
+
+  private applyThemePreference(pref?: string | null | undefined): void {
+    try {
+      if (!pref) return; // do not override if backend didn't send
+      this.setStoredItem(this.THEME_KEY, pref);
+      const root = document.documentElement;
+      if (pref === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+      } else if (pref === 'auto') {
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (prefersDark) root.setAttribute('data-theme', 'dark');
+        else root.removeAttribute('data-theme');
+      } else {
+        root.removeAttribute('data-theme');
+      }
+    } catch {}
+  }
 
   // Keeping decodeJwt helper in case it is useful elsewhere; not used in the Google flow now.
   private decodeJwt(token: string): any | null {
@@ -438,6 +502,17 @@ getToken(): string | null {
     } catch {
       return null;
     }
+  }
+
+  private detectStoragePreference(): void {
+    try {
+      // If token is in localStorage, prefer persistence; else if in session, use session
+      if (localStorage.getItem(this.TOKEN_KEY)) {
+        this.useSessionStorage = false;
+      } else if (sessionStorage.getItem(this.TOKEN_KEY)) {
+        this.useSessionStorage = true;
+      }
+    } catch {}
   }
 
 }
