@@ -51,43 +51,22 @@ export class LiveSessionPlayerComponent implements OnInit, OnDestroy {
         const domain = join.domain || environment.jitsiDomain;
         try {
           // Debug join response quickly without printing full JWT
-          console.info(this.debugPrefix, 'JOIN response', {
-            domain,
-            roomName: join?.roomName,
-            jwtPresent: !!join?.jwt,
-            jwtLen: join?.jwt?.length,
-            displayName: join?.displayName,
-            avatarUrl: join?.avatarUrl
-          });
+          
 
           if (join?.jwt) {
             const payload = this.safeDecodeJwt(join.jwt);
-            console.info(this.debugPrefix, 'Decoded JWT payload', {
-              iss: payload?.iss,
-              aud: payload?.aud,
-              sub: payload?.sub,
-              room: payload?.room,
-              // New primary source: context.moderator (per backend change)
-              moderatorClaim:
-                payload?.context?.moderator ??
-                payload?.moderator ??
-                payload?.context?.user?.moderator ??
-                payload?.context?.features?.moderator,
-              contextModerator: payload?.context?.moderator,
-              userContext: payload?.context?.user,
-              features: payload?.context?.features
-            });
+            
             // Explicitly log the JWT for debugging (sensitive; remove in production)
-            console.info(this.debugPrefix, 'JWT token', join.jwt);
+            
             try { (window as any).jitsiMeetingToken = join.jwt; } catch {}
           } else {
-            console.warn(this.debugPrefix, 'No JWT provided. Jitsi may grant first participant moderator by default.');
+            
           }
 
           await this.ensureJitsiScript(domain);
           this.initPlayer(domain, join.roomName, join.jwt, join.displayName, join.avatarUrl);
         } catch (e) {
-          console.error(this.debugPrefix, 'Failed during JOIN/init flow', e);
+          
           this.error = 'Failed to initialize player';
           this.loading = false;
           return;
@@ -161,14 +140,7 @@ export class LiveSessionPlayerComponent implements OnInit, OnDestroy {
       }
     };
     // Debug options without leaking full token
-    console.info(this.debugPrefix, 'Initializing Jitsi', {
-      domain,
-      roomName,
-      jwtPresent: !!jwt,
-      displayName,
-      configOverwrite: options.configOverwrite,
-      interfaceToolbar: options.interfaceConfigOverwrite?.TOOLBAR_BUTTONS
-    });
+    
     // Ensure we run embed outside Angular to avoid change detection churn
     this.zone.runOutsideAngular(() => {
       this.apiInstance = new window.JitsiMeetExternalAPI(domain, options);
@@ -179,7 +151,7 @@ export class LiveSessionPlayerComponent implements OnInit, OnDestroy {
   private attachJitsiDebugListeners() {
     if (!this.apiInstance) return;
     const api = this.apiInstance;
-    const log = (evt: string, data?: any) => console.info(this.debugPrefix, `Jitsi event: ${evt}`, data ?? '');
+    const log = (evt: string, data?: any) => {};
 
     try {
       api.addEventListener('videoConferenceJoined', (e: any) => log('videoConferenceJoined', e));
@@ -193,7 +165,7 @@ export class LiveSessionPlayerComponent implements OnInit, OnDestroy {
       try { api.addEventListener('audioMuteStatusChanged', (e: any) => log('audioMuteStatusChanged', e)); } catch {}
       try { api.addEventListener('videoMuteStatusChanged', (e: any) => log('videoMuteStatusChanged', e)); } catch {}
     } catch (err) {
-      console.warn(this.debugPrefix, 'Failed to attach some Jitsi listeners', err);
+      
     }
   }
 
@@ -207,7 +179,6 @@ export class LiveSessionPlayerComponent implements OnInit, OnDestroy {
       const json = atob(padded);
       return JSON.parse(json);
     } catch (e) {
-      console.warn(this.debugPrefix, 'Failed to decode JWT', e);
       return undefined;
     }
   }

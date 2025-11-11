@@ -22,6 +22,8 @@
                  [src]="getDisplayPicture()" 
                  [alt]="getUserDisplayName()"
                  class="w-full h-full object-cover transition-opacity duration-200"
+                 [attr.referrerpolicy]="'no-referrer'"
+                 (error)="onAvatarError($event)"
                  [class.opacity-75]="isEditing">
             <div *ngIf="!getDisplayPicture()" class="flex items-center justify-center w-full h-full bg-white/10">
               <lucide-icon name="User" class="w-10 h-10 text-white/70"></lucide-icon>

@@ -5,15 +5,63 @@
 app-sidebar {
   position: absolute; 
   left: 0;
-  top: 0;
-  height: 100vh;
+  top: 96px;                     /* align with taller sticky navbar height */
+  height: calc(100vh - 96px);
   z-index: 1000;
- 
 }
 
 .main-content {
   margin-left: 70px; 
   transition: margin-left 0.3s ease;
+}
+
+/* Floating logo area between the sticky navbar and the sidebar */
+.brand-corner {
+  position: fixed;
+  top: 8px; /* sit inside the navbar band */
+  left: 12px;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000; /* below navbar (5000), above sidebar (1000) */
+  pointer-events: auto;
+  cursor: pointer;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+
+.brand-hamburger {
+  width: 20px;
+  height: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.brand-hamburger span {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: #374151;
+  border-radius: 2px;
+}
+
+.brand-corner:hover { background: #f9fafb; }
+
+@media (max-width: 768px) {
+  .brand-corner { display: none; }
+}
+
+/* Dark theme tweaks */
+:host-context([data-theme="dark"]) .brand-corner { background: #0b1220; border-color: #1f2937; }
+:host-context([data-theme="dark"]) .brand-hamburger span { background: #e5e7eb; }
+
+@media (max-width: 768px) {
+  .brand-corner { display: none; }
 }
 
 /* Light-dark theme (admin) */

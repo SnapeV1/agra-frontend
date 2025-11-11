@@ -12,6 +12,7 @@ export class UserManagementComponent implements OnInit {
   searchTerm = '';
   selectedUser: User | null = null;
   showEditModal = false;
+  loading = true;
 
   constructor(private usersService: UsersService) {}
 
@@ -20,12 +21,14 @@ export class UserManagementComponent implements OnInit {
   }
 
   loadUsers(): void {
+    this.loading = true;
     this.usersService.getAllUsers().subscribe({
       next: (data) => {
         this.users = data;
+        this.loading = false;
       },
       error: (err) => {
-    
+        this.loading = false;
       }
     });
   }
@@ -72,6 +75,12 @@ export class UserManagementComponent implements OnInit {
   saveUser(): void {
     if (this.selectedUser) {
       const pending = { ...this.selectedUser };
+      // Prevent duplicate emails (case-insensitive, excluding the edited user)
+      const exists = this.users.some(u => u.id !== pending.id && (u.email || '').toLowerCase() === (pending.email || '').toLowerCase());
+      if (exists) {
+        alert('Another user already has this email address. Please use a unique email.');
+        return;
+      }
       // Optimistically update local list to reflect changes
       const index = this.users.findIndex(u => u.id === pending.id);
       if (index !== -1) {

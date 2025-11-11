@@ -2,9 +2,9 @@
   width: 280px;
   background: #ffffff;
   position: fixed;
-  height: 100vh;
+  top: 96px;                 /* start below taller sticky navbar */
+  height: calc(100vh - 96px);
   left: 0;
-  top: 0;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-right: 1px solid #e2e8f0;
   z-index: 1000;
@@ -13,6 +13,11 @@
   &.collapsed {
     width: 72px;
   }
+}
+
+/* Explicit collapsed selector to ensure click affordance and width when nested '&' isn't processed */
+.sidebar.collapsed {
+  width: 72px;
 }
 
 .sidebar-header {
@@ -25,18 +30,40 @@
   
 }
 
+.header-toggle {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.header-toggle:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
 .logo {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 16px;
   flex-shrink: 0;
   cursor: pointer;
+}
+
+.brand-logo {
+  height: 32px;
+  width: auto;
+  display: block;
+  object-fit: contain;
 }
 
 .sidebar-title {
@@ -52,10 +79,13 @@
   }
 }
 
+
+
 .toggle-btn {
   position: absolute;
-  top: 28px;
-  right: 16px;
+  top: 16px;
+  right: 16px;            /* expanded: top-right */
+  left: auto;
   width: 28px;
   height: 28px;
   cursor: pointer;
@@ -65,12 +95,16 @@
   z-index: 1001;
   transition: all 0.3s ease;
   border-radius: 6px;
-
-  &:hover {
-    transform: scale(1.1);
-    background: rgba(100, 116, 139, 0.1);
-  }
 }
+
+/* Collapsed toggle: keep centered, slightly nearer the top */
+.collapsed-toggle {
+  top: 12px;
+  left: 12px;
+  right: auto;
+}
+
+/* (removed arrow styles; using hamburger in collapsed state) */
 
 .hamburger-container {
   width: 22px;
@@ -88,7 +122,7 @@
 
 .hamburger-bar {
   height: 2px;
-  background: #64748b;
+  
   border-radius: 2px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   transform-origin: center;
@@ -98,11 +132,7 @@
   &:nth-child(3) { width: 70%; }
 }
 
-.toggle-btn:hover .hamburger-bar {
-  background: #374151;
-  width: 100% !important;
-  transform: translateX(0);
-}
+
 
 .chevron-icon {
   font-size: 14px;
@@ -115,12 +145,9 @@
   }
 }
 
-.toggle-btn:hover .chevron-icon {
-  color: #374151;
-}
-
 .sidebar-menu {
   padding: 16px 12px;
+  margin-top: 72px; /* give clear space under toggle */
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -267,6 +294,16 @@
 :host-context([data-theme="dark"]) .sidebar-header {
   background: #0b1220;
   border-bottom-color: #1f2937;
+}
+
+:host-context([data-theme="dark"]) .header-toggle {
+  background: #0b1220;
+  border-color: #1f2937;
+}
+
+:host-context([data-theme="dark"]) .header-toggle:hover {
+  background: #111827;
+  border-color: #334155;
 }
 
 :host-context([data-theme="dark"]) .sidebar-title { color: #e5e7eb; }

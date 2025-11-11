@@ -255,6 +255,15 @@
   overflow: hidden;
 }
 
+/* Dark theme for edit form and modal */
+:host-context([data-theme="dark"]) .modal-content { background: #0b1220; }
+:host-context([data-theme="dark"]) .modal-footer { background: #0f172a; border-top: 1px solid #1f2937; }
+:host-context([data-theme="dark"]) .form-input { background: #0b1220; border-color: #1f2937; color: #e5e7eb; }
+:host-context([data-theme="dark"]) .form-input::placeholder { color: #94a3b8; }
+:host-context([data-theme="dark"]) select.form-input option { background: #0b1220; color: #e5e7eb; }
+:host-context([data-theme="dark"]) .archive-button { background: #111827; color: #e5e7eb; border-color: #1f2937; }
+:host-context([data-theme="dark"]) .archive-button.archived { background: #1f2937; border-color: #f59e0b; color: #fbbf24; }
+
 .modal-header {
   padding: 1.5rem 2rem;
   border-bottom: 1px solid #e2e8f0;

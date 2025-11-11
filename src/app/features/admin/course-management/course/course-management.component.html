@@ -19,6 +19,7 @@
       <input 
         type="text" 
         [(ngModel)]="searchTerm"
+        (ngModelChange)="onFiltersChange()"
         placeholder="Search courses, trainer ID, domain, or country..." 
         class="search-input"
         name="searchTerm"
@@ -26,7 +27,7 @@
     </div>
     
     <div class="filter-section">
-      <select id="statusFilter" [(ngModel)]="filterStatus" class="filter-select">
+      <select id="statusFilter" [(ngModel)]="filterStatus" (ngModelChange)="onFiltersChange()" class="filter-select">
         <option value="all">All Courses</option>
         <option value="active">Active</option>
         <option value="archived">Archived</option>
@@ -43,7 +44,7 @@
   <!-- Courses Grid -->
   <div *ngIf="!loading && filteredCourses.length > 0" class="courses-grid">
     <div 
-      *ngFor="let course of filteredCourses" 
+      *ngFor="let course of getPaginatedCourses()" 
       class="course-card"
       [class.archived]="course.archived"
       (click)="goToCourseDetails(course)"  
@@ -84,6 +85,12 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Pagination / Show More -->
+  <div *ngIf="!loading && filteredCourses.length > 0" class="pagination-container" style="margin-top: 1rem; display:flex; justify-content:center; align-items:center; gap:1rem;">
+    <span class="pagination-info">Showing {{ getShownCount() }} of {{ filteredCourses.length }}</span>
+    <button class="btn-primary" *ngIf="currentPage < totalPages" (click)="goToNextPage()">Show more</button>
   </div>
 
   <!-- Empty State -->

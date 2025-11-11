@@ -31,6 +31,104 @@
 :host-context([data-theme="dark"]) .cancel-btn { background: #111827; color: #cbd5e1; }
 :host-context([data-theme="dark"]) .cancel-btn:hover { background: #1f2937; }
 
+/* Dark mode: post cards and actual posts */
+:host-context([data-theme="dark"]) .posts-list { }
+:host-context([data-theme="dark"]) .post { background: #0b1220; border: 1px solid #1f2937; box-shadow: 0 2px 10px rgba(0,0,0,0.35); }
+:host-context([data-theme="dark"]) .post:hover { background: #111827; }
+:host-context([data-theme="dark"]) .post-header { border-bottom-color: #1f2937; }
+:host-context([data-theme="dark"]) .post-user-details h3 { color: #e5e7eb; }
+:host-context([data-theme="dark"]) .post-meta { color: #94a3b8; }
+
+:host-context([data-theme="dark"]) .dropdown { background: #0f172a; border-color: #1f2937; box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+:host-context([data-theme="dark"]) .dropdown-item { color: #e5e7eb; }
+:host-context([data-theme="dark"]) .dropdown-item:hover { background: #111827; }
+:host-context([data-theme="dark"]) .dropdown-item.danger { color: #f97316; }
+:host-context([data-theme="dark"]) .dropdown-item.danger:hover { background: rgba(249,115,22,0.08); }
+
+:host-context([data-theme="dark"]) .post-content { }
+:host-context([data-theme="dark"]) .post-text { color: #e5e7eb; }
+
+:host-context([data-theme="dark"]) .post-actions { border-top-color: #1f2937; }
+:host-context([data-theme="dark"]) .action-btn { color: #cbd5e1;  background: #111827;}
+:host-context([data-theme="dark"]) .action-btn:hover:not(.disabled) { background: #111827; }
+:host-context([data-theme="dark"]) .action-btn.disabled { color: #64748b; }
+:host-context([data-theme="dark"]) .post-actions .action-btn.like-btn:hover:not(.disabled) { color: #b91051; }
+:host-context([data-theme="dark"]) .post-actions .action-btn.like-btn:hover:not(.disabled) svg { stroke: #b91051; }
+/* Liked state (post like) */
+:host-context([data-theme="dark"]) .post-actions .action-btn.like-btn[data-liked="true"] { color: #b91051; }
+:host-context([data-theme="dark"]) .post-actions .action-btn.like-btn[data-liked="true"] svg { stroke: #b91051; }
+
+/* Comments in dark */
+:host-context([data-theme="dark"]) .comments-section { }
+:host-context([data-theme="dark"]) .comment { background: #111827; }
+:host-context([data-theme="dark"]) .comment:hover { background: #1f2937; }
+:host-context([data-theme="dark"]) .comment-user { color: #e5e7eb; }
+:host-context([data-theme="dark"]) .comment-timestamp { color: #94a3b8; }
+:host-context([data-theme="dark"]) .comment-text { color: #e5e7eb; }
+
+:host-context([data-theme="dark"]) .comment-input-container { background: #0b1220; border-color: #1f2937; }
+:host-context([data-theme="dark"]) .comment-input-container:focus-within { border-color: #10b981; background: #0f172a; box-shadow: 0 0 0 3px rgba(16,185,129,0.12); }
+:host-context([data-theme="dark"]) .comment-input { color: #e5e7eb; }
+:host-context([data-theme="dark"]) .comment-input::placeholder { color: #94a3b8; }
+:host-context([data-theme="dark"]) .send-comment-btn { background: #10b981; }
+:host-context([data-theme="dark"]) .send-comment-btn:hover:not(:disabled) { background: #059669; }
+/* Comment like dark styling */
+:host-context([data-theme="dark"]) .comment-like-btn:hover:not(.disabled) { background: #b91051; color: #b91051; }
+:host-context([data-theme="dark"]) .comment-like-btn.liked { color: #b91051; }
+:host-context([data-theme="dark"]) .comment-like-btn.liked svg { fill: #b91051; stroke: #b91051; }
+
+/* ---- Ensure dark rules override later base styles (place at end) ---- */
+:host-context([data-theme="dark"]) .like-btn.liked {
+  color: #b91051;
+  background: rgba(59, 2, 10, 0.12);
+  border: none;
+}
+:host-context([data-theme="dark"]) .like-btn.liked svg { stroke: #b91051; fill: #b91051; }
+
+:host-context([data-theme="dark"]) .comment-like-btn.liked { color: #b91051; }
+:host-context([data-theme="dark"]) .comment-like-btn.liked svg { fill: #b91051; stroke: #b91051; }
+
+:host-context([data-theme="dark"]) .comment-btn:hover:not(.disabled) {
+  background: #111827;
+  color: #e5e7eb;
+}
+
+/* ---- Dark mode: Edit form styles ---- */
+:host-context([data-theme="dark"]) .edit-form {
+  background: #0f172a;
+  border-top-color: #1f2937;
+}
+
+:host-context([data-theme="dark"]) .edit-textarea {
+  background: #0b1220;
+  color: #e5e7eb;
+  border-color: #1f2937;
+}
+
+:host-context([data-theme="dark"]) .edit-textarea:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
+}
+
+:host-context([data-theme="dark"]) .edit-actions .post-btn {
+  background: #10b981;
+}
+:host-context([data-theme="dark"]) .edit-actions .post-btn:hover:not(:disabled) {
+  background: #059669;
+}
+
+:host-context([data-theme="dark"]) .edit-actions .cancel-btn {
+  background: #111827;
+  color: #cbd5e1;
+  border: 1px solid #1f2937;
+}
+:host-context([data-theme="dark"]) .edit-actions .cancel-btn:hover {
+  background: #1f2937;
+}
+
+/* Optional: edit image preview info */
+:host-context([data-theme="dark"]) .image-info { color: #cbd5e1; }
+
 /* Header */
 .header {
   text-align: center;
@@ -938,7 +1036,7 @@
   gap: 8px;
   padding: 10px 16px;
   background: #f3f4f6;
-  border: 1px solid #e5e7eb;
+  border: none;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
@@ -951,7 +1049,6 @@
 
 .action-btn:hover:not(.disabled) {
   background: #e5e7eb;
-  border-color: #9ca3af;
   transform: translateY(-1px);
 }
 
@@ -967,13 +1064,13 @@
 .like-btn.liked {
   color: var(--like-color, #ef4444);
   background: rgba(239, 68, 68, 0.12);
-  border-color: var(--like-color, #ef4444);
+  border: none;
 }
 
 .like-btn.liked:hover:not(.disabled) {
   color: var(--like-color, #ef4444);
   background: rgba(239, 68, 68, 0.15);
-  border-color: var(--like-color, #ef4444);
+  border: none;
 }
 
 .like-btn.liked svg {
@@ -986,9 +1083,7 @@
 }
 
 /* Ensure like hover border matches liked color */
-.post-actions .action-btn.like-btn:hover:not(.disabled) {
-  border-color: var(--like-color, #ef4444);
-}
+.post-actions .action-btn.like-btn:hover:not(.disabled) { }
 
 /* Heart icon stroke should match liked color on hover */
 .post-actions .action-btn.like-btn:hover:not(.disabled) svg {

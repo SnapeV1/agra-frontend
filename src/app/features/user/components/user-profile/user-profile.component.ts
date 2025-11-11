@@ -518,6 +518,13 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     return this.userProfile.name || this.userProfile.email.split('@')[0] || 'User';
   }
 
+  onAvatarError(evt: Event): void {
+    const img = evt?.target as HTMLImageElement;
+    if (img) {
+      img.src = 'assets/default-avatar.png';
+    }
+  }
+
   getUserRole(): string {
     if (!this.userProfile) return 'Member';
     return this.userProfile.role === 'ADMIN' ? 'Administrator' : 'Member';

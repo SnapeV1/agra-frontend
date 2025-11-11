@@ -35,6 +35,16 @@
   box-shadow: var(--shadow-md);
   transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
 }
+.contact-card__header {
+  background: linear-gradient(135deg, var(--primary-50), var(--bg-primary));
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--card-border);
+}
+html[data-theme="dark"] .contact-card__header {
+  background: linear-gradient(135deg, #0b1220, #111827);
+  color: var(--text-primary);
+  border-bottom-color: var(--card-border);
+}
 .contact-card:hover { 
   background: var(--card-hover-bg);
   box-shadow: var(--shadow-md);

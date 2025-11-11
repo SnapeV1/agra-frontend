@@ -201,6 +201,13 @@ export class NavigationComponent implements OnInit, OnDestroy {
     this.authService.logout();
   }
 
+  onAvatarError(evt: Event): void {
+    const img = evt?.target as HTMLImageElement;
+    if (img) {
+      img.src = 'assets/default-avatar.png';
+    }
+  }
+
   private updateActiveSection(): void {
     const sections = ['overview', 'features', 'technical', 'pricing', 'timeline'];
     const scrollPosition = window.pageYOffset + 100;

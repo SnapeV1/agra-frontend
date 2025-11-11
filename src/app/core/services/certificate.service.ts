@@ -4,6 +4,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { AuthService } from './auth/auth.service';
 import { Course } from '../models/course';
+import { environment } from 'src/environments/environment';
 
 export interface CertificateData {
   id: string;
@@ -46,7 +47,7 @@ export interface CertificateVerificationResult {
   providedIn: 'root'
 })
 export class CertificateService {
-  private apiUrl = 'http://localhost:8080/api/certificates';
+  private apiUrl = `${environment.apiBaseUrl}/certificates`;
   private certificatesSubject = new BehaviorSubject<CertificateData[]>([]);
   public certificates$ = this.certificatesSubject.asObservable();
 

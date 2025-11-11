@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 export interface NewsArticle {
   id?: string | number;
@@ -15,7 +16,7 @@ export interface NewsArticle {
 
 @Injectable({ providedIn: 'root' })
 export class NewsService {
-  private readonly BASE_URL = 'http://localhost:8080/api/news';
+  private readonly BASE_URL = `${environment.apiBaseUrl}/news`;
 
   constructor(private http: HttpClient) {}
 

@@ -1,4 +1,6 @@
 import { Component, OnInit, OnDestroy, HostListener, ElementRef } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { SidebarService } from '../../services/sidebar.service';
 
@@ -13,12 +15,17 @@ export class SidebarComponent implements OnInit, OnDestroy {
   activeMenuItem = 'dashboard';
   private subscription: Subscription = new Subscription();
 
-  constructor(public sidebarService: SidebarService, private elementRef: ElementRef) {}
+  constructor(
+    public sidebarService: SidebarService,
+    private elementRef: ElementRef,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.subscription.add(
       this.sidebarService.isCollapsed$.subscribe(collapsed => {
-        this.isCollapsed = !collapsed;
+        // Reflect actual collapsed state from service (true => collapsed)
+        this.isCollapsed = collapsed;
       })
     );
 
@@ -26,6 +33,14 @@ export class SidebarComponent implements OnInit, OnDestroy {
       this.sidebarService.isMobileOpen$.subscribe(mobileOpen => {
         this.isMobileOpen = mobileOpen;
       })
+    );
+
+    // Initialize active item based on current URL and keep in sync on navigation
+    this.updateActiveFromUrl(this.router.url || '');
+    this.subscription.add(
+      this.router.events
+        .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+        .subscribe(evt => this.updateActiveFromUrl(evt.urlAfterRedirects || evt.url))
     );
   }
 
@@ -39,6 +54,24 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   setActiveMenuItem(itemId: string) {
     this.activeMenuItem = itemId;
+  }
+
+  onHeaderToggle(): void {
+    try {
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile) this.sidebarService.toggleMobile();
+      else this.sidebarService.toggle();
+    } catch {
+      this.sidebarService.toggle();
+    }
+  }
+
+  private updateActiveFromUrl(url: string) {
+    if (!url) return;
+    if (url.includes('/admin/users')) this.activeMenuItem = 'users';
+    else if (url.includes('/admin/posts')) this.activeMenuItem = 'posts';
+    else if (url.includes('/admin/courses')) this.activeMenuItem = 'courses';
+    else if (url.includes('/admin/dashboard') || url === '/admin' || url.startsWith('/admin/')) this.activeMenuItem = 'dashboard';
   }
 
   @HostListener('document:click', ['$event'])
@@ -55,6 +88,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   onSidebarClick(event: MouseEvent): void {
-    event.stopPropagation(); // Prevents document click when clicking inside sidebar
+    // Prevent outside handlers; do not auto-toggle here to avoid
+    // accidental expand/collapse during navigation
+    event.stopPropagation();
   }
 }

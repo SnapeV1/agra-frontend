@@ -10,7 +10,8 @@
   --text-secondary: var(--text-secondary);
   --text-muted: var(--text-tertiary);
   --error-color: #ef4444;
-  --like-color: var(--like-color, #ec4899);
+  /* Dark red for liked hearts */
+  --like-color: #b91c1c; /* tailwind red-700 */
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
@@ -24,6 +25,7 @@
 :host-context([data-theme="dark"]) {
   /* No overrides needed: tokens already reference global dark values */
 }
+
 
 /* Layout */
 .feed-layout {
@@ -369,15 +371,15 @@
 }
 
 .like-btn.liked {
-  color: var(--like-color, #ef4444);
-  background: rgba(239, 68, 68, 0.12);
-  border-color: var(--like-color, #ef4444);
+  color: var(--like-color);
+  background: rgba(185, 28, 28, 0.12);
+  border-color: var(--like-color);
 }
 
 .like-btn.liked:hover:not(.disabled) {
-  color: var(--like-color, #ef4444);
-  background: rgba(239, 68, 68, 0.15);
-  border-color: var(--like-color, #ef4444);
+  color: var(--like-color);
+  background: rgba(185, 28, 28, 0.2);
+  border-color: var(--like-color);
 }
 
 .like-btn.liked svg {
@@ -390,14 +392,10 @@
 }
 
 /* Ensure like hover border matches liked color */
-.post-actions .action-btn.like-btn:hover:not(.disabled) {
-  border-color: var(--like-color, #ef4444);
-}
+.post-actions .action-btn.like-btn:hover:not(.disabled) { border-color: var(--like-color); }
 
 /* Heart icon stroke should match liked color on hover */
-.post-actions .action-btn.like-btn:hover:not(.disabled) svg {
-  stroke: var(--like-color, #ef4444);
-}
+.post-actions .action-btn.like-btn:hover:not(.disabled) svg { stroke: var(--like-color); }
 
 /* Comment heart icon hover stroke color */
 .comment-like-btn:hover:not(.disabled) svg {

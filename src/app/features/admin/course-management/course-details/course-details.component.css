@@ -15,6 +15,42 @@
 :host-context([data-theme="dark"]) .status-description { color: #94a3b8; }
 :host-context([data-theme="dark"]) .stat-label { color: #94a3b8; }
 :host-context([data-theme="dark"]) .stat-value { color: #e5e7eb; }
+/* Align edit course details with admin light-dark palette */
+:host-context([data-theme="dark"]) .card-header { background: transparent; border-bottom: 1px solid #1f2937; }
+:host-context([data-theme="dark"]) .card-title { color: #e5e7eb; }
+:host-context([data-theme="dark"]) .card-description { color: #94a3b8; }
+:host-context([data-theme="dark"]) .card-content { background: transparent; }
+
+:host-context([data-theme="dark"]) .form-label { color: #cbd5e1; }
+:host-context([data-theme="dark"]) .form-input,
+:host-context([data-theme="dark"]) .form-select,
+:host-context([data-theme="dark"]) .form-textarea {
+  background: #0b1220;
+  color: #e5e7eb;
+  border-color: #1f2937;
+}
+:host-context([data-theme="dark"]) .form-input::placeholder,
+:host-context([data-theme="dark"]) .form-textarea::placeholder { color: #94a3b8; }
+:host-context([data-theme="dark"]) .form-input:focus,
+:host-context([data-theme="dark"]) .form-select:focus,
+:host-context([data-theme="dark"]) .form-textarea:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
+}
+
+:host-context([data-theme="dark"]) .btn-outline { color: #e5e7eb; border-color: #1f2937; }
+:host-context([data-theme="dark"]) .btn-outline:hover:not(:disabled) { background: #111827; border-color: #334155; }
+
+:host-context([data-theme="dark"]) .upload-area { border-color: #1f2937; }
+:host-context([data-theme="dark"]) .upload-area:hover { border-color: rgba(16,185,129,0.35); }
+:host-context([data-theme="dark"]) .upload-content i { color: #94a3b8; }
+:host-context([data-theme="dark"]) .upload-title { color: #e5e7eb; }
+:host-context([data-theme="dark"]) .upload-subtitle { color: #94a3b8; }
+
+:host-context([data-theme="dark"]) .language-badge { background: #111827; color: #cbd5e1; }
+
+:host-context([data-theme="dark"]) .slider { background-color: #1f2937; }
+:host-context([data-theme="dark"]) .slider:before { background-color: #e5e7eb; }
 
 /* Header Section */
 .header-section {
@@ -1129,6 +1165,13 @@ input:checked + .slider:before {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* Dark mode for collapse control */
+:host-context([data-theme="dark"]) .collapse-control {
+  background: #0b1220;
+  border-color: #1f2937;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.35);
+}
+
 .collapse-all-btn {
   padding: 8px;
   background: #f9fafb;
@@ -1140,6 +1183,18 @@ input:checked + .slider:before {
 .collapse-all-btn:hover {
   background: #f3f4f6;
   border-color: #d1d5db;
+}
+
+/* Dark mode for collapse all button */
+:host-context([data-theme="dark"]) .collapse-all-btn {
+  background: #111827;
+  border-color: #1f2937;
+  color: #e5e7eb;
+}
+
+:host-context([data-theme="dark"]) .collapse-all-btn:hover {
+  background: #0f172a;
+  border-color: #334155;
 }
 
 .hamburger-icon {
@@ -1159,10 +1214,20 @@ input:checked + .slider:before {
   transition: all 0.2s;
 }
 
+/* Dark mode for hamburger icon bars */
+:host-context([data-theme="dark"]) .hamburger-icon span {
+  background-color: #cbd5e1;
+}
+
 .collapse-label {
   font-size: 14px;
   font-weight: 500;
   color: #374151;
+}
+
+/* Dark mode label color */
+:host-context([data-theme="dark"]) .collapse-label {
+  color: #e5e7eb;
 }
 
 /* Clickable Header Styles */
@@ -1174,6 +1239,11 @@ input:checked + .slider:before {
 
 .clickable-header:hover {
   background-color: #f8f9fa;
+}
+
+/* Dark mode hover for clickable header */
+:host-context([data-theme="dark"]) .clickable-header:hover {
+  background-color: #0f172a;
 }
 
 .clickable-header .card-header-content {

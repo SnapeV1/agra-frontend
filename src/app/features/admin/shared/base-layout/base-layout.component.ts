@@ -11,7 +11,7 @@ export class BaseLayoutComponent implements OnInit, OnDestroy {
   isSidebarCollapsed = false;
   private subscription: Subscription = new Subscription();
 
-  constructor(private sidebarService: SidebarService) {}
+  constructor(public sidebarService: SidebarService) {}
 
   ngOnInit() {
     this.subscription.add(
@@ -23,5 +23,18 @@ export class BaseLayoutComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
+  }
+
+  onMainClick(): void {
+    try {
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        this.sidebarService.closeMobile();
+      } else {
+        this.sidebarService.collapse();
+      }
+    } catch {
+      // no-op
+    }
   }
 }

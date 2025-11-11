@@ -65,14 +65,6 @@
       </div>
     </div>
 
-    <button 
-      class="action-btn" 
-      (click)="onSettingsClick()" 
-      title="Settings"
-      type="button"
-    >
-      <span class="material-symbols-outlined"></span>
-    </button>
 
     <button 
       class="action-btn" 
@@ -95,6 +87,9 @@
     <div class="dropdown-menu" [class.show]="isDropdownOpen">
       <button class="dropdown-item" (click)="onProfileClick()" type="button">
         Profile
+      </button>
+      <button class="dropdown-item" (click)="navigateToSettings()" type="button">
+        Settings
       </button>
       <button class="dropdown-item danger" (click)="logout()" type="button">
         Logout

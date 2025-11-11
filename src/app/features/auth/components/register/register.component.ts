@@ -169,11 +169,11 @@ private initGoogleButton() {
                 const claims = this.decodeJwt(idToken);
                 if (claims) {
                   const { sub, email, name, picture } = claims as any;
-                  console.log('[Google][Register] ID token claims', { sub, email, name, picture });
+                
                 }
               } catch {}
-              this.authService.redirectUrl = '/complete-profile';
-              this.authService.loginWithGoogleIdToken(idToken);
+              // Start Google signup: collect Google profile then go to complete-signup
+              this.authService.beginGoogleSignup(idToken);
             }
           }
         });
@@ -191,7 +191,7 @@ private initGoogleButton() {
           });
         }
       } catch (err) {
-        console.error('Google Sign-In init error', err);
+        
       }
     })
     .catch(() => {});

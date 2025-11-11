@@ -5,12 +5,13 @@ import { catchError, map } from 'rxjs/operators';
 import { Course, CourseFile, CourseProgress } from 'src/app/core/models/course';
 import { AuthService } from '../auth/auth.service';
 import { MockDataService } from '../mock-data.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CourseService {
-  private apiUrl = 'http://localhost:8080/api/courses'; 
+  private apiUrl = `${environment.apiBaseUrl}/courses`; 
 
   constructor(private http: HttpClient, private authService: AuthService, private mockDataService: MockDataService) { }
 

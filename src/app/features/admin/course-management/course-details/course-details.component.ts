@@ -468,7 +468,7 @@ export class AdminCourseDetailsComponent implements OnInit {
 
     // Stage files locally; upload will happen on Save
     try {
-      console.log('[Course Admin] Staging files for upload:', validFiles.map(f => ({ name: f.name, type: f.type, size: f.size })));
+      
     } catch {}
     this.selectedFiles = [...this.selectedFiles, ...validFiles];
 
@@ -501,7 +501,7 @@ export class AdminCourseDetailsComponent implements OnInit {
             this.formData.files = currentFiles.filter((_, i) => i !== index);
           },
           error: (err) => {
-            console.error('Failed to delete file', err);
+            
             alert('Failed to delete file.');
           }
         });
@@ -609,16 +609,16 @@ export class AdminCourseDetailsComponent implements OnInit {
         if (courseId) {
           if (this.selectedFiles.length > 0) {
             try {
-              console.log('[Course Admin] Uploading staged files:', this.selectedFiles.map(f => ({ name: f.name, type: f.type, size: f.size })));
+              
             } catch {}
-            const uploadOps = this.selectedFiles.map(f => this.courseService.uploadCourseFile(courseId, f).pipe(catchError((e) => { try { console.error('[Course Admin] Upload failed for', f?.name, e); } catch {} return of(null); })));
+            const uploadOps = this.selectedFiles.map(f => this.courseService.uploadCourseFile(courseId, f).pipe(catchError((e) => { return of(null); })));
             ops.push(...uploadOps);
           }
           if (this.pendingDeleteFileIds.length > 0) {
             try {
-              console.log('[Course Admin] Deleting files:', this.pendingDeleteFileIds);
+              
             } catch {}
-            const deleteOps = this.pendingDeleteFileIds.map(fid => this.courseService.deleteCourseFile(courseId, fid).pipe(catchError((e) => { try { console.error('[Course Admin] Delete failed for', fid, e); } catch {} return of(null); })));
+            const deleteOps = this.pendingDeleteFileIds.map(fid => this.courseService.deleteCourseFile(courseId, fid).pipe(catchError((e) => { return of(null); })));
             ops.push(...deleteOps);
           }
         }
@@ -628,7 +628,7 @@ export class AdminCourseDetailsComponent implements OnInit {
           forkJoin(ops).pipe(finalize(() => this.uploadingFiles = false)).subscribe({
             next: (results) => {
               try {
-                console.log('[Course Admin] Upload/Delete results:', results);
+                
               } catch {}
               const newFiles = (results || []).filter((r: any) => r && r.url);
               if (newFiles.length > 0) {

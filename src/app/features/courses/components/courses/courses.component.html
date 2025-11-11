@@ -175,32 +175,13 @@
       <!-- Pagination -->
       <div class="pagination-container" *ngIf="!loading && filteredCourses.length > 0">
         <div class="pagination-info">
-          <span>Showing {{ getStartIndex() }} of {{ getTotalCourses() }} courses</span>
+          <span>Showing {{ getShownCount() }} of {{ getTotalCourses() }} courses</span>
         </div>
-        <div class="pagination">
-          <button 
-            class="pagination-btn pagination-prev" 
-            [disabled]="currentPage === 1"
-            (click)="goToPage(currentPage - 1)"
-          >
-            Previous
-          </button>
-          
-          <button 
-            *ngFor="let page of getVisiblePages()" 
-            class="pagination-btn pagination-number"
-            [class.active]="page === currentPage"
-            (click)="goToPage(page)"
-          >
-            {{ page }}
-          </button>
-          
-          <button 
-            class="pagination-btn pagination-next" 
-            [disabled]="currentPage === totalPages"
-            (click)="goToPage(currentPage + 1)"
-          >
-            Next
+        <div class="pagination" style="justify-content: center;">
+          <button class="btn-primary" 
+                  *ngIf="currentPage < totalPages" 
+                  (click)="goToPage(currentPage + 1)">
+            Show more
           </button>
         </div>
       </div>

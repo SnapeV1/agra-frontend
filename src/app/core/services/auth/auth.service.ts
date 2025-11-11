@@ -22,8 +22,8 @@ export interface RefreshTokenResponse {
   providedIn: 'root'
 })
 export class AuthService implements OnDestroy {
-  private apiUrl = 'http://localhost:8080/api/auth';
-  private readonly USER_ME_URL = 'http://localhost:8080/api/auth/me';
+  private apiUrl = `${environment.apiBaseUrl}/auth`;
+  private readonly USER_ME_URL = `${environment.apiBaseUrl}/auth/me`;
 
   
   private currentUserSubject: BehaviorSubject<AuthUser | null>;
@@ -43,6 +43,8 @@ export class AuthService implements OnDestroy {
   private readonly PICTURE_KEY = 'user_picture';
   private readonly TOKEN_REFRESH_THRESHOLD = 5 * 60; 
   private readonly THEME_KEY = 'pref_theme';
+  private readonly PROVISIONAL_SIGNUP_KEY = 'signup_google_profile';
+  private readonly PASSWORD_SET_TOKEN_KEY = 'password_set_token';
   // Storage preference: false => localStorage (remember), true => sessionStorage (no remember)
   private useSessionStorage = false;
 
@@ -66,7 +68,8 @@ export class AuthService implements OnDestroy {
   const token = this.getStoredItem(this.TOKEN_KEY);
   const refreshToken = this.getStoredItem(this.REFRESH_TOKEN_KEY);
   const email = this.getStoredItem(this.EMAIL_KEY);
-  const role = this.getStoredItem(this.ROLE_KEY);
+  const rawRole = this.getStoredItem(this.ROLE_KEY) || '';
+  const role = this.normalizeRole(rawRole);
   const name = this.getStoredItem(this.NAME_KEY);
   const picture = this.getStoredItem(this.PICTURE_KEY); 
 
@@ -113,46 +116,93 @@ export class AuthService implements OnDestroy {
 
   // Simple connectivity test to the backend health endpoint
   testConnection(): Observable<any> {
-    const base = (environment as any)?.apiBaseUrl || 'http://localhost:8080/api';
-    const url = `${base}/auth/health/google`;
+    const url = `${environment.apiBaseUrl}/auth/health/google`;
     return this.http.get(url, { observe: 'response' }).pipe(
       tap(() => {}),
       catchError(this.handleError)
     );
   }
 
-  // Backend-verified Google login. Sends the Google ID token to backend `/api/auth/google`.
-  // On success, persists returned JWT, refresh token (if any), and user profile.
-  loginWithGoogleIdToken(idToken: string): void {
-    this.http
-      .post<LoginResponse>(`${this.apiUrl}/google`, { token: idToken })
-      .pipe(
-        tap((response) => {
-          try {
-            if (response?.user) {
-              const { email, name, role } = response.user;
-              const picture = (response.user as any)?.picture;
-              console.log('[Auth][Google] Backend user', { email, name, role, picture });
-            }
-          } catch {}
-          this.handleSuccessfulAuth(response);
-        }),
-        catchError(this.handleError)
-      )
-      .subscribe({
-        next: () => {},
-        error: () => {}
-      });
+  // Google auth: call backend to exchange the ID token and branch using existingAccount
+  beginGoogleSignup(idToken: string): void {
+    const url = `${this.apiUrl}/google`;
+    this.http.post<any>(url, { token: idToken }).pipe(
+      catchError(this.handleError)
+    ).subscribe({
+      next: (res) => {
+        const existing = !!(res as any)?.existingAccount;
+        const profileCompleted = !!(res as any)?.profileCompleted;
+        
+        // Store a lightweight provisional profile for guard/UI context
+        try {
+          const user = (res as any)?.user as User;
+          const provisional = {
+            email: user?.email || '',
+            name: user?.name || '',
+            picture: user?.picture || '',
+            sub: '',
+            idToken
+          };
+          this.setStoredItem(this.PROVISIONAL_SIGNUP_KEY, JSON.stringify(provisional));
+        } catch {}
+
+        if (existing || profileCompleted) {
+          // Existing or already complete: finalize auth and ensure we leave login
+          
+          // If it's an existing account but backend marks profileCompleted=false (e.g., optional fields), still go Home
+          if (existing && !profileCompleted) {
+            try { (this as any).clearProvisionalSignup?.(); } catch {}
+            this.redirectUrl = '/home';
+          }
+          this.handleSuccessfulAuth(res as LoginResponse);
+          // Failsafe navigation in case anything suppresses the internal redirect
+          this.ngZone.run(() => { this.router.navigateByUrl('/home'); });
+          return;
+        }
+
+        // New Google account (not completed): log user in, then redirect to complete-signup to set password
+        this.redirectUrl = '/complete-signup';
+        this.handleSuccessfulAuth(res as LoginResponse);
+      },
+      error: (err) => {
+        // On failure, allow user to proceed with local flow as a fallback
+        try {
+          this.setStoredItem(this.PROVISIONAL_SIGNUP_KEY, JSON.stringify({ email: '', name: '', picture: '', sub: '', idToken }));
+        } catch {}
+        this.ngZone.run(() => this.router.navigate(['/complete-signup']));
+      }
+    });
   }
 
-  // Completes signup by setting a password for the current (Google-authenticated) user
-  setPassword(newPassword: string): Observable<any> {
-    const token = this.getStoredItem(this.TOKEN_KEY);
-    if (!token) return throwError(() => new Error('Not authenticated'));
-    return this.http.post<any>(`${this.apiUrl}/set-password`, { password: newPassword }, {
-      headers: { 'Authorization': `Bearer ${token}` }
+  getProvisionalSignup(): any | null {
+    try {
+      const raw = this.getStoredItem(this.PROVISIONAL_SIGNUP_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null }
+  }
+
+  clearProvisionalSignup(): void {
+    try { this.removeStoredItem(this.PROVISIONAL_SIGNUP_KEY); } catch {}
+  }
+
+  // Complete Signup display is determined upstream; no additional checks here.
+
+  // Expose any stored password setup token for components that need it (not required in new flow)
+  public getStoredPasswordSetupToken(): string | null { 
+    return this.getStoredItem(this.PASSWORD_SET_TOKEN_KEY);
+  }
+
+  // Completes signup by setting a password. Backend expects a token IN THE BODY.
+  // Prefer a dedicated password/reset token if present; fall back to JWT.
+  setPassword(newPassword: string, tokenOverride?: string): Observable<any> {
+    const jwt = this.getStoredItem(this.TOKEN_KEY);
+    const resetToken = tokenOverride || this.getStoredItem(this.PASSWORD_SET_TOKEN_KEY) || jwt;
+    if (!resetToken) return throwError(() => new Error('Not authenticated'));
+    const body = { token: resetToken, password: newPassword } as any;
+    return this.http.post<any>(`${this.apiUrl}/set-password`, body, {
+      headers: jwt ? { 'Authorization': `Bearer ${jwt}` } : undefined
     }).pipe(
-      tap(() => {}),
+      tap(() => { try { this.removeStoredItem(this.PASSWORD_SET_TOKEN_KEY); } catch {} }),
       catchError(this.handleError)
     );
   }
@@ -184,23 +234,36 @@ export class AuthService implements OnDestroy {
   private handleSuccessfulAuth(response: LoginResponse): void {
   this.setStoredItem(this.TOKEN_KEY, response.token);
   this.setStoredItem(this.EMAIL_KEY, response.user.email);
-  this.setStoredItem(this.ROLE_KEY, response.user.role);
+  const safeRole = this.normalizeRole(response.user.role);
+  this.setStoredItem(this.ROLE_KEY, safeRole);
   if (response.user.name) this.setStoredItem(this.NAME_KEY, response.user.name);
   if (response.user.picture) this.setStoredItem(this.PICTURE_KEY, response.user.picture); 
   if (response.refreshToken) this.setStoredItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
+  // Capture any password-set token and completion flag from backend if provided
+  let profileCompleted = true;
+  try {
+    const anyRes: any = response as any;
+    const pwdToken = anyRes?.passwordResetToken || anyRes?.resetToken || anyRes?.passwordToken || anyRes?.verificationToken;
+    if (pwdToken) this.setStoredItem(this.PASSWORD_SET_TOKEN_KEY, pwdToken);
+    if (typeof anyRes?.profileCompleted === 'boolean') profileCompleted = !!anyRes.profileCompleted;
+  } catch {}
   // Sync theme preference from backend if provided
   try { this.applyThemePreference((response.user as any)?.themePreference); } catch {}
 
   const authUser: AuthUser = {
     token: response.token,
-    user: response.user,
+    user: { ...response.user, role: safeRole },
     refreshToken: response.refreshToken
   };
 
   this.currentUserSubject.next(authUser);
   this.isAuthenticatedSubject.next(true);
   this.setupTokenRefreshTimer();
-  const fallback = this.isProfileComplete(response.user) ? '/home' : '/complete-profile';
+  // Route based on profileCompleted and presence of a setup token
+  const hasSetupToken = !!this.getStoredItem(this.PASSWORD_SET_TOKEN_KEY);
+  let fallback = '/home';
+  if (!profileCompleted && hasSetupToken) fallback = '/complete-signup';
+  else if (!profileCompleted && !hasSetupToken) fallback = '/login';
   const target = this.redirectUrl ?? fallback;
   this.ngZone.run(() => this.router.navigate([target]));
   this.redirectUrl = null;
@@ -227,7 +290,8 @@ export class AuthService implements OnDestroy {
   }
 
   getUserRole(): string | null {
-    return this.getStoredItem(this.ROLE_KEY);
+    const raw = this.getStoredItem(this.ROLE_KEY);
+    return raw ? this.normalizeRole(raw) : null;
   }
   getUserPicture(): string | null {
   return this.getStoredItem(this.PICTURE_KEY);
@@ -400,15 +464,15 @@ public refreshAuthState(): void {
   this.initializeAuthState();
 }
 isAdmin(): boolean {
-  const role = this.getStoredItem(this.ROLE_KEY);
+  const role = this.getUserRole();
   return role === 'ADMIN'; 
 }
 isUser(): boolean {
-  const role = this.getStoredItem(this.ROLE_KEY);
+  const role = this.getUserRole();
   return role === 'USER'; 
 }
 
- getCurrentUserFromBackend(): Observable<User> {
+  getCurrentUserFromBackend(): Observable<User> {
     const token = this.getStoredItem(this.TOKEN_KEY);
     if (!token) {
       // No token present; do not redirect; just error for callers to handle
@@ -423,13 +487,17 @@ isUser(): boolean {
       tap(user => {
         const currentAuthUser = this.currentUserSubject.value;
         if (currentAuthUser) {
-          currentAuthUser.user = user;
+          currentAuthUser.user = { ...user, role: this.normalizeRole(user.role) };
           this.currentUserSubject.next(currentAuthUser);
         }
         try { this.applyThemePreference((user as any)?.themePreference); } catch {}
       }),
       catchError(err => {
-        // Propagate error; let guards/services decide what to do
+        // If /me fails, force logout and redirect to login
+        try {
+          this.logout();
+          this.ngZone.run(() => this.router.navigate(['/login']));
+        } catch {}
         return throwError(() => err);
       })
     );
@@ -441,13 +509,13 @@ isUser(): boolean {
   if (currentAuthUser) {
     const updatedAuthUser = {
       ...currentAuthUser,
-      user: updatedUser
+      user: { ...updatedUser, role: this.normalizeRole(updatedUser.role) }
     };
     
     this.currentUserSubject.next(updatedAuthUser);
     
     this.setStoredItem(this.EMAIL_KEY, updatedUser.email);
-    this.setStoredItem(this.ROLE_KEY, updatedUser.role);
+    this.setStoredItem(this.ROLE_KEY, this.normalizeRole(updatedUser.role));
     
     if (updatedUser.name) {
       this.setStoredItem(this.NAME_KEY, updatedUser.name);
@@ -513,6 +581,12 @@ getToken(): string | null {
         this.useSessionStorage = true;
       }
     } catch {}
+  }
+
+  // Normalize any incoming role value to one of the two allowed roles
+  private normalizeRole(role: string | null | undefined): 'USER' | 'ADMIN' {
+    const r = (role || '').toString().trim().toUpperCase();
+    return r === 'ADMIN' ? 'ADMIN' : 'USER';
   }
 
 }

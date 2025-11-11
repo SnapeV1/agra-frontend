@@ -32,19 +32,19 @@
             <div class="course-meta">
               <div class="meta-item">
                 <span class="meta-label">Instructor</span>
-                <span class="meta-value">{{ course.trainerId || 'instructor1' }}</span>
+                <span class="meta-value">{{ course.trainerId || 'Instructor' }}</span>
               </div>
               <div class="meta-item">
-                <span class="meta-label">Duration</span>
-                <span class="meta-value">8 hours</span>
+                <span class="meta-label">Lessons</span>
+                <span class="meta-value">{{ getLessonCount() }}</span>
+              </div>
+              <div class="meta-item" *ngIf="getLanguageList()">
+                <span class="meta-label">Languages</span>
+                <span class="meta-value">{{ getLanguageList() }}</span>
               </div>
               <div class="meta-item">
                 <span class="meta-label">Level</span>
-                <span class="meta-value">Intermediate</span>
-              </div>
-              <div class="meta-item">
-                <span class="meta-label">Students</span>
-                <span class="meta-value">1,234</span>
+                <span class="meta-value">{{ getCourseLevel() }}</span>
               </div>
             </div>
 
@@ -145,29 +145,9 @@
             <div *ngIf="activeTab === 'overview'" class="content-section">
               <h2>What you'll learn</h2>
               <div class="learning-grid">
-                <div class="learning-item">
+                <div class="learning-item" *ngFor="let item of getLearningPoints()">
                   <div class="learning-icon">✓</div>
-                  <span>Master the fundamentals of the subject</span>
-                </div>
-                <div class="learning-item">
-                  <div class="learning-icon">✓</div>
-                  <span>Apply theoretical knowledge to practical scenarios</span>
-                </div>
-                <div class="learning-item">
-                  <div class="learning-icon">✓</div>
-                  <span>Develop problem-solving skills</span>
-                </div>
-                <div class="learning-item">
-                  <div class="learning-icon">✓</div>
-                  <span>Build confidence in the domain</span>
-                </div>
-                <div class="learning-item">
-                  <div class="learning-icon">✓</div>
-                  <span>Create real-world projects</span>
-                </div>
-                <div class="learning-item">
-                  <div class="learning-icon">✓</div>
-                  <span>Understand best practices and industry standards</span>
+                  <span>{{ item }}</span>
                 </div>
               </div>
             </div>
@@ -176,35 +156,40 @@
             <div *ngIf="activeTab === 'overview'" class="content-section">
               <h2>Course Description</h2>
               <p>{{ course.description }}</p>
-              <p>This course is designed to provide comprehensive knowledge and practical skills in the subject matter. Through hands-on projects and real-world examples, you'll gain the expertise needed to excel in this field.</p>
             </div>
 
 
             <!-- Course Goals -->
-            <div *ngIf="activeTab === 'overview'" class="content-section">
-              <h2>Prerequisites</h2>
+            <div *ngIf="activeTab === 'overview' && course.languagesAvailable?.length" class="content-section">
+              <h2>Languages</h2>
               <ul class="prerequisites-list">
-                <li>Basic computer literacy</li>
-                <li>Access to a computer with internet connection</li>
-                <li>No prior experience required</li>
-                <li>Enthusiasm to learn</li>
+                <li *ngFor="let lang of course.languagesAvailable">{{ lang }}</li>
               </ul>
             </div>
 
             <!-- Curriculum Tab -->
             <div *ngIf="activeTab === 'curriculum'" class="content-section">
               <h2>Course Curriculum</h2>
-              <p>Detailed curriculum content will be available here.</p>
+              <div *ngIf="course.textContent?.length; else noLessons">
+                <ul class="prerequisites-list">
+                  <li *ngFor="let item of course.textContent; index as i">
+                    {{ i + 1 }}. {{ item.title }} <span style="color:#64748b">({{ item.type }})</span>
+                  </li>
+                </ul>
+              </div>
+              <ng-template #noLessons>
+                <p>No curriculum items yet.</p>
+              </ng-template>
             </div>
 
             <!-- Instructor Tab -->
             <div *ngIf="activeTab === 'instructor'" class="content-section">
               <h2>About the Instructor</h2>
-              <p>Learn more about your instructor and their expertise.</p>
+              <p>{{ course.trainerId || 'Instructor' }}</p>
             </div>
 
             <!-- Reviews Tab -->
-            <div *ngIf="activeTab === 'reviews'" class="content-section">
+            <div *ngIf="activeTab === 'reviews' && getCourseRating() !== null" class="content-section">
               <h2>Student Reviews</h2>
               <div class="rating" *ngIf="getCourseRating() !== null">
                 <div class="stars">
@@ -212,9 +197,7 @@
                         [class]="filled ? 'star filled' : 'star'">★</span>
                 </div>
                 <span class="rating-value">{{ getCourseRating() }}</span>
-                <span class="review-count">(245 reviews)</span>
               </div>
-              <p>Student reviews and feedback will be displayed here.</p>
             </div>
           </div>
 
@@ -224,9 +207,8 @@
               <div class="instructor-info">
                 <h4>{{ course.trainerId || 'instructor1' }}</h4>
                 <p>Course Instructor</p>
-                <div class="instructor-stats">
-                  <span>4.9 ★ rating</span>
-                  <span>1,234+ students</span>
+                <div class="instructor-stats" *ngIf="course.languagesAvailable?.length">
+                  <span>Languages: {{ getLanguageList() }}</span>
                 </div>
               </div>
             </div>

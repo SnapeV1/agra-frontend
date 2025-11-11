@@ -4,7 +4,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
 import { CourseProgress } from '../models/course';
 import { AuthService } from './auth/auth.service';
-// import { environment } from '../../../environments/environment';
+import { environment } from 'src/environments/environment';
 
 export interface LessonProgress {
   lessonId: string;
@@ -25,7 +25,7 @@ export interface CourseEnrollment {
   providedIn: 'root'
 })
 export class ProgressService {
-  private apiUrl = 'http://localhost:8080/api/progress';
+  private apiUrl = `${environment.apiBaseUrl}/progress`;
   private currentProgressSubject = new BehaviorSubject<CourseEnrollment | null>(null);
   public currentProgress$ = this.currentProgressSubject.asObservable();
 

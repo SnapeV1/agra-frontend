@@ -63,11 +63,10 @@ export class LoginComponent implements OnInit, OnDestroy {
               const claims = this.decodeJwt(idToken);
               if (claims) {
                 const { sub, email, name, picture } = claims as any;
-                console.log('[Google][Login] ID token claims', { sub, email, name, picture });
               }
             } catch {}
             try { this.authService.setRememberMe(!!this.rememberMe); } catch {}
-            this.authService.loginWithGoogleIdToken(idToken);
+            this.authService.beginGoogleSignup(idToken);
             this.isLoading = false;
           }
         });
@@ -93,15 +92,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   onGooglePrompt() {
     try {
-      google.accounts.id.prompt((notification: any) => {
-        // Gracefully handle cases where prompt is not shown or skipped
-        const notDisplayed = notification?.isNotDisplayed?.() ?? false;
-        const skipped = notification?.isSkippedMoment?.() ?? false;
-        if (notDisplayed || skipped) {
-          const reason = notification?.getNotDisplayedReason?.() || notification?.getSkippedReason?.() || 'unknown';
-          console.info('[Google][Login] Prompt not shown/skipped:', { notDisplayed, skipped, reason });
-        }
-      });
+      google.accounts.id.prompt((notification: any) => {});
     } catch {
       // Swallow errors to avoid noisy console when environment blocks FedCM
     }
@@ -122,6 +113,12 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.authService.login({ email, password }).subscribe({
       next: () => {
         this.isLoading = false;
+        // Failsafe: ensure we leave the login page after successful auth
+        try {
+          if (this.authService.isAuthenticated()) {
+            this.router.navigate(['/home']);
+          }
+        } catch {}
       },
       error: () => {
         this.isLoading = false;

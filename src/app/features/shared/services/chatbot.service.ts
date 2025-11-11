@@ -13,7 +13,7 @@ export class ChatbotService {
     return this.http
       .post<{ id: string; answer: string; confidence: string; matchedTags: string[] }>(this.endpoint, { message })
       .pipe(
-        tap((res) => console.log('Chatbot respond:', res)),
+        tap(() => {}),
         map((res) => (res && res.answer ? res.answer : ''))
       );
   }

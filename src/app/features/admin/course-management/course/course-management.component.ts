@@ -16,6 +16,10 @@ export class CourseManagementComponent {
   searchTerm = '';
   filterStatus: 'all' | 'archived' | 'active' = 'active';
 
+  // Pagination (Show more)
+  currentPage = 1;
+  itemsPerPage = 6;
+
   selectedImagePreview: string | null = null;
   selectedImageFile: File | null = null;
   selectedVideoFile: File | null = null;
@@ -135,6 +139,31 @@ export class CourseManagementComponent {
         course.trainerId.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         course.domain.toLowerCase().includes(this.searchTerm.toLowerCase())
       );
+  }
+
+  // Derived pagination helpers
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredCourses.length / this.itemsPerPage));
+  }
+
+  getShownCount(): number {
+    return Math.min(this.filteredCourses.length, this.currentPage * this.itemsPerPage);
+  }
+
+  getPaginatedCourses(): Course[] {
+    const endIndex = this.currentPage * this.itemsPerPage;
+    return this.filteredCourses.slice(0, endIndex);
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage += 1;
+    }
+  }
+
+  onFiltersChange(): void {
+    // Reset pagination when filters/search change
+    this.currentPage = 1;
   }
 
   goToCourseDetails(course: Course): void {

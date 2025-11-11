@@ -957,4 +957,23 @@ body, html {
   pointer-events: none;
 }
 
+/* Simplified feature bullets for signup */
+.features-list li {
+  position: relative;
+  padding-left: 1.5rem;
+  display: block;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+.features-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0.15rem;
+  color: var(--primary-600);
+  font-weight: 700;
+  background: none;
+}
 

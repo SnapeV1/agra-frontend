@@ -62,7 +62,9 @@
                     <img 
                         [src]="getUserAvatar()" 
                         [alt]="getUserDisplayName()" 
-                        class="profile-avatar">
+                        class="profile-avatar"
+                        [attr.referrerpolicy]="'no-referrer'"
+                        (error)="onAvatarError($event)">
                     <span class="profile-name">{{ getUserDisplayName() }}</span>
                   
                     <span class="dropdown-arrow" [class.open]="isDropdownOpen">▼</span>
@@ -73,7 +75,9 @@
                         <img 
                             [src]="getUserAvatar()" 
                             [alt]="getUserDisplayName()" 
-                            class="dropdown-avatar">
+                            class="dropdown-avatar"
+                            [attr.referrerpolicy]="'no-referrer'"
+                            (error)="onAvatarError($event)">
                         <div class="dropdown-user-info">
                             <div class="dropdown-name">{{ getUserDisplayName() }}</div>
                             <div class="dropdown-email">{{ getUserEmail() }}</div>

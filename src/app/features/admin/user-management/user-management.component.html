@@ -18,7 +18,7 @@
     </div>
   </div>
 
-  <div class="table-container" *ngIf="filteredUsers.length > 0">
+  <div class="table-container" *ngIf="!loading && filteredUsers.length > 0">
     <table class="user-table">
       <thead>
         <tr>
@@ -76,7 +76,7 @@
     </table>
   </div>
 
-  <div class="empty-state" *ngIf="filteredUsers.length === 0">
+  <div class="empty-state" *ngIf="!loading && filteredUsers.length === 0">
     <h3>No users found</h3>
     <p>Try adjusting your search criteria</p>
   </div>
@@ -134,9 +134,8 @@
         <div class="form-group">
           <label>Role</label>
           <select [(ngModel)]="selectedUser.role" class="form-input">
-            <option value="admin">Admin</option>
-            <option value="user">User</option>
-            <option value="moderator">Moderator</option>
+            <option value="ADMIN">Admin</option>
+            <option value="USER">User</option>
           </select>
         </div>
         

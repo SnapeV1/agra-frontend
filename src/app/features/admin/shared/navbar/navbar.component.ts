@@ -10,6 +10,7 @@ import {
 import { Router, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { NotificationService } from 'src/app/core/services/notification.service';
+import { CourseService } from 'src/app/core/services/course/course.service';
 import { NotificationItem } from 'src/app/core/models/notification.model';
 import { filter } from 'rxjs/operators';
 import { AuthUser } from 'src/app/core/models/auth-user.model';
@@ -50,6 +51,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private eRef: ElementRef,
     private notificationService: NotificationService,
+    private courseService: CourseService,
     public sidebarService: SidebarService
   ) {}
 
@@ -169,7 +171,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   /** Handle settings click */
   onSettingsClick() {
-    this.settingsClick.emit();
+    this.navigateToSettings();
   }
 
   /** Handle profile click */
@@ -183,6 +185,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/home']);
   }
 
+  /** Navigate to settings */
+  navigateToSettings() {
+    this.router.navigate(['/settings']);
+  }
+
   /** Logout user */
   logout() {
     this.authService.logout();
@@ -192,10 +199,60 @@ export class NavbarComponent implements OnInit, OnDestroy {
   /** Update breadcrumbs dynamically */
   private updatePageInfo(url: string) {
     const parts = url.split('/').filter(Boolean);
-    this.pageTitle =
-      parts.length > 0
-        ? parts[parts.length - 1].replace(/-/g, ' ').toUpperCase()
-        : 'Dashboard';
+
+    // Default title
+    this.pageTitle = parts.length > 0
+      ? parts[parts.length - 1].replace(/-/g, ' ').toUpperCase()
+      : 'Dashboard';
+
+    // Special handling for Admin section breadcrumbs
+    if (parts[0] === 'admin') {
+      // Handle course details route: /admin/coursedetails/:id
+      if (parts[1] === 'coursedetails' && parts.length >= 3) {
+        const courseId = parts[2];
+        // Build breadcrumbs: Admin -> Courses -> <Course Title>
+        this.breadcrumbs = [
+          { label: 'Admin', route: '/admin/dashboard' },
+          { label: 'Courses', route: '/admin/courses' },
+          { label: courseId } // Placeholder replaced after fetch
+        ];
+
+        // Try to fetch course title for last crumb + page title
+        this.courseService.getCourseById(courseId).subscribe({
+          next: (course) => {
+            const title = course?.title?.trim();
+            if (title) {
+              this.breadcrumbs[this.breadcrumbs.length - 1] = { label: title };
+              this.pageTitle = title.toUpperCase();
+            }
+          },
+          error: () => {
+            // Leave ID as fallback label
+          }
+        });
+        return;
+      }
+
+      // Generic admin crumbs: first points to dashboard
+      const crumbs: BreadcrumbItem[] = [{ label: 'Admin', route: '/admin/dashboard' }];
+      // Append the rest segments in order, mapping names/links sensibly
+      for (let i = 1; i < parts.length; i++) {
+        const seg = parts[i];
+        if (seg === 'courses') {
+          crumbs.push({ label: 'Courses', route: '/admin/courses' });
+        } else {
+          const label = seg.charAt(0).toUpperCase() + seg.slice(1);
+          crumbs.push({ label, route: '/' + parts.slice(0, i + 1).join('/') });
+        }
+      }
+      this.breadcrumbs = crumbs;
+      // Adjust title for known segments
+      const last = parts[parts.length - 1];
+      if (last === 'courses') this.pageTitle = 'COURSES';
+      return;
+    }
+
+    // Fallback: non-admin pages default behavior
     this.breadcrumbs = parts.map((part, index) => ({
       label: part.charAt(0).toUpperCase() + part.slice(1),
       route: '/' + parts.slice(0, index + 1).join('/')

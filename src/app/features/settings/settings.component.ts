@@ -46,6 +46,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
   constructor(private auth: AuthService, private profileService: ProfileService) {}
 
   ngOnInit(): void {
+    // Respect user preference if available from backend-auth state
+    const userPref = (this.auth.currentUserValue?.user as any)?.themePreference;
+    if (userPref) {
+      try { localStorage.setItem('pref_theme', userPref); } catch {}
+      // Coerce 'auto' to system at view time
+      const effective = userPref === 'dark' ? 'dark' : (userPref === 'light' ? 'light' : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+      this.theme = effective as 'light' | 'dark';
+    }
     this.applyTheme(this.theme, false);
     // No system-watch needed; 'auto' removed.
   }

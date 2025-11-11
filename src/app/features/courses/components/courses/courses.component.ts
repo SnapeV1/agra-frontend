@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 import { CourseService } from '../../../../core/services/course/course.service';
 import { Course } from '../../../../core/models/course';
 
@@ -35,16 +36,17 @@ export class CoursesComponent implements OnInit {
 
   // Pagination properties
   currentPage = 1;
-  itemsPerPage = 8;
+  itemsPerPage = 6;
   totalPages = 1;
 
-  skeletonArray = Array(8).fill(0);
+  skeletonArray = Array(6).fill(0);
 
   constructor(
     private courseService: CourseService,
     private router: Router,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private location: Location
   ) {}
 
   ngOnInit(): void {
@@ -73,6 +75,8 @@ export class CoursesComponent implements OnInit {
       next: (courses) => {
         this.courses = courses;
         this.filteredCourses = [...courses];
+        // Ensure pagination is initialized based on the loaded data
+        this.updatePaginatedCourses();
         this.buildLanguageList();
         this.buildCountryList();
         this.loading = false;
@@ -230,18 +234,19 @@ onCourseSelect(course: Course): void {
     return pages;
   }
 
-  getStartIndex(): number {
-    return (this.currentPage - 1) * this.itemsPerPage + 1;
+  // Number of items currently shown when using "Show more"
+  getShownCount(): number {
+    return Math.min(this.filteredCourses.length, this.currentPage * this.itemsPerPage);
   }
 
   getTotalCourses(): number {
     return this.filteredCourses.length;
   }
 
+  // For "Show more": return cumulative items up to the current page
   getPaginatedCourses(): Course[] {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    return this.filteredCourses.slice(startIndex, endIndex);
+    const endIndex = this.currentPage * this.itemsPerPage;
+    return this.filteredCourses.slice(0, endIndex);
   }
 
   private updatePaginatedCourses(): void {
@@ -254,17 +259,23 @@ onCourseSelect(course: Course): void {
   }
 
   private updateQueryParams(): void {
-    this.router.navigate([], {
+    const queryParams: any = {
+      q: this.searchTerm || undefined,
+      lang: this.selectedLanguage || undefined,
+      country: this.selectedCountry || undefined,
+      level: this.selectedLevel || undefined,
+      page: this.currentPage !== 1 ? this.currentPage : undefined
+    };
+
+    const urlTree = this.router.createUrlTree([], {
       relativeTo: this.route,
-      queryParams: {
-        q: this.searchTerm || undefined,
-        lang: this.selectedLanguage || undefined,
-        country: this.selectedCountry || undefined,
-        level: this.selectedLevel || undefined,
-        page: this.currentPage !== 1 ? this.currentPage : undefined
-      },
+      queryParams,
       queryParamsHandling: 'merge'
     });
+
+    // Update the URL without triggering a navigation (prevents scroll to top)
+    const newUrl = this.router.serializeUrl(urlTree);
+    this.location.go(newUrl);
   }
 
   trackByCourseId(index: number, course: Course) { return course.id || index; }

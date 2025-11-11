@@ -81,29 +81,22 @@
     </div>
     <div class="cookie-banner__actions">
       <button id="cookie-accept" class="cookie-btn cookie-btn--primary" type="button">Accept</button>
-      <button id="cookie-later" class="cookie-btn" type="button">Later</button>
     </div>
   </div>
   <script>
     (function() {
       try {
-        var consent = localStorage.getItem('cookie_consent');
         var hasCookies = (document.cookie || '').trim().length > 0;
-        var show = (!hasCookies) && consent !== 'accepted';
+        var isLoggedIn = !!(localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token'));
+        var show = isLoggedIn && !hasCookies;
         var banner = document.getElementById('cookie-banner');
         if (banner && show) {
           banner.style.display = 'flex';
         }
         var accept = document.getElementById('cookie-accept');
-        var later = document.getElementById('cookie-later');
         if (accept) {
           accept.addEventListener('click', function() {
             try { localStorage.setItem('cookie_consent', 'accepted'); } catch (e) {}
-            if (banner) banner.style.display = 'none';
-          });
-        }
-        if (later) {
-          later.addEventListener('click', function() {
             if (banner) banner.style.display = 'none';
           });
         }

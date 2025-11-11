@@ -94,7 +94,7 @@ export class FeedComponent implements OnInit, OnDestroy {
             updatedPosts.forEach(p => (p.comments || []).forEach((c: any) => {
               // Only log when picture missing or load issues suspected
               if (!c?.userInfo?.picture) {
-                console.log('[Feed] comment.userInfo (no picture)', c?.userInfo, 'commentId=', c?.id, 'postId=', p.id);
+                
               }
             }));
           } catch {}
@@ -277,7 +277,7 @@ export class FeedComponent implements OnInit, OnDestroy {
   // Image error handler to log userInfo when avatar fails to load
   onCommentAvatarError(comment: any): void {
     try {
-      console.warn('[Feed] comment avatar failed to load', { userInfo: comment?.userInfo, commentId: comment?.id });
+      
     } catch {}
   }
 

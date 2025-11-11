@@ -5,6 +5,7 @@ import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { Client, IMessage } from '@stomp/stompjs';
 import { NotificationItem } from '../models/notification.model';
 import { AuthService } from './auth/auth.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -13,8 +14,17 @@ export class NotificationService implements OnDestroy {
   private stompClient!: Client;
   private readonly notifications$ = new BehaviorSubject<NotificationItem[]>([]);
   private readonly incoming$ = new Subject<NotificationItem>();
-  private readonly apiUrl = 'http://localhost:8080/api/notifications';
-  private readonly wsBaseUrl = 'ws://localhost:8080/ws';
+  private readonly apiUrl = `${environment.apiBaseUrl}/notifications`;
+  private readonly wsBaseUrl = (() => {
+    try {
+      const origin = new URL(environment.apiBaseUrl).origin; // http(s)://host:port
+      const wsOrigin = origin.replace(/^http/i, 'ws');
+      return `${wsOrigin}/ws`;
+    } catch {
+      // Fallback: assume same host
+      return 'ws://localhost:8080/ws';
+    }
+  })();
   private userId?: string;
   private authSub?: Subscription;
   private globalTopicSub?: any; // STOMP subscription reference
@@ -50,7 +60,7 @@ export class NotificationService implements OnDestroy {
         } catch {}
       },
       onConnect: () => {
-        console.log('Connected to WebSocket');
+        
         // Global announcements
         this.globalTopicSub = this.stompClient.subscribe('/topic/notifications', (message: IMessage) => {
           this.handleIncoming(message, 'global');
@@ -61,7 +71,7 @@ export class NotificationService implements OnDestroy {
         this.startSyncFallback();
       },
       onStompError: (frame) => {
-        console.error('STOMP error:', frame.headers['message'], frame.body);
+        
       },
     });
 
@@ -103,7 +113,7 @@ export class NotificationService implements OnDestroy {
   disconnect(): void {
     this.stompClient.deactivate();
     this.unsubscribeAll();
-    console.log('Disconnected from WebSocket');
+    
   }
 
   getAll(): Observable<NotificationItem[]> {
@@ -129,7 +139,7 @@ export class NotificationService implements OnDestroy {
         });
         this.notifications$.next(sorted);
       },
-      error: (err) => console.error('Failed to load notifications', err)
+      error: () => {}
     });
   }
 
@@ -151,7 +161,7 @@ export class NotificationService implements OnDestroy {
     this.http.post(`${this.apiUrl}/${encodeURIComponent(id)}/seen`, {})
       .subscribe({
         error: (err) => {
-          console.error('Failed to mark as read', err);
+          
           // Keep local state as seen to avoid UX regressions if backend rejects global/ephemeral notifications
         }
       });
@@ -172,7 +182,7 @@ export class NotificationService implements OnDestroy {
     this.http.post(`${this.apiUrl}/mark-all-seen`, {})
       .subscribe({
         error: (err) => {
-          console.error('Failed to mark all as read', err);
+          
           // Keep local state as seen even if server fails; avoids sticky unread counters
         }
       });
@@ -187,7 +197,7 @@ export class NotificationService implements OnDestroy {
     this.addManyToDeletedCache(prev.map(n => n.id));
     this.http.delete(`${this.apiUrl}`).subscribe({
       error: (err) => {
-        console.error('Failed to delete all notifications', err);
+        
         // Revert on failure
         this.notifications$.next(prev);
       }
@@ -232,7 +242,7 @@ export class NotificationService implements OnDestroy {
       this.incoming$.next(data);
       this.showToast(data);
     } catch (e) {
-      console.error('Failed to parse notification message', e);
+      
     }
   }
 
@@ -256,7 +266,7 @@ export class NotificationService implements OnDestroy {
           (msg: IMessage) => this.handleIncoming(msg, 'user'));
       }
     } catch (e) {
-      console.error('Failed to subscribe to user notifications', e);
+      
     }
   }
 

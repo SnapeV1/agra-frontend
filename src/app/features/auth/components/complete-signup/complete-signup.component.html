@@ -2,19 +2,27 @@
 <div class="complete-container">
   <div class="complete-card">
     <div class="complete-header">
-      <div class="logo">
-        <span class="brand-image"><img src="assets/logo2.png" alt="YEFFA Logo"></span>
+      <div class="avatar" *ngIf="provisional?.picture; else initials">
+        <img [src]="provisional?.picture" alt="Google avatar" [attr.referrerpolicy]="'no-referrer'" (error)="onAvatarError($event)" />
       </div>
-      <h2>Finish Setting Up Your Account</h2>
-      <p>Choose a password to also sign in with email.</p>
+      <ng-template #initials>
+        <div class="avatar initials">{{ (provisional?.name || provisional?.email || 'U') | slice:0:1 }}</div>
+      </ng-template>
+      <h2>Welcome{{ provisional?.name ? (', ' + provisional?.name.split(' ')[0]) : '' }}</h2>
+      <p class="muted">{{ provisional?.email }}</p>
+      <p class="sub">Create a password to also sign in with email.</p>
     </div>
 
-    <form (ngSubmit)="submit()">
+    <form (ngSubmit)="submit()" novalidate>
       <div class="form-group">
         <label for="password">Password</label>
         <div class="input-wrapper">
-          <input id="password" name="password" [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" placeholder="Create a password" required minlength="8" />
+          <input id="password" name="password" [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" placeholder="Create a password" required minlength="8" (input)="onPasswordInput()" />
           <button type="button" class="password-toggle" (click)="showPassword = !showPassword" aria-label="Toggle password visibility">{{ showPassword ? 'Hide' : 'Show' }}</button>
+        </div>
+        <div class="strength">
+          <div class="bar" [class.lv1]="passwordStrength  >=  1" [class.lv2]="passwordStrength  >=  2" [class.lv3]="passwordStrength  >=  3" [class.lv4]="passwordStrength  >=  4"></div>
+          <span class="hint">Use 8+ chars with a mix of letters, numbers, and symbols.</span>
         </div>
       </div>
       <div class="form-group">
@@ -26,10 +34,10 @@
       </div>
 
       <div *ngIf="error" class="error">{{ error }}</div>
-      <div *ngIf="success" class="success">Password saved. Redirecting…</div>
+      <div *ngIf="success" class="success">Account ready. Redirecting...</div>
 
-      <button class="primary" type="submit" [disabled]="isLoading">{{ isLoading ? 'Saving…' : 'Save Password' }}</button>
-      <button class="link" type="button" (click)="skip()">Skip for now</button>
+      <button class="primary" type="submit" [disabled]="isLoading">{{ isLoading ? 'Finishing...' : 'Finish Sign Up' }}</button>
+      
     </form>
   </div>
   <div class="complete-bg"><div class="background-overlay"></div></div>

@@ -6,9 +6,13 @@
     <p>Comprehensive analytics for your learning platform</p>
   </div>
 
-  <!-- Metrics Grid -->
+  <!-- Overview -->
+  <div class="section-header">
+    <h3 class="section-title">Overview</h3>
+    <span class="section-subtitle">Key metrics at a glance</span>
+  </div>
   <div class="metrics-grid">
-    <div class="metric-card" *ngFor="let metric of metrics">
+    <div class="metric-card" *ngFor="let metric of otherMetrics">
       <div class="metric-header">
         <span class="metric-title">{{ metric.title }}</span>
         <div class="metric-icon" [ngClass]="metric.iconClass">
@@ -17,13 +21,16 @@
       </div>
       <div class="metric-value">{{ metric.value }}</div>
       <div class="metric-change" [ngClass]="metric.changeClass">
-        <i [class]="metric.changeIcon"></i>
         {{ metric.change }}
       </div>
     </div>
   </div>
 
-  <!-- Charts and Analytics Section -->
+  <!-- Trends -->
+  <div class="section-header">
+    <h3 class="section-title">activity</h3>
+    <span class="section-subtitle">Growth and activity over time</span>
+  </div>
   <div class="analytics-section">
     <!-- Student Distribution Map -->
     <div class="analytics-card map-card">
@@ -74,6 +81,167 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  
+
+  <!-- Users & Courses Sections -->
+  <div class="dashboard-section">
+    <div class="section-header">
+      <h3 class="section-title">Users</h3>
+      <span class="section-subtitle">Overview of your user base</span>
+    </div>
+    <div class="details-grid">
+      <div class="analytics-card">
+        <h3>Users Summary</h3>
+        <ul class="simple-list">
+          <li>Total users: {{ usersTotal | number }}</li>
+          <li>Active last 30 days: {{ usersActive30 | number }}</li>
+        </ul>
+      </div>
+      <div class="analytics-card">
+        <h3>Roles Breakdown</h3>
+        <ul class="simple-list">
+          <li *ngFor="let r of rolesList">{{ r.role }} — {{ r.count | number }}</li>
+          <li *ngIf="rolesList.length === 0" style="color:#6b7280">No data</li>
+        </ul>
+      </div>
+      <div class="analytics-card growth-card" style="grid-column: 1 / -1;">
+        <h3>User Growth (Monthly)</h3>
+        <div class="growth-header">
+          <span class="total-users">Total users: {{ totalUsersDisplay }}</span>
+        </div>
+        <div *ngIf="userGrowth && userGrowth.length > 0; else noGrowth" style="height:260px;">
+          <canvas baseChart [type]="growthChartType" [data]="growthChartData" [options]="growthChartOptions"></canvas>
+        </div>
+        <ng-template #noGrowth>
+          <p style="color:#6b7280">No user growth data</p>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-section">
+    <div class="section-header">
+      <h3 class="section-title">Courses</h3>
+      <span class="section-subtitle">Catalog and performance</span>
+    </div>
+    <div class="details-grid">
+      <div class="analytics-card">
+        <h3>Courses Summary</h3>
+        <ul class="simple-list">
+          <li>Active (Published): {{ coursesSummary.published | number }}</li>
+          <li>Archived: {{ coursesSummary.archived | number }}</li>
+          <li>Total: {{ coursesSummary.total | number }}</li>
+        </ul>
+      </div>
+      <div class="analytics-card">
+        <h3>Top Courses</h3>
+        <ul class="simple-list">
+          <li *ngFor="let c of topCourses">{{ c.name }} — {{ c.students | number }} students</li>
+          <li *ngIf="!topCourses || topCourses.length === 0" style="color:#6b7280">No courses yet</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Social Activity -->
+  <div class="dashboard-section">
+    <div class="section-header">
+      <h3 class="section-title">Social</h3>
+      <span class="section-subtitle">Posts and comments activity</span>
+    </div>
+    <div class="details-grid">
+      <div class="analytics-card" style="grid-column: 1 / -1;">
+        <h3>Posts</h3>
+        <div style="height:240px;">
+          <canvas baseChart [type]="'line'" [data]="postsChartData" [options]="growthChartOptions"></canvas>
+        </div>
+      </div>
+      <div class="analytics-card" style="grid-column: 1 / -1;">
+        <h3>Comments</h3>
+        <div style="height:240px;">
+          <canvas baseChart [type]="'line'" [data]="commentsChartData" [options]="growthChartOptions"></canvas>
+        </div>
+      </div>
+      <div class="analytics-card">
+        <h3>Top Posts</h3>
+     <div *ngIf="topPostsList && topPostsList.length > 0; else noPosts" class="top-posts-list">
+  <div class="post-item" *ngFor="let p of topPostsList">
+    <div class="flex items-start gap-3">
+      <img *ngIf="p.authorImage"
+           [src]="p.authorImage"
+           alt="{{ p.author }}"
+           class="w-8 h-8 rounded-full" />
+
+      <div class="flex-1">
+        <p class="font-medium text-slate-800 dark:text-slate-200">{{ p.author }}</p>
+        <p class="post-preview text-slate-700 dark:text-slate-300">
+          {{ p.content }}
+        </p>
+      </div>
+    </div>
+    <div class="text-sm text-gray-500 mt-1">
+      Engagement: {{ p.engagement | number }}
+    </div>
+  </div>
+</div>
+
+<ng-template #noPosts>
+  <p style="color:#6b7280">No posts found</p>
+</ng-template>
+
+      </div>
+      <div class="analytics-card">
+        <h3>Engagement Averages</h3>
+        <ul class="simple-list">
+          <li *ngFor="let kv of (engagementAverages | keyvalue)">{{ kv.key }}: {{ kv.value }}</li>
+          <li *ngIf="!engagementAverages" style="color:#6b7280">No data</li>
+        </ul>
+      </div>
+      <div class="analytics-card">
+        <h3>Featured Performance</h3>
+        <ul class="simple-list">
+          <li *ngFor="let kv of (featuredPerformance | keyvalue)">{{ kv.key }}: {{ kv.value }}</li>
+          <li *ngIf="!featuredPerformance" style="color:#6b7280">No data</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications & Activity -->
+  <div class="dashboard-section">
+    <div class="section-header">
+      <h3 class="section-title">Notifications</h3>
+      <span class="section-subtitle">User notifications and real-time activity</span>
+    </div>
+    <div class="details-grid">
+      <div class="analytics-card" style="grid-column: 1 / -1;">
+        <h3>Notifications</h3>
+        <div style="height:240px;">
+          <canvas baseChart [type]="'line'" [data]="notificationsChartData" [options]="growthChartOptions"></canvas>
+        </div>
+      </div>
+      <div class="analytics-card">
+        <h3>Read Status</h3>
+        <ul class="simple-list">
+          <li *ngFor="let kv of (notificationRead | keyvalue)">{{ kv.key }}: {{ kv.value | number }}</li>
+          <li *ngIf="!notificationRead" style="color:#6b7280">No data</li>
+        </ul>
+      </div>
+      <div class="analytics-card">
+        <h3>Top Types</h3>
+        <ul class="simple-list">
+          <li *ngFor="let t of notificationTopTypes">{{ t.type }} - {{ t.count | number }}</li>
+          <li *ngIf="!notificationTopTypes || notificationTopTypes.length === 0" style="color:#6b7280">No data</li>
+        </ul>
+      </div>
+      <div class="analytics-card">
+        <h3>Live Users Online</h3>
+        <p style="font-size:28px;font-weight:600;">{{ liveUsersOnline | number }}</p>
+        <p style="color:#6b7280">Active WebSocket connections</p>
       </div>
     </div>
   </div>

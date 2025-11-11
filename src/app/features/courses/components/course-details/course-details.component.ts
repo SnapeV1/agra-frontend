@@ -139,12 +139,41 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
   }
 
   getCourseRating(): number | null {
-    const r = 4.5;
-    return typeof r === 'number' ? r : null;
+    // No rating in model yet; hide reviews until available
+    return null;
   }
 
   generateStarArray(rating: number): boolean[] {
-    return Array(5).fill(false).map((_, index) => index < rating);
+    const full = Math.floor(rating);
+    return Array.from({ length: 5 }, (_, i) => i < full);
+  }
+
+  getLessonCount(): number {
+    return this.course?.textContent?.length || 0;
+  }
+
+  getLanguageList(): string {
+    return (this.course?.languagesAvailable || []).join(', ');
+  }
+
+  getCourseLevel(): string {
+    const title = (this.course?.title || '').toLowerCase();
+    const description = (this.course?.description || '').toLowerCase();
+    const content = `${title} ${description}`;
+    if (content.includes('beginner') || content.includes('intro') || content.includes('basic') || content.includes('fundamentals')) {
+      return 'Beginner';
+    } else if (content.includes('advanced') || content.includes('expert') || content.includes('master') || content.includes('professional')) {
+      return 'Advanced';
+    } else {
+      return 'Intermediate';
+    }
+  }
+
+  getLearningPoints(): string[] {
+    const goals = this.course?.goals || [];
+    if (goals.length > 0) return goals;
+    const lessons = this.course?.textContent || [];
+    return lessons.slice(0, 6).map(l => l.title);
   }
 
   playVideo(event: Event): void {

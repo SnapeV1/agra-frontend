@@ -74,6 +74,60 @@
 :host-context([data-theme="dark"]) .btn-primary { box-shadow: 0 4px 15px rgba(16,185,129,0.25); background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
 :host-context([data-theme="dark"]) .btn-primary:hover { background: linear-gradient(135deg, #059669 0%, #047857 100%); box-shadow: 0 8px 25px rgba(16,185,129,0.35); }
 
+/* ---- Light-dark overrides for course cards ---- */
+:host-context([data-theme="dark"]) .course-card {
+  background: #0b1220;
+  border-color: #1f2937;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+}
+
+:host-context([data-theme="dark"]) .course-card:hover {
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+:host-context([data-theme="dark"]) .course-image { background: linear-gradient(120deg, #0f172a, #0b1220); }
+:host-context([data-theme="dark"]) .archived-badge { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+
+:host-context([data-theme="dark"]) .course-content {
+  background: none;
+}
+
+:host-context([data-theme="dark"]) .course-header h3 { color: #e5e7eb; }
+
+:host-context([data-theme="dark"]) .domain-badge {
+  background: linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(59,130,246,0.25) 100%);
+  color: #bfdbfe;
+  box-shadow: none;
+}
+
+:host-context([data-theme="dark"]) .country-flag {
+  background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.25) 100%);
+  color: #a7f3d0;
+  box-shadow: none;
+}
+
+:host-context([data-theme="dark"]) .description {
+  color: #cbd5e1;
+  -webkit-text-fill-color: initial;
+  background: none;
+}
+
+:host-context([data-theme="dark"]) .course-details { border-top-color: #1f2937; }
+
+:host-context([data-theme="dark"]) .detail-item {
+  background-color: #111827;
+  color: #cbd5e1;
+}
+
+:host-context([data-theme="dark"]) .detail-item i { color: #10b981; }
+
+:host-context([data-theme="dark"]) .detail-item:hover { background-color: #1f2937; }
+
+:host-context([data-theme="dark"]) .course-actions {
+  background: #0f172a;
+  border-top-color: #1f2937;
+}
+
 /* =========================
    HEADER & NAVIGATION
    ========================= */
@@ -384,6 +438,13 @@
   border: 1px solid rgba(241, 245, 249, 0.8);
 }
 
+/* Dark mode for search container */
+:host-context([data-theme="dark"]) .controls-section {
+  background: #0b1220;
+  border-color: #1f2937;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+}
+
 .search-box {
   position: relative;
   flex: 1;
@@ -398,6 +459,7 @@
   font-size: 0.95rem;
   background: white;
   transition: var(--transition);
+  /* keep native appearance to avoid duplicate arrows */
 }
 
 .search-input {
@@ -419,13 +481,13 @@
   min-width: 160px;
   cursor: pointer;
   background-color: var(--neutral-50);
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1rem;
-  padding-right: 2.5rem;
+  color: #111827;
+  background-image: none;
+  padding-right: 1rem;
 }
+
+/* Show native arrow in legacy engines */
+.filter-select::-ms-expand { display: initial; }
 
 .icon-search {
   position: absolute;
@@ -436,6 +498,36 @@
   font-size: 1rem;
   pointer-events: none;
 }
+
+/* ---- Light-dark overrides for search + filter (follow theme) ---- */
+:host-context([data-theme="dark"]) .search-input,
+:host-context([data-theme="dark"]) .filter-select {
+  background: #0b1220;
+  border-color: #1f2937;
+  color: #e5e7eb;
+}
+
+:host-context([data-theme="dark"]) .filter-select option { color: #e5e7eb; background: #0b1220; }
+
+:host-context([data-theme="dark"]) .search-input::placeholder {
+  color: #94a3b8;
+}
+
+:host-context([data-theme="dark"]) .search-input:focus,
+:host-context([data-theme="dark"]) .filter-select:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+  background: #0f172a;
+}
+
+/* Dark: keep native arrow */
+:host-context([data-theme="dark"]) .filter-select { background-image: none; background-color: #0b1220; }
+
+:host-context([data-theme="dark"]) .icon-search { color: #94a3b8; }
+
+/* Ensure good contrast for any helper labels near search/filter */
+:host-context([data-theme="dark"]) .controls-section label,
+:host-context([data-theme="dark"]) .controls-section .helper-text { color: #cbd5e1; }
 
 /* =========================
    LOADING STATES

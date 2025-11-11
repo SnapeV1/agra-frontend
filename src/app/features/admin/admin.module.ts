@@ -5,6 +5,7 @@ import { AdminRoutingModule } from './admin-routing.module';
 import { FormsModule } from '@angular/forms';
 // import { CoursesModule } from '../courses/courses.module';
 import { SharedModule } from './shared/shared.module';
+import { NgChartsModule } from 'ng2-charts';
 import { DashboardAdminComponent } from './dashboard-admin/dashboard-admin.component';
 import { RouterModule } from '@angular/router';
 import { UserManagementComponent } from './user-management/user-management.component';
@@ -25,6 +26,7 @@ import { CourseManagementModule } from './course-management/course-management.mo
     // CoursesModule,
     CourseManagementModule,
     SharedModule,
+    NgChartsModule,
     RouterModule,
     AdminRoutingModule
 

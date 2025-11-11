@@ -7,6 +7,7 @@ import { PostComment } from '../../../core/models/post-comment.module';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { UsersService } from '../services/users.service';
 import { User } from '../../../core/models/user.model';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,8 @@ export class PostsService {
   private postsSubject = new BehaviorSubject<Post[]>([]);
   posts$ = this.postsSubject.asObservable();
 
-  private readonly apiUrl = 'http://localhost:8080/api/posts/sorted';
+  private readonly baseApi = environment.apiBaseUrl;
+  private readonly apiUrl = `${this.baseApi}/posts/sorted`;
   private usersIndex: Map<string, User> | null = null;
   constructor(private http: HttpClient,private authService: AuthService,
               private usersService: UsersService,
@@ -151,7 +153,7 @@ export class PostsService {
     const index = this.posts.findIndex(p => p.id === post.id);
     if (index === -1) {
       // If not found, do nothing to avoid inconsistent state
-      console.warn('[PostsService] toggleLike: post not found', { id: post?.id });
+      
       return;
     }
 
@@ -159,18 +161,18 @@ export class PostsService {
     const prevLiked = !!target.isLikedByCurrentUser;
     const prevLikes = target.likesCount || 0;
     const optimisticLiked = !prevLiked;
-    console.log('[PostsService] toggleLike start', { id: target.id, prevLiked, prevLikes, optimisticLiked });
+    
 
     // Optimistic update on the canonical post with clamped count
     target.isLikedByCurrentUser = optimisticLiked;
     target.likesCount = Math.max(0, prevLikes + (optimisticLiked ? 1 : -1));
     this.updatePosts();
-    console.log('[PostsService] toggleLike optimistic', { id: target.id, isLikedByCurrentUser: target.isLikedByCurrentUser, likesCount: target.likesCount });
+    
 
     const token = this.authService.getToken();
     if (token) {
-      const url = `http://localhost:8080/api/posts/${target.id}/like`;
-      console.log('[PostsService] toggleLike request', { url, hasToken: !!token });
+      const url = `${this.baseApi}/posts/${target.id}/like`;
+      
       this.http.post(url, {}, {
         headers: { 'Authorization': `Bearer ${token}` },
         responseType: 'text' as 'json'
@@ -252,7 +254,7 @@ export class PostsService {
     // Make API call to persist the change
     const token = this.authService.getToken();
     if (token) {
-      this.http.post(`http://localhost:8080/api/comments/${comment.id}/like`, {}, {
+      this.http.post(`${this.baseApi}/comments/${comment.id}/like`, {}, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -346,7 +348,7 @@ export class PostsService {
     // Find the canonical post by id to avoid mutating caller's copy
     const index = this.posts.findIndex(p => p.id === post.id);
     if (index === -1) {
-      console.warn('[PostsService] addComment: post not found', { id: post?.id });
+      
       return;
     }
     const target = this.posts[index];
@@ -359,7 +361,7 @@ export class PostsService {
     // Make API call to persist the comment
     const token = this.authService.getToken();
     if (token) {
-      this.http.post(`http://localhost:8080/api/posts/${target.id}/comments`, {
+      this.http.post(`${this.baseApi}/posts/${target.id}/comments`, {
         content: comment.content
       }, {
         headers: {
@@ -392,7 +394,7 @@ export class PostsService {
   private updatePosts(): void {
     const snapshot = [...this.posts];
     this.postsSubject.next(snapshot);
-    console.log('[PostsService] updatePosts emit', { count: snapshot.length, ids: snapshot.map(p => p.id) });
+    
   }
 
   /** Sort posts by createdAt */
@@ -403,7 +405,7 @@ export class PostsService {
       return bTime - aTime;
     });
     this.updatePosts();
-    console.log('[PostsService] sortPosts applied', { count: this.posts.length });
+    
   }
 
 
@@ -412,7 +414,7 @@ createPostOnServer(formData: FormData): Observable<Post> {
   const token = this.authService.getToken();
   
 
-  return this.http.post<Post>(`http://localhost:8080/api/posts/CreatePost`, formData, {
+  return this.http.post<Post>(`${this.baseApi}/posts/CreatePost`, formData, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
