@@ -4,18 +4,19 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: #f8fafc;
+  background: var(--player-surface-alt);
+  color: var(--player-text);
 }
 
 .loading-spinner {
   text-align: center;
-  color: #64748b;
+  color: var(--player-text-muted);
 }
 
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #e2e8f0;
+  border: 4px solid var(--player-border);
   border-top: 4px solid #10b981;
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -27,11 +28,33 @@
   100% { transform: rotate(360deg); }
 }
 
+:host {
+  --player-bg: #ffffff;
+  --player-surface: #ffffff;
+  --player-surface-alt: #f8fafc;
+  --player-surface-hover: #f1f5f9;
+  --player-border: #e5e7eb;
+  --player-text: #1f2937;
+  --player-text-muted: #64748b;
+  --player-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+:host-context([data-theme="dark"]) {
+  --player-bg: var(--bg-primary);
+  --player-surface: var(--card-bg);
+  --player-surface-alt: var(--bg-secondary);
+  --player-surface-hover: #1f2937;
+  --player-border: var(--border-primary);
+  --player-text: var(--text-primary);
+  --player-text-muted: var(--text-secondary);
+  --player-card-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+}
+
 .error-content {
   text-align: center;
   max-width: 400px;
   padding: 2rem;
-  background: white;
+  background: var(--player-surface);
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
@@ -48,7 +71,8 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #ffffff;
+  background: var(--player-bg);
+  color: var(--player-text);
   overflow: hidden;
 }
 
@@ -67,8 +91,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.5rem;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--player-surface);
+  border-bottom: 1px solid var(--player-border);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   z-index: 100;
 }
@@ -93,16 +117,16 @@
   width: 40px;
   height: 40px;
   border: none;
-  background: #f8fafc;
+  background: var(--player-surface-alt);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #64748b;
+  color: var(--player-text-muted);
 }
 
 .btn-icon:hover {
-  background: #e2e8f0;
-  color: #374151;
+  background: var(--player-surface-hover);
+  color: var(--player-text);
 }
 
 .course-info {
@@ -113,7 +137,7 @@
 .course-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--player-text);
   margin: 0 0 0.5rem 0;
   white-space: nowrap;
   overflow: hidden;
@@ -128,14 +152,14 @@
 
 .progress-text {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--player-text-muted);
   white-space: nowrap;
 }
 
 .progress-bar {
   flex: 1;
   height: 6px;
-  background: #e5e7eb;
+  background: var(--player-border);
   border-radius: 3px;
   overflow: hidden;
   max-width: 200px;
@@ -152,7 +176,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #64748b;
+  color: var(--player-text-muted);
   font-size: 0.875rem;
 }
 
@@ -171,8 +195,8 @@
 /* Sidebar */
 .course-sidebar {
   width: 350px;
-  background: #f8fafc;
-  border-right: 1px solid #e5e7eb;
+  background: var(--player-surface-alt);
+  border-right: 1px solid var(--player-border);
   display: flex;
   flex-direction: column;
   transition: transform 0.3s ease;
@@ -188,20 +212,20 @@
 
 .sidebar-header {
   padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
-  background: white;
+  border-bottom: 1px solid var(--player-border);
+  background: var(--player-surface);
 }
 
 .sidebar-header h3 {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--player-text);
   margin: 0 0 0.5rem 0;
 }
 
 .lesson-count {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--player-text-muted);
 }
 
 .lessons-list {
@@ -216,7 +240,7 @@
   gap: 1rem;
   padding: 1rem;
   margin-bottom: 0.5rem;
-  background: white;
+  background: var(--player-surface);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -224,8 +248,8 @@
 }
 
 .lesson-item:hover {
-  background: #f1f5f9;
-  border-color: #e2e8f0;
+  background: var(--player-surface-hover);
+  border-color: var(--player-border);
 }
 
 .lesson-item.active {
@@ -244,8 +268,8 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: #e5e7eb;
-  color: #64748b;
+  background: var(--player-border);
+  color: var(--player-text-muted);
   border-radius: 50%;
   font-weight: 600;
   font-size: 0.875rem;
@@ -270,7 +294,7 @@
 .lesson-title {
   font-size: 0.95rem;
   font-weight: 500;
-  color: #1f2937;
+  color: var(--player-text);
   margin: 0 0 0.25rem 0;
   line-height: 1.4;
 }
@@ -305,7 +329,7 @@
 }
 
 .lesson-time {
-  color: #64748b;
+  color: var(--player-text-muted);
 }
 
 .lesson-status {
@@ -344,8 +368,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 2rem 2rem 1rem;
-  border-bottom: 1px solid #e5e7eb;
-  background: white;
+  border-bottom: 1px solid var(--player-border);
+  background: var(--player-surface);
 }
 
 .lesson-meta-info {
@@ -381,7 +405,7 @@
 .lesson-header .lesson-title {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--player-text);
   margin: 0;
   line-height: 1.3;
 }
@@ -433,22 +457,22 @@
   flex: 1;
   overflow-y: auto;
   padding: 2rem;
-  background: #fafafa;
+  background: var(--player-surface-alt);
 }
 
 .lesson-text {
   max-width: 800px;
   margin: 0 auto;
-  background: white;
+  background: var(--player-surface);
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   line-height: 1.7;
-  color: #374151;
+  color: var(--player-text);
 }
 
 .lesson-text h1, .lesson-text h2, .lesson-text h3 {
-  color: #1f2937;
+  color: var(--player-text);
   margin-top: 2rem;
   margin-bottom: 1rem;
 }
@@ -482,7 +506,7 @@
 }
 
 .lesson-text code {
-  background: #f1f5f9;
+  background: var(--player-surface-hover);
   padding: 2px 6px;
   border-radius: 4px;
   font-family: 'Courier New', monospace;
@@ -504,8 +528,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 2rem;
-  background: white;
-  border-top: 1px solid #e5e7eb;
+  background: var(--player-surface);
+  border-top: 1px solid var(--player-border);
 }
 
 .btn-nav {
@@ -513,9 +537,9 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: #f8fafc;
-  color: #374151;
-  border: 1px solid #e5e7eb;
+  background: var(--player-surface-alt);
+  color: var(--player-text);
+  border: 1px solid var(--player-border);
   border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
@@ -523,8 +547,8 @@
 }
 
 .btn-nav:hover:not(:disabled) {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: var(--player-surface-hover);
+  border-color: var(--border-secondary, var(--player-border));
 }
 
 .btn-nav:disabled {
@@ -534,7 +558,7 @@
 
 .nav-info {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--player-text-muted);
   font-weight: 500;
 }
 
@@ -546,21 +570,21 @@
   justify-content: center;
   flex: 1;
   text-align: center;
-  color: #64748b;
+  color: var(--player-text-muted);
 }
 
 .no-lesson-icon {
   width: 64px;
   height: 64px;
   margin-bottom: 1rem;
-  color: #cbd5e1;
+  color: var(--border-secondary, var(--player-border));
 }
 
 .no-lesson h3 {
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
-  color: #374151;
+  color: var(--player-text);
 }
 
 .no-lesson p {
@@ -571,8 +595,8 @@
 /* Course Resources (Static) */
 .course-resources {
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
+  border: 1px solid var(--player-border);
+  background: var(--player-surface-alt);
   margin-bottom: 1rem;
 }
 
@@ -587,13 +611,13 @@
 }
 
 .resources-header:hover {
-  background-color: #f1f5f9;
+  background-color: var(--player-surface-hover);
 }
 
 .resources-header h3 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--player-text);
   margin: 0;
   user-select: none;
 }
@@ -601,7 +625,7 @@
 .toggle-icon {
   width: 20px;
   height: 20px;
-  color: #64748b;
+  color: var(--player-text-muted);
   transition: transform 0.2s ease;
 }
 
@@ -630,7 +654,7 @@
 .resource-category h4 {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--player-text);
   margin: 0 0 0.75rem 0;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -647,18 +671,18 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
-  background: white;
+  background: var(--player-surface);
   border-radius: 8px;
   text-decoration: none;
-  color: #374151;
+  color: var(--player-text);
   transition: all 0.2s ease;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--player-border);
 }
 
 .resource-item:hover {
-  background: #f8fafc;
-  color: #1f2937;
-  border-color: #d1d5db;
+  background: var(--player-surface-alt);
+  color: var(--player-text);
+  border-color: var(--player-border);
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -676,8 +700,8 @@
 
 .resource-type {
   font-size: 0.75rem;
-  color: #64748b;
-  background: #f1f5f9;
+  color: var(--player-text-muted);
+  background: var(--player-surface-hover);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   text-transform: uppercase;
@@ -687,8 +711,8 @@
 /* Live Session (Collapsible) */
 .course-live {
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
+  border: 1px solid var(--player-border);
+  background: var(--player-surface-alt);
   margin-bottom: 1rem;
 }
 
@@ -703,7 +727,7 @@
 }
 
 .live-header:hover {
-  background-color: #f1f5f9;
+  background-color: var(--player-surface-hover);
 }
 
 .live-title {
@@ -715,7 +739,7 @@
 .live-header h3 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--player-text);
   margin: 0;
   user-select: none;
 }
@@ -738,9 +762,9 @@
 }
 
 .live-status-pill.offline {
-  background: #f9fafb;
-  color: #6b7280;
-  border: 1px solid #e5e7eb;
+  background: var(--player-surface-alt);
+  color: var(--player-text-muted);
+  border: 1px solid var(--player-border);
 }
 
 .live-content {
@@ -765,7 +789,7 @@
 
 .live-description {
   flex: 1;
-  color: #64748b;
+  color: var(--player-text-muted);
   margin: 0;
 }
 
@@ -791,8 +815,8 @@
 /* Course Files (Dynamic) */
 .course-files {
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
+  border: 1px solid var(--player-border);
+  background: var(--player-surface-alt);
 }
 
 .files-header {
@@ -803,7 +827,7 @@
 .files-header h3 {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--player-text);
   margin: 0;
 }
 
@@ -829,22 +853,22 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
-  background: #f8fafc;
+  background: var(--player-surface-alt);
   border-radius: 8px;
   text-decoration: none;
-  color: #374151;
+  color: var(--player-text);
   transition: all 0.2s ease;
 }
 
 .file-item:hover {
-  background: #e2e8f0;
-  color: #1f2937;
+  background: var(--player-surface-hover);
+  color: var(--player-text);
 }
 
 .file-icon {
   width: 20px;
   height: 20px;
-  color: #64748b;
+  color: var(--player-text-muted);
 }
 
 .file-name {
@@ -854,7 +878,7 @@
 
 .file-size {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--player-text-muted);
 }
 
 /* Buttons */
@@ -991,7 +1015,7 @@
 }
 
 .completion-modal {
-  background: white;
+  background: var(--player-surface);
   border-radius: 16px;
   max-width: 500px;
   width: 100%;
@@ -1024,13 +1048,13 @@
   padding: 0.5rem;
   border-radius: 8px;
   cursor: pointer;
-  color: #64748b;
+  color: var(--player-text-muted);
   transition: all 0.2s;
 }
 
 .close-btn:hover {
-  background: #f1f5f9;
-  color: #334155;
+  background: var(--player-surface-hover);
+  color: var(--player-text);
 }
 
 .modal-content {
@@ -1064,13 +1088,13 @@
 .congratulations-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--player-text);
   margin-bottom: 0.5rem;
 }
 
 .completion-message {
   font-size: 1.1rem;
-  color: #64748b;
+  color: var(--player-text-muted);
   margin-bottom: 2rem;
   line-height: 1.6;
 }
@@ -1081,7 +1105,7 @@
   gap: 1rem;
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: #f8fafc;
+  background: var(--player-surface-alt);
   border-radius: 12px;
 }
 
@@ -1100,14 +1124,14 @@
 
 .stat-label {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--player-text-muted);
   font-weight: 500;
 }
 
 .stat-value {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--player-text);
 }
 
 .certificate-section {
@@ -1183,7 +1207,7 @@
 }
 
 .btn-certificate.secondary {
-  background: white;
+  background: var(--player-surface);
   color: #0ea5e9;
   border: 1px solid #0ea5e9;
 }
@@ -1289,7 +1313,7 @@
 
 /* Skeleton loaders for live sessions */
 .skeleton-list { display: grid; gap: 12px; }
-.skeleton-item { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; background: #fff; }
+.skeleton-item { border: 1px solid var(--player-border); border-radius: 8px; padding: 12px; background: var(--player-surface); }
 .skeleton-title, .skeleton-text, .skeleton-meta { background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 4px; }
 .skeleton-title { height: 16px; width: 40%; margin-bottom: 8px; }
 .skeleton-text { height: 12px; width: 70%; margin-bottom: 8px; }
@@ -1300,8 +1324,8 @@
 /* Live Sessions Section */
 .live-sessions {
   margin: 24px 0;
-  background: #f8fafc; /* match resources */
-  border: 1px solid #e2e8f0; /* match resources */
+  background: var(--player-surface-alt); /* match resources */
+  border: 1px solid var(--player-border); /* match resources */
   border-radius: 8px; /* match resources */
   box-shadow: var(--shadow-md, 0 4px 6px rgba(0,0,0,0.06));
 }
@@ -1316,13 +1340,13 @@
   border-radius: 8px 8px 0 0; /* match resources */
 }
 
-.live-sessions .sessions-header:hover { background-color: #f1f5f9; }
+.live-sessions .sessions-header:hover { background-color: var(--player-surface-hover); }
 
 .live-sessions .sessions-header h3 {
   margin: 0;
   font-size: 1.1rem; /* match resources */
   font-weight: 600;   /* match resources */
-  color: #1e293b;     /* match resources */
+  color: var(--player-text);     /* match resources */
 }
 
 .live-sessions .sessions-header .view-all {
@@ -1337,7 +1361,7 @@
 
 .live-sessions .sessions-header .toggle-icon {
   margin-left: 12px;
-  color: #6b7280;
+  color: var(--player-text-muted);
 }
 
 .live-sessions .sessions-header .header-actions {
@@ -1371,20 +1395,20 @@
 }
 
 .live-sessions .session-card {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--player-border);
   border-radius: 10px;
   padding: 12px;
-  background: linear-gradient(180deg, #ffffff, #fafafa);
+  background: linear-gradient(180deg, var(--player-surface), var(--player-surface-alt));
 }
 
 .live-sessions .session-card .title {
   font-weight: 600;
-  color: #1f2937;
+  color: var(--player-text);
   margin-bottom: 6px;
 }
 
 .live-sessions .session-card .time {
-  color: #6b7280;
+  color: var(--player-text-muted);
   font-size: 14px;
   margin-bottom: 10px;
 }
@@ -1397,7 +1421,7 @@
 
 .live-sessions .session-card .actions .index {
   margin-left: auto;
-  color: #6b7280;
+  color: var(--player-text-muted);
   font-size: 12px;
 }
 
@@ -1419,8 +1443,8 @@
   display: inline-block;
   padding: 4px 8px;
   font-size: 12px;
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--player-surface-hover);
+  color: var(--player-text-muted);
   border-radius: 999px;
 }
 
@@ -1428,21 +1452,9 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  color: #374151;
+  border: 1px solid var(--player-border);
+  background: var(--player-surface);
+  color: var(--player-text);
   cursor: pointer;
 }
 .live-sessions .nav-arrow:disabled { opacity: 0.4; cursor: not-allowed; }
-/* Theme-friendly overrides */
-:host {
-  --bg: var(--bg-primary);
-  --text: var(--text-primary);
-  --muted: var(--text-secondary);
-  --border: var(--border-primary);
-}
-
-.enrolled-card { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
-.enrolled-section { background: var(--bg); }
-.enrolled-title { color: var(--text); }
-.enrolled-subtitle { color: var(--muted); }

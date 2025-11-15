@@ -1,6 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
+import { Ticket, TicketStatus } from 'src/app/core/models/ticket.model';
+import { TicketService } from 'src/app/core/services/ticket.service';
 
 @Component({
   selector: 'app-settings',
@@ -38,12 +40,26 @@ export class SettingsComponent implements OnInit, OnDestroy {
   pushNotificationsEnabled = localStorage.getItem('pref_notify_push') === 'true';
   smsNotificationsEnabled = localStorage.getItem('pref_notify_sms') === 'true';
 
+  // Tickets
+  myTickets: Ticket[] = [];
+  ticketsLoading = false;
+  ticketsError = '';
+  showTicketForm = false;
+  newTicketSubject = '';
+  newTicketMessage = '';
+  creatingTicket = false;
+  createTicketError = '';
+
   // Modals
   showEmailModal = false;
   showPasswordModal = false;
   showDeleteModal = false;
 
-  constructor(private auth: AuthService, private profileService: ProfileService) {}
+  constructor(
+    private auth: AuthService,
+    private profileService: ProfileService,
+    private ticketService: TicketService
+  ) {}
 
   ngOnInit(): void {
     // Respect user preference if available from backend-auth state
@@ -55,6 +71,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.theme = effective as 'light' | 'dark';
     }
     this.applyTheme(this.theme, false);
+    this.fetchTickets();
     // No system-watch needed; 'auto' removed.
   }
 
@@ -81,6 +98,66 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   saveLanguage(): void {
     localStorage.setItem('pref_lang', this.language);
+  }
+
+  fetchTickets(): void {
+    this.ticketsLoading = true;
+    this.ticketsError = '';
+    this.ticketService.getMyTickets().subscribe({
+      next: tickets => {
+        this.myTickets = tickets;
+        this.ticketsLoading = false;
+      },
+      error: err => {
+        this.ticketsError = err?.error?.message || err?.message || 'Unable to load your support tickets right now.';
+        this.ticketsLoading = false;
+      }
+    });
+  }
+
+  ticketBadgeClass(status: TicketStatus): string {
+    switch (status) {
+      case TicketStatus.OPEN:
+        return 'status-pill status-open';
+      case TicketStatus.PENDING:
+        return 'status-pill status-pending';
+      case TicketStatus.RESOLVED:
+        return 'status-pill status-resolved';
+      case TicketStatus.CLOSED:
+        return 'status-pill status-closed';
+      default:
+        return 'status-pill';
+    }
+  }
+
+  startTicket(): void {
+    this.showTicketForm = !this.showTicketForm;
+    this.createTicketError = '';
+  }
+
+  submitTicket(): void {
+    if (!this.newTicketSubject.trim() || !this.newTicketMessage.trim()) {
+      this.createTicketError = 'Please provide both subject and message.';
+      return;
+    }
+    this.creatingTicket = true;
+    this.createTicketError = '';
+    this.ticketService.createTicket({
+      subject: this.newTicketSubject.trim(),
+      message: this.newTicketMessage.trim()
+    }).subscribe({
+      next: thread => {
+        this.myTickets = [thread.ticket, ...this.myTickets];
+        this.newTicketSubject = '';
+        this.newTicketMessage = '';
+        this.creatingTicket = false;
+        this.showTicketForm = false;
+      },
+      error: err => {
+        this.createTicketError = err?.error?.message || err?.message || 'Unable to create ticket.';
+        this.creatingTicket = false;
+      }
+    });
   }
 
   private applyTheme(theme: 'light' | 'dark', persistSelection = false): void {

@@ -129,6 +129,87 @@
     </div>
   </div>
 
+  <!-- Support Tickets -->
+  <div class="settings-section tickets-section">
+    <div class="tickets-header">
+      <div>
+        <h2 class="section-title">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 10h.01M12 10h.01M16 10h.01M21 12l-2-2v7a2 2 0 01-2 2H7l-4 4V7a2 2 0 012-2h9" />
+          </svg>
+          Support Tickets
+        </h2>
+        <p class="section-subtitle">Track past conversations or start a new request.</p>
+      </div>
+      <div class="tickets-actions">
+        <button class="btn btn-outline" (click)="fetchTickets()" [disabled]="ticketsLoading">
+          {{ ticketsLoading ? 'Refreshing...' : 'Refresh' }}
+        </button>
+        <button class="btn btn-primary" (click)="startTicket()">
+          {{ showTicketForm ? 'Close' : 'Start Ticket' }}
+        </button>
+      </div>
+    </div>
+
+    <form class="ticket-form" *ngIf="showTicketForm" (ngSubmit)="submitTicket()">
+      <div class="input-group">
+        <label for="ticket-subject">Subject</label>
+        <input
+          id="ticket-subject"
+          type="text"
+          placeholder="Brief summary of the issue"
+          [(ngModel)]="newTicketSubject"
+          name="ticketSubject"
+          required />
+      </div>
+      <div class="input-group">
+        <label for="ticket-message">Message</label>
+        <textarea
+          id="ticket-message"
+          rows="4"
+          placeholder="Describe the problem or request"
+          [(ngModel)]="newTicketMessage"
+          name="ticketMessage"
+          required></textarea>
+      </div>
+      <p class="err" *ngIf="createTicketError">{{ createTicketError }}</p>
+      <div class="ticket-form-actions">
+        <button type="button" class="btn btn-outline" (click)="startTicket()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="creatingTicket">
+          {{ creatingTicket ? 'Sending...' : 'Submit Ticket' }}
+        </button>
+      </div>
+    </form>
+
+    <div *ngIf="ticketsLoading" class="ticket-loading">
+      <div class="spinner"></div>
+      <span>Loading your tickets...</span>
+    </div>
+
+    <div *ngIf="ticketsError && !ticketsLoading" class="tickets-error">
+      {{ ticketsError }}
+    </div>
+
+    <div *ngIf="!ticketsLoading && !ticketsError && !myTickets.length" class="tickets-empty">
+      <h3>No tickets yet</h3>
+      <p>Need help with courses, payments, or your account? Start a support ticket and our team will reply quickly.</p>
+      <button class="btn btn-primary" (click)="startTicket()">Start a Ticket</button>
+    </div>
+
+    <div *ngIf="myTickets.length" class="tickets-grid">
+      <article class="ticket-card" *ngFor="let ticket of myTickets">
+        <div class="ticket-card-header">
+          <span [ngClass]="ticketBadgeClass(ticket.status)">{{ ticket.status }}</span>
+          <small>Created {{ ticket.createdAt | date:'mediumDate' }}</small>
+        </div>
+        <h3>{{ ticket.subject }}</h3>
+        <p class="ticket-id">Ticket #{{ ticket.id }}</p>
+        <p class="ticket-updated">Updated {{ ticket.updatedAt | date:'short' }}</p>
+      </article>
+    </div>
+  </div>
+
   <!-- Privacy & Data -->
   <div class="settings-section">
     <h2 class="section-title">

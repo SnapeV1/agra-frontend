@@ -95,6 +95,13 @@
                 <span *ngIf="!isEnrolled && !isEnrolling">Enroll Now</span>
               </button>
               
+              <button 
+                class="btn-secondary btn-large btn-continue" 
+                *ngIf="isEnrolled" 
+                (click)="continueCourse()">
+                Continue Course
+              </button>
+              
               <button class="btn-secondary btn-large" *ngIf="!isEnrolled">Add to Wishlist</button>
               
               <!-- Error message -->

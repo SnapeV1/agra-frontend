@@ -138,6 +138,14 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
     this.router.navigate(['/courses']);
   }
 
+  continueCourse(): void {
+    const targetId = this.course?.id || this.courseId;
+    if (!targetId) {
+      return;
+    }
+    this.router.navigate(['/courses/course-enrolled', targetId]);
+  }
+
   getCourseRating(): number | null {
     // No rating in model yet; hide reviews until available
     return null;

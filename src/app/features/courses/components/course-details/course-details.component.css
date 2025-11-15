@@ -87,6 +87,27 @@
   color: white;
 }
 
+.btn-continue {
+  border-color: var(--primary-400);
+  color: var(--primary-700);
+}
+
+.btn-continue:hover {
+  background: var(--primary-50);
+  color: var(--primary-800);
+}
+
+:host-context([data-theme="dark"]) .btn-continue {
+  background: transparent;
+  border-color: var(--primary-500);
+  color: var(--text-primary);
+}
+
+:host-context([data-theme="dark"]) .btn-continue:hover {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--text-primary);
+}
+
 .btn-large {
   width: 100%;
   padding: 16px;

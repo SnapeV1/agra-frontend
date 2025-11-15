@@ -65,5 +65,15 @@
       <span class="menu-text">Courses</span>
     </a>
 
+    <a routerLink="/admin/tickets"
+       class="menu-item"
+       routerLinkActive="active"
+       [routerLinkActiveOptions]="{ exact: false }"
+       data-tooltip="Tickets"
+       (click)="setActiveMenuItem('tickets')">
+      <i class="fas fa-ticket-alt"></i>
+      <span class="menu-text">Tickets</span>
+    </a>
+
   </div>
 </nav>
