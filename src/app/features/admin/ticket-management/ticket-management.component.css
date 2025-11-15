@@ -2,7 +2,7 @@
   display: block;
 }
 
-.ticket-board {
+ .ticket-board {
   --page-bg: #f5f7fb;
   --text-primary: #0f172a;
   --text-secondary: #64748b;
@@ -37,7 +37,7 @@
   background-color: var(--page-bg);
   color: var(--text-primary);
   min-height: calc(100vh - 120px);
-  padding: 24px;
+  padding: clamp(1rem, 2vw, 24px);
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -131,15 +131,18 @@
 .ticket-board-layout {
   display: flex;
   flex: 1;
-  gap: 0;
+  gap: 16px;
   min-height: 0;
   border: 1px solid var(--border-color);
   border-radius: 16px;
-  overflow: hidden;
+  padding: 1rem;
+  background: var(--list-bg);
+  flex-wrap: nowrap;
 }
 
 .sidebar {
-  width: 280px;
+  flex: 0 0 260px;
+  min-width: 240px;
   background-color: var(--sidebar-bg);
   border-right: 1px solid var(--divider-color);
   display: flex;
@@ -242,7 +245,8 @@
 }
 
 .ticket-list {
-  width: 400px;
+  flex: 0 0 360px;
+  min-width: 300px;
   background-color: var(--list-bg);
   border-right: 1px solid var(--divider-color);
   display: flex;
@@ -325,11 +329,19 @@
 }
 
 .ticket-avatar img,
-.user-avatar img {
+.user-avatar img,
+.message-avatar img {
   width: 100%;
   height: 100%;
   border-radius: inherit;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   object-fit: cover;
+}
+
+:host-context([data-theme='dark']) .ticket-avatar img,
+:host-context([data-theme='dark']) .user-avatar img,
+:host-context([data-theme='dark']) .message-avatar img {
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .ticket-content {
@@ -421,7 +433,7 @@
 }
 
 .conversation {
-  flex: 1;
+  flex: 1 1 480px;
   background-color: var(--conversation-bg);
   display: flex;
   flex-direction: column;
@@ -500,6 +512,7 @@
 .message {
   display: flex;
   gap: 12px;
+  align-items: flex-start;
 }
 
 .message-avatar {
@@ -514,8 +527,9 @@
 }
 
 .message-content {
-  flex: 1;
-  max-width: 70%;
+  max-width: min(70%, 420px);
+  display: inline-flex;
+  flex-direction: column;
 }
 
 .message-header {
@@ -537,6 +551,8 @@
 }
 
 .message-content p {
+  display: inline-block;
+  max-width: 100%;
   font-size: 14px;
   color: var(--text-primary);
   line-height: 1.6;
@@ -546,7 +562,39 @@
   border: 1px solid var(--divider-color);
 }
 
+.admin-message {
+  flex-direction: row;
+  text-align: left;
+}
+
+.admin-message .message-header {
+  justify-content: flex-start;
+}
+
+.admin-message .message-content {
+  align-items: flex-start;
+}
+
 .admin-message .message-content p {
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  border-color: var(--divider-color);
+}
+
+.user-message {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.user-message .message-header {
+  justify-content: flex-end;
+}
+
+.user-message .message-content {
+  align-items: flex-end;
+}
+
+.user-message .message-content p {
   background-color: var(--accent);
   color: #ffffff;
   border-color: var(--accent-hover);
@@ -630,6 +678,21 @@
   padding: 40px;
 }
 
+@media (max-width: 1400px) {
+  .ticket-board-layout {
+    flex-wrap: wrap;
+  }
+  .sidebar,
+  .ticket-list {
+    flex: 1 1 280px;
+    min-width: 260px;
+  }
+  .conversation {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+}
+
 @media (max-width: 1024px) {
   .ticket-board-layout {
     flex-direction: column;
@@ -640,6 +703,9 @@
     width: 100%;
     border-right: none;
     border-bottom: 1px solid var(--divider-color);
+  }
+  .conversation {
+    width: 100%;
   }
 }
 

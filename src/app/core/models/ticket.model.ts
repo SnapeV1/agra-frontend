@@ -27,8 +27,10 @@ export interface Ticket {
 export interface TicketMessage {
   id: string;
   ticketId: string;
-  senderId: string;
-  recipientId: string;
+  senderId?: string;
+  recipientId?: string;
+  sender?: TicketParticipantInfo;
+  recipient?: TicketParticipantInfo;
   content: string;
   timestamp: string;
   isAdminMessage: boolean;

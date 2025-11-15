@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TicketService } from 'src/app/core/services/ticket.service';
 import { Ticket, TicketMessage, TicketStatus, TicketThreadResponse } from 'src/app/core/models/ticket.model';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
 
 @Component({
   selector: 'app-ticket-management',
@@ -9,6 +10,7 @@ import { Ticket, TicketMessage, TicketStatus, TicketThreadResponse } from 'src/a
 })
 export class TicketManagementComponent implements OnInit {
   TicketStatus = TicketStatus;
+  private currentAdminId: string | null;
 
   tickets: Ticket[] = [];
   loading = false;
@@ -29,7 +31,9 @@ export class TicketManagementComponent implements OnInit {
   sending = false;
   closing = false;
 
-  constructor(private ticketService: TicketService) {}
+  constructor(private ticketService: TicketService, private auth: AuthService) {
+    this.currentAdminId = this.auth.currentUserValue?.user?.id || null;
+  }
 
   ngOnInit(): void {
     this.loadTickets();
@@ -80,6 +84,7 @@ export class TicketManagementComponent implements OnInit {
         this.selectedThread = thread;
         this.messages = thread.messages || [];
         this.reply = '';
+        this.logMessageOrigins(thread);
       },
       error: err => {
         this.error = err?.message || 'Unable to load ticket thread.';
@@ -97,6 +102,12 @@ export class TicketManagementComponent implements OnInit {
         this.messages = [...this.messages, message];
         this.reply = '';
         this.sending = false;
+        console.log('[TicketManagement] Sent message', {
+          ticketId,
+          messageId: message.id,
+          senderId: message.senderId ?? message.sender?.id,
+          adminId: this.selectedThread?.ticket.adminId
+        });
       },
       error: err => {
         this.error = err?.message || 'Unable to send message.';
@@ -165,12 +176,31 @@ export class TicketManagementComponent implements OnInit {
     return ticket.userInfo?.picture || undefined;
   }
 
+  senderDisplayName(message: TicketMessage, ticket: Ticket): string {
+    if (this.isAdminMessage(message, ticket)) {
+      return message.sender?.name || 'Support Agent';
+    }
+    return message.sender?.name || message.sender?.email || ticket.userInfo?.name || ticket.userInfo?.email || 'User';
+  }
+
+  senderAvatar(message: TicketMessage, ticket: Ticket): string | undefined {
+    if (this.isAdminMessage(message, ticket)) {
+      return message.sender?.picture || undefined;
+    }
+    return message.sender?.picture || ticket.userInfo?.picture || undefined;
+  }
+
   isAdminMessage(msg: TicketMessage, ticket: Ticket): boolean {
     if (typeof msg.isAdminMessage === 'boolean') {
       return msg.isAdminMessage;
     }
-    if (ticket.adminId) {
-      return msg.senderId === ticket.adminId;
+    const senderId = msg.senderId ?? msg.sender?.id;
+    const ticketAdminId = ticket.adminId || ticket.adminInfo?.id || null;
+    if (ticketAdminId && senderId) {
+      return senderId === ticketAdminId;
+    }
+    if (this.currentAdminId && senderId) {
+      return senderId === this.currentAdminId;
     }
     return false;
   }
@@ -183,5 +213,21 @@ export class TicketManagementComponent implements OnInit {
       case TicketStatus.CLOSED: return 'Low Priority';
       default: return 'General';
     }
+  }
+
+  private logMessageOrigins(thread: TicketThreadResponse): void {
+    console.log(
+      '[TicketManagement] Loaded thread',
+      {
+        ticketId: thread.ticket.id,
+        adminId: thread.ticket.adminId ?? thread.ticket.adminInfo?.id ?? this.currentAdminId,
+        messages: (thread.messages || []).map(msg => ({
+          id: msg.id,
+          senderId: msg.senderId ?? msg.sender?.id,
+          recipientId: msg.recipientId ?? msg.recipient?.id,
+          isAdminMessage: msg.isAdminMessage
+        }))
+      }
+    );
   }
 }

@@ -128,8 +128,8 @@
             [ngClass]="{ 'admin-message': isAdminMessage(msg, thread.ticket), 'user-message': !isAdminMessage(msg, thread.ticket) }"
           >
             <div class="message-avatar">
-              <ng-container *ngIf="!isAdminMessage(msg, thread.ticket) && ticketUserPicture(thread.ticket); else messageAvatarFallback">
-                <img [src]="ticketUserPicture(thread.ticket)!" [alt]="ticketUserDisplay(thread.ticket)" />
+              <ng-container *ngIf="senderAvatar(msg, thread.ticket); else messageAvatarFallback">
+                <img [src]="senderAvatar(msg, thread.ticket)!" [alt]="senderDisplayName(msg, thread.ticket)" />
               </ng-container>
             </div>
             <ng-template #messageAvatarFallback>
@@ -137,7 +137,7 @@
             </ng-template>
             <div class="message-content">
               <div class="message-header">
-                <span class="message-author">{{ isAdminMessage(msg, thread.ticket) ? 'Support Agent' : ticketUserDisplay(thread.ticket) }}</span>
+                <span class="message-author">{{ senderDisplayName(msg, thread.ticket) }}</span>
                 <span class="message-time">{{ msg.timestamp | date:'short' }}</span>
               </div>
               <p>{{ msg.content }}</p>
