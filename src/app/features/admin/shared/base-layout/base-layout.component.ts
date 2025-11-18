@@ -1,5 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component } from '@angular/core';
 import { SidebarService } from '../../services/sidebar.service';
 
 @Component({
@@ -7,23 +6,8 @@ import { SidebarService } from '../../services/sidebar.service';
   templateUrl: './base-layout.component.html',
   styleUrls: ['./base-layout.component.css']
 })
-export class BaseLayoutComponent implements OnInit, OnDestroy {
-  isSidebarCollapsed = false;
-  private subscription: Subscription = new Subscription();
-
+export class BaseLayoutComponent {
   constructor(public sidebarService: SidebarService) {}
-
-  ngOnInit() {
-    this.subscription.add(
-      this.sidebarService.isCollapsed$.subscribe(collapsed => {
-        this.isSidebarCollapsed = collapsed;
-      })
-    );
-  }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
-  }
 
   onMainClick(): void {
     try {

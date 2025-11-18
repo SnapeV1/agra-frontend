@@ -6,9 +6,6 @@
         <h1>Ticket Management</h1>
         <span>{{ totalTickets }} total - {{ countByStatus(TicketStatus.OPEN) }} open now</span>
       </div>
-      <button class="ghost-btn" (click)="loadTickets()" [disabled]="loading">
-        {{ loading ? 'Refreshing...' : 'Sync tickets' }}
-      </button>
     </div>
 
     <div class="error-banner" *ngIf="error">{{ error }}</div>
@@ -114,14 +111,18 @@
             </div>
           </div>
           <div class="conversation-actions">
-            <button class="action-btn">Assign</button>
-            <select class="status-select" [ngModel]="thread.ticket.status" disabled>
+            <select
+              class="status-select"
+              [ngModel]="thread.ticket.status"
+              (ngModelChange)="changeTicketStatus($event)"
+              [disabled]="statusUpdating">
               <option *ngFor="let opt of ticketStatuses" [value]="opt">{{ opt }}</option>
             </select>
+            <span class="status-hint" *ngIf="statusUpdating">Updating...</span>
           </div>
         </div>
 
-        <div class="conversation-body">
+        <div class="conversation-body" #conversationBody>
           <div
             class="message"
             *ngFor="let msg of messages"
@@ -136,17 +137,50 @@
               <span>{{ isAdminMessage(msg, thread.ticket) ? 'A' : ticketUserInitial(thread.ticket) }}</span>
             </ng-template>
             <div class="message-content">
-              <div class="message-header">
-                <span class="message-author">{{ senderDisplayName(msg, thread.ticket) }}</span>
-                <span class="message-time">{{ msg.timestamp | date:'short' }}</span>
+              <div class="message-header" [class.admin-header]="isAdminMessage(msg, thread.ticket)">
+                <ng-container *ngIf="isAdminMessage(msg, thread.ticket); else userHeader">
+                  <span class="message-time">{{ msg.timestamp | date:'short' }}</span>
+                  <span class="message-author">{{ senderDisplayName(msg, thread.ticket) }}</span>
+                </ng-container>
+                <ng-template #userHeader>
+                  <span class="message-author">{{ senderDisplayName(msg, thread.ticket) }}</span>
+                  <span class="message-time">{{ msg.timestamp | date:'short' }}</span>
+                </ng-template>
               </div>
-              <p>{{ msg.content }}</p>
+              <p *ngIf="msg.content">{{ msg.content }}</p>
+              <div class="message-attachment" *ngIf="msg.attachmentUrl">
+                <img
+                  class="attachment-preview-img"
+                  [src]="msg.attachmentUrl"
+                  alt="Ticket attachment"
+                  (click)="openAttachmentPreview(msg.attachmentUrl)" />
+              </div>
             </div>
           </div>
           <div class="empty" *ngIf="!messages.length">No conversation yet.</div>
         </div>
 
         <div class="conversation-footer">
+          <div class="attachment-bar">
+            <input
+              type="file"
+              accept="image/*"
+              #adminAttachmentInput
+              (change)="onAttachmentSelected($event)"
+              hidden />
+            <button class="attach-btn" type="button" (click)="adminAttachmentInput.click()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                  d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
+                />
+              </svg>
+              <span>Attach image</span>
+            </button>
+            <div class="attachment-preview" *ngIf="replyAttachment">
+              <span>{{ replyAttachment.name }}</span>
+              <button type="button" class="link-btn" (click)="clearReplyAttachment()">Remove</button>
+            </div>
+          </div>
           <textarea
             class="reply-input"
             placeholder="Type your reply..."
@@ -155,13 +189,6 @@
             [disabled]="thread.ticket.status === 'CLOSED' || sending"
           ></textarea>
           <div class="reply-actions">
-            <button class="attach-btn" type="button" disabled>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path
-                  d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
-                />
-              </svg>
-            </button>
             <button
               class="send-btn"
               type="button"
@@ -182,3 +209,9 @@
     </section>
   </ng-template>
 </app-base-layout>
+
+<div class="attachment-modal" [class.active]="previewAttachmentUrl" (click)="closeAttachmentPreview()">
+  <div class="attachment-modal-content" (click)="$event.stopPropagation()">
+    <img *ngIf="previewAttachmentUrl" [src]="previewAttachmentUrl" alt="Attachment preview" />
+  </div>
+</div>

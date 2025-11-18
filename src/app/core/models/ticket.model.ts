@@ -34,6 +34,7 @@ export interface TicketMessage {
   content: string;
   timestamp: string;
   isAdminMessage: boolean;
+  attachmentUrl?: string | null;
 }
 
 export interface TicketThreadResponse {

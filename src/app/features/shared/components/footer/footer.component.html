@@ -77,5 +77,13 @@
     </div>
   </div>
 
-  <button class="to-top" (click)="scrollTop()" aria-label="Back to top"><lucide-icon name="arrow-up"></lucide-icon></button>
+<button 
+  type="button"
+  class="to-top"
+  [class.hidden]="!showScrollTop"
+  (click)="scrollTop()"
+  aria-label="Back to top"
+  [attr.aria-hidden]="!showScrollTop">
+  <lucide-icon name="arrow-up"></lucide-icon>
+</button>
 </footer>

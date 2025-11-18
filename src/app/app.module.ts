@@ -1,7 +1,7 @@
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { LucideAngularModule, Mail, Phone, Calendar, MapPin, BarChart2, User, Globe, Briefcase, Bell } from 'lucide-angular';
+import { LucideAngularModule, Mail, Phone, Calendar, MapPin, BarChart2, User, Globe, Briefcase, Bell, CheckCircle, AlertTriangle, Send } from 'lucide-angular';
 import { AppComponent } from './app.component';
 import { AuthRoutingModule } from './features/auth/auth-routing.module';
 import { AuthModule } from './features/auth/auth.module';
@@ -46,7 +46,7 @@ export function initializeAuth(authService: AuthService) {
     FeedModule,
     RouterModule,
     BrowserAnimationsModule,
-    LucideAngularModule.pick({ Mail, Phone, Calendar, MapPin, BarChart2, User, Globe, Briefcase, Bell }),
+    LucideAngularModule.pick({ Mail, Phone, Calendar, MapPin, BarChart2, User, Globe, Briefcase, Bell, CheckCircle, AlertTriangle, Send }),
      ToastrModule.forRoot({
       positionClass: 'toast-bottom-right',
       preventDuplicates: true,

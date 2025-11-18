@@ -272,6 +272,8 @@ export class AuthService implements OnDestroy {
 
   logout(): void {
     this.clearAuthData();
+    this.redirectUrl = null;
+    this.navigateToLogin();
   }
 
   logoutOnUnload(): void {
@@ -434,6 +436,17 @@ private clearAuthData(): void {
       const delay = payload.exp * 1000 - Date.now();
       if (delay > 0) setTimeout(() => this.logout(), delay);
     } catch {}
+  }
+
+  private navigateToLogin(): void {
+    this.ngZone.run(() => {
+      try {
+        this.router.navigate(['/login'], { replaceUrl: true });
+      } catch {
+        // Fallback in case router navigation fails outside angular zone
+        this.router.navigate(['/login']);
+      }
+    });
   }
 
   isTokenExpiringSoon(): boolean {

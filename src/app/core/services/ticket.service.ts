@@ -18,6 +18,10 @@ export interface SendTicketMessageRequest {
   content: string;
 }
 
+export interface UpdateTicketStatusPayload {
+  status: TicketStatus;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -26,7 +30,13 @@ export class TicketService {
 
   constructor(private http: HttpClient) {}
 
-  createTicket(payload: CreateTicketPayload): Observable<TicketThreadResponse> {
+  createTicket(payload: CreateTicketPayload, attachment?: File): Observable<TicketThreadResponse> {
+    if (attachment) {
+      const formData = new FormData();
+      formData.append('request', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
+      formData.append('attachment', attachment);
+      return this.http.post<TicketThreadResponse>(this.baseUrl, formData);
+    }
     return this.http.post<TicketThreadResponse>(this.baseUrl, payload);
   }
 
@@ -42,11 +52,21 @@ export class TicketService {
     return this.http.get<TicketThreadResponse>(`${this.baseUrl}/${ticketId}`);
   }
 
-  sendMessage(ticketId: string, payload: SendTicketMessageRequest): Observable<TicketMessage> {
+  sendMessage(ticketId: string, payload: SendTicketMessageRequest, attachment?: File): Observable<TicketMessage> {
+    if (attachment) {
+      const formData = new FormData();
+      formData.append('request', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
+      formData.append('attachment', attachment);
+      return this.http.post<TicketMessage>(`${this.baseUrl}/${ticketId}/message`, formData);
+    }
     return this.http.post<TicketMessage>(`${this.baseUrl}/${ticketId}/message`, payload);
   }
 
   closeTicket(ticketId: string): Observable<Ticket> {
     return this.http.patch<Ticket>(`${this.baseUrl}/${ticketId}/close`, {});
+  }
+
+  updateTicketStatus(ticketId: string, payload: UpdateTicketStatusPayload): Observable<Ticket> {
+    return this.http.patch<Ticket>(`${this.baseUrl}/${ticketId}/status`, payload);
   }
 }

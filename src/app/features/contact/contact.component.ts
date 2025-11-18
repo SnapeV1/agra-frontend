@@ -1,47 +1,56 @@
-import { Component, type OnInit } from "@angular/core"
+import { Component } from "@angular/core"
 import { FormBuilder, FormGroup, Validators } from "@angular/forms"
+import { ContactService } from "src/app/core/services/contact.service"
+import { ToastrService } from "ngx-toastr"
 
 @Component({
   selector: "app-contact",
   templateUrl: "./contact.component.html",
   styleUrls: ["./contact.component.css"],
 })
-export class ContactComponent implements OnInit {
+export class ContactComponent {
   contactForm: FormGroup
   isSubmitting = false
+  status: "idle" | "success" | "error" = "idle"
+  serverError = ""
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private contactService: ContactService,
+    private toastr: ToastrService
+  ) {
     this.contactForm = this.formBuilder.group({
-      name: ["", [Validators.required, Validators.minLength(2)]],
+      fullName: ["", [Validators.required, Validators.minLength(2)]],
       email: ["", [Validators.required, Validators.email]],
       subject: ["", [Validators.required, Validators.minLength(5)]],
       message: ["", [Validators.required, Validators.minLength(10)]],
     })
   }
 
-  ngOnInit(): void {
-    // Component initialization logic
-  }
-
   onSubmit(): void {
     if (this.contactForm.valid) {
       this.isSubmitting = true
 
-      // Simulate form submission
       const formData = this.contactForm.value
-  
 
-      // Here you would typically send the data to your backend service
-      // this.contactService.submitForm(formData).subscribe(...)
+      this.status = "idle"
+      this.serverError = ""
 
-      // Simulate API call delay
-      setTimeout(() => {
-        this.isSubmitting = false
-        alert("Message sent successfully!")
-        this.contactForm.reset()
-      }, 2000)
+      this.contactService.submit(formData).subscribe({
+        next: () => {
+          this.isSubmitting = false
+          this.status = "success"
+          this.contactForm.reset()
+          this.toastr.success("Message sent successfully!")
+        },
+        error: (err) => {
+          this.isSubmitting = false
+          this.status = "error"
+          this.serverError = err?.error?.message || "Unable to send your message. Please try again."
+          this.toastr.error(this.serverError)
+        },
+      })
     } else {
-      // Mark all fields as touched to show validation errors
       Object.keys(this.contactForm.controls).forEach((key) => {
         this.contactForm.get(key)?.markAsTouched()
       })
@@ -49,8 +58,8 @@ export class ContactComponent implements OnInit {
   }
 
   // Getter methods for easy access to form controls in template
-  get name() {
-    return this.contactForm.get("name")
+  get fullName() {
+    return this.contactForm.get("fullName")
   }
   get email() {
     return this.contactForm.get("email")

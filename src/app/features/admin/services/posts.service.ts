@@ -21,61 +21,12 @@ export class PostsService {
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {
-    // When auth user changes (login/logout), re-apply liked flags from local cache
-    this.authService.currentUser.subscribe(() => {
-      this.applyLikedCacheToPosts();
-    });
-  }
+  ) {}
 
   /* =====================================================
      ===============  USER / LIKE CACHE ==================
      ===================================================== */
 
-  private getCurrentUserId(): string | null {
-    try {
-      return this.authService.currentUserValue?.user?.id || null;
-    } catch {
-      return null;
-    }
-  }
-
-  private likedStorageKey(userId: string): string {
-    return `liked_posts_${userId}`;
-  }
-
-  private loadLikedSet(userId: string): Set<string> {
-    try {
-      const raw = localStorage.getItem(this.likedStorageKey(userId));
-      if (!raw) return new Set();
-      const arr = JSON.parse(raw);
-      return new Set(Array.isArray(arr) ? arr : []);
-    } catch {
-      return new Set();
-    }
-  }
-
-  private saveLikedSet(userId: string, ids: Set<string>): void {
-    try {
-      localStorage.setItem(this.likedStorageKey(userId), JSON.stringify(Array.from(ids)));
-    } catch {}
-  }
-
-  private applyLikedCacheToPosts(): void {
-    if (!this.posts.length) return;
-    const userId = this.getCurrentUserId();
-    if (!userId) {
-      this.posts = this.posts.map(p => ({ ...p, isLikedByCurrentUser: false }));
-      this.updatePosts();
-      return;
-    }
-    const likedSet = this.loadLikedSet(userId);
-    this.posts = this.posts.map(p => ({
-      ...p,
-      isLikedByCurrentUser: likedSet.has(p.id)
-    }));
-    this.updatePosts();
-  }
 
   /* =====================================================
      ===============  FETCH POSTS ========================
@@ -87,11 +38,7 @@ export class PostsService {
 
     this.http.get<Post[]>(`${this.apiUrl}?loadComments=${loadComments}&commentLimit=${commentLimit}`, options)
       .pipe(
-        map(posts => {
-          const userId = this.getCurrentUserId();
-          const likedSet = userId ? this.loadLikedSet(userId) : new Set<string>();
-          return posts.map(post => this.normalizePost(post, likedSet));
-        })
+        map(posts => posts.map(post => this.normalizePost(post)))
       )
       .subscribe({
         next: data => {
@@ -131,72 +78,35 @@ export class PostsService {
      ===================================================== */
 
   toggleLike(post: Post): void {
-    const index = this.posts.findIndex(p => p.id === post.id);
-    if (index === -1) return;
-
-    const target = this.posts[index];
-    const prevLiked = !!target.isLikedByCurrentUser;
-    const prevLikes = target.likesCount || 0;
-    const optimisticLiked = !prevLiked;
-
-    target.isLikedByCurrentUser = optimisticLiked;
-    target.likesCount = Math.max(0, prevLikes + (optimisticLiked ? 1 : -1));
-    this.updatePosts();
-
+    if (!post?.id) return;
     const token = this.authService.getToken();
-    if (!token) {
-      target.isLikedByCurrentUser = prevLiked;
-      target.likesCount = prevLikes;
-      this.updatePosts();
-      return;
-    }
+    if (!token) return;
 
-    this.http.post(`${this.baseApi}/posts/${target.id}/like`, {}, {
+    this.http.post(`${this.baseApi}/posts/${post.id}/like`, {}, {
       headers: { 'Authorization': `Bearer ${token}` },
       responseType: 'text' as 'json'
     }).subscribe({
-      next: (response: any) => {
-        const text = typeof response === 'string' ? response.toLowerCase() : '';
-        let serverLiked: boolean | null = null;
-
-        if (text.includes('unliked')) serverLiked = false;
-        else if (text.includes('liked')) serverLiked = true;
-
-        if (serverLiked !== null) {
-          target.isLikedByCurrentUser = serverLiked;
-          const userId = this.getCurrentUserId();
-          if (userId) {
-            const set = this.loadLikedSet(userId);
-            serverLiked ? set.add(target.id) : set.delete(target.id);
-            this.saveLikedSet(userId, set);
-          }
-        }
-        this.updatePosts();
-      },
-      error: () => {
-        target.isLikedByCurrentUser = prevLiked;
-        target.likesCount = prevLikes;
-        this.updatePosts();
-      }
+      next: () => this.fetchPosts(),
+      error: () => this.fetchPosts()
     });
   }
 
   toggleCommentLike(comment: PostComment): void {
-    const wasLiked = comment.isLikedByCurrentUser;
-    comment.isLikedByCurrentUser = !wasLiked;
-    comment.likesCount = (comment.likesCount || 0) + (comment.isLikedByCurrentUser ? 1 : -1);
-    this.updatePosts();
-
+    if (!comment?.id) return;
     const token = this.authService.getToken();
     if (!token) return;
+
+    const postId = comment.postId || this.resolvePostIdForComment(comment);
 
     this.http.post(`${this.baseApi}/comments/${comment.id}/like`, {}, {
       headers: { 'Authorization': `Bearer ${token}` }
     }).subscribe({
+      next: () => {
+        if (postId) this.loadCommentsForPost(postId);
+        else this.fetchPosts();
+      },
       error: () => {
-        comment.isLikedByCurrentUser = wasLiked;
-        comment.likesCount = (comment.likesCount || 0) + (wasLiked ? 1 : -1);
-        this.updatePosts();
+        if (postId) this.loadCommentsForPost(postId);
       }
     });
   }
@@ -285,7 +195,7 @@ export class PostsService {
     this.updatePosts();
   }
 
-  private normalizePost(raw: any, likedSet: Set<string>): Post {
+  private normalizePost(raw: any): Post {
     const normalizedComments = this.normalizeComments(raw?.comments);
     const normalizedUser = this.ensureUserAvatar(
       raw?.userInfo || raw?.user_info,
@@ -298,7 +208,7 @@ export class PostsService {
       userInfo: normalizedUser,
       createdAt: this.normalizeIsoUtc(raw?.createdAt),
       updatedAt: this.normalizeIsoUtc(raw?.updatedAt),
-      isLikedByCurrentUser: raw?.isLikedByCurrentUser === true || likedSet.has(raw?.id),
+      isLikedByCurrentUser: !!raw?.isLikedByCurrentUser,
       likesCount: raw?.likesCount || 0,
       commentsCount: raw?.commentsCount || normalizedComments.length,
       comments: normalizedComments,
@@ -308,14 +218,16 @@ export class PostsService {
     } as Post;
   }
 
-  private normalizeComments(comments?: PostComment[]): PostComment[] {
+  private normalizeComments(comments: PostComment[] | undefined): PostComment[] {
     return (comments || [])
       .filter((comment): comment is PostComment => !!comment)
       .map(comment => this.normalizeComment(comment));
   }
 
-  private normalizeComment(comment?: PostComment): PostComment {
+  private normalizeComment(comment: PostComment | undefined): PostComment {
     const base = comment || ({} as PostComment);
+    const commentId = base?.id || (base as any)?._id || (base as any)?.commentId;
+    const commentPostId = base?.postId || (base as any)?.postId || (base as any)?.post_id || (base as any)?.post?.id;
     const normalizedUser = this.ensureUserAvatar(
       (base as any)?.userInfo || (base as any)?.user_info,
       (base as any)?.userInfo?.name || (base as any)?.author,
@@ -324,12 +236,32 @@ export class PostsService {
 
     return {
       ...base,
+      id: commentId,
+      postId: commentPostId,
       userInfo: normalizedUser,
       createdAt: this.normalizeIsoUtc(base?.createdAt),
       updatedAt: this.normalizeIsoUtc(base?.updatedAt),
       likesCount: base?.likesCount || 0,
       isLikedByCurrentUser: base?.isLikedByCurrentUser === true
     };
+  }
+
+  private resolvePostIdForComment(comment: PostComment): string | undefined {
+    if (comment?.postId) return comment.postId;
+    const index = this.resolvePostIndexForComment(comment);
+    return index !== -1 ? this.posts[index]?.id : undefined;
+  }
+
+  private resolvePostIndexForComment(comment: PostComment): number {
+    const postId = comment?.postId;
+    if (postId) {
+      const foundIndex = this.posts.findIndex(p => p.id === postId);
+      if (foundIndex !== -1) return foundIndex;
+    }
+
+    return this.posts.findIndex(post =>
+      (post.comments || []).some(c => c?.id === comment?.id)
+    );
   }
 
   private ensureUserAvatar(userInfo?: any, fallbackName?: string, fallbackImage?: string): any {

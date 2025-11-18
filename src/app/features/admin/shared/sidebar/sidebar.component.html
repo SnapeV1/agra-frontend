@@ -1,7 +1,13 @@
 <!-- Mobile overlay -->
 <div class="mobile-overlay" [class.active]="isMobileOpen" (click)="sidebarService.closeMobile()"></div>
 
-<nav class="sidebar" [class.collapsed]="isCollapsed" [class.mobile-open]="isMobileOpen" id="sidebar" (click)="onSidebarClick($event)">
+<nav
+  class="sidebar"
+  [class.collapsed]="isCollapsed"
+  [class.mobile-open]="isMobileOpen"
+  [style.width.px]="sidebarWidth"
+  id="sidebar"
+  (click)="onSidebarClick($event)">
   <!-- Hamburger toggle when collapsed (top-left) -->
   <div class="toggle-btn collapsed-toggle"
        *ngIf="isCollapsed"

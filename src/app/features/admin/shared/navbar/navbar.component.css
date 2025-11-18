@@ -365,7 +365,20 @@
 .notif-dot { width: 8px; height: 8px; border-radius: 999px; background: #2563eb; margin-top: 7px; flex: 0 0 auto; }
 .notif-content { flex: 1; min-width: 0; }
 .notif-title { font-weight: 600; color: #111827; }
-.notif-time { color: #6b7280; font-size: 12px; margin-top: 4px; }
+.notif-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.notif-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: capitalize;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  color: #1d4ed8;
+}
+.notif-time { color: #6b7280; font-size: 12px; }
 
         .profile:hover .chevron-icon {
             transform: rotate(180deg);
@@ -410,7 +423,9 @@
   .notif-item:hover { background: #111827; }
   .notif-item.unread { background: #06281f; }
   .notif-title { color: #e5e7eb; }
+  .notif-meta { margin-top: 6px; }
   .notif-time { color: #94a3b8; }
+  .notif-tag { background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.35); color: #6ee7b7; }
   .notif-dot { background: #10b981; }
 }
 

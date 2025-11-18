@@ -1,10 +1,10 @@
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { NavigationExtras, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { AuthUser } from 'src/app/core/models/auth-user.model';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
-import { NotificationItem } from 'src/app/core/models/notification.model';
+import { NotificationItem, NotificationType } from 'src/app/core/models/notification.model';
 
 @Component({
   selector: 'app-navigation',
@@ -161,11 +161,72 @@ export class NavigationComponent implements OnInit, OnDestroy {
   openNotification(n: NotificationItem): void {
     this.notificationService.markAsRead(n.id);
     this.closeNotification();
+    this.navigateForNotification(n);
   }
 
   clearAllNotifications(): void {
     this.notificationService.deleteAll();
     this.closeNotification();
+  }
+
+  formatNotificationType(type?: NotificationType | string | null): string {
+    if (!type) return 'General';
+    const normalized = typeof type === 'string'
+      ? type.toUpperCase()
+      : type;
+    switch (normalized) {
+      case NotificationType.TICKET:
+        return 'Ticket';
+      case NotificationType.COURSE:
+        return 'Course';
+      case NotificationType.POST:
+        return 'Social';
+      case NotificationType.SESSION:
+        return 'Session';
+      case NotificationType.SYSTEM:
+        return 'System';
+      default:
+        return normalized.charAt(0) + normalized.slice(1).toLowerCase();
+    }
+  }
+
+  private navigateForNotification(notification: NotificationItem): void {
+    if (!notification) return;
+
+    const normalizedType = (typeof notification.type === 'string'
+      ? notification.type.toUpperCase()
+      : notification.type) as NotificationType;
+
+    let commands: any[] = [];
+    let extras: NavigationExtras | undefined;
+
+    switch (normalizedType) {
+      case NotificationType.TICKET:
+        if (this.isAdmin()) {
+          commands = ['/admin/tickets'];
+        } else {
+          commands = ['/settings'];
+          extras = { fragment: 'tickets' };
+        }
+        break;
+      case NotificationType.COURSE:
+        commands = ['/courses'];
+        break;
+      case NotificationType.POST:
+        commands = ['/feed'];
+        break;
+      case NotificationType.SESSION:
+        commands = this.isAdmin() ? ['/admin/dashboard'] : ['/home'];
+        break;
+      case NotificationType.SYSTEM:
+      default:
+        commands = ['/home'];
+        break;
+    }
+
+    if (commands.length) {
+      this.router.navigate(commands, extras);
+    }
   }
 
   navigateToProfile(): void {

@@ -130,7 +130,7 @@
   </div>
 
   <!-- Support Tickets -->
-  <div class="settings-section tickets-section">
+  <div id="tickets" class="settings-section tickets-section">
     <div class="tickets-header">
       <div>
         <h2 class="section-title">
@@ -173,6 +173,26 @@
           name="ticketMessage"
           required></textarea>
       </div>
+      <div class="attachment-control">
+        <input
+          type="file"
+          accept="image/*"
+          #createTicketAttachmentInput
+          (change)="onCreateAttachmentSelected($event)"
+          hidden />
+        <button type="button" class="btn btn-outline attach-btn" (click)="createTicketAttachmentInput.click()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path
+              d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
+            />
+          </svg>
+          <span>{{ createTicketAttachment ? 'Change attachment' : 'Attach image' }}</span>
+        </button>
+        <div class="attachment-preview" *ngIf="createTicketAttachment">
+          <span>{{ createTicketAttachment.name }}</span>
+          <button type="button" class="link-btn" (click)="clearCreateAttachment()">Remove</button>
+        </div>
+      </div>
       <p class="err" *ngIf="createTicketError">{{ createTicketError }}</p>
       <div class="ticket-form-actions">
         <button type="button" class="btn btn-outline" (click)="startTicket()">Cancel</button>
@@ -197,16 +217,126 @@
       <button class="btn btn-primary" (click)="startTicket()">Start a Ticket</button>
     </div>
 
-    <div *ngIf="myTickets.length" class="tickets-grid">
-      <article class="ticket-card" *ngFor="let ticket of myTickets">
-        <div class="ticket-card-header">
-          <span [ngClass]="ticketBadgeClass(ticket.status)">{{ ticket.status }}</span>
-          <small>Created {{ ticket.createdAt | date:'mediumDate' }}</small>
+    <div *ngIf="myTickets.length" class="tickets-hub">
+      <div class="tickets-list-panel">
+        <article
+          class="ticket-card"
+          *ngFor="let ticket of myTickets"
+          [class.active]="selectedThread?.ticket?.id === ticket.id || selectedTicketId === ticket.id"
+          (click)="openTicket(ticket.id)">
+          <div class="ticket-card-header">
+            <span [ngClass]="ticketBadgeClass(ticket.status)">{{ ticket.status }}</span>
+            <small>{{ lastUpdateLabel(ticket) }}</small>
+          </div>
+          <h3>{{ ticket.subject }}</h3>
+          <p class="ticket-id">Ticket #{{ ticket.id }}</p>
+        </article>
+      </div>
+
+      <div class="ticket-conversation-panel">
+        <div *ngIf="threadLoading" class="ticket-conversation-placeholder">
+          <div class="spinner"></div>
+          <p>Loading conversation...</p>
         </div>
-        <h3>{{ ticket.subject }}</h3>
-        <p class="ticket-id">Ticket #{{ ticket.id }}</p>
-        <p class="ticket-updated">Updated {{ ticket.updatedAt | date:'short' }}</p>
-      </article>
+
+        <div *ngIf="threadError && !threadLoading" class="tickets-error">
+          {{ threadError }}
+        </div>
+
+        <ng-container *ngIf="!threadLoading && !threadError">
+          <ng-container *ngIf="selectedThread as thread; else noSelection">
+            <div class="conversation-header">
+              <div>
+                <p class="ticket-id">Ticket #{{ thread.ticket.id }}</p>
+                <h3>{{ thread.ticket.subject }}</h3>
+                <small>{{ thread.ticket.createdAt | date:'mediumDate' }}</small>
+              </div>
+              <span [ngClass]="ticketBadgeClass(thread.ticket.status)">{{ thread.ticket.status }}</span>
+            </div>
+
+            <div class="conversation-body" #userConversationBody>
+              <div
+                class="message"
+                *ngFor="let message of threadMessages"
+                [ngClass]="{ 'admin-message': isAdminMessage(message, thread.ticket), 'user-message': isUserMessage(message, thread.ticket) }">
+                <div class="message-avatar">
+                  <ng-container *ngIf="senderAvatar(message, thread.ticket); else messageAvatarFallback">
+                    <img
+                      [src]="senderAvatar(message, thread.ticket)!"
+                      [alt]="senderDisplayName(message, thread.ticket)" />
+                  </ng-container>
+                  <ng-template #messageAvatarFallback>
+                    <span>{{ senderInitial(message, thread.ticket) }}</span>
+                  </ng-template>
+                </div>
+                <div class="message-content">
+                  <div class="message-header">
+                    <ng-container *ngIf="isUserMessage(message, thread.ticket); else defaultHeader">
+                      <span class="message-time">{{ message.timestamp | date:'short' }}</span>
+                      <span class="message-author">{{ senderDisplayName(message, thread.ticket) }}</span>
+                    </ng-container>
+                    <ng-template #defaultHeader>
+                      <span class="message-author">{{ senderDisplayName(message, thread.ticket) }}</span>
+                      <span class="message-time">{{ message.timestamp | date:'short' }}</span>
+                    </ng-template>
+                  </div>
+                  <p *ngIf="message.content">{{ message.content }}</p>
+                  <div class="message-attachment" *ngIf="message.attachmentUrl">
+                    <img
+                      class="attachment-preview-img"
+                      [src]="message.attachmentUrl"
+                      alt="Ticket attachment"
+                      (click)="openAttachmentPreview(message.attachmentUrl)" />
+                  </div>
+                </div>
+              </div>
+              <div class="ticket-conversation-placeholder" *ngIf="!threadMessages.length">
+                <p>No replies yet. We're on it!</p>
+              </div>
+            </div>
+
+            <div class="conversation-reply" *ngIf="thread.ticket.status !== TicketStatus.CLOSED; else closedTicket">
+              <div class="reply-tools">
+                <input
+                  type="file"
+                  accept="image/*"
+                  #userReplyAttachmentInput
+                  (change)="onReplyAttachmentSelected($event)"
+                  hidden />
+                <button type="button" class="btn btn-outline attach-btn" (click)="userReplyAttachmentInput.click()">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                      d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
+                    />
+                  </svg>
+                  <span>Attach image</span>
+                </button>
+                <div class="attachment-preview" *ngIf="replyAttachment">
+                  <span>{{ replyAttachment.name }}</span>
+                  <button type="button" class="link-btn" (click)="clearReplyAttachment()">Remove</button>
+                </div>
+              </div>
+              <textarea
+                rows="3"
+                placeholder="Share more details or ask a follow-up question"
+                [(ngModel)]="replyMessage"></textarea>
+              <div class="reply-actions">
+                <button class="btn btn-primary" type="button" (click)="sendReply()" [disabled]="sendingReply || !replyMessage.trim()">
+                  {{ sendingReply ? 'Sending...' : 'Send Reply' }}
+                </button>
+              </div>
+            </div>
+            <ng-template #closedTicket>
+              <p class="conversation-closed">This ticket is closed. Start a new ticket if you need more help.</p>
+            </ng-template>
+          </ng-container>
+          <ng-template #noSelection>
+            <div class="ticket-conversation-placeholder">
+              <p>Select a ticket to view the conversation.</p>
+            </div>
+          </ng-template>
+        </ng-container>
+      </div>
     </div>
   </div>
 
@@ -353,5 +483,11 @@
       <button class="btn btn-outline" (click)="closeModal()">Cancel</button>
       <button class="btn btn-danger" disabled>Delete Account</button>
     </div>
+  </div>
+</div>
+
+<div class="attachment-modal" [class.active]="previewAttachmentUrl" (click)="closeAttachmentPreview()">
+  <div class="attachment-modal-content" (click)="$event.stopPropagation()">
+    <img *ngIf="previewAttachmentUrl" [src]="previewAttachmentUrl" alt="Attachment preview" />
   </div>
 </div>

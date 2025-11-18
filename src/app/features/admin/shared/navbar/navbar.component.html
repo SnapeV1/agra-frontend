@@ -55,7 +55,10 @@
             <div class="notif-dot" *ngIf="!n.seen"></div>
             <div class="notif-content">
               <div class="notif-title">{{ n.content }}</div>
-              <div class="notif-time">{{ n.timestamp | date:'short' }}</div>
+              <div class="notif-meta">
+                <span class="notif-tag" *ngIf="n.type">{{ formatNotificationType(n.type) }}</span>
+                <span class="notif-time">{{ n.timestamp | date:'short' }}</span>
+              </div>
             </div>
           </div>
         </div>

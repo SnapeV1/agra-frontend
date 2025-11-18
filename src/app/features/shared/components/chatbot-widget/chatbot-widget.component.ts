@@ -82,7 +82,8 @@ export class ChatbotWidgetComponent implements OnInit {
     this.chatbot.sendMessage(text).subscribe({
       next: (reply) => {
         const show = () => {
-          const textOut = (reply && reply.trim()) ? reply : "I'm not sure I understood that.";
+          const trimmed = (reply || '').trim();
+          const textOut = trimmed ? trimmed : "I'm not sure I understood that.";
           this.messages.push({ from: 'bot', text: textOut, timestamp: new Date() });
           this.scrollToBottom();
           this.sending = false;

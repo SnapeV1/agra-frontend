@@ -1,7 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
-import { Ticket, TicketStatus } from 'src/app/core/models/ticket.model';
+import { Ticket, TicketMessage, TicketStatus, TicketThreadResponse } from 'src/app/core/models/ticket.model';
 import { TicketService } from 'src/app/core/services/ticket.service';
 
 @Component({
@@ -9,7 +9,9 @@ import { TicketService } from 'src/app/core/services/ticket.service';
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css']
 })
-export class SettingsComponent implements OnInit, OnDestroy {
+export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
+  TicketStatus = TicketStatus;
+  private currentUserId: string | null;
   // Password form
   currentPassword = '';
   newPassword = '';
@@ -49,17 +51,38 @@ export class SettingsComponent implements OnInit, OnDestroy {
   newTicketMessage = '';
   creatingTicket = false;
   createTicketError = '';
+  createTicketAttachment: File | null = null;
+  selectedThread?: TicketThreadResponse;
+  threadMessages: TicketMessage[] = [];
+  threadLoading = false;
+  threadError = '';
+  selectedTicketId: string | null = null;
+  replyMessage = '';
+  sendingReply = false;
+  replyAttachment: File | null = null;
+  previewAttachmentUrl: string | null = null;
 
   // Modals
   showEmailModal = false;
   showPasswordModal = false;
   showDeleteModal = false;
 
+  private conversationBody?: ElementRef<HTMLDivElement>;
+  @ViewChild('userConversationBody') set conversationBodySetter(el: ElementRef<HTMLDivElement> | undefined) {
+    this.conversationBody = el;
+    this.scrollConversationToBottom();
+  }
+  @ViewChild('createTicketAttachmentInput') createTicketAttachmentInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('userReplyAttachmentInput') userReplyAttachmentInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('attachmentPreviewImage') attachmentPreviewImage?: ElementRef<HTMLImageElement>;
+
   constructor(
     private auth: AuthService,
     private profileService: ProfileService,
     private ticketService: TicketService
-  ) {}
+  ) {
+    this.currentUserId = this.auth.currentUserValue?.user?.id || null;
+  }
 
   ngOnInit(): void {
     // Respect user preference if available from backend-auth state
@@ -77,6 +100,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     // No-op (listener lifecycle tied to page lifetime)
+  }
+
+  ngAfterViewInit(): void {
+    this.scrollConversationToBottom();
   }
 
   saveTheme(): void {
@@ -107,6 +134,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
       next: tickets => {
         this.myTickets = tickets;
         this.ticketsLoading = false;
+        if (!this.selectedTicketId && tickets.length) {
+          this.openTicket(tickets[0].id);
+          return;
+        }
+        if (this.selectedTicketId) {
+          const stillExists = tickets.some(t => t.id === this.selectedTicketId);
+          if (!stillExists) {
+            this.selectedThread = undefined;
+            this.threadMessages = [];
+            this.selectedTicketId = null;
+          }
+        }
       },
       error: err => {
         this.ticketsError = err?.error?.message || err?.message || 'Unable to load your support tickets right now.';
@@ -142,16 +181,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
     this.creatingTicket = true;
     this.createTicketError = '';
-    this.ticketService.createTicket({
+    const payload = {
       subject: this.newTicketSubject.trim(),
       message: this.newTicketMessage.trim()
-    }).subscribe({
+    };
+    this.ticketService.createTicket(payload, this.createTicketAttachment || undefined).subscribe({
       next: thread => {
         this.myTickets = [thread.ticket, ...this.myTickets];
         this.newTicketSubject = '';
         this.newTicketMessage = '';
         this.creatingTicket = false;
         this.showTicketForm = false;
+        this.clearCreateAttachment();
+        this.openTicket(thread.ticket.id);
       },
       error: err => {
         this.createTicketError = err?.error?.message || err?.message || 'Unable to create ticket.';
@@ -245,6 +287,152 @@ export class SettingsComponent implements OnInit, OnDestroy {
     } else {
       this.smsNotificationsEnabled = !this.smsNotificationsEnabled;
       localStorage.setItem('pref_notify_sms', String(this.smsNotificationsEnabled));
+    }
+  }
+
+  openTicket(ticketId: string): void {
+    this.selectedTicketId = ticketId;
+    this.threadLoading = true;
+    this.threadError = '';
+    const requestForId = ticketId;
+    this.ticketService.getTicketThread(ticketId).subscribe({
+      next: thread => {
+        if (this.selectedTicketId !== requestForId) return;
+        this.selectedThread = thread;
+        this.threadMessages = thread.messages || [];
+        this.threadLoading = false;
+        this.replyMessage = '';
+        this.clearReplyAttachment();
+        this.scrollConversationToBottom();
+      },
+      error: err => {
+        if (this.selectedTicketId !== requestForId) return;
+        this.threadError = err?.error?.message || err?.message || 'Unable to load this ticket conversation.';
+        this.threadLoading = false;
+      }
+    });
+  }
+
+  sendReply(): void {
+    if (!this.selectedThread || !this.replyMessage.trim() || this.sendingReply) return;
+    if (this.selectedThread.ticket.status === TicketStatus.CLOSED) return;
+    const ticketId = this.selectedThread.ticket.id;
+    const content = this.replyMessage.trim();
+    this.sendingReply = true;
+    this.ticketService.sendMessage(ticketId, { content }, this.replyAttachment || undefined).subscribe({
+      next: message => {
+        this.threadMessages = [...this.threadMessages, message];
+        this.replyMessage = '';
+        this.sendingReply = false;
+        this.clearReplyAttachment();
+        this.scrollConversationToBottom();
+      },
+      error: err => {
+        this.threadError = err?.error?.message || err?.message || 'Unable to send your reply right now.';
+        this.sendingReply = false;
+      }
+    });
+  }
+
+  lastUpdateLabel(ticket: Ticket): string {
+    if (ticket.updatedAt) {
+      return `Updated ${new Date(ticket.updatedAt).toLocaleString()}`;
+    }
+    if (ticket.createdAt) {
+      return `Created ${new Date(ticket.createdAt).toLocaleString()}`;
+    }
+    return 'Created';
+  }
+
+  senderDisplayName(msg: TicketMessage, ticket?: Ticket): string {
+    if (this.isAdminMessage(msg, ticket)) {
+      return msg.sender?.name || msg.sender?.email || ticket?.adminInfo?.name || ticket?.adminInfo?.email || 'Support team';
+    }
+    const current = this.auth.currentUserValue?.user;
+    return current?.name || current?.email || 'You';
+  }
+
+  senderAvatar(msg: TicketMessage, ticket?: Ticket): string | undefined {
+    if (this.isAdminMessage(msg, ticket)) {
+      return msg.sender?.picture || ticket?.adminInfo?.picture || undefined;
+    }
+    const currentUser = this.auth.currentUserValue?.user as any;
+    return msg.sender?.picture || ticket?.userInfo?.picture || currentUser?.picture || undefined;
+  }
+
+  senderInitial(msg: TicketMessage, ticket?: Ticket): string {
+    if (this.isAdminMessage(msg, ticket)) {
+      return this.avatarLetter(
+        msg.sender?.name || msg.sender?.email || ticket?.adminInfo?.name || ticket?.adminInfo?.email || 'S'
+      );
+    }
+    const current = this.auth.currentUserValue?.user;
+    return this.avatarLetter(
+      current?.name || current?.email || ticket?.userInfo?.name || ticket?.userInfo?.email || 'You'
+    );
+  }
+
+  isAdminMessage(msg: TicketMessage, ticket?: Ticket): boolean {
+    if (typeof msg.isAdminMessage === 'boolean') {
+      return msg.isAdminMessage;
+    }
+    const senderId = msg.senderId ?? msg.sender?.id;
+    const assignedAdminId = ticket?.adminId || ticket?.adminInfo?.id || null;
+    if (assignedAdminId && senderId) {
+      return senderId === assignedAdminId;
+    }
+    return false;
+  }
+
+  isUserMessage(msg: TicketMessage, ticket?: Ticket): boolean {
+    return !this.isAdminMessage(msg, ticket);
+  }
+
+  private avatarLetter(value?: string): string {
+    if (!value) return '?';
+    return value.trim().charAt(0).toUpperCase();
+  }
+
+  private scrollConversationToBottom(): void {
+    requestAnimationFrame(() => {
+      const el = this.conversationBody?.nativeElement;
+      if (el) {
+        el.scrollTop = el.scrollHeight;
+      }
+    });
+  }
+
+  openAttachmentPreview(url?: string | null): void {
+    this.previewAttachmentUrl = url || null;
+  }
+
+  closeAttachmentPreview(): void {
+    this.previewAttachmentUrl = null;
+  }
+
+  onCreateAttachmentSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0] || null;
+    this.createTicketAttachment = file;
+  }
+
+  clearCreateAttachment(): void {
+    this.createTicketAttachment = null;
+    if (this.createTicketAttachmentInput?.nativeElement) {
+      this.createTicketAttachmentInput.nativeElement.value = '';
+    }
+  }
+
+  onReplyAttachmentSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0] || null;
+    this.replyAttachment = file;
+  }
+
+  clearReplyAttachment(): void {
+    this.replyAttachment = null;
+    if (this.userReplyAttachmentInput?.nativeElement) {
+      this.userReplyAttachmentInput.nativeElement.value = '';
     }
   }
 }

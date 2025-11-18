@@ -58,19 +58,22 @@
             </p>
           </div>
           <div class="p-8 space-y-8">
-            <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+            <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="space-y-8">
               <div class="grid md:grid-cols-2 gap-6">
                 <div class="space-y-3">
-                  <label for="name" class="text-slate-700 font-semibold text-sm uppercase tracking-wide">
+                  <label for="fullName" class="text-slate-700 font-semibold text-sm uppercase tracking-wide">
                     Full Name
                   </label>
                   <input
-                    id="name"
+                    id="fullName"
                     type="text"
-                    formControlName="name"
+                    formControlName="fullName"
                     placeholder="John Doe"
                     class="form-input h-12 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-emerald-500/20 text-lg w-full"
                   />
+                  <p class="text-sm text-red-500" *ngIf="fullName?.touched && fullName?.invalid">
+                    Please enter your full name.
+                  </p>
                 </div>
                 <div class="space-y-3">
                   <label for="email" class="text-slate-700 font-semibold text-sm uppercase tracking-wide">
@@ -83,6 +86,9 @@
                     placeholder="john@example.com"
                     class="form-input h-12 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-emerald-500/20 text-lg w-full"
                   />
+                  <p class="text-sm text-red-500" *ngIf="email?.touched && email?.invalid">
+                    Please provide a valid email.
+                  </p>
                 </div>
               </div>
               <div class="space-y-3">
@@ -96,6 +102,9 @@
                   placeholder="How can we help you?"
                   class="form-input h-12 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-emerald-500/20 text-lg w-full"
                 />
+                <p class="text-sm text-red-500" *ngIf="subject?.touched && subject?.invalid">
+                  Subject must be at least 5 characters.
+                </p>
               </div>
               <div class="space-y-3">
                 <label for="message" class="text-slate-700 font-semibold text-sm uppercase tracking-wide">
@@ -108,6 +117,9 @@
                   rows="6"
                   class="form-textarea border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-emerald-500/20 resize-none text-lg leading-relaxed w-full"
                 ></textarea>
+                <p class="text-sm text-red-500" *ngIf="message?.touched && message?.invalid">
+                  Please provide at least 10 characters.
+                </p>
               </div>
               <button
                 type="submit"
@@ -118,6 +130,15 @@
                 <span *ngIf="isSubmitting">Sending...</span>
                 <lucide-icon name="send" class="w-5 h-5"></lucide-icon>
               </button>
+
+              <div *ngIf="status === 'success'" class="p-4 rounded-xl bg-emerald-50 text-emerald-700 flex items-center gap-2">
+                <lucide-icon name="check-circle" class="w-5 h-5"></lucide-icon>
+                Thanks for reaching out! We'll respond shortly.
+              </div>
+              <div *ngIf="status === 'error'" class="p-4 rounded-xl bg-red-50 text-red-600 flex items-center gap-2">
+                <lucide-icon name="alert-triangle" class="w-5 h-5"></lucide-icon>
+                {{ serverError }}
+              </div>
             </form>
           </div>
         </div>

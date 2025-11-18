@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { TicketService } from 'src/app/core/services/ticket.service';
 import { Ticket, TicketMessage, TicketStatus, TicketThreadResponse } from 'src/app/core/models/ticket.model';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
@@ -8,7 +8,7 @@ import { AuthService } from 'src/app/core/services/auth/auth.service';
   templateUrl: './ticket-management.component.html',
   styleUrls: ['./ticket-management.component.css']
 })
-export class TicketManagementComponent implements OnInit {
+export class TicketManagementComponent implements OnInit, AfterViewInit {
   TicketStatus = TicketStatus;
   private currentAdminId: string | null;
 
@@ -30,6 +30,16 @@ export class TicketManagementComponent implements OnInit {
   reply = '';
   sending = false;
   closing = false;
+  statusUpdating = false;
+  replyAttachment: File | null = null;
+  previewAttachmentUrl: string | null = null;
+
+  private conversationBody?: ElementRef<HTMLDivElement>;
+  @ViewChild('conversationBody') set conversationBodySetter(el: ElementRef<HTMLDivElement> | undefined) {
+    this.conversationBody = el;
+    this.scrollConversationToBottom();
+  }
+  @ViewChild('adminAttachmentInput') adminAttachmentInput?: ElementRef<HTMLInputElement>;
 
   constructor(private ticketService: TicketService, private auth: AuthService) {
     this.currentAdminId = this.auth.currentUserValue?.user?.id || null;
@@ -37,6 +47,10 @@ export class TicketManagementComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadTickets();
+  }
+
+  ngAfterViewInit(): void {
+    this.scrollConversationToBottom();
   }
 
   loadTickets(): void {
@@ -84,6 +98,8 @@ export class TicketManagementComponent implements OnInit {
         this.selectedThread = thread;
         this.messages = thread.messages || [];
         this.reply = '';
+        this.clearReplyAttachment();
+        this.scrollConversationToBottom();
         this.logMessageOrigins(thread);
       },
       error: err => {
@@ -97,11 +113,13 @@ export class TicketManagementComponent implements OnInit {
     if (this.selectedThread.ticket.status === TicketStatus.CLOSED) return;
     const ticketId = this.selectedThread.ticket.id;
     this.sending = true;
-    this.ticketService.sendMessage(ticketId, { content: this.reply.trim() }).subscribe({
+    this.ticketService.sendMessage(ticketId, { content: this.reply.trim() }, this.replyAttachment || undefined).subscribe({
       next: message => {
         this.messages = [...this.messages, message];
         this.reply = '';
         this.sending = false;
+        this.clearReplyAttachment();
+        this.scrollConversationToBottom();
         console.log('[TicketManagement] Sent message', {
           ticketId,
           messageId: message.id,
@@ -131,6 +149,26 @@ export class TicketManagementComponent implements OnInit {
       error: err => {
         this.error = err?.message || 'Unable to close ticket.';
         this.closing = false;
+      }
+    });
+  }
+
+  changeTicketStatus(status: TicketStatus): void {
+    if (!this.selectedThread || this.statusUpdating || status === this.selectedThread.ticket.status) {
+      return;
+    }
+    const ticketId = this.selectedThread.ticket.id;
+    this.statusUpdating = true;
+    this.ticketService.updateTicketStatus(ticketId, { status }).subscribe({
+      next: updatedTicket => {
+        this.selectedThread = { ...this.selectedThread!, ticket: updatedTicket };
+        this.tickets = this.tickets.map(t => (t.id === updatedTicket.id ? updatedTicket : t));
+        this.statusUpdating = false;
+        this.scrollConversationToBottom();
+      },
+      error: err => {
+        this.error = err?.message || 'Unable to update ticket status.';
+        this.statusUpdating = false;
       }
     });
   }
@@ -229,5 +267,35 @@ export class TicketManagementComponent implements OnInit {
         }))
       }
     );
+  }
+
+  private scrollConversationToBottom(): void {
+    requestAnimationFrame(() => {
+      const el = this.conversationBody?.nativeElement;
+      if (el) {
+        el.scrollTop = el.scrollHeight;
+      }
+    });
+  }
+
+  onAttachmentSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0] || null;
+    this.replyAttachment = file;
+  }
+
+  clearReplyAttachment(): void {
+    this.replyAttachment = null;
+    if (this.adminAttachmentInput?.nativeElement) {
+      this.adminAttachmentInput.nativeElement.value = '';
+    }
+  }
+
+  openAttachmentPreview(url?: string | null): void {
+    this.previewAttachmentUrl = url || null;
+  }
+
+  closeAttachmentPreview(): void {
+    this.previewAttachmentUrl = null;
   }
 }

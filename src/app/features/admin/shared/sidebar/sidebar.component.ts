@@ -19,7 +19,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
     public sidebarService: SidebarService,
     private elementRef: ElementRef,
     private router: Router
-  ) {}
+  ) {
+    this.isCollapsed = this.sidebarService.getCurrentState();
+    this.isMobileOpen = this.sidebarService.getMobileState();
+  }
 
   ngOnInit() {
     this.subscription.add(
@@ -91,5 +94,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
     // Prevent outside handlers; do not auto-toggle here to avoid
     // accidental expand/collapse during navigation
     event.stopPropagation();
+  }
+
+  get sidebarWidth(): number {
+    if (this.isMobileOpen) {
+      return 280;
+    }
+    return this.isCollapsed ? 72 : 280;
   }
 }

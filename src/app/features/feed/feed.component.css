@@ -398,10 +398,6 @@
 .post-actions .action-btn.like-btn:hover:not(.disabled) svg { stroke: var(--like-color); }
 
 /* Comment heart icon hover stroke color */
-.comment-like-btn:hover:not(.disabled) svg {
-  stroke: var(--like-color, #ef4444);
-}
-
 .comment-btn:hover:not(.disabled) {
   color: var(--secondary-color);
   border-color: var(--secondary-color);
@@ -497,11 +493,6 @@
   cursor: pointer;
   border-radius: var(--radius-sm);
   transition: all 0.2s ease;
-}
-
-.comment-like-btn:hover:not(.disabled) {
-  background: var(--surface);
-  color: var(--like-color);
 }
 
 .comment-like-btn.liked {

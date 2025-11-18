@@ -3,6 +3,7 @@ export enum NotificationType {
   SESSION = 'SESSION',
   COURSE = 'COURSE',
   POST = 'POST',
+  TICKET = 'TICKET',
 }
 
 export interface NotificationItem {

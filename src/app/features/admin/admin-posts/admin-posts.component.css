@@ -73,7 +73,6 @@
 :host-context([data-theme="dark"]) .send-comment-btn { background: #10b981; }
 :host-context([data-theme="dark"]) .send-comment-btn:hover:not(:disabled) { background: #059669; }
 /* Comment like dark styling */
-:host-context([data-theme="dark"]) .comment-like-btn:hover:not(.disabled) { background: #b91051; color: #b91051; }
 :host-context([data-theme="dark"]) .comment-like-btn.liked { color: #b91051; }
 :host-context([data-theme="dark"]) .comment-like-btn.liked svg { fill: #b91051; stroke: #b91051; }
 
@@ -1171,11 +1170,6 @@
   cursor: pointer;
   border-radius: 6px;
   transition: all 0.2s ease;
-}
-
-.comment-like-btn:hover:not(.disabled) {
-  background: #f3f4f6;
-  color: var(--like-color, #ef4444);
 }
 
 .comment-like-btn.liked { color: var(--like-color, #ef4444); }

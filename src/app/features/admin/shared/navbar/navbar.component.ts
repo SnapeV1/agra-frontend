@@ -11,7 +11,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { CourseService } from 'src/app/core/services/course/course.service';
-import { NotificationItem } from 'src/app/core/models/notification.model';
+import { NotificationItem, NotificationType } from 'src/app/core/models/notification.model';
 import { filter } from 'rxjs/operators';
 import { AuthUser } from 'src/app/core/models/auth-user.model';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
@@ -167,6 +167,27 @@ export class NavbarComponent implements OnInit, OnDestroy {
   deleteAllNotifications(): void {
     this.notificationService.deleteAll();
     this.closeNotif();
+  }
+
+  formatNotificationType(type?: NotificationType | string | null): string {
+    if (!type) return 'General';
+    const normalized = typeof type === 'string'
+      ? type.toUpperCase()
+      : type;
+    switch (normalized) {
+      case NotificationType.TICKET:
+        return 'Ticket';
+      case NotificationType.COURSE:
+        return 'Course';
+      case NotificationType.POST:
+        return 'Social';
+      case NotificationType.SESSION:
+        return 'Session';
+      case NotificationType.SYSTEM:
+        return 'System';
+      default:
+        return normalized.charAt(0) + normalized.slice(1).toLowerCase();
+    }
   }
 
   /** Handle settings click */

@@ -29,6 +29,7 @@ export class NotificationService implements OnDestroy {
   private authSub?: Subscription;
   private globalTopicSub?: any; // STOMP subscription reference
   private userQueueSub?: any;   // STOMP subscription to /user/queue/notifications
+  private ticketQueueSub?: any; // STOMP subscription to /user/queue/ticket-notifications
   private legacyUserTopicSub?: any; // STOMP subscription to /topic/notifications.{userId}
   // Local persistence (per-user) to mitigate backend mismatches
   private readonly LS_SEEN_KEY_PREFIX = 'notif_seen_ids_';
@@ -214,6 +215,9 @@ export class NotificationService implements OnDestroy {
     try {
       const parsed = JSON.parse(message.body) as NotificationItem;
       const data: NotificationItem = { ...parsed, seen: !!parsed.seen };
+      if (!data.content || !data.content.trim()) {
+        return;
+      }
       const text = (data.content || '').toLowerCase();
       // Guard: prevent user-specific interactions (e.g., likes) from leaking via global topic
       if (source === 'global') {
@@ -238,7 +242,8 @@ export class NotificationService implements OnDestroy {
           data.seen = true;
         }
       }
-      this.notifications$.next([data, ...this.notifications$.value]);
+      const existing = this.notifications$.value.filter(n => n.id !== data.id);
+      this.notifications$.next([data, ...existing]);
       this.incoming$.next(data);
       this.showToast(data);
     } catch (e) {
@@ -252,11 +257,16 @@ export class NotificationService implements OnDestroy {
     try {
       if (forceResubscribe) {
         if (this.userQueueSub) { this.userQueueSub.unsubscribe(); this.userQueueSub = undefined; }
+        if (this.ticketQueueSub) { this.ticketQueueSub.unsubscribe(); this.ticketQueueSub = undefined; }
         if (this.legacyUserTopicSub) { this.legacyUserTopicSub.unsubscribe(); this.legacyUserTopicSub = undefined; }
       }
       // Subscribe to user queue if authenticated (Spring resolves Principal)
       if (!this.userQueueSub && token) {
         this.userQueueSub = this.stompClient.subscribe('/user/queue/notifications',
+          (msg: IMessage) => this.handleIncoming(msg, 'user'));
+      }
+      if (!this.ticketQueueSub && token) {
+        this.ticketQueueSub = this.stompClient.subscribe('/user/queue/ticket-notifications',
           (msg: IMessage) => this.handleIncoming(msg, 'user'));
       }
       // Legacy fallback: topic per user id
@@ -277,6 +287,7 @@ export class NotificationService implements OnDestroy {
         this.globalTopicSub = undefined;
       }
       if (this.userQueueSub) { this.userQueueSub.unsubscribe(); this.userQueueSub = undefined; }
+      if (this.ticketQueueSub) { this.ticketQueueSub.unsubscribe(); this.ticketQueueSub = undefined; }
       if (this.legacyUserTopicSub) { this.legacyUserTopicSub.unsubscribe(); this.legacyUserTopicSub = undefined; }
       this.stopSyncFallback();
     } catch {}
