@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ElementRef, AfterViewInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
@@ -9,11 +9,12 @@ import { SidebarService } from '../../services/sidebar.service';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
-export class SidebarComponent implements OnInit, OnDestroy {
-  isCollapsed = false;
+export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
+  isCollapsed = true;
   isMobileOpen = false;
   activeMenuItem = 'dashboard';
   private subscription: Subscription = new Subscription();
+  initialLoad = true;
 
   constructor(
     public sidebarService: SidebarService,
@@ -45,6 +46,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
         .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
         .subscribe(evt => this.updateActiveFromUrl(evt.urlAfterRedirects || evt.url))
     );
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => { this.initialLoad = false; });
   }
 
   ngOnDestroy() {
@@ -82,11 +87,17 @@ export class SidebarComponent implements OnInit, OnDestroy {
     const clickedElement = event.target as HTMLElement;
     const sidebarElement = this.elementRef.nativeElement.querySelector('.sidebar');
     const toggleButton = document.querySelector('.mobile-sidebar-toggle');
-    
-    // Close mobile sidebar if clicking outside and not on toggle button
-    if (this.isMobileOpen && sidebarElement && !sidebarElement.contains(clickedElement) && 
-        toggleButton && !toggleButton.contains(clickedElement)) {
-      this.sidebarService.closeMobile();
+
+    const clickedInsideSidebar = sidebarElement && sidebarElement.contains(clickedElement);
+    const clickedToggle = toggleButton && toggleButton.contains(clickedElement);
+
+    if (!clickedInsideSidebar && !clickedToggle) {
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        if (this.isMobileOpen) this.sidebarService.closeMobile();
+      } else {
+        this.sidebarService.collapse();
+      }
     }
   }
 

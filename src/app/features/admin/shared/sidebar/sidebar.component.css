@@ -5,7 +5,7 @@
   top: 96px;                 /* start below taller sticky navbar */
   height: calc(100vh - 96px);
   left: 0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.3s ease, transform 0.3s ease;
   border-right: 1px solid #e2e8f0;
   z-index: 1000;
   overflow: hidden;
@@ -18,6 +18,9 @@
 /* Explicit collapsed selector to ensure click affordance and width when nested '&' isn't processed */
 .sidebar.collapsed {
   width: 72px;
+}
+.sidebar.initial-load {
+  transition: none !important;
 }
 
 .sidebar-header {
@@ -83,18 +86,27 @@
 
 .toggle-btn {
   position: absolute;
-  top: 16px;
-  right: 16px;            /* expanded: top-right */
+  top: 14px;
+  right: 12px;
   left: auto;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1001;
-  transition: all 0.3s ease;
-  border-radius: 6px;
+  transition: all 0.25s ease;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+.toggle-btn:hover {
+  background: #f8fafc;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
 }
 
 /* Collapsed toggle: keep centered, slightly nearer the top */
@@ -104,45 +116,38 @@
   right: auto;
 }
 
-/* (removed arrow styles; using hamburger in collapsed state) */
-
-.hamburger-container {
-  width: 22px;
-  height: 18px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: opacity 0.3s ease;
-
-  &.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
+.icon-round {
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.hamburger-bar {
-  height: 2px;
-  
-  border-radius: 2px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-origin: center;
-
-  &:nth-child(1) { width: 100%; }
-  &:nth-child(2) { width: 85%; }
-  &:nth-child(3) { width: 70%; }
+.icon-round svg {
+  width: 14px;
+  height: 14px;
+  stroke: #0f172a;
+  fill: none;
 }
 
+.rotate-180 {
+  transform: rotate(180deg);
+}
 
+:host-context([data-theme="dark"]) .toggle-btn {
+  background: #111827;
+  border-color: #1f2937;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+}
 
-.chevron-icon {
-  font-size: 14px;
-  color: #64748b;
-  transition: all 0.3s ease;
+:host-context([data-theme="dark"]) .toggle-btn:hover {
+  background: #0b1220;
+  border-color: #1f2937;
+}
 
-  &.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
+:host-context([data-theme="dark"]) .icon-round svg {
+  stroke: #e5e7eb;
 }
 
 .sidebar-menu {

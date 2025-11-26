@@ -21,6 +21,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
   user: AuthUser | null = null;
   notifications: NotificationItem[] = [];
   unread = 0;
+  readonly fallbackAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><rect width='80' height='80' fill='%23f3f4f6'/><circle cx='40' cy='32' r='18' fill='%23cbd5e1'/><path d='M12 72c4-14 16-22 28-22s24 8 28 22' fill='%23cbd5e1'/></svg>";
 
   private destroy$ = new Subject<void>();
 
@@ -125,7 +126,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   getUserAvatar(): string {
-    return this.user?.user?.picture || 'assets/default-avatar.png';
+    return this.user?.user?.picture || this.fallbackAvatar;
   }
 
   isAdmin(): boolean {
@@ -265,7 +266,10 @@ export class NavigationComponent implements OnInit, OnDestroy {
   onAvatarError(evt: Event): void {
     const img = evt?.target as HTMLImageElement;
     if (img) {
-      img.src = 'assets/default-avatar.png';
+      if (img.src !== this.fallbackAvatar) {
+        img.src = this.fallbackAvatar;
+      }
+      img.onerror = null;
     }
   }
 

@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil, Subscription, interval } from 'rxjs';
 import { Course, CourseProgress, TextContent } from '../../../../core/models/course';
-import { ProgressService, LessonProgress, CourseEnrollment } from '../../../../core/services/progress.service';
+import { ProgressService, LessonProgress, CourseEnrollment, SessionAnalytics } from '../../../../core/services/progress.service';
 import { CertificateService, CertificateData } from '../../../../core/services/certificate.service';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { CourseService } from '../../../../core/services/course/course.service';
@@ -35,9 +35,15 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
   showResources = false;
   showLiveSessions = false;
   certificateUrl: string | null = null;
+  certificateCode: string | null = null;
+  certificateIssuedAt: Date | null = null;
   isGeneratingCertificate = false;
   certificateData: CertificateData | null = null;
   certificateError: string | null = null;
+  sessionAnalytics: SessionAnalytics | null = null;
+  private idleTimer: any;
+  private readonly idleTimeoutMs = 60000;
+  isIdle = false;
   
   private destroy$ = new Subject<void>();
 
@@ -131,6 +137,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     this.stopTimeTracking();
+    this.clearIdleTimer();
   }
 
   private loadCourseData(): void {
@@ -190,7 +197,10 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
               totalSessions: 0,
               completedSessionIds: [],
               totalTimeSpent: 0,
-              accessCount: 0
+              accessCount: 0,
+              certificateUrl: undefined,
+              certificateCode: undefined,
+              certificateIssuedAt: undefined
             }
           };
           
@@ -218,6 +228,8 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
       this.initializeLessons();
       this.setCurrentLesson();
       this.loading = false;
+      this.syncCertificateMetadata();
+      this.refreshSessionAnalytics();
     }
   }
 
@@ -348,9 +360,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
         this.checkCourseCompletion();
         
         // Auto-advance to next lesson
-        setTimeout(() => {
-          this.nextLesson();
-        }, 1000);
+        this.nextLesson();
       },
       error: (error) => {
         
@@ -387,6 +397,8 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
 
   startTimeTracking(): void {
     this.lessonStartTime = new Date();
+    this.isIdle = false;
+    this.clearIdleTimer();
     
     // Stop any existing subscription
     if (this.timeTrackingSubscription) {
@@ -397,6 +409,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     this.timeTrackingSubscription = interval(60000).subscribe(() => {
       this.updateTimeSpent();
     });
+    this.resetIdleTimer();
   }
 
   stopTimeTracking(): void {
@@ -410,6 +423,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     
     // Clear the lesson start time
     this.lessonStartTime = null;
+    this.clearIdleTimer();
   }
 
   updateTimeSpent(): void {
@@ -441,6 +455,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     // Only add time if there's actual time spent
     if (timeSpent > 0) {
       lessonProgress.timeSpent += timeSpent;
+      this.refreshSessionAnalytics();
     }
     
     // Update backend - always send request to update lastAccessedAt
@@ -455,6 +470,56 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     
     // Reset start time
     this.lessonStartTime = new Date();
+    this.resetIdleTimer();
+  }
+
+  private refreshSessionAnalytics(): void {
+    if (!this.courseEnrollment) {
+      this.sessionAnalytics = null;
+      return;
+    }
+    this.sessionAnalytics = this.progressService.calculateSessionAnalytics(this.courseEnrollment.lessons);
+  }
+
+  private resetIdleTimer(): void {
+    if (!this.timeTrackingSubscription) {
+      return;
+    }
+    if (this.idleTimer) {
+      clearTimeout(this.idleTimer);
+    }
+    this.idleTimer = setTimeout(() => this.handleIdleTimeout(), this.idleTimeoutMs);
+  }
+
+  private clearIdleTimer(): void {
+    if (this.idleTimer) {
+      clearTimeout(this.idleTimer);
+      this.idleTimer = null;
+    }
+  }
+
+  private handleIdleTimeout(): void {
+    if (this.isIdle) {
+      return;
+    }
+    this.isIdle = true;
+    this.stopTimeTracking();
+  }
+
+  @HostListener('document:mousemove')
+  @HostListener('document:keydown')
+  @HostListener('document:click')
+  @HostListener('document:touchstart')
+  handleUserActivity(): void {
+    if (!this.courseEnrollment || !this.currentLesson) {
+      return;
+    }
+
+    if (this.isIdle) {
+      this.startTimeTracking();
+    } else {
+      this.resetIdleTimer();
+    }
   }
 
   toggleSidebar(): void {
@@ -532,14 +597,14 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
   generateCertificate(): void {
     this.isGeneratingCertificate = true;
     this.progressService.generateCertificate(this.courseId).subscribe({
-      next: (response) => {
-        this.certificateUrl = response.certificateUrl;
+      next: (meta) => {
         this.isGeneratingCertificate = false;
-        
-        // Update the course enrollment with certificate URL
         if (this.courseEnrollment) {
-          this.courseEnrollment.progress.certificateUrl = response.certificateUrl;
+          this.courseEnrollment.progress.certificateUrl = meta.certificateUrl;
+          this.courseEnrollment.progress.certificateCode = meta.certificateCode;
+          this.courseEnrollment.progress.certificateIssuedAt = meta.certificateIssuedAt || new Date();
         }
+        this.syncCertificateMetadata();
       },
       error: () => {
         this.isGeneratingCertificate = false;
@@ -585,10 +650,12 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
         this.certificateUrl = certificateData.verificationUrl;
         this.isGeneratingCertificate = false;
         
-        // Update the course enrollment with certificate URL
         if (this.courseEnrollment) {
           this.courseEnrollment.progress.certificateUrl = certificateData.verificationUrl;
+          this.courseEnrollment.progress.certificateCode = certificateData.verificationCode || certificateData.certificateId;
+          this.courseEnrollment.progress.certificateIssuedAt = certificateData.issueDate || new Date();
         }
+        this.syncCertificateMetadata();
       },
       error: () => {
         this.certificateError = 'Failed to generate certificate. Please try again.';
@@ -646,5 +713,26 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
         alert('Unable to share. Please copy the URL manually.');
       });
     }
+  }
+
+  private syncCertificateMetadata(): void {
+    const progress = this.courseEnrollment?.progress;
+    if (!progress) {
+      this.certificateUrl = null;
+      this.certificateCode = null;
+      this.certificateIssuedAt = null;
+      return;
+    }
+    this.certificateUrl = progress.certificateUrl || null;
+    this.certificateCode = progress.certificateCode || null;
+    const issuedAt = progress.certificateIssuedAt;
+    this.certificateIssuedAt = issuedAt ? new Date(issuedAt) : null;
+  }
+
+  copyCertificateCode(): void {
+    if (!this.certificateCode || !navigator?.clipboard) {
+      return;
+    }
+    navigator.clipboard.writeText(this.certificateCode).catch(() => {});
   }
 }

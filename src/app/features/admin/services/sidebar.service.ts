@@ -5,30 +5,38 @@ import { BehaviorSubject, Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class SidebarService {
-  // Start collapsed by default
-  private isCollapsedSubject = new BehaviorSubject<boolean>(true);
+  private readonly COLLAPSE_KEY = 'admin_sidebar_collapsed';
+  private isCollapsedSubject: BehaviorSubject<boolean>;
   private isMobileOpenSubject = new BehaviorSubject<boolean>(false);
   
-  public isCollapsed$: Observable<boolean> = this.isCollapsedSubject.asObservable();
-  public isMobileOpen$: Observable<boolean> = this.isMobileOpenSubject.asObservable();
+  public isCollapsed$!: Observable<boolean>;
+  public isMobileOpen$!: Observable<boolean>;
 
   constructor() {
-    // Check initial screen size
-    this.checkScreenSize();
+    const stored = this.readStoredCollapse();
+    this.isCollapsedSubject = new BehaviorSubject<boolean>(stored ?? true);
+    this.isCollapsed$ = this.isCollapsedSubject.asObservable();
+    this.isMobileOpen$ = this.isMobileOpenSubject.asObservable();
+    // Check initial screen size without forcing collapse on desktop
+    this.checkScreenSize(true);
     // Listen for window resize
     window.addEventListener('resize', () => this.checkScreenSize());
   }
 
   toggle(): void {
-    this.isCollapsedSubject.next(!this.isCollapsedSubject.value);
+    const next = !this.isCollapsedSubject.value;
+    this.isCollapsedSubject.next(next);
+    this.storeCollapse(next);
   }
 
   collapse(): void {
     this.isCollapsedSubject.next(true);
+    this.storeCollapse(true);
   }
 
   expand(): void {
     this.isCollapsedSubject.next(false);
+    this.storeCollapse(false);
   }
 
   toggleMobile(): void {
@@ -51,11 +59,27 @@ export class SidebarService {
     return this.isMobileOpenSubject.value;
   }
 
-  private checkScreenSize(): void {
+  private checkScreenSize(initial = false): void {
     const isMobile = window.innerWidth <= 768;
-    // Close mobile sidebar when switching to desktop
     if (!isMobile && this.isMobileOpenSubject.value) {
       this.isMobileOpenSubject.next(false);
+    }
+    // Do not auto-collapse/expand on init to avoid flicker
+  }
+
+  private storeCollapse(value: boolean): void {
+    try {
+      localStorage.setItem(this.COLLAPSE_KEY, JSON.stringify(value));
+    } catch {}
+  }
+
+  private readStoredCollapse(): boolean | null {
+    try {
+      const raw = localStorage.getItem(this.COLLAPSE_KEY);
+      if (raw === null) return null;
+      return JSON.parse(raw) === true ? true : false;
+    } catch {
+      return null;
     }
   }
 }

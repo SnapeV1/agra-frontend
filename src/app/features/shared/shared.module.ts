@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { NavigationComponent } from './components/navigation/navigation.component';
 import { FooterComponent } from './components/footer/footer.component';
+import { SettingsComponent } from '../settings/settings.component';
 import {
   LucideAngularModule,
   Leaf,
@@ -41,7 +42,8 @@ import { ChatbotWidgetComponent } from './components/chatbot-widget/chatbot-widg
   declarations: [
     NavigationComponent,
     FooterComponent,
-    ChatbotWidgetComponent
+    ChatbotWidgetComponent,
+    SettingsComponent
   ],
   imports: [
     CommonModule,
@@ -82,6 +84,7 @@ import { ChatbotWidgetComponent } from './components/chatbot-widget/chatbot-widg
     NavigationComponent,
     FooterComponent,
     ChatbotWidgetComponent,
+    SettingsComponent,
     LucideAngularModule
   ]
 })

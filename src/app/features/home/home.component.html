@@ -149,7 +149,7 @@
             
         </div>
     </div>
-</section>
+    </section>
 
 <!-- Featured Courses Section -->
 <section id="courses" class="section">
@@ -301,9 +301,9 @@
                 <!-- Post Header -->
                 <div class="post-header">
                     <div class="post-avatar">
-                        <img [src]="post.user?.picture || '/assets/images/default-avatar.svg'" 
+                        <img [src]="post.user?.picture || fallbackAvatar" 
                              [alt]="post.user?.name || 'Utilisateur'"
-                             onerror="this.onerror=null; this.src='/assets/images/default-avatar.svg'">
+                             (error)="setFallbackAvatar($event)">
                     </div>
                     <div class="post-user-info">
                         <h4 class="post-username">{{ post.user?.name || 'Utilisateur anonyme' }}</h4>

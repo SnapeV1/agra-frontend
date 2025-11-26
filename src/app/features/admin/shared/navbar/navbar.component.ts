@@ -101,6 +101,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
     return this.user?.user?.role || 'User';
   }
 
+  /** Get user's avatar picture */
+  get userAvatar(): string | null {
+    const pic = this.user?.user?.picture;
+    return pic && pic.trim().length ? pic : null;
+  }
+
   /** Generate initials for avatar */
   get userInitials(): string {
     const name = this.user?.user?.name || '';

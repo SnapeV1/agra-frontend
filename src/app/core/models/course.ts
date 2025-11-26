@@ -50,6 +50,8 @@ export interface CourseProgress {
   completed: boolean;
   completionPercentage: number;
   certificateUrl?: string;
+  certificateCode?: string;
+  certificateIssuedAt?: Date;
 
   // Session-level progress tracking
   completedSessionIds: string[];

@@ -5,6 +5,7 @@ import { Course } from 'src/app/core/models/course';
 import { CourseService } from 'src/app/core/services/course/course.service';
 import { ProgressService, CourseEnrollment } from 'src/app/core/services/progress.service';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-course-details',
@@ -24,8 +25,13 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
   progressPercent = 0;
   relatedCourses: Course[] = [];
   relatedStart = 0;
+  resumeLessonTitle = '';
+  resumeLessonNumber: number | null = null;
   get canPrev(): boolean { return this.relatedStart > 0; }
   get canNext(): boolean { return this.relatedStart + 2 < this.relatedCourses.length; }
+  get showResumeCta(): boolean {
+    return this.isEnrolled && this.progressPercent > 0 && this.progressPercent < 100;
+  }
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -33,7 +39,8 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
     private router: Router,
     private courseService: CourseService,
     private authService: AuthService,
-    private progressService: ProgressService
+    private progressService: ProgressService,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -110,9 +117,7 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
         this.isEnrolled = true;
         this.isEnrolling = false;
         this.loadProgress();
-        
-        // Show success message
-        alert(`Successfully enrolled in "${this.course?.title || 'this course'}"!`);
+        this.toastr.success('Enrollment confirmed', 'You are in!');
       },
       error: (error) => {
     
@@ -240,6 +245,7 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
         
         // If there's an error checking status, assume not enrolled
         this.isEnrolled = false;
+        this.clearResumeState();
         // Don't show error to user for status check failures as it's not critical
       }
     });
@@ -248,6 +254,7 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
   private loadProgress(): void {
     if (!this.course?.id || !this.isAuthenticated) {
       this.progressPercent = 0;
+      this.clearResumeState();
       return;
     }
 
@@ -261,12 +268,50 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
         } else {
           this.progressPercent = 0;
         }
+        if (this.progressPercent > 0 && this.course) {
+          this.updateResumeState(enrollment);
+        } else {
+          this.clearResumeState();
+        }
         this.progressService.setCurrentProgress(enrollment);
       },
       error: () => {
         this.progressPercent = 0;
+        this.clearResumeState();
       }
     });
+  }
+  private updateResumeState(enrollment: CourseEnrollment): void {
+    if (!this.course) {
+      this.clearResumeState();
+      return;
+    }
+
+    const lessons = this.course.textContent || [];
+    if (!lessons.length) {
+      this.clearResumeState();
+      return;
+    }
+
+    let targetLessonId = enrollment.currentLessonId;
+    if (!targetLessonId && Array.isArray(enrollment.lessons)) {
+      const firstIncomplete = enrollment.lessons.find(lesson => !lesson.completed);
+      targetLessonId = firstIncomplete?.lessonId || lessons[0]?.id;
+    }
+
+    const targetIndex = lessons.findIndex(lesson => lesson.id === targetLessonId);
+    if (targetIndex >= 0) {
+      this.resumeLessonTitle = lessons[targetIndex].title;
+      this.resumeLessonNumber = targetIndex + 1;
+    } else {
+      this.resumeLessonTitle = lessons[0].title;
+      this.resumeLessonNumber = 1;
+    }
+  }
+
+  private clearResumeState(): void {
+    this.resumeLessonTitle = '';
+    this.resumeLessonNumber = null;
   }
 
   switchTab(tab: string): void {

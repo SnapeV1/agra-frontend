@@ -19,14 +19,13 @@ describe('CertificateService', () => {
     completionDate: new Date('2023-12-25'),
     totalTimeSpent: 120,
     totalLessons: 10,
-    completionPercentage: 100,
-    certificateId: 'CERT-123',
-    instructorName: 'Dr. Test',
-    organizationName: 'AGRA Learning Platform',
-    issueDate: new Date('2023-12-25'),
-    isValid: true,
-    verificationUrl: 'http://localhost/verify/CERT-123'
-  };
+  completionPercentage: 100,
+  certificateId: 'CERT-123',
+  instructorName: 'Dr. Test',
+  organizationName: 'AGRA Learning Platform',
+  issueDate: new Date('2023-12-25'),
+  isValid: true,
+  verificationUrl: 'http://localhost/verify/CERT-123',\r\n  verificationCode: 'CERT-123',\r\n  notes: 'Admin note',\r\n  lastVerifiedAt: new Date('2023-12-26')\r\n  };
 
   beforeEach(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getToken']);
@@ -70,7 +69,7 @@ describe('CertificateService', () => {
       expect(certificate).toEqual(mockCertificateData);
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/certificates/generate');
+    const req = httpMock.expectOne('http://localhost:8080/api/certificates/generate/course1');
     expect(req.request.method).toBe('POST');
     expect(req.request.headers.get('Authorization')).toBe('Bearer mock-token');
     req.flush(mockCertificateData);
@@ -91,7 +90,7 @@ describe('CertificateService', () => {
       expect(certificate).toEqual(mockCertificateData);
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/certificates/course/course1');
+    const req = httpMock.expectOne('http://localhost:8080/api/certificates/user/course/course1');
     expect(req.request.method).toBe('GET');
     req.flush(mockCertificateData);
   });
@@ -119,7 +118,7 @@ describe('CertificateService', () => {
       expect(result.certificateData).toEqual(mockCertificateData);
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/certificates/verify/CERT-123');
+    const req = httpMock.expectOne('http://localhost:8080/api/certificates/validate/CERT-123');
     expect(req.request.method).toBe('GET');
     req.flush(verificationResult);
   });
@@ -186,3 +185,4 @@ describe('CertificateService', () => {
     }).toThrowError('Authentication required');
   });
 });
+

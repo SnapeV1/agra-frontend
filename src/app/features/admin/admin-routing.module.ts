@@ -6,6 +6,8 @@ import { UserManagementComponent } from './user-management/user-management.compo
 import { AdminPostsComponent } from './admin-posts/admin-posts.component';
 import { AdminCourseDetailsComponent } from './course-management/course-details/course-details.component';
 import { TicketManagementComponent } from './ticket-management/ticket-management.component';
+import { CertificatesManagementComponent } from './certificates-management/certificates-management.component';
+import { AdminSettingsComponent } from './admin-settings/admin-settings.component';
 
 const routes: Routes = [
   {
@@ -16,6 +18,8 @@ const routes: Routes = [
       { path: 'dashboard', component: DashboardAdminComponent },
       { path: 'users', component: UserManagementComponent },
       { path: 'tickets', component: TicketManagementComponent },
+      { path: 'certificates', component: CertificatesManagementComponent },
+      { path: 'settings', component: AdminSettingsComponent },
       { path: 'coursedetails/:id', component: AdminCourseDetailsComponent },
       
       { path: '', redirectTo: 'courses', pathMatch: 'full' } 

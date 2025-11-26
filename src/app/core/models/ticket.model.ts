@@ -41,3 +41,13 @@ export interface TicketThreadResponse {
   ticket: Ticket;
   messages: TicketMessage[];
 }
+
+export type TicketEventType = 'MESSAGE' | 'ASSIGNED' | 'STATUS' | 'CLOSED' | 'OPENED';
+
+export interface TicketEventPayload {
+  ticketId: string;
+  type: TicketEventType;
+  message?: TicketMessage;
+  status?: TicketStatus;
+  assignedTo?: TicketParticipantInfo | null;
+}

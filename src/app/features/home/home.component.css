@@ -1,4 +1,4 @@
-/* ==========================================================================
+﻿/* ==========================================================================
    GLOBAL STYLES & RESET
    ========================================================================== */
 * {
@@ -628,7 +628,7 @@ body {
 }
 
 .feature-list li::before {
-  content: '✓';
+  content: 'Γ£ô';
   position: absolute;
   left: 0;
   color: #4a7c22;
@@ -1123,7 +1123,7 @@ body {
 }
 
 .pricing-card.featured::after {
-  content: 'RECOMMANDÉ';
+  content: 'RECOMMAND├ë';
   position: absolute;
   top: -15px;
   left: 50%;
@@ -2060,7 +2060,7 @@ body {
 .btn-view-more:hover { background: var(--primary-700); }
 
 /* ==========================================================================
-   POSTS GRID — visual refresh
+   POSTS GRID ΓÇö visual refresh
    ========================================================================== */
 .posts-grid {
   display: grid;

@@ -1,0 +1,242 @@
+<app-base-layout>
+  <div class="cert-mgmt">
+    <header class="cm-header">
+      <div>
+        <p class="eyebrow">Credentials</p>
+        <h1>Certificates Management</h1>
+        <span>{{ filteredCertificates.length }} certificate(s) match your filters</span>
+      </div>
+      <div class="header-actions">
+        <button class="ghost-btn" (click)="fetchCertificates()" [disabled]="loading">
+          <i class="fas fa-sync-alt" [class.spin]="loading"></i>
+          {{ loading ? 'Refreshing...' : 'Refresh' }}
+        </button>
+      </div>
+    </header>
+
+    <section class="stats-grid">
+      <article class="stat-card">
+        <p>Total issued</p>
+        <h2>{{ totalCertificates }}</h2>
+        <small>All time</small>
+      </article>
+      <article class="stat-card positive">
+        <p>Active</p>
+        <h2>{{ activeCertificates }}</h2>
+        <small>{{ revokedCertificates }} revoked</small>
+      </article>
+      <article class="stat-card neutral">
+        <p>Revoked</p>
+        <h2>{{ revokedCertificates }}</h2>
+        <small>{{ (revokedCertificates / (totalCertificates || 1) * 100) | number : '1.0-0' }}% of total</small>
+      </article>
+      <article class="stat-card accent">
+        <p>Selected</p>
+        <h2>{{ selectedCertificate ? selectedCertificate.studentName : '—' }}</h2>
+        <small>{{ selectedCertificate?.courseTitle || 'No certificate selected' }}</small>
+      </article>
+    </section>
+
+    <div class="error-banner" *ngIf="error">{{ error }}</div>
+
+    <section class="filters-panel">
+      <div class="filter-card search-card">
+        <label for="certificate-search">Search certificates</label>
+        <div class="search-input">
+          <i class="fas fa-search"></i>
+          <input
+            id="certificate-search"
+            type="search"
+            placeholder="Student, course, code..."
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange()" />
+        </div>
+      </div>
+
+      <div class="filter-card status-card">
+        <div class="card-header">
+          <span>Status</span>
+        </div>
+        <div class="chip-group">
+          <button class="filter-chip" [class.active]="statusFilter === 'all'" (click)="setStatusFilter('all')">
+            All
+          </button>
+          <button class="filter-chip" [class.active]="statusFilter === 'valid'" (click)="setStatusFilter('valid')">
+            Active
+          </button>
+          <button class="filter-chip" [class.active]="statusFilter === 'revoked'" (click)="setStatusFilter('revoked')">
+            Revoked
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-card sort-card">
+        <label for="sort-option">Sort by</label>
+        <select id="sort-option" class="sort-select" [(ngModel)]="sortOption" (change)="onSortChange()">
+          <option value="latest">Latest issued</option>
+          <option value="oldest">Oldest first</option>
+          <option value="name">Student name</option>
+          <option value="course">Course title</option>
+        </select>
+      </div>
+    </section>
+
+    <div class="cm-layout">
+      <section class="cert-table">
+        <div class="table-heading">
+          <h3>Issued certificates</h3>
+          <span *ngIf="!loading">{{ filteredCertificates.length }} result(s)</span>
+        </div>
+
+        <div class="skeleton-table" *ngIf="loading">
+          <div class="skeleton-row" *ngFor="let row of skeletonRows"></div>
+        </div>
+
+        <div class="empty-state" *ngIf="!loading && !filteredCertificates.length">
+          <p>No certificates match your filters yet.</p>
+        </div>
+
+        <div class="table-wrapper" *ngIf="!loading && filteredCertificates.length">
+          <table>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Course</th>
+                <th>Issued</th>
+                <th>Status</th>
+                <th>Code</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let certificate of filteredCertificates; trackBy: trackByCertificate"
+                [class.active]="selectedCertificate?.certificateId === certificate.certificateId">
+                <td>
+                  <div class="student-cell">
+                    <div class="avatar">{{ (certificate.studentName || certificate.studentId || '?').charAt(0) }}</div>
+                    <div>
+                      <p>{{ certificate.studentName || '—' }}</p>
+                      <small>{{ certificate.studentId }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <p class="course-title">{{ certificate.courseTitle }}</p>
+                  <small class="course-meta">{{ certificate.courseDomain }} · {{ certificate.courseCountry }}</small>
+                </td>
+                <td>{{ certificate.issueDate | date : 'mediumDate' }}</td>
+                <td>
+                  <span [class]="statusBadge(certificate)">
+                    {{ certificate.isValid ? 'Active' : 'Revoked' }}
+                  </span>
+                </td>
+                <td>
+                  <code class="code-pill">{{ certificate.certificateId }}</code>
+                </td>
+                <td class="actions-cell">
+                  <button class="ghost-btn" (click)="selectCertificate(certificate)">Review</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="cert-detail" *ngIf="selectedCertificate; else detailPlaceholder">
+        <div class="detail-header">
+          <div>
+            <p class="eyebrow">Certificate detail</p>
+            <h2>{{ selectedCertificate!.studentName }}</h2>
+            <span>{{ selectedCertificate!.courseTitle }}</span>
+          </div>
+          <button class="ghost-btn" (click)="clearSelection()">
+            <i class="fas fa-times"></i>
+            Close
+          </button>
+        </div>
+
+        <div class="detail-meta">
+          <div>
+            <span>Certificate code</span>
+            <strong>{{ selectedCertificate!.certificateId }}</strong>
+          </div>
+          <div>
+            <span>Status</span>
+            <strong [class]="statusBadge(selectedCertificate!)">{{ selectedCertificate!.isValid ? 'Active' : 'Revoked' }}</strong>
+          </div>
+          <div>
+            <span>Issued on</span>
+            <strong>{{ selectedCertificate!.issueDate | date : 'mediumDate' }}</strong>
+          </div>
+          <div>
+            <span>Total time</span>
+            <strong>{{ formatDuration(selectedCertificate!.totalTimeSpent) }}</strong>
+          </div>
+        </div>
+
+        <form class="edit-form" (ngSubmit)="saveCertificateEdits()">
+          <h3>Edit certificate metadata</h3>
+          <label for="edit-instructor">Instructor name</label>
+          <input
+            id="edit-instructor"
+            type="text"
+            name="instructorName"
+            [(ngModel)]="editForm.instructorName" />
+
+          <label for="edit-organization">Organization</label>
+          <input
+            id="edit-organization"
+            type="text"
+            name="organizationName"
+            [(ngModel)]="editForm.organizationName" />
+
+          <label for="edit-date">Issue date</label>
+          <input
+            id="edit-date"
+            type="date"
+            name="issueDate"
+            [(ngModel)]="editForm.issueDate" />
+
+          <label for="edit-notes">Notes (internal)</label>
+          <textarea
+            id="edit-notes"
+            name="notes"
+            rows="3"
+            placeholder="Add a short note or context for admins..."
+            [(ngModel)]="editForm.notes"></textarea>
+
+          <button class="primary-btn" type="submit" [disabled]="saving">
+            <span *ngIf="saving"><i class="fas fa-spinner spin"></i> Saving...</span>
+            <span *ngIf="!saving">Save changes</span>
+          </button>
+        </form>
+
+        <section class="danger-zone">
+          <div>
+            <h3>Revoke certificate</h3>
+            <p>Revoking will immediately invalidate the certificate and notify the user.</p>
+          </div>
+          <textarea
+            rows="2"
+            placeholder="Reason for revocation"
+            [(ngModel)]="revokeReason"></textarea>
+          <button class="danger-btn" (click)="revokeSelectedCertificate()" [disabled]="revoking || !revokeReason.trim()">
+            <span *ngIf="revoking"><i class="fas fa-spinner spin"></i> Revoking...</span>
+            <span *ngIf="!revoking">Revoke certificate</span>
+          </button>
+        </section>
+      </section>
+
+      <ng-template #detailPlaceholder>
+        <section class="cert-detail placeholder">
+          <h3>No certificate selected</h3>
+          <p>Select a certificate from the list to inspect and edit its metadata.</p>
+        </section>
+      </ng-template>
+    </div>
+  </div>
+</app-base-layout>
+
+
+

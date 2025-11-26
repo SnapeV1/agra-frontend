@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
 import { CourseProgress } from '../models/course';
 import { AuthService } from './auth/auth.service';
@@ -19,6 +19,19 @@ export interface CourseEnrollment {
   progress: CourseProgress;
   lessons: LessonProgress[];
   currentLessonId?: string;
+}
+
+export interface CertificateProgressPayload {
+  certificateUrl?: string;
+  certificateCode?: string;
+  certificateIssuedAt?: Date;
+}
+
+export interface SessionAnalytics {
+  averageLessonMinutes: number;
+  totalTrackedMinutes: number;
+  peakHour: number | null;
+  peakHourRange: string;
 }
 
 @Injectable({
@@ -44,11 +57,19 @@ export class ProgressService {
 
   // Get user's progress for a specific course
   getCourseProgress(courseId: string): Observable<CourseEnrollment> {
-    const headers = this.getAuthHeaders();
+    const token = this.authService.getToken();
+    if (!token) {
+      return throwError(() => new Error('Authentication required'));
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
     const url = `${this.apiUrl}/course/${courseId}`;
     
     return this.http.get<any>(url, { headers }).pipe(
       map((response: any) => {
+        const certificateMeta = this.extractCertificateMetadata(response);
         // Transform backend response to match CourseEnrollment interface
         const courseEnrollment: CourseEnrollment = {
           courseId: courseId,
@@ -60,7 +81,9 @@ export class ProgressService {
             completedAt: response.completedAt ? new Date(response.completedAt) : undefined,
             completed: response.completed || false,
             completionPercentage: response.progressPercentage || 0,
-            certificateUrl: response.certificateUrl,
+            certificateUrl: certificateMeta.certificateUrl,
+            certificateCode: certificateMeta.certificateCode,
+            certificateIssuedAt: certificateMeta.certificateIssuedAt,
             completedSessionIds: response.completedSessionIds || [],
             currentSessionId: response.currentSessionId,
             totalSessions: response.totalSessions || 0,
@@ -165,13 +188,100 @@ export class ProgressService {
     return lessons.reduce((total, lesson) => total + lesson.timeSpent, 0);
   }
 
+  calculateSessionAnalytics(lessons: LessonProgress[]): SessionAnalytics {
+    if (!Array.isArray(lessons) || lessons.length === 0) {
+      return {
+        averageLessonMinutes: 0,
+        totalTrackedMinutes: 0,
+        peakHour: null,
+        peakHourRange: 'N/A'
+      };
+    }
+
+    const totalMinutes = lessons.reduce((sum, lesson) => sum + (lesson.timeSpent || 0), 0);
+    const average = Math.round(totalMinutes / lessons.length);
+    const hourlyBuckets = Array.from({ length: 24 }, () => 0);
+
+    lessons.forEach(lesson => {
+      const lastAccessed = lesson.lastAccessedAt ? new Date(lesson.lastAccessedAt) : null;
+      if (!lastAccessed || isNaN(lastAccessed.getTime())) {
+        return;
+      }
+      const hour = lastAccessed.getHours();
+      hourlyBuckets[hour] += lesson.timeSpent || 0;
+    });
+
+    const maxMinutes = Math.max(...hourlyBuckets);
+    const peakHour = maxMinutes > 0 ? hourlyBuckets.indexOf(maxMinutes) : null;
+
+    return {
+      averageLessonMinutes: average,
+      totalTrackedMinutes: totalMinutes,
+      peakHour,
+      peakHourRange: peakHour !== null ? this.formatHourRange(peakHour) : 'N/A'
+    };
+  }
+
+  private formatHourRange(hour: number): string {
+    const startLabel = this.formatHour(hour);
+    const endLabel = this.formatHour((hour + 1) % 24);
+    return `${startLabel} - ${endLabel}`;
+  }
+
+  private formatHour(hour: number): string {
+    const normalized = ((hour % 24) + 24) % 24;
+    const suffix = normalized >= 12 ? 'PM' : 'AM';
+    const hour12 = normalized % 12 || 12;
+    return `${hour12} ${suffix}`;
+  }
+
+  private extractCertificateMetadata(source: any): CertificateProgressPayload {
+    if (!source) {
+      return {};
+    }
+    const fromProgress = source.progress || {};
+    const certificateBlock = source.certificate || fromProgress.certificate || {};
+    const url =
+      source.certificateUrl ||
+      fromProgress.certificateUrl ||
+      certificateBlock.url ||
+      certificateBlock.downloadUrl ||
+      source.verificationUrl ||
+      source.certificateDownloadUrl;
+    const code =
+      source.certificateCode ||
+      source.certificateVerificationCode ||
+      source.verificationCode ||
+      fromProgress.certificateCode ||
+      fromProgress.verificationCode ||
+      certificateBlock.code ||
+      certificateBlock.verificationCode;
+    const issuedRaw =
+      source.certificateIssuedAt ||
+      source.certificateIssuedOn ||
+      source.issuedAt ||
+      fromProgress.certificateIssuedAt ||
+      fromProgress.certificateIssuedOn ||
+      certificateBlock.issuedAt ||
+      certificateBlock.issueDate ||
+      certificateBlock.createdAt;
+
+    return {
+      certificateUrl: url,
+      certificateCode: code,
+      certificateIssuedAt: issuedRaw ? new Date(issuedRaw) : undefined
+    };
+  }
+
   // Generate certificate for completed course
-  generateCertificate(courseId: string): Observable<any> {
+  generateCertificate(courseId: string): Observable<CertificateProgressPayload> {
     const headers = this.getAuthHeaders();
-    return this.http.post(`${this.apiUrl}/certificate/generate`, {
+    return this.http.post<any>(`${this.apiUrl}/progress/generate`, {
       courseId,
       generatedAt: new Date()
-    }, { headers });
+    }, { headers }).pipe(
+      map(response => this.extractCertificateMetadata(response))
+    );
   }
 
   // Download certificate

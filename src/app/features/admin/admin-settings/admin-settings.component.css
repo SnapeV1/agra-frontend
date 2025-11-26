@@ -1,0 +1,13 @@
+.admin-settings-host {
+  width: 100%;
+}
+
+/* Hide the end-user header/footer when embedded in admin shell */
+.admin-settings-host app-navigation,
+.admin-settings-host app-footer {
+  display: none !important;
+}
+
+.admin-settings-page .container {
+  margin-top: 40px;
+}

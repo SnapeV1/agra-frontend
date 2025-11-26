@@ -52,6 +52,7 @@ featuredPosts: any[] = [];
   postsLoading: boolean = false;
   postsError: string = '';
   private postsSubscription?: Subscription;
+  fallbackAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><rect width='80' height='80' fill='%23f3f4f6'/><circle cx='40' cy='32' r='18' fill='%23cbd5e1'/><path d='M12 72c4-14 16-22 28-22s24 8 28 22' fill='%23cbd5e1'/></svg>";
   constructor(
     private router: Router,
     private courseService: CourseService, 
@@ -173,6 +174,15 @@ featuredPosts: any[] = [];
       const sections = document.querySelectorAll('.section');
       sections.forEach(section => observer.observe(section));
     }, 100);
+  }
+
+  setFallbackAvatar(evt: Event): void {
+    const img = evt?.target as HTMLImageElement;
+    if (!img) return;
+    if (img.src !== this.fallbackAvatar) {
+      img.src = this.fallbackAvatar;
+    }
+    img.onerror = null;
   }
 
 

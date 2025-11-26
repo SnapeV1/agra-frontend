@@ -1,11 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, takeUntil, forkJoin } from 'rxjs';
-import { Course } from '../../../../core/models/course';
-import { CourseService } from '../../../../core/services/course/course.service';
-import { ProgressService, CourseEnrollment } from '../../../../core/services/progress.service';
-import { AuthService } from '../../../../core/services/auth/auth.service';
-import { CertificateData } from '../../../../core/services/certificate.service';
+import { Subject, takeUntil } from 'rxjs';
+import { CertificateService, CertificateData } from '../../../../core/services/certificate.service';
 
 @Component({
   selector: 'app-certificate',
@@ -14,30 +10,27 @@ import { CertificateData } from '../../../../core/services/certificate.service';
 })
 export class CertificateComponent implements OnInit, OnDestroy {
   certificateData: CertificateData | null = null;
-  course: Course | null = null;
-  courseEnrollment: CourseEnrollment | null = null;
   loading = true;
   error: string | null = null;
-  courseId = '';
-  
+  private courseId = '';
+
   private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private courseService: CourseService,
-    private progressService: ProgressService,
-    private authService: AuthService
+    private certificateService: CertificateService
   ) {}
 
   ngOnInit(): void {
     this.courseId = this.route.snapshot.paramMap.get('id') || '';
-    if (this.courseId) {
-      this.loadCertificateData();
-    } else {
-      this.error = 'Course ID not found';
+    if (!this.courseId) {
+      this.error = 'Course ID not found.';
       this.loading = false;
+      return;
     }
+
+    this.loadCertificateData();
   }
 
   ngOnDestroy(): void {
@@ -46,76 +39,21 @@ export class CertificateComponent implements OnInit, OnDestroy {
   }
 
   private loadCertificateData(): void {
-    forkJoin({
-      course: this.courseService.getCourseById(this.courseId),
-      enrollment: this.progressService.getCourseProgress(this.courseId)
-    }).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: ({ course, enrollment }) => {
-        this.course = course;
-        this.courseEnrollment = enrollment;
-
-        if (!this.course || !this.courseEnrollment) {
-          this.error = 'Certificate data not found';
+    this.loading = true;
+    this.certificateService.getCertificateByCourse(this.courseId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (certificate) => {
+          console.log('Certificate payload from API:', certificate);
+          this.certificateData = certificate;
+          console.log('Certificate data applied to template:', this.certificateData);
           this.loading = false;
-          return;
-        }
-
-        if (!this.courseEnrollment.progress.completed) {
-          this.error = 'Course not completed yet';
+        },
+        error: () => {
+          this.error = 'Certificate not available. Please ensure the course is completed.';
           this.loading = false;
-          return;
         }
-
-        this.generateCertificateData();
-        this.loading = false;
-      },
-      error: (error) => {
-        this.error = 'Failed to load certificate data';
-        this.loading = false;
-      }
-    });
-  }
-
-  private generateCertificateData(): void {
-    if (!this.course || !this.courseEnrollment) return;
-
-    const authUser = this.authService.currentUserValue;
-    const user = authUser?.user;
-    const completedLessons = this.courseEnrollment.lessons.filter(l => l.completed).length;
-    const certificateId = this.generateCertificateId();
-    
-    // Ensure we have required IDs
-    const courseId = this.course.id || 'unknown-course';
-    const studentId = user?.id || 'unknown-student';
-    const studentName = user?.name || 'Student';
-    
-    this.certificateData = {
-      id: certificateId,
-      studentName: studentName,
-      studentId: studentId,
-      courseId: courseId,
-      courseTitle: this.course.title,
-      courseDomain: this.course.domain,
-      courseCountry: this.course.country,
-      completionDate: this.courseEnrollment.progress.completedAt || new Date(),
-      totalTimeSpent: this.courseEnrollment.progress.totalTimeSpent,
-      totalLessons: completedLessons,
-      completionPercentage: this.courseEnrollment.progress.completionPercentage,
-      certificateId: certificateId,
-      instructorName: 'Yeffa Team', // Since instructor is not in Course model
-      organizationName: 'AGRA Learning Platform',
-      issueDate: this.courseEnrollment.progress.completedAt || new Date(),
-      isValid: true,
-      verificationUrl: `${window.location.origin}/certificate/verify/${certificateId}`
-    };
-  }
-
-  private generateCertificateId(): string {
-    const timestamp = Date.now().toString(36);
-    const random = Math.random().toString(36).substr(2, 5);
-    return `CERT-${timestamp}-${random}`.toUpperCase();
+      });
   }
 
   formatTime(minutes: number): string {
@@ -125,7 +63,7 @@ export class CertificateComponent implements OnInit, OnDestroy {
   }
 
   formatDate(date: Date): string {
-    return date.toLocaleDateString('en-US', {
+    return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -134,15 +72,13 @@ export class CertificateComponent implements OnInit, OnDestroy {
 
   downloadCertificate(): void {
     if (!this.certificateData) return;
-    
-    // Create a printable version
     window.print();
   }
 
   shareCertificate(): void {
     if (!this.certificateData) return;
 
-    const shareText = `I've successfully completed "${this.certificateData.courseTitle}" and earned my certificate! 🎓`;
+    const shareText = `I've successfully completed "${this.certificateData.courseTitle}" and earned my certificate!`;
     const shareUrl = window.location.href;
 
     if (navigator.share) {
@@ -152,7 +88,6 @@ export class CertificateComponent implements OnInit, OnDestroy {
         url: shareUrl
       }).catch(() => {});
     } else {
-      // Fallback: copy to clipboard
       navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
         alert('Certificate link copied to clipboard!');
       }).catch(() => {
@@ -169,3 +104,7 @@ export class CertificateComponent implements OnInit, OnDestroy {
     this.router.navigate(['/courses']);
   }
 }
+
+
+
+

@@ -41,6 +41,27 @@
 .setting-label { font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
 .setting-description { font-size: 0.9rem; color: var(--text-secondary); }
 .setting-action { display: flex; align-items: center; gap: 10px; }
+.section-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+.pref-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pref-actions-bottom { justify-content: space-between; align-items: center; margin-top: 10px; }
+.pref-actions-bottom .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.prefs-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 12px; }
+.pref-card { border: 1px solid var(--border); border-radius: 12px; padding: 14px; background: var(--bg-secondary); display: flex; flex-direction: column; gap: 10px; }
+.quiet-hours-card { grid-column: 1 / -1; }
+.pref-card-header { display: flex; justify-content: space-between; align-items: center; }
+.pref-heading { font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0; }
+.pref-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 14px 0; border-bottom: 1px solid var(--border); word-spacing: 0.04em; }
+.pref-row:last-child { border-bottom: none; }
+.pref-label { font-weight: 700; color: var(--text-primary); display: inline-flex; align-items: center; gap: 12px; margin-bottom: 4px; word-spacing: 0.08em; letter-spacing: 0.01em; margin-right: 10px; }
+.pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; background: var(--border); color: var(--text-secondary); font-size: 0.7rem; letter-spacing: 0.04em; text-transform: uppercase; }
+.helper-text { color: var(--text-secondary); font-size: 0.85rem; margin: 0; }
+.quiet-hours-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.prefs-status { color: var(--text-secondary); margin-top: 4px; }
+.collapsible { cursor: pointer; user-select: none; }
+.collapse-indicator { font-size: 1.2rem; transition: transform 0.2s ease; display: inline-block; }
+.collapse-indicator.collapsed { transform: rotate(-90deg); }
+.settings-section.collapsed .prefs-grid,
+.settings-section.collapsed .pref-actions-bottom { display: none; }
 
 .btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: var(--transition); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
 .btn-primary { background-color: var(--accent); color: white; }
@@ -50,9 +71,9 @@
 .btn-outline { background-color: transparent; border: 1px solid var(--border); color: var(--text-primary); }
 .btn-outline:hover { background-color: var(--bg-secondary); }
 
-.toggle-switch { position: relative; width: 48px; height: 24px; background-color: #ccc; border-radius: 12px; cursor: pointer; transition: var(--transition); }
+.toggle-switch { position: relative; width: 48px; height: 24px; background-color: #ccc; border-radius: 12px; cursor: pointer; transition: var(--transition); overflow: hidden; }
 .toggle-switch.active { background-color: var(--accent); }
-.toggle-switch::after { content: ''; position: absolute; width: 20px; height: 20px; background-color: white; border-radius: 50%; top: 2px; left: 2px; transition: var(--transition); }
+.toggle-switch::after { content: ''; position: absolute; width: 20px; height: 20px; background-color: white; border-radius: 50%; top: 2px; left: 2px; transition: var(--transition); box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
 .toggle-switch.active::after { transform: translateX(24px); }
 
 .select-wrapper { position: relative; display: inline-block; }
@@ -165,6 +186,9 @@
   .tickets-actions { width: 100%; justify-content: flex-start; }
   .tickets-hub { flex-direction: column; }
   .tickets-list-panel, .ticket-conversation-panel { max-width: 100%; }
+  .pref-actions { width: 100%; justify-content: flex-start; }
+  .prefs-grid { grid-template-columns: 1fr; }
+  .pref-row { gap: 12px; padding: 12px 0; }
 }
 
 .ok { color: #15803d; }

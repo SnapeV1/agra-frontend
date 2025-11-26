@@ -213,6 +213,7 @@ updateCourse(id: string, course: Course, image?: File, video?: File, attachments
           const courses = response.courses || response; // Support both formats
           
           return courses.map((item: any) => {
+            const certificateMeta = this.extractCertificateMetadata(item);
             // Transform enhanced backend response to CourseProgress object
             return {
               courseId: item.id || item.courseId,
@@ -222,7 +223,9 @@ updateCourse(id: string, course: Course, image?: File, video?: File, attachments
               completedAt: item.completedAt ? new Date(item.completedAt) : undefined,
               completed: item.completed || false,
               completionPercentage: item.progressPercentage || 0,
-              certificateUrl: item.certificateUrl,
+              certificateUrl: certificateMeta.certificateUrl,
+              certificateCode: certificateMeta.certificateCode,
+              certificateIssuedAt: certificateMeta.certificateIssuedAt,
               completedSessionIds: item.completedLessons || [],
               currentSessionId: item.currentLessonId,
               totalSessions: item.sessionIds ? item.sessionIds.length : 0,
@@ -250,5 +253,36 @@ updateCourse(id: string, course: Course, image?: File, video?: File, attachments
     });
 
     return this.http.get<any>(`${this.apiUrl}/${courseId}/progress`, { headers });
+  }
+
+  private extractCertificateMetadata(source: any) {
+    if (!source) {
+      return {};
+    }
+    const certificateBlock = source.certificate || {};
+    const url =
+      source.certificateUrl ||
+      certificateBlock.url ||
+      certificateBlock.downloadUrl ||
+      source.verificationUrl;
+    const code =
+      source.certificateCode ||
+      source.certificateVerificationCode ||
+      source.verificationCode ||
+      certificateBlock.code ||
+      certificateBlock.verificationCode;
+    const issuedRaw =
+      source.certificateIssuedAt ||
+      source.certificateIssuedOn ||
+      source.issuedAt ||
+      certificateBlock.issuedAt ||
+      certificateBlock.issueDate ||
+      certificateBlock.createdAt;
+
+    return {
+      certificateUrl: url,
+      certificateCode: code,
+      certificateIssuedAt: issuedRaw ? new Date(issuedRaw) : undefined
+    };
   }
 }

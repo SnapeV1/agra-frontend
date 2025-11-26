@@ -21,6 +21,23 @@
     <!-- Hero Section -->
     <section class="hero">
       <div class="container">
+        <div class="enrolled-banner" *ngIf="isEnrolled">
+          <div class="banner-text">
+            <div class="badge">Enrolled</div>
+            <div>
+              <p class="banner-title">You are enrolled &mdash; {{ showResumeCta ? 'resume your course' : 'jump back in anytime' }}</p>
+              <p class="banner-subtitle" *ngIf="showResumeCta && resumeLessonTitle">
+                Currently on lesson {{ resumeLessonNumber }} &middot; {{ resumeLessonTitle }}
+              </p>
+              <p class="banner-subtitle" *ngIf="!showResumeCta">
+                Pick up the course whenever you're ready.
+              </p>
+            </div>
+          </div>
+          <button class="banner-cta" (click)="continueCourse()">
+            {{ showResumeCta ? 'Resume learning' : 'Open learning space' }}
+          </button>
+        </div>
         <div class="hero-content">
           <div class="hero-main">
             <div class="breadcrumb">
@@ -99,7 +116,12 @@
                 class="btn-secondary btn-large btn-continue" 
                 *ngIf="isEnrolled" 
                 (click)="continueCourse()">
-                Continue Course
+                <ng-container *ngIf="showResumeCta; else continueLabel">
+                  Resume Lesson {{ resumeLessonNumber || '1' }}
+                </ng-container>
+                <ng-template #continueLabel>
+                  Continue Course
+                </ng-template>
               </button>
               
               <button class="btn-secondary btn-large" *ngIf="!isEnrolled">Add to Wishlist</button>
@@ -121,10 +143,15 @@
                 </ng-template>
               </div>
 
-              <div class="progress-section" *ngIf="isEnrolled">
+              <div class="progress-section" *ngIf="showResumeCta">
                 <div class="progress-header">
-                  <span>Course Progress</span>
-                  <span>{{ progressPercent || 0 }}%</span>
+                  <div>
+                    <span class="progress-label">Course Progress</span>
+                    <p class="progress-subtitle" *ngIf="resumeLessonTitle">
+                      Currently on lesson {{ resumeLessonNumber }} &middot; {{ resumeLessonTitle }}
+                    </p>
+                  </div>
+                  <span class="progress-value">{{ progressPercent || 0 }}%</span>
                 </div>
                 <div class="progress-bar">
                   <div class="progress-fill" [style.width.%]="progressPercent || 0"></div>

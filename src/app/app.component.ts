@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { Observable, Subscription } from 'rxjs';
+import { filter, map, startWith } from 'rxjs/operators';
 import { AuthService } from './core/services/auth/auth.service';
 
 @Component({
@@ -12,10 +12,17 @@ import { AuthService } from './core/services/auth/auth.service';
 export class AppComponent implements OnInit, OnDestroy {
   title = 'agra-frontend';
   private routerSubscription: Subscription = new Subscription();
+  isAdminRoute$!: Observable<boolean>;
 
   constructor(private router: Router, private authService: AuthService) {}
 
   ngOnInit(): void {
+    this.isAdminRoute$ = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      map(() => this.router.url.startsWith('/admin')),
+      startWith(this.router.url.startsWith('/admin'))
+    );
+
     // Apply persisted theme preference early
     try {
       const theme = localStorage.getItem('pref_theme');

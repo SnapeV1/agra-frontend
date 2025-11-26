@@ -5,30 +5,31 @@
   class="sidebar"
   [class.collapsed]="isCollapsed"
   [class.mobile-open]="isMobileOpen"
+  [class.initial-load]="initialLoad"
   [style.width.px]="sidebarWidth"
   id="sidebar"
   (click)="onSidebarClick($event)">
   <!-- Hamburger toggle when collapsed (top-left) -->
-  <div class="toggle-btn collapsed-toggle"
-       *ngIf="isCollapsed"
-       (click)="toggleSidebar()"
-       [attr.aria-label]="'Expand sidebar'">
-    <div class="hamburger-container">
-      <div class="hamburger-bar"></div>
-      <div class="hamburger-bar"></div>
-      <div class="hamburger-bar"></div>
-    </div>
-  </div>
-  <div class="toggle-btn" 
-       *ngIf="!isCollapsed"
-       (click)="toggleSidebar()" 
-       [attr.aria-label]="'Collapse sidebar'">
-    <div class="hamburger-container">
-      <div class="hamburger-bar"></div>
-      <div class="hamburger-bar"></div>
-      <div class="hamburger-bar"></div>
-    </div>
-  </div>
+  <button class="toggle-btn collapsed-toggle"
+          *ngIf="isCollapsed"
+          (click)="toggleSidebar()"
+          [attr.aria-label]="'Expand sidebar'">
+    <span class="icon-round">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+  </button>
+  <button class="toggle-btn"
+          *ngIf="!isCollapsed"
+          (click)="toggleSidebar()"
+          [attr.aria-label]="'Collapse sidebar'">
+    <span class="icon-round rotate-180">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9 18l6-6-6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+  </button>
   
   <div class="sidebar-menu">
     <a routerLink="/admin/dashboard"
@@ -79,6 +80,16 @@
        (click)="setActiveMenuItem('tickets')">
       <i class="fas fa-ticket-alt"></i>
       <span class="menu-text">Tickets</span>
+    </a>
+
+    <a routerLink="/admin/certificates"
+       class="menu-item"
+       routerLinkActive="active"
+       [routerLinkActiveOptions]="{ exact: false }"
+       data-tooltip="Certificates"
+       (click)="setActiveMenuItem('certificates')">
+      <i class="fas fa-certificate"></i>
+      <span class="menu-text">Certificates</span>
     </a>
 
   </div>

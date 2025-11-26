@@ -89,44 +89,133 @@
     </div>
   </div>
 
-  <!-- Notifications -->
-  <div class="settings-section">
-    <h2 class="section-title">
-      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-      </svg>
-      Notifications
-    </h2>
-
-    <div class="setting-item">
-      <div class="setting-info">
-        <div class="setting-label">Email Notifications</div>
-        <div class="setting-description">Receive updates via email</div>
+  <!-- Notification Preferences -->
+  <div class="settings-section" [class.collapsed]="notificationPrefsCollapsed">
+    <div class="section-header collapsible" (click)="toggleNotificationPrefs()">
+      <div>
+        <h2 class="section-title">
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+          </svg>
+          Notification Preferences
+        </h2>
+        <p class="section-subtitle">Choose what you get notified about and how you receive it.</p>
       </div>
-      <div class="setting-action">
-        <div class="toggle-switch" [class.active]="emailNotificationsEnabled" (click)="togglePreference('email')"></div>
-      </div>
+      <span class="collapse-indicator" [class.collapsed]="notificationPrefsCollapsed">▾</span>
     </div>
 
-    <div class="setting-item">
-      <div class="setting-info">
-        <div class="setting-label">Push Notifications</div>
-        <div class="setting-description">Get notified about important updates</div>
-      </div>
-      <div class="setting-action">
-        <div class="toggle-switch" [class.active]="pushNotificationsEnabled" (click)="togglePreference('push')"></div>
-      </div>
-    </div>
+    <ng-container *ngIf="!notificationPrefsCollapsed">
+      <p class="prefs-status" *ngIf="notificationPrefsLoading">Loading your preferences...</p>
+      <p class="ok" *ngIf="notificationPrefsMessage">{{ notificationPrefsMessage }}</p>
+      <p class="err" *ngIf="notificationPrefsError">{{ notificationPrefsError }}</p>
 
-    <div class="setting-item">
-      <div class="setting-info">
-        <div class="setting-label">SMS Notifications</div>
-        <div class="setting-description">Receive text messages</div>
+      <div class="prefs-grid" *ngIf="!notificationPrefsLoading">
+        <div class="pref-card">
+          <div class="pref-card-header">
+            <div>
+              <p class="pref-heading">Notification types</p>
+              <small>Turn categories on or off.</small>
+            </div>
+          </div>
+          <div class="pref-row">
+            <div>
+              <p class="pref-label">Likes:</p>
+              <small>Activity when someone likes your posts.</small>
+            </div>
+            <div class="toggle-switch" [class.active]="notificationPrefs.likeEnabled" (click)="notificationPrefs.likeEnabled = !notificationPrefs.likeEnabled"></div>
+          </div>
+          <div class="pref-row">
+            <div>
+              <p class="pref-label">Comments:</p>
+              <small>New comments on your content.</small>
+            </div>
+            <div class="toggle-switch" [class.active]="notificationPrefs.commentEnabled" (click)="notificationPrefs.commentEnabled = !notificationPrefs.commentEnabled"></div>
+          </div>
+          <div class="pref-row">
+            <div>
+              <p class="pref-label">Replies:</p>
+              <small>Responses to your comments.</small>
+            </div>
+            <div class="toggle-switch" [class.active]="notificationPrefs.replyEnabled" (click)="notificationPrefs.replyEnabled = !notificationPrefs.replyEnabled"></div>
+          </div>
+          <div class="pref-row">
+            <div>
+              <p class="pref-label">Tickets:</p>
+              <small>Updates on your support tickets.</small>
+            </div>
+            <div class="toggle-switch" [class.active]="notificationPrefs.ticketEnabled" (click)="notificationPrefs.ticketEnabled = !notificationPrefs.ticketEnabled"></div>
+          </div>
+          <div class="pref-row">
+            <div>
+              <p class="pref-label">System:</p>
+              <small>Security, policy, or platform updates.</small>
+            </div>
+            <div class="toggle-switch" [class.active]="notificationPrefs.systemEnabled" (click)="notificationPrefs.systemEnabled = !notificationPrefs.systemEnabled"></div>
+          </div>
+          <div class="pref-row">
+            <div>
+              <p class="pref-label">Courses:</p>
+              <small>Course launches, enrollments, and reminders.</small>
+            </div>
+            <div class="toggle-switch" [class.active]="notificationPrefs.courseEnabled" (click)="notificationPrefs.courseEnabled = !notificationPrefs.courseEnabled"></div>
+          </div>
+          <div class="pref-row">
+            <div>
+              <p class="pref-label">Posts:</p>
+              <small>New posts from people you follow.</small>
+            </div>
+            <div class="toggle-switch" [class.active]="notificationPrefs.postEnabled" (click)="notificationPrefs.postEnabled = !notificationPrefs.postEnabled"></div>
+          </div>
+        </div>
+
+        <div class="pref-card quiet-hours-card">
+          <div class="pref-card-header">
+            <div>
+              <p class="pref-heading">Quiet hours</p>
+              <small>Silence notifications on a schedule (overnight supported).</small>
+            </div>
+          </div>
+          <div class="pref-row">
+            <div>
+              <p class="pref-label">Enable quiet hours</p>
+              <small>Set a window where in-app/email/push are muted.</small>
+            </div>
+            <div class="toggle-switch" [class.active]="notificationPrefs.quietHoursEnabled" (click)="toggleQuietHours()"></div>
+          </div>
+          <div class="quiet-hours-grid">
+            <div class="input-group">
+              <label for="quiet-start">Start</label>
+              <input
+                id="quiet-start"
+                name="quiet-start"
+                type="time"
+                [disabled]="!notificationPrefs.quietHoursEnabled"
+                [(ngModel)]="quietHoursStartInput" />
+            </div>
+            <div class="input-group">
+              <label for="quiet-end">End</label>
+              <input
+                id="quiet-end"
+                name="quiet-end"
+                type="time"
+                [disabled]="!notificationPrefs.quietHoursEnabled"
+                [(ngModel)]="quietHoursEndInput" />
+            </div>
+          </div>
+          <p class="helper-text">Overnight ranges are supported (e.g., 22:00 to 07:00). Both times are required when enabled.</p>
+        </div>
       </div>
-      <div class="setting-action">
-        <div class="toggle-switch" [class.active]="smsNotificationsEnabled" (click)="togglePreference('sms')"></div>
+
+      <div class="pref-actions pref-actions-bottom" *ngIf="!notificationPrefsLoading">
+        <div class="action-buttons">
+          <button class="btn btn-outline" type="button" (click)="resetNotificationPreferences()" [disabled]="notificationPrefsSaving">Reset to defaults</button>
+          <button class="btn btn-outline" type="button" (click)="muteAllNotifications()" [disabled]="notificationPrefsSaving">Mute all</button>
+        </div>
+        <button class="btn btn-primary" type="button" (click)="saveNotificationPreferences()" [disabled]="notificationPrefsSaving || notificationPrefsLoading">
+          {{ notificationPrefsSaving ? 'Saving...' : 'Save preferences' }}
+        </button>
       </div>
-    </div>
+    </ng-container>
   </div>
 
   <!-- Support Tickets -->

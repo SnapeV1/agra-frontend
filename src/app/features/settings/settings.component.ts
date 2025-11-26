@@ -3,6 +3,11 @@ import { AuthService } from '../../core/services/auth/auth.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { Ticket, TicketMessage, TicketStatus, TicketThreadResponse } from 'src/app/core/models/ticket.model';
 import { TicketService } from 'src/app/core/services/ticket.service';
+import { NotificationService } from 'src/app/core/services/notification.service';
+import { NotificationPreferences, DEFAULT_NOTIFICATION_PREFERENCES } from 'src/app/core/models/notification-preferences.model';
+import { ToastrService } from 'ngx-toastr';
+import { TicketSocketService } from 'src/app/core/services/ticket-socket.service';
+import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'app-settings',
@@ -37,10 +42,15 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
   })();
   language = localStorage.getItem('pref_lang') || 'en';
 
-  // Notification preferences (local only for now)
-  emailNotificationsEnabled = localStorage.getItem('pref_notify_email') === 'true';
-  pushNotificationsEnabled = localStorage.getItem('pref_notify_push') === 'true';
-  smsNotificationsEnabled = localStorage.getItem('pref_notify_sms') === 'true';
+  // Notification preferences (remote)
+  notificationPrefs: NotificationPreferences = { ...DEFAULT_NOTIFICATION_PREFERENCES };
+  notificationPrefsLoading = false;
+  notificationPrefsSaving = false;
+  notificationPrefsMessage = '';
+  notificationPrefsError = '';
+  quietHoursStartInput = '22:00';
+  quietHoursEndInput = '07:00';
+  notificationPrefsCollapsed = true;
 
   // Tickets
   myTickets: Ticket[] = [];
@@ -61,6 +71,7 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
   sendingReply = false;
   replyAttachment: File | null = null;
   previewAttachmentUrl: string | null = null;
+  private ticketEventsSub?: Subscription;
 
   // Modals
   showEmailModal = false;
@@ -79,7 +90,10 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(
     private auth: AuthService,
     private profileService: ProfileService,
-    private ticketService: TicketService
+    private ticketService: TicketService,
+    private notificationService: NotificationService,
+    private toastr: ToastrService,
+    private ticketSocket: TicketSocketService
   ) {
     this.currentUserId = this.auth.currentUserValue?.user?.id || null;
   }
@@ -95,11 +109,15 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     this.applyTheme(this.theme, false);
     this.fetchTickets();
+    this.loadNotificationPreferences();
     // No system-watch needed; 'auto' removed.
   }
 
   ngOnDestroy(): void {
-    // No-op (listener lifecycle tied to page lifetime)
+    if (this.ticketEventsSub) this.ticketEventsSub.unsubscribe();
+    if (this.selectedTicketId) {
+      this.ticketSocket.leaveTicket(this.selectedTicketId);
+    }
   }
 
   ngAfterViewInit(): void {
@@ -277,20 +295,132 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  togglePreference(key: 'email' | 'push' | 'sms'): void {
-    if (key === 'email') {
-      this.emailNotificationsEnabled = !this.emailNotificationsEnabled;
-      localStorage.setItem('pref_notify_email', String(this.emailNotificationsEnabled));
-    } else if (key === 'push') {
-      this.pushNotificationsEnabled = !this.pushNotificationsEnabled;
-      localStorage.setItem('pref_notify_push', String(this.pushNotificationsEnabled));
-    } else {
-      this.smsNotificationsEnabled = !this.smsNotificationsEnabled;
-      localStorage.setItem('pref_notify_sms', String(this.smsNotificationsEnabled));
+  loadNotificationPreferences(): void {
+    this.notificationPrefsLoading = true;
+    this.notificationPrefsError = '';
+    this.notificationPrefsMessage = '';
+    this.notificationService.fetchPreferences().subscribe({
+      next: prefs => {
+        this.applyNotificationPreferences(prefs);
+        this.notificationPrefsLoading = false;
+      },
+      error: err => {
+        this.notificationPrefsLoading = false;
+        this.notificationPrefsError = err?.error?.message || err?.message || 'Unable to load notification preferences.';
+      }
+    });
+  }
+
+  saveNotificationPreferences(): void {
+    this.notificationPrefsSaving = true;
+    this.notificationPrefsMessage = '';
+    this.notificationPrefsError = '';
+    if (this.notificationPrefs.quietHoursEnabled && (!this.quietHoursStartInput || !this.quietHoursEndInput)) {
+      this.notificationPrefsError = 'Please set both quiet hours start and end times.';
+      this.notificationPrefsSaving = false;
+      return;
+    }
+    const quietStart = this.notificationPrefs.quietHoursEnabled ? this.toHms(this.quietHoursStartInput) : null;
+    const quietEnd = this.notificationPrefs.quietHoursEnabled ? this.toHms(this.quietHoursEndInput) : null;
+    if (this.notificationPrefs.quietHoursEnabled && (!quietStart || !quietEnd)) {
+      this.notificationPrefsError = 'Please set valid quiet hours start and end times.';
+      this.notificationPrefsSaving = false;
+      return;
+    }
+    const payload: NotificationPreferences = {
+      ...this.notificationPrefs,
+      quietHoursStart: quietStart,
+      quietHoursEnd: quietEnd,
+    };
+    this.notificationService.updatePreferences(payload).subscribe({
+      next: prefs => {
+        this.applyNotificationPreferences(prefs);
+        this.notificationPrefsSaving = false;
+        this.notificationPrefsMessage = 'Notification preferences saved.';
+        try { this.toastr.success('Notification preferences saved'); } catch {}
+      },
+      error: err => {
+        this.notificationPrefsSaving = false;
+        this.notificationPrefsError = err?.error?.message || err?.message || 'Unable to save notification preferences.';
+        try { this.toastr.error(this.notificationPrefsError); } catch {}
+      }
+    });
+  }
+
+  resetNotificationPreferences(): void {
+    this.notificationPrefsMessage = '';
+    this.notificationPrefsError = '';
+    this.applyNotificationPreferences({ ...DEFAULT_NOTIFICATION_PREFERENCES });
+  }
+
+  muteAllNotifications(): void {
+    this.notificationPrefsMessage = '';
+    this.notificationPrefsError = '';
+    const muted: NotificationPreferences = {
+      ...this.notificationPrefs,
+      likeEnabled: false,
+      commentEnabled: false,
+      replyEnabled: false,
+      ticketEnabled: false,
+      systemEnabled: false,
+      courseEnabled: false,
+      postEnabled: false,
+      inAppEnabled: false,
+      emailEnabled: false,
+      pushEnabled: false,
+      quietHoursEnabled: true,
+      quietHoursStart: '00:00:00',
+      quietHoursEnd: '23:59:59',
+    };
+    this.applyNotificationPreferences(muted);
+    this.quietHoursStartInput = '00:00';
+    this.quietHoursEndInput = '23:59';
+  }
+
+  toggleQuietHours(): void {
+    this.notificationPrefs.quietHoursEnabled = !this.notificationPrefs.quietHoursEnabled;
+    if (this.notificationPrefs.quietHoursEnabled) {
+      if (!this.quietHoursStartInput) this.quietHoursStartInput = '22:00';
+      if (!this.quietHoursEndInput) this.quietHoursEndInput = '07:00';
     }
   }
 
+  toggleNotificationPrefs(): void {
+    this.notificationPrefsCollapsed = !this.notificationPrefsCollapsed;
+  }
+
+  private applyNotificationPreferences(prefs: NotificationPreferences): void {
+    const merged: NotificationPreferences = { ...DEFAULT_NOTIFICATION_PREFERENCES, ...(prefs || {}) };
+    this.notificationPrefs = merged;
+    this.quietHoursStartInput = this.toTimeInput(merged.quietHoursStart) || '22:00';
+    this.quietHoursEndInput = this.toTimeInput(merged.quietHoursEnd) || '07:00';
+  }
+
+  private toTimeInput(value?: string | null): string {
+    if (!value) return '';
+    const parts = value.split(':');
+    if (parts.length >= 2) {
+      return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
+    }
+    return '';
+  }
+
+  private toHms(value?: string | null): string | null {
+    if (!value) return null;
+    const trimmed = value.trim();
+    if (/^\d{2}:\d{2}:\d{2}$/.test(trimmed)) return trimmed;
+    if (/^\d{2}:\d{2}$/.test(trimmed)) return `${trimmed}:00`;
+    return null;
+  }
+
   openTicket(ticketId: string): void {
+    // Subscribe to WS events for this ticket
+    this.ticketSocket.subscribeToTicket(ticketId);
+    if (this.ticketEventsSub) this.ticketEventsSub.unsubscribe();
+    this.ticketEventsSub = this.ticketSocket.ticketEvents$
+      .pipe(filter(evt => evt.ticketId === ticketId))
+      .subscribe(evt => this.applyTicketEvent(evt));
+
     this.selectedTicketId = ticketId;
     this.threadLoading = true;
     this.threadError = '';
@@ -433,6 +563,20 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
     this.replyAttachment = null;
     if (this.userReplyAttachmentInput?.nativeElement) {
       this.userReplyAttachmentInput.nativeElement.value = '';
+    }
+  }
+
+  private applyTicketEvent(evt: any): void {
+    if (!this.selectedThread || evt.ticketId !== this.selectedThread.ticket.id) return;
+    if (evt.type === 'MESSAGE' && evt.message) {
+      const exists = this.threadMessages.some(m => m.id === evt.message.id);
+      if (!exists) {
+        this.threadMessages = [...this.threadMessages, evt.message];
+        this.scrollConversationToBottom();
+      }
+    }
+    if (evt.type === 'STATUS' && evt.status && this.selectedThread?.ticket) {
+      this.selectedThread = { ...this.selectedThread, ticket: { ...this.selectedThread.ticket, status: evt.status } };
     }
   }
 }

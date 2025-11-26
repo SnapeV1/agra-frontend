@@ -115,15 +115,15 @@
               </div>
               <div class="signature-info">
                 <p class="signature-name">{{ certificateData.instructorName }}</p>
-                <p class="signature-title">Trainer name</p>
+                <p class="signature-title"></p>
               </div>
             </div>
           </div>
           
           <div class="signature-right">
             <div class="certificate-id">
-              <p class="id-label">Certificate ID</p>
-              <p class="id-value">{{ certificateData.certificateId }}</p>
+              <p class="id-label">Verification Code</p>
+              <p class="id-value">{{ certificateData.verificationCode || certificateData.certificateId }}</p>
             </div>
             <div class="issue-date">
               <p class="date-label">Issue Date</p>
@@ -136,7 +136,10 @@
         <div class="certificate-footer">
           <div class="footer-pattern"></div>
           <p class="verification-text">
-            This certificate can be verified at: agra-learning.com/verify/{{ certificateData.certificateId }}
+            This certificate can be verified at:
+            <a [href]="'/verifyCertificate/' + certificateData.certificateId" target="_blank" rel="noopener noreferrer">
+              verifyCertificate/{{ certificateData.certificateId }}
+            </a>
           </p>
         </div>
       </div>

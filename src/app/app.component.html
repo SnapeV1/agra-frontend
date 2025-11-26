@@ -1,3 +1,7 @@
-<router-outlet>
-</router-outlet>
+<app-sidebar *ngIf="isAdminRoute$ | async"></app-sidebar>
+
+<div class="app-shell" [class.admin-shell]="isAdminRoute$ | async">
+  <router-outlet></router-outlet>
+</div>
+
 <app-chatbot-widget></app-chatbot-widget>

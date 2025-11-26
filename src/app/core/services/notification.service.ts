@@ -1,9 +1,10 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, Subscription, tap } from 'rxjs';
 import { Client, IMessage } from '@stomp/stompjs';
 import { NotificationItem } from '../models/notification.model';
+import { NotificationPreferences, DEFAULT_NOTIFICATION_PREFERENCES } from '../models/notification-preferences.model';
 import { AuthService } from './auth/auth.service';
 import { environment } from 'src/environments/environment';
 
@@ -14,7 +15,9 @@ export class NotificationService implements OnDestroy {
   private stompClient!: Client;
   private readonly notifications$ = new BehaviorSubject<NotificationItem[]>([]);
   private readonly incoming$ = new Subject<NotificationItem>();
+  private readonly preferences$ = new BehaviorSubject<NotificationPreferences | null>(null);
   private readonly apiUrl = `${environment.apiBaseUrl}/notifications`;
+  private readonly preferencesUrl = `${this.apiUrl}/preferences`;
   private readonly wsBaseUrl = (() => {
     try {
       const origin = new URL(environment.apiBaseUrl).origin; // http(s)://host:port
@@ -35,6 +38,8 @@ export class NotificationService implements OnDestroy {
   private readonly LS_SEEN_KEY_PREFIX = 'notif_seen_ids_';
   private readonly LS_DELETED_KEY_PREFIX = 'notif_deleted_ids_';
   private syncTimer?: any; // periodic REST sync fallback
+  private preferencesLoaded = false;
+  private preferenceSnapshot: NotificationPreferences | null = null;
 
   all$ = this.notifications$.asObservable();
   newNotifications$ = this.incoming$.asObservable();
@@ -81,6 +86,12 @@ export class NotificationService implements OnDestroy {
       const newUserId = user?.user?.id || undefined;
       if (newUserId !== this.userId) {
         this.userId = newUserId;
+        this.preferencesLoaded = false;
+        if (newUserId) {
+          this.ensurePreferencesLoaded();
+        } else {
+          this.setPreferences(null);
+        }
         if (this.isConnected()) {
           this.subscribeForCurrentUser(true);
         }
@@ -91,11 +102,13 @@ export class NotificationService implements OnDestroy {
     const initialId = this.authService.currentUserValue?.user?.id;
     if (initialId) {
       this.userId = initialId;
+      this.ensurePreferencesLoaded();
     } else if (this.authService.isAuthenticated()) {
       // Only attempt fetch if authenticated; otherwise remain on global channel
       this.authService.getCurrentUserFromBackend().subscribe({
         next: (user) => {
           this.userId = user?.id || undefined;
+          this.ensurePreferencesLoaded();
           if (this.isConnected()) {
             this.subscribeForCurrentUser(true);
           }
@@ -108,6 +121,10 @@ export class NotificationService implements OnDestroy {
   }
 
   connect(): void {
+    this.ensurePreferencesLoaded();
+    if (this.preferenceSnapshot && this.preferenceSnapshot.inAppEnabled === false) {
+      return;
+    }
     this.stompClient.activate();
   }
 
@@ -129,10 +146,11 @@ export class NotificationService implements OnDestroy {
         const userKey = this.userId || this.authService.currentUserValue?.user?.id || '';
         const seenSet = userKey ? this.loadIdSet(this.LS_SEEN_KEY_PREFIX + userKey) : new Set<string>();
         const deletedSet = userKey ? this.loadIdSet(this.LS_DELETED_KEY_PREFIX + userKey) : new Set<string>();
-        // Filter out locally-deleted notifications and apply local seen overrides
+        const existingSeen = new Set<string>(this.notifications$.value.filter(n => n.seen).map(n => n.id));
+        // Filter out locally-deleted notifications and apply local seen overrides (including prior in-memory seen)
         const filtered = normalized
           .filter(n => !deletedSet.has(n.id))
-          .map(n => ({ ...n, seen: n.seen || seenSet.has(n.id) } as NotificationItem));
+          .map(n => ({ ...n, seen: n.seen || seenSet.has(n.id) || existingSeen.has(n.id) } as NotificationItem));
         const sorted = filtered.sort((a, b) => {
           const ta = a.timestamp ? Date.parse(a.timestamp) : 0;
           const tb = b.timestamp ? Date.parse(b.timestamp) : 0;
@@ -141,6 +159,35 @@ export class NotificationService implements OnDestroy {
         this.notifications$.next(sorted);
       },
       error: () => {}
+    });
+  }
+
+  getPreferencesSnapshot(): NotificationPreferences | null {
+    return this.preferenceSnapshot;
+  }
+
+  getPreferences(): Observable<NotificationPreferences | null> {
+    return this.preferences$.asObservable();
+  }
+
+  fetchPreferences(): Observable<NotificationPreferences> {
+    return this.http.get<NotificationPreferences>(`${this.preferencesUrl}/me`).pipe(
+      tap(pref => this.setPreferences(this.normalizePreferences(pref)))
+    );
+  }
+
+  updatePreferences(payload: Partial<NotificationPreferences>): Observable<NotificationPreferences> {
+    return this.http.put<NotificationPreferences>(`${this.preferencesUrl}/me`, payload).pipe(
+      tap(pref => this.setPreferences(this.normalizePreferences(pref)))
+    );
+  }
+
+  ensurePreferencesLoaded(): void {
+    if (this.preferencesLoaded || !this.authService.isAuthenticated()) return;
+    this.fetchPreferences().subscribe({
+      error: () => {
+        this.preferencesLoaded = false;
+      }
     });
   }
 
@@ -218,6 +265,9 @@ export class NotificationService implements OnDestroy {
       if (!data.content || !data.content.trim()) {
         return;
       }
+      if (!this.isAllowedByPreferences(data)) {
+        return;
+      }
       const text = (data.content || '').toLowerCase();
       // Guard: prevent user-specific interactions (e.g., likes) from leaking via global topic
       if (source === 'global') {
@@ -291,6 +341,68 @@ export class NotificationService implements OnDestroy {
       if (this.legacyUserTopicSub) { this.legacyUserTopicSub.unsubscribe(); this.legacyUserTopicSub = undefined; }
       this.stopSyncFallback();
     } catch {}
+  }
+
+  private setPreferences(pref: NotificationPreferences | null): void {
+    if (!pref) {
+      this.preferenceSnapshot = null;
+      this.preferencesLoaded = false;
+      this.preferences$.next(null);
+      return;
+    }
+    const wasDisabled = this.preferenceSnapshot?.inAppEnabled === false;
+    this.preferenceSnapshot = pref;
+    this.preferencesLoaded = true;
+    this.preferences$.next(pref);
+    if (pref.inAppEnabled === false) {
+      if (this.isConnected()) {
+        this.disconnect();
+      }
+      return;
+    }
+    if (wasDisabled && !this.isConnected() && this.authService.isAuthenticated()) {
+      this.connect();
+      this.fetchAll();
+    }
+  }
+
+  private normalizePreferences(pref: NotificationPreferences | null | undefined): NotificationPreferences {
+    const merged: NotificationPreferences = { ...DEFAULT_NOTIFICATION_PREFERENCES, ...(pref || {}) };
+    merged.quietHoursStart = this.normalizeTimeString(merged.quietHoursStart);
+    merged.quietHoursEnd = this.normalizeTimeString(merged.quietHoursEnd);
+    return merged;
+  }
+
+  private normalizeTimeString(value?: string | null): string | null {
+    if (!value) return null;
+    if (/^\d{2}:\d{2}:\d{2}$/.test(value)) return value;
+    if (/^\d{2}:\d{2}$/.test(value)) return `${value}:00`;
+    return null;
+  }
+
+  private isAllowedByPreferences(notification: NotificationItem): boolean {
+    const pref = this.preferenceSnapshot;
+    if (!pref) return true;
+    if (pref.inAppEnabled === false) return false;
+    const type = (notification.type || '').toString().toUpperCase();
+    switch (type) {
+      case 'LIKE':
+        return pref.likeEnabled !== false;
+      case 'COMMENT':
+        return pref.commentEnabled !== false;
+      case 'REPLY':
+        return pref.replyEnabled !== false;
+      case 'TICKET':
+        return pref.ticketEnabled !== false;
+      case 'SYSTEM':
+        return pref.systemEnabled !== false;
+      case 'COURSE':
+        return pref.courseEnabled !== false;
+      case 'POST':
+        return pref.postEnabled !== false;
+      default:
+        return true;
+    }
   }
 
   private appendAuthToken(baseUrl: string, token: string): string {

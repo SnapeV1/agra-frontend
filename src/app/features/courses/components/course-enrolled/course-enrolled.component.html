@@ -164,6 +164,23 @@
   </div>
 
   
+  <div class="learning-analytics" *ngIf="sessionAnalytics">
+    <div class="analytics-card">
+      <span class="analytics-label">Avg lesson duration</span>
+      <span class="analytics-value">{{ sessionAnalytics.averageLessonMinutes || 0 }} min</span>
+    </div>
+    <div class="analytics-card">
+      <span class="analytics-label">Peak activity hour</span>
+      <span class="analytics-value">
+        <ng-container *ngIf="sessionAnalytics.peakHour !== null; else noPeak">
+          {{ sessionAnalytics.peakHourRange }}
+        </ng-container>
+      </span>
+      <ng-template #noPeak>
+        <span class="analytics-helper">Need more study data</span>
+      </ng-template>
+    </div>
+  </div>
 
   <!-- Static Resources Section -->
   <div class="live-sessions">
@@ -254,67 +271,94 @@
     </div>
     
     <div class="modal-content">
-      <div class="celebration-icon">
-        <lucide-icon name="Award" class="award-icon"></lucide-icon>
-      </div>
-      
-      <h2 class="congratulations-title">Congratulations!</h2>
-      <p class="completion-message">
-        You have successfully completed <strong>{{ course?.title }}</strong>
-      </p>
-      
-      <div class="completion-stats">
-        <div class="stat-item">
-          <lucide-icon name="CheckCircle" class="stat-icon"></lucide-icon>
-          <span class="stat-label">Lessons Completed</span>
-          <span class="stat-value">{{ courseEnrollment?.lessons?.length || 0 }}</span>
+      <div class="celebration-banner">
+        <div class="banner-icon">
+          <lucide-icon name="Award"></lucide-icon>
         </div>
-        <div class="stat-item">
-          <lucide-icon name="Clock" class="stat-icon"></lucide-icon>
-          <span class="stat-label">Time Spent</span>
-          <span class="stat-value">{{ formatTime(getTotalTimeSpent()) }}</span>
-        </div>
-        <div class="stat-item">
-          <lucide-icon name="Award" class="stat-icon"></lucide-icon>
-          <span class="stat-label">Progress</span>
-          <span class="stat-value">100%</span>
-        </div>
-      </div>
-      
-      <div class="certificate-section">
-        <div *ngIf="isGeneratingCertificate" class="generating-certificate">
-          <div class="spinner"></div>
-          <p>Generating your certificate...</p>
-        </div>
-        
-        <div *ngIf="!isGeneratingCertificate && certificateUrl" class="certificate-ready">
-          <lucide-icon name="Award" class="certificate-icon"></lucide-icon>
-          <p class="certificate-text">Your certificate is ready!</p>
-          
-          <div class="certificate-actions">
-            <button class="btn-certificate primary" (click)="viewCertificate()">
-              <lucide-icon name="ExternalLink" class="btn-icon"></lucide-icon>
-              View Certificate
-            </button>
-            <button class="btn-certificate secondary" (click)="downloadCertificate()">
-              <lucide-icon name="Download" class="btn-icon"></lucide-icon>
-              Download
-            </button>
+        <div class="banner-text">
+          <p class="eyebrow">Course completed</p>
+          <h2>You’re officially certified!</h2>
+          <p>Great work finishing <strong>{{ course?.title }}</strong>. Keep the momentum going.</p>
+          <div class="banner-meta">
+            <span><lucide-icon name="CheckCircle"></lucide-icon>100% complete</span>
+            <span><lucide-icon name="Clock"></lucide-icon>{{ formatTime(getTotalTimeSpent()) }} tracked</span>
           </div>
         </div>
-        
-        <div *ngIf="!isGeneratingCertificate && !certificateUrl" class="certificate-error">
-          <p>Certificate generation failed. Please try again later.</p>
+      </div>
+
+      <div class="modal-grid">
+        <div class="stats-card">
+          <h3>Highlights</h3>
+          <div class="stat-pill">
+            <div>
+              <p class="label">Lessons completed</p>
+              <p class="value">{{ courseEnrollment?.lessons?.length || 0 }}</p>
+            </div>
+            <lucide-icon name="BookOpen"></lucide-icon>
+          </div>
+          <div class="stat-pill">
+            <div>
+              <p class="label">Time invested</p>
+              <p class="value">{{ formatTime(getTotalTimeSpent()) }}</p>
+            </div>
+            <lucide-icon name="Clock"></lucide-icon>
+          </div>
+          <div class="stat-pill">
+            <div>
+              <p class="label">Progress</p>
+              <p class="value">100%</p>
+            </div>
+            <lucide-icon name="Award"></lucide-icon>
+          </div>
+        </div>
+
+        <div class="certificate-card">
+          <h3>Certificate</h3>
+          <div *ngIf="isGeneratingCertificate" class="cert-loading">
+            <div class="spinner small"></div>
+            <p>Generating your certificate...</p>
+          </div>
+
+          <div *ngIf="!isGeneratingCertificate && certificateUrl" class="certificate-ready">
+            <p class="certificate-text">Your certificate is ready!</p>
+            <div class="certificate-actions">
+              <button class="btn-certificate primary" (click)="viewCertificate()">
+                <lucide-icon name="ExternalLink" class="btn-icon"></lucide-icon>
+                View
+              </button>
+              <button class="btn-certificate secondary" (click)="downloadCertificate()">
+                <lucide-icon name="Download" class="btn-icon"></lucide-icon>
+                Download
+              </button>
+            </div>
+            <div class="certificate-meta" *ngIf="certificateCode || certificateIssuedAt">
+              <div class="meta-row" *ngIf="certificateCode">
+                <span class="meta-label">Verification code</span>
+                <div class="meta-value">
+                  <span>{{ certificateCode }}</span>
+                  <button type="button" class="copy-btn" (click)="copyCertificateCode()">Copy</button>
+                </div>
+              </div>
+              <div class="meta-row" *ngIf="certificateIssuedAt">
+                <span class="meta-label">Issued</span>
+                <span class="meta-value">{{ certificateIssuedAt | date:'mediumDate' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!isGeneratingCertificate && !certificateUrl" class="certificate-error">
+            <p>Certificate generation failed. Please try again later.</p>
+          </div>
         </div>
       </div>
-      
-      <div class="modal-actions">
+
+      <div class="modal-actions modern">
         <button class="btn-share" (click)="shareAchievement()">
           <lucide-icon name="Share2" class="btn-icon"></lucide-icon>
-          Share Achievement
+          Share achievement
         </button>
         <button class="btn-continue" (click)="closeCompletionModal()">
-          Continue Learning
+          Keep learning
         </button>
       </div>
     </div>

@@ -1,14 +1,16 @@
-import { Component, ElementRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { TicketService } from 'src/app/core/services/ticket.service';
 import { Ticket, TicketMessage, TicketStatus, TicketThreadResponse } from 'src/app/core/models/ticket.model';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { TicketSocketService } from 'src/app/core/services/ticket-socket.service';
+import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'app-ticket-management',
   templateUrl: './ticket-management.component.html',
   styleUrls: ['./ticket-management.component.css']
 })
-export class TicketManagementComponent implements OnInit, AfterViewInit {
+export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestroy {
   TicketStatus = TicketStatus;
   private currentAdminId: string | null;
 
@@ -33,6 +35,7 @@ export class TicketManagementComponent implements OnInit, AfterViewInit {
   statusUpdating = false;
   replyAttachment: File | null = null;
   previewAttachmentUrl: string | null = null;
+  private ticketEventsSub?: Subscription;
 
   private conversationBody?: ElementRef<HTMLDivElement>;
   @ViewChild('conversationBody') set conversationBodySetter(el: ElementRef<HTMLDivElement> | undefined) {
@@ -41,7 +44,7 @@ export class TicketManagementComponent implements OnInit, AfterViewInit {
   }
   @ViewChild('adminAttachmentInput') adminAttachmentInput?: ElementRef<HTMLInputElement>;
 
-  constructor(private ticketService: TicketService, private auth: AuthService) {
+  constructor(private ticketService: TicketService, private auth: AuthService, private ticketSocket: TicketSocketService) {
     this.currentAdminId = this.auth.currentUserValue?.user?.id || null;
   }
 
@@ -51,6 +54,13 @@ export class TicketManagementComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.scrollConversationToBottom();
+  }
+
+  ngOnDestroy(): void {
+    if (this.ticketEventsSub) this.ticketEventsSub.unsubscribe();
+    if (this.selectedThread?.ticket?.id) {
+      this.ticketSocket.leaveTicket(this.selectedThread.ticket.id);
+    }
   }
 
   loadTickets(): void {
@@ -93,6 +103,12 @@ export class TicketManagementComponent implements OnInit, AfterViewInit {
   }
 
   openTicket(ticketId: string): void {
+    this.ticketSocket.subscribeToTicket(ticketId);
+    if (this.ticketEventsSub) this.ticketEventsSub.unsubscribe();
+    this.ticketEventsSub = this.ticketSocket.ticketEvents$
+      .pipe(filter(evt => evt.ticketId === ticketId))
+      .subscribe(evt => this.applyTicketEvent(evt));
+
     this.ticketService.getTicketThread(ticketId).subscribe({
       next: thread => {
         this.selectedThread = thread;
@@ -297,5 +313,22 @@ export class TicketManagementComponent implements OnInit, AfterViewInit {
 
   closeAttachmentPreview(): void {
     this.previewAttachmentUrl = null;
+  }
+
+  private applyTicketEvent(evt: any): void {
+    if (!this.selectedThread || evt.ticketId !== this.selectedThread.ticket.id) return;
+    if (evt.type === 'MESSAGE' && evt.message) {
+      const exists = this.messages.some(m => m.id === evt.message.id);
+      if (!exists) {
+        this.messages = [...this.messages, evt.message];
+        this.scrollConversationToBottom();
+      }
+    }
+    if (evt.type === 'STATUS' && evt.status && this.selectedThread?.ticket) {
+      this.selectedThread = { ...this.selectedThread, ticket: { ...this.selectedThread.ticket, status: evt.status } };
+    }
+    if (evt.type === 'ASSIGNED' && evt.assignedTo && this.selectedThread?.ticket) {
+      this.selectedThread = { ...this.selectedThread, ticket: { ...this.selectedThread.ticket, adminInfo: evt.assignedTo, adminId: evt.assignedTo?.id || null } };
+    }
   }
 }

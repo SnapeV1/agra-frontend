@@ -12,6 +12,8 @@ import { UserManagementComponent } from './user-management/user-management.compo
 import { AdminPostsComponent } from './admin-posts/admin-posts.component';
 import { CourseManagementModule } from './course-management/course-management.module';
 import { TicketManagementComponent } from './ticket-management/ticket-management.component';
+import { CertificatesManagementComponent } from './certificates-management/certificates-management.component';
+import { AdminSettingsComponent } from './admin-settings/admin-settings.component';
 
 
 @NgModule({
@@ -20,6 +22,8 @@ import { TicketManagementComponent } from './ticket-management/ticket-management
     UserManagementComponent,
     AdminPostsComponent,
     TicketManagementComponent,
+    CertificatesManagementComponent,
+    AdminSettingsComponent,
     
   ],
   imports: [

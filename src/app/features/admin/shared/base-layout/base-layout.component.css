@@ -3,11 +3,7 @@
 }
 
 app-sidebar {
-  position: absolute; 
-  left: 0;
-  top: 96px;                     /* align with taller sticky navbar height */
-  height: calc(100vh - 96px);
-  z-index: 1000;
+  display: none;
 }
 
 .main-content {

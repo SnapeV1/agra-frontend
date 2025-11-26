@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { Observable, BehaviorSubject, of } from 'rxjs';
+import { map, tap, catchError } from 'rxjs/operators';
 import { AuthService } from './auth/auth.service';
-import { Course } from '../models/course';
 import { environment } from 'src/environments/environment';
 
 export interface CertificateData {
@@ -24,6 +23,9 @@ export interface CertificateData {
   issueDate: Date;
   isValid: boolean;
   verificationUrl: string;
+  verificationCode?: string;
+  notes?: string;
+  lastVerifiedAt?: Date | null;
 }
 
 export interface CertificateGenerationRequest {
@@ -71,7 +73,8 @@ export class CertificateService {
   // Generate a new certificate
   generateCertificate(request: CertificateGenerationRequest): Observable<CertificateData> {
     const headers = this.getAuthHeaders();
-    return this.http.post<any>(`${this.apiUrl}/generate`, request, { headers }).pipe(
+    const url = `${this.apiUrl}/generate/${encodeURIComponent(request.courseId)}`;
+    return this.http.post<any>(url, request, { headers }).pipe(
       map(response => this.mapResponseToCertificateData(response)),
       tap(certificate => {
         // Update local certificates list
@@ -107,7 +110,7 @@ export class CertificateService {
   // Get certificate by course ID
   getCertificateByCourse(courseId: string): Observable<CertificateData> {
     const headers = this.getAuthHeaders();
-    return this.http.get<any>(`${this.apiUrl}/course/${courseId}`, { headers }).pipe(
+    return this.http.get<any>(`${this.apiUrl}/user/course/${courseId}`, { headers }).pipe(
       map(response => this.mapResponseToCertificateData(response))
     );
   }
@@ -122,14 +125,15 @@ export class CertificateService {
   }
 
   // Verify certificate authenticity
-  verifyCertificate(certificateId: string): Observable<CertificateVerificationResult> {
-    // This endpoint doesn't require authentication for public verification
-    return this.http.get<any>(`${this.apiUrl}/verify/${certificateId}`).pipe(
-      map(response => ({
-        isValid: response.isValid,
-        certificateData: response.isValid ? this.mapResponseToCertificateData(response.certificate) : undefined,
-        errorMessage: response.errorMessage
-      }))
+  verifyCertificate(codeOrId: string): Observable<CertificateVerificationResult> {
+    // Public validation endpoint (falls back to legacy route if needed)
+    return this.http.get<any>(`${this.apiUrl}/validate/${codeOrId}`).pipe(
+      map(response => this.mapVerificationResponse(response)),
+      catchError(() =>
+        this.http.get<any>(`${this.apiUrl}/verify/${codeOrId}`).pipe(
+          map(response => this.mapVerificationResponse(response))
+        )
+      )
     );
   }
 
@@ -164,6 +168,22 @@ export class CertificateService {
     return this.http.post(`${this.apiUrl}/${certificateId}/revoke`, { reason }, { headers });
   }
 
+  // Admin: list issued certificates
+  getIssuedCertificates(): Observable<CertificateData[]> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<any[]>(`${this.apiUrl}/admin/issued`, { headers }).pipe(
+      map(response => (response || []).map(cert => this.mapResponseToCertificateData(cert)))
+    );
+  }
+
+  // Admin: update metadata
+  updateCertificateMetadata(certificateId: string, payload: Partial<{ instructorName: string; organizationName: string; issueDate: string | Date; notes?: string }>): Observable<CertificateData> {
+    const headers = this.getAuthHeaders();
+    return this.http.put<any>(`${this.apiUrl}/${certificateId}`, payload, { headers }).pipe(
+      map(response => this.mapResponseToCertificateData(response))
+    );
+  }
+
   // Get certificate statistics (admin only)
   getCertificateStatistics(): Observable<any> {
     const headers = this.getAuthHeaders();
@@ -172,6 +192,7 @@ export class CertificateService {
 
   // Helper method to map backend response to CertificateData
   private mapResponseToCertificateData(response: any): CertificateData {
+    const certificateId = response.certificateId || response.verificationCode || response.certificateCode || response.id;
     return {
       id: response.id,
       studentName: response.studentName,
@@ -184,12 +205,27 @@ export class CertificateService {
       totalTimeSpent: response.totalTimeSpent,
       totalLessons: response.totalLessons,
       completionPercentage: response.completionPercentage,
-      certificateId: response.certificateId,
+      certificateId,
       instructorName: response.instructorName || 'Dr. Agricultural Expert',
-      organizationName: response.organizationName || 'AGRA Learning Platform',
-      issueDate: new Date(response.issueDate),
+      organizationName: response.organizationName || 'YEFFA Learning Platform',
+      issueDate: response.issueDate ? new Date(response.issueDate) : new Date(),
       isValid: response.isValid !== false, // Default to true if not specified
-      verificationUrl: response.verificationUrl || `${window.location.origin}/verify/${response.certificateId}`
+      verificationUrl: `${window.location.origin}/verifyCertificate/${certificateId}`,
+      verificationCode: certificateId,
+      notes: response.notes,
+      lastVerifiedAt: response.lastVerifiedAt ? new Date(response.lastVerifiedAt) : null
+    };
+  }
+  private mapVerificationResponse(response: any): CertificateVerificationResult {
+    if (!response) {
+      return { isValid: false, errorMessage: 'Certificate not found' };
+    }
+    const certificatePayload = response.certificate || response.data || response;
+    const isValid = response.isValid !== false && !!certificatePayload;
+    return {
+      isValid,
+      certificateData: isValid ? this.mapResponseToCertificateData(certificatePayload) : undefined,
+      errorMessage: isValid ? undefined : (response.errorMessage || 'Invalid certificate code')
     };
   }
 
@@ -214,35 +250,6 @@ export class CertificateService {
       month: 'long',
       day: 'numeric'
     });
-  }
-
-  // Create certificate data from course and progress information
-  createCertificateData(
-    course: Course,
-    progressData: any,
-    user: any
-  ): CertificateData {
-    const certificateId = this.generateCertificateId();
-    
-    return {
-      id: '', // Will be set by backend
-      studentName: user?.name || 'Student Name',
-      studentId: user?.id || '',
-      courseId: course.id || 'unknown-course',
-      courseTitle: course.title,
-      courseDomain: course.domain,
-      courseCountry: course.country,
-      completionDate: progressData.completedAt || new Date(),
-      totalTimeSpent: progressData.totalTimeSpent || 0,
-      totalLessons: progressData.totalLessons || 0,
-      completionPercentage: progressData.completionPercentage || 100,
-      certificateId: certificateId,
-      instructorName:  'UMNAGRI Educational Team',
-      organizationName: 'AGRA Learning Platform',
-      issueDate: new Date(),
-      isValid: true,
-      verificationUrl: `${window.location.origin}/verify/${certificateId}`
-    };
   }
 
   // Clear certificates cache
