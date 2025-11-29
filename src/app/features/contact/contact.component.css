@@ -5,6 +5,10 @@
   --text: var(--text-primary);
   --muted: var(--text-secondary);
   --accent: var(--primary-600);
+  --contact-header-start: var(--primary-100);
+  --contact-header-end: var(--primary-200);
+  --contact-header-dark-start: rgba(122, 155, 46, 0.22);
+  --contact-header-dark-end: rgba(15, 23, 42, 0.92);
 }
 
 /* Page root background matches theme */
@@ -36,12 +40,12 @@
   transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
 }
 .contact-card__header {
-  background: linear-gradient(135deg, var(--primary-50), var(--bg-primary));
+  background: linear-gradient(135deg, var(--contact-header-start), var(--contact-header-end));
   color: var(--text-primary);
   border-bottom: 1px solid var(--card-border);
 }
 html[data-theme="dark"] .contact-card__header {
-  background: linear-gradient(135deg, #0b1220, #111827);
+  background: linear-gradient(135deg, var(--contact-header-dark-start), var(--contact-header-dark-end));
   color: var(--text-primary);
   border-bottom-color: var(--card-border);
 }

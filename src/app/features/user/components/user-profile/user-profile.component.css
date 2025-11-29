@@ -1,6 +1,8 @@
 .profile-container {
   font-family: "Inter", sans-serif;
   margin-top: 3%;
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+  color: var(--text-primary);
 }
 
 /* Theme variables */
@@ -26,6 +28,34 @@
 .card-section:hover {
     transform: translateY(-4px) scale(1.005);
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Enrolled course cards align to theme surfaces */
+.enrolled-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-sm);
+}
+.enrolled-card:hover {
+  background: var(--card-hover-bg);
+  border-color: var(--border-accent);
+  box-shadow: var(--shadow-md);
+}
+.enrolled-card h3,
+.enrolled-card .text-gray-900 { color: var(--text) !important; }
+.enrolled-card p,
+.enrolled-card .text-gray-600,
+.enrolled-card .text-gray-500 { color: var(--muted) !important; }
+.enrolled-card .bg-gray-50 { background: var(--bg-secondary) !important; }
+.enrolled-card .bg-gray-200,
+.enrolled-card .bg-gray-300 { background: var(--card-border) !important; }
+.enrolled-card .border-gray-200 { border-color: var(--card-border) !important; }
+.enrolled-card .bg-gradient-to-br { background: var(--card-bg) !important; }
+.enrolled-card .progress-track { background: var(--card-border); }
+.enrolled-card .progress-fill { background: linear-gradient(135deg, var(--primary-500), var(--primary-600)); }
+.enrolled-card .session-fill { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.enrolled-card .status-badge {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
 }
 
 /* Light/dark overrides */

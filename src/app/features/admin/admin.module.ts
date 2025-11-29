@@ -4,7 +4,8 @@ import { CommonModule } from '@angular/common';
 import { AdminRoutingModule } from './admin-routing.module';
 import { FormsModule } from '@angular/forms';
 // import { CoursesModule } from '../courses/courses.module';
-import { SharedModule } from './shared/shared.module';
+import { SharedModule as AdminSharedModule } from './shared/shared.module';
+import { SharedModule as AppSharedModule } from '../shared/shared.module';
 import { NgChartsModule } from 'ng2-charts';
 import { DashboardAdminComponent } from './dashboard-admin/dashboard-admin.component';
 import { RouterModule } from '@angular/router';
@@ -31,7 +32,8 @@ import { AdminSettingsComponent } from './admin-settings/admin-settings.componen
     FormsModule,
     // CoursesModule,
     CourseManagementModule,
-    SharedModule,
+    AdminSharedModule,
+    AppSharedModule,
     NgChartsModule,
     RouterModule,
     AdminRoutingModule

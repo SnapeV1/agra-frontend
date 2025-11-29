@@ -2177,3 +2177,124 @@ body {
   background: #0b1220; /* deep surface */
   border-color: #374151; /* slate border */
 }
+
+/* --------------------------------------------------------------------------
+   Theme alignment: ensure every home surface uses the current theme colors
+   -------------------------------------------------------------------------- */
+:host {
+  --panel-bg: var(--card-bg);
+  --panel-border: var(--card-border);
+  --panel-hover: var(--card-hover-bg);
+  --panel-text: var(--text-primary);
+  --panel-muted: var(--text-secondary);
+  --panel-strong: var(--primary-600);
+  display: block;
+  color: var(--panel-text);
+  background: var(--bg-primary);
+}
+
+:host .hero {
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+  color: var(--panel-text);
+}
+
+:host .section {
+  background: var(--bg-primary);
+  color: var(--panel-text);
+}
+
+:host .section.alt-bg {
+  background: var(--bg-secondary);
+}
+
+:host .section-title,
+:host .hero-title {
+  color: var(--panel-text);
+}
+
+:host .section-title::after {
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+}
+
+:host .section-subtitle,
+:host .hero-subtitle,
+:host .stat-label,
+:host .stat-description {
+  color: var(--panel-muted);
+}
+
+:host .stat-number {
+  color: var(--panel-strong);
+}
+
+:host .floating-card,
+:host .overview-card,
+:host .feature-card,
+:host .course-card,
+:host .post-card,
+:host .tech-layer,
+:host .pricing-card,
+:host .timeline-content,
+:host .timeline-deliverables,
+:host .performance-metrics .metric,
+:host .course-skeleton,
+:host .post-skeleton {
+  background: var(--panel-bg);
+  color: var(--panel-text);
+  border-color: var(--panel-border);
+}
+
+:host .feature-card::before,
+:host .timeline::before {
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+}
+
+:host .course-domain,
+:host .course-country,
+:host .timeline-duration,
+:host .pricing-card .pricing-features .feature {
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+  color: var(--panel-text);
+  border-color: var(--panel-border);
+}
+
+:host .post-actions .action-btn,
+:host .course-actions .btn-primary,
+:host .cta-secondary,
+:host .btn-view-more {
+  border-color: var(--panel-border);
+  color: var(--panel-text);
+}
+
+:host .cta-primary,
+:host .btn-primary,
+:host .course-actions .btn-primary {
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  color: var(--text-inverse);
+}
+
+:host .pricing-card .price,
+:host .pricing-card h3,
+:host .timeline-content h3,
+:host .timeline-duration,
+:host .tech-layer h3 {
+  color: var(--panel-text);
+}
+
+:host .course-description,
+:host .post-text,
+:host .feature-list li,
+:host .overview-card p,
+:host .pricing-card .feature,
+:host .timeline-content p {
+  color: var(--panel-muted);
+}
+
+:host .course-card:hover,
+:host .post-card:hover,
+:host .feature-card:hover,
+:host .overview-card:hover,
+:host .pricing-card:hover,
+:host .tech-layer:hover {
+  background: var(--panel-hover);
+}

@@ -1,5 +1,5 @@
 <app-navigation></app-navigation>
-<div class="profile-container bg-gradient-to-br from-green-50 to-amber-50 min-h-screen p-4">
+<div class="profile-container min-h-screen p-4">
   <div class="max-w-6xl mx-auto space-y-6 fade-in">
 
     <!-- Loading State -->
@@ -312,7 +312,7 @@
       <div *ngIf="!coursesLoading && !coursesError && enrolledCourses.length > 0" 
            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div *ngFor="let enrolledCourse of enrolledCourses" 
-             class="group bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 hover:border-green-300 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col h-full cursor-pointer"
+             class="enrolled-card group rounded-xl transition-all duration-300 overflow-hidden flex flex-col h-full cursor-pointer"
              (click)="openCourse(enrolledCourse.courseId)">
           
           <!-- Course Image -->
@@ -327,7 +327,7 @@
                 'bg-green-500 text-white': enrolledCourse.status === 'completed',
                 'bg-blue-500 text-white': enrolledCourse.status === 'in-progress',
                 'bg-gray-500 text-white': enrolledCourse.status === 'not-started'
-              }" class="px-2 py-1 rounded-full text-xs font-medium capitalize">
+              }" class="status-badge px-2 py-1 rounded-full text-xs font-medium capitalize">
                 {{ enrolledCourse.status === 'not-started' ? 'Not Started' : 
                    enrolledCourse.status === 'in-progress' ? 'In Progress' : 'Completed' }}
               </span>
@@ -375,8 +375,8 @@
                     {{ enrolledCourse.progress.completionPercentage || 0 }}%
                   </span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                  <div class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500"
+                <div class="w-full bg-gray-200 rounded-full h-2 progress-track">
+                  <div class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500 progress-fill"
                        [style.width.%]="enrolledCourse.progress.completionPercentage || 0">
                   </div>
                 </div>
@@ -398,8 +398,8 @@
                     {{ getSessionProgress(enrolledCourse).completed }} / {{ getSessionProgress(enrolledCourse).total }}
                   </span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-1.5 mb-2">
-                  <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full transition-all duration-500"
+                <div class="w-full bg-gray-200 rounded-full h-1.5 mb-2 progress-track">
+                  <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-1.5 rounded-full transition-all duration-500 session-fill"
                        [style.width.%]="getSessionProgress(enrolledCourse).percentage">
                   </div>
                 </div>
