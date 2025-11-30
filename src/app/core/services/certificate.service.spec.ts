@@ -69,7 +69,7 @@ describe('CertificateService', () => {
       expect(certificate).toEqual(mockCertificateData);
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/certificates/generate/course1');
+    const req = httpMock.expectOne('http://localhost:8081/api/certificates/generate/course1');
     expect(req.request.method).toBe('POST');
     expect(req.request.headers.get('Authorization')).toBe('Bearer mock-token');
     req.flush(mockCertificateData);
@@ -80,7 +80,7 @@ describe('CertificateService', () => {
       expect(certificate).toEqual(mockCertificateData);
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/certificates/CERT-123');
+    const req = httpMock.expectOne('http://localhost:8081/api/certificates/CERT-123');
     expect(req.request.method).toBe('GET');
     req.flush(mockCertificateData);
   });
@@ -90,7 +90,7 @@ describe('CertificateService', () => {
       expect(certificate).toEqual(mockCertificateData);
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/certificates/user/course/course1');
+    const req = httpMock.expectOne('http://localhost:8081/api/certificates/user/course/course1');
     expect(req.request.method).toBe('GET');
     req.flush(mockCertificateData);
   });
@@ -102,7 +102,7 @@ describe('CertificateService', () => {
       expect(certs).toEqual(certificates);
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/certificates/user');
+    const req = httpMock.expectOne('http://localhost:8081/api/certificates/user');
     expect(req.request.method).toBe('GET');
     req.flush(certificates);
   });
@@ -118,7 +118,7 @@ describe('CertificateService', () => {
       expect(result.certificateData).toEqual(mockCertificateData);
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/certificates/validate/CERT-123');
+    const req = httpMock.expectOne('http://localhost:8081/api/certificates/validate/CERT-123');
     expect(req.request.method).toBe('GET');
     req.flush(verificationResult);
   });
@@ -130,7 +130,7 @@ describe('CertificateService', () => {
       expect(blob).toEqual(mockBlob);
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/certificates/CERT-123/download');
+    const req = httpMock.expectOne('http://localhost:8081/api/certificates/CERT-123/download');
     expect(req.request.method).toBe('GET');
     req.flush(mockBlob);
   });
@@ -140,7 +140,7 @@ describe('CertificateService', () => {
       expect(exists).toBe(true);
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/certificates/exists/course1');
+    const req = httpMock.expectOne('http://localhost:8081/api/certificates/exists/course1');
     expect(req.request.method).toBe('GET');
     req.flush({ exists: true });
   });

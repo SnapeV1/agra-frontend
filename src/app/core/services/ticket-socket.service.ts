@@ -18,7 +18,7 @@ export class TicketSocketService implements OnDestroy {
       const wsOrigin = origin.replace(/^http/i, 'ws');
       return `${wsOrigin}/ws`;
     } catch {
-      return 'ws://localhost:8080/ws';
+      return 'ws://localhost:8081/ws';
     }
   })();
 

@@ -1,12 +1,11 @@
 
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from './features/home/home.component';
+import { HomeComponent } from './features/frontoffice/home/home.component';
 import { AuthGuard } from './core/guards/authguards.guard';
 import { AdminGuard } from './core/guards/admin.guard';
-import { FeedComponent } from './features/feed/feed.component';
-import { ContactComponent } from './features/contact/contact.component';
-import { SettingsComponent } from './features/settings/settings.component';
+import { FeedComponent } from './features/frontoffice/feed/feed.component';
+import { ContactComponent } from './features/frontoffice/contact/contact.component';
 
 
 
@@ -15,7 +14,11 @@ const routes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full' },
 
   { path: 'home', component: HomeComponent },
-  { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
+  {
+    path: 'settings',
+    loadChildren: () =>
+      import('./features/frontoffice/settings/settings.module').then(m => m.SettingsModule)
+  },
    { 
     path: 'contact', 
     component: ContactComponent,
@@ -24,7 +27,7 @@ const routes: Routes = [
   {
     path: 'courses',
     loadChildren: () =>
-      import('./features/courses/courses.module').then(m => m.CoursesModule),
+      import('./features/frontoffice/courses/courses.module').then(m => m.CoursesModule),
   
   },
 { path: 'feed', component: FeedComponent },
@@ -33,7 +36,7 @@ const routes: Routes = [
   {
     path: 'admin',
     loadChildren: () =>
-      import('./features/admin/admin.module').then(m => m.AdminModule),
+      import('./features/backoffice/admin/admin.module').then(m => m.AdminModule),
     canActivate: [AdminGuard],
     canActivateChild: [AdminGuard]
   },
@@ -41,7 +44,7 @@ const routes: Routes = [
   {
     path: 'user',
     loadChildren: () =>
-      import('./features/user/user.module').then(m => m.UserModule),
+      import('./features/frontoffice/user/user.module').then(m => m.UserModule),
     canActivate: [AuthGuard],
     canActivateChild: [AuthGuard]
   },

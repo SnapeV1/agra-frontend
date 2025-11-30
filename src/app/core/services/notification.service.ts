@@ -25,7 +25,7 @@ export class NotificationService implements OnDestroy {
       return `${wsOrigin}/ws`;
     } catch {
       // Fallback: assume same host
-      return 'ws://localhost:8080/ws';
+      return 'ws://localhost:8081/ws';
     }
   })();
   private userId?: string;

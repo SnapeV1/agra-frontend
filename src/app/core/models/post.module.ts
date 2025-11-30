@@ -16,10 +16,4 @@ export interface Post {
   likesCount?: number;
   comments?: PostComment[];
   isLikedByCurrentUser?: boolean;
-  // UI-only properties
-  showComments?: boolean;
-  newComment?: string;
-  showDropdown?: boolean;
-  imageLoadFailed?: boolean; 
-
 }
