@@ -44,36 +44,36 @@
 }
 
 :host-context([data-theme='dark']) .ticket-board {
-  --page-bg: #0a0a0a;
-  --text-primary: #e5e5e5;
-  --text-secondary: #a3a3a3;
-  --border-color: #252525;
-  --divider-color: #252525;
-  --sidebar-bg: #131313;
-  --list-bg: #0f0f0f;
-  --conversation-bg: #0a0a0a;
-  --hover-bg: #151515;
-  --active-bg: #1a1a1a;
-  --avatar-bg: #1a1a1a;
-  --input-bg: #1a1a1a;
-  --input-border: #2a2a2a;
-  --button-bg: #1a1a1a;
-  --button-border: #2a2a2a;
+  --page-bg: #0f172a;
+  --text-primary: #e5e7eb;
+  --text-secondary: #94a3b8;
+  --border-color: #1f2937;
+  --divider-color: #1f2937;
+  --sidebar-bg: #0b1220;
+  --list-bg: #0f172a;
+  --conversation-bg: #0b1220;
+  --hover-bg: #111827;
+  --active-bg: #111827;
+  --avatar-bg: #111827;
+  --input-bg: #0f172a;
+  --input-border: #1f2937;
+  --button-bg: #0b1220;
+  --button-border: #1f2937;
   --accent: #8b5cf6;
-  --accent-hover: #9d6ef8;
+  --accent-hover: #a78bfa;
   --badge-open-bg: #1e293b;
-  --badge-open-color: #93c5fd;
-  --badge-progress-bg: #7c2d12;
-  --badge-progress-color: #fed7aa;
-  --badge-resolved-bg: #065f46;
-  --badge-resolved-color: #86efac;
-  --badge-high-bg: #7f1d1d;
-  --badge-high-color: #fca5a5;
-  --badge-medium-bg: #854d0e;
-  --badge-medium-color: #fde047;
-  --badge-low-bg: #404040;
-  --badge-low-color: #d4d4d4;
-  --badge-closed-bg: #334155;
+  --badge-open-color: #bfdbfe;
+  --badge-progress-bg: #3b2610;
+  --badge-progress-color: #fcd34d;
+  --badge-resolved-bg: #0f3c2f;
+  --badge-resolved-color: #bbf7d0;
+  --badge-high-bg: #3f1d2e;
+  --badge-high-color: #fecdd3;
+  --badge-medium-bg: #3b2f0b;
+  --badge-medium-color: #fde68a;
+  --badge-low-bg: #1f2937;
+  --badge-low-color: #e5e7eb;
+  --badge-closed-bg: #1f2937;
   --badge-closed-color: #cbd5f5;
 }
 

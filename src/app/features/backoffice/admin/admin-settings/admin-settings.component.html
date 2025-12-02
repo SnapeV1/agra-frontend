@@ -1,6 +1,164 @@
 <app-base-layout>
-  <div class="admin-settings-host">
-    <!-- Reuse existing settings UI but hide user shell (nav/footer) for admin layout -->
-    <app-settings class="admin-settings-page"></app-settings>
+  <div class="settings-container">
+    <div class="mgmt-header">
+      <div>
+        <p class="eyebrow">Administration</p>
+        <h1>Settings</h1>
+        <span>Control admin appearance and notifications</span>
+      </div>
+    </div>
+
+    <div class="settings-grid">
+      <section class="settings-card">
+        <div class="card-header">
+          <div>
+            <p class="eyebrow">Appearance</p>
+            <h3>Theme</h3>
+            <small>Applies to the admin workspace</small>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Display mode</div>
+            <div class="setting-hint">Choose light or dark theme</div>
+          </div>
+          <div class="select-wrapper">
+            <select [(ngModel)]="theme" (change)="saveTheme()">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-card">
+        <div class="card-header">
+          <div>
+            <p class="eyebrow">Notifications</p>
+            <h3>Admin Alerts</h3>
+            <small>Quick toggles for platform alerts</small>
+          </div>
+        </div>
+        <div class="setting-row" *ngFor="let pref of notificationToggles">
+          <div>
+            <div class="setting-label">{{ pref.label }}</div>
+            <div class="setting-hint">{{ pref.hint }}</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="pref.enabled" (change)="saveNotificationPrefs()">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="settings-actions">
+          <button class="btn btn-primary" (click)="saveNotificationPrefs()" [disabled]="savingPrefs">
+            {{ savingPrefs ? 'Saving...' : 'Save preferences' }}
+          </button>
+          <span class="status" *ngIf="prefsMessage">{{ prefsMessage }}</span>
+          <span class="status error" *ngIf="prefsError">{{ prefsError }}</span>
+        </div>
+      </section>
+
+      <section class="settings-card">
+        <div class="card-header">
+          <div>
+            <p class="eyebrow">Operations</p>
+            <h3>Platform Controls</h3>
+            <small>Maintenance mode and news ingestion</small>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">System maintenance</div>
+            <div class="setting-hint">Toggle system-wide maintenance mode</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="maintenanceEnabled">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">GNews fetch cadence</div>
+            <div class="setting-hint">Manage news-fetch schedule</div>
+          </div>
+          <div class="select-wrapper">
+            <select [(ngModel)]="newsSchedule">
+              <option value="15m">Every 15 minutes</option>
+              <option value="30m">Every 30 minutes</option>
+              <option value="60m">Every 60 minutes</option>
+              <option value="120m">Every 2 hours</option>
+            </select>
+          </div>
+        </div>
+        <div class="settings-actions spaced">
+          <button class="btn btn-primary" (click)="saveControlSettings()">Save changes</button>
+          <button class="btn btn-secondary" (click)="fetchNewsNow()" type="button">Fetch now</button>
+          <span class="status" *ngIf="fetchNowMessage">{{ fetchNowMessage }}</span>
+        </div>
+
+        <div class="card-header">
+          <div>
+            <p class="eyebrow">Security</p>
+            <h3>Account Protection</h3>
+            <small>Two-factor and account credentials</small>
+          </div>
+        </div>
+        <div class="setting-row column">
+          <div>
+            <div class="setting-label">Two-factor authentication</div>
+            <div class="setting-hint">Require 2FA for admin sign-in</div>
+          </div>
+          <div class="stack">
+            <label class="switch">
+              <input type="checkbox" [(ngModel)]="twoFactorEnabled">
+              <span class="slider"></span>
+            </label>
+            <input type="password" [(ngModel)]="twoFactorPassword" placeholder="Confirm with password" class="text-input">
+            <div class="status" *ngIf="twoFactorMessage">{{ twoFactorMessage }}</div>
+            <div class="status error" *ngIf="twoFactorError">{{ twoFactorError }}</div>
+            <button class="btn btn-primary inline" type="button" (click)="updateTwoFactor()">Update 2FA</button>
+          </div>
+        </div>
+        <div class="setting-row column">
+          <div>
+            <div class="setting-label">Email</div>
+            <div class="setting-hint">Change the admin contact email</div>
+          </div>
+          <button class="btn btn-secondary inline" type="button" (click)="toggleEmailForm()">
+            {{ showEmailForm ? 'Cancel' : 'Edit email' }}
+          </button>
+          <div *ngIf="showEmailForm" class="stack nested">
+            <input type="email" [(ngModel)]="newEmail" placeholder="name@domain.com" class="text-input">
+            <input type="email" [(ngModel)]="confirmEmail" placeholder="Confirm new email" class="text-input">
+            <input type="password" [(ngModel)]="emailPassword" placeholder="Current password" class="text-input">
+            <div class="status" *ngIf="emailMessage">{{ emailMessage }}</div>
+            <div class="status error" *ngIf="emailError">{{ emailError }}</div>
+            <button class="btn btn-primary inline" type="button" (click)="changeEmail()">Update email</button>
+          </div>
+        </div>
+        <div class="setting-row column">
+          <div>
+            <div class="setting-label">Password</div>
+            <div class="setting-hint">Set a new password</div>
+          </div>
+          <button class="btn btn-secondary inline" type="button" (click)="togglePasswordForm()">
+            {{ showPasswordForm ? 'Cancel' : 'Edit password' }}
+          </button>
+          <div *ngIf="showPasswordForm" class="stack nested">
+            <input type="password" [(ngModel)]="currentPassword" placeholder="Current password" class="text-input">
+            <input type="password" [(ngModel)]="newPassword" placeholder="New password" class="text-input">
+            <input type="password" [(ngModel)]="confirmPassword" placeholder="Confirm new password" class="text-input">
+            <div class="status" *ngIf="pwMessage">{{ pwMessage }}</div>
+            <div class="status error" *ngIf="pwError">{{ pwError }}</div>
+            <button class="btn btn-primary inline" type="button" (click)="changePassword()">Update password</button>
+          </div>
+        </div>
+        <div class="settings-actions">
+          <button class="btn btn-primary" (click)="saveControlSettings()">Save changes</button>
+          <span class="status" *ngIf="settingsMessage">{{ settingsMessage }}</span>
+          <span class="status error" *ngIf="settingsError">{{ settingsError }}</span>
+        </div>
+      </section>
+    </div>
   </div>
 </app-base-layout>

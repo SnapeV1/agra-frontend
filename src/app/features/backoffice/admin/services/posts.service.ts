@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { Post } from 'src/app/core/models/post.module';
@@ -74,6 +74,49 @@ export class PostsService {
     this.updatePosts();
   }
 
+  updatePostOnServer(postId: string, payload: { content: string; imageFile?: File | null; removeImage?: boolean; username?: string }): Observable<PostViewModel> {
+    const token = this.authService.getToken();
+    if (!token) return throwError(() => new Error('Not authenticated'));
+
+    const url = `${this.baseApi}/posts/${postId}`;
+    const baseHeaders = { Authorization: `Bearer ${token}` };
+
+    // If no image upload, send JSON to satisfy backend media-type
+    if (!payload.imageFile) {
+      const body = {
+        content: payload.content,
+        username: payload.username,
+        removeImage: !!payload.removeImage
+      };
+      return this.http.put<Post>(url, body, {
+        headers: { ...baseHeaders, 'Content-Type': 'application/json' }
+      }).pipe(map(post => this.normalizePost(post)));
+    }
+
+    // With image: send multipart without forcing content-type (browser will set boundary)
+    const formData = new FormData();
+    const postPayload: Record<string, any> = {
+      content: payload.content,
+      username: payload.username,
+      removeImage: !!payload.removeImage
+    };
+    formData.append('post', JSON.stringify(postPayload));
+    formData.append('imageFile', payload.imageFile);
+
+    return this.http.put<Post>(url, formData, {
+      headers: baseHeaders
+    }).pipe(map(post => this.normalizePost(post)));
+  }
+
+  deletePostOnServer(postId: string): Observable<void> {
+    const token = this.authService.getToken();
+    if (!token) return throwError(() => new Error('Not authenticated'));
+
+    return this.http.delete<void>(`${this.baseApi}/posts/${postId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+  }
+
   /* =====================================================
      ===============  LIKE HANDLING =======================
      ===================================================== */
@@ -83,12 +126,19 @@ export class PostsService {
     const token = this.authService.getToken();
     if (!token) return;
 
+    const currentlyLiked = !!post.isLikedByCurrentUser;
+    const delta = currentlyLiked ? -1 : 1;
+    this.applyLocalLike(post.id, !currentlyLiked, delta);
+
     this.http.post(`${this.baseApi}/posts/${post.id}/like`, {}, {
       headers: { 'Authorization': `Bearer ${token}` },
       responseType: 'text' as 'json'
     }).subscribe({
-      next: () => this.fetchPosts(),
-      error: () => this.fetchPosts()
+      next: () => {},
+      error: () => {
+        // revert on failure
+        this.applyLocalLike(post.id, currentlyLiked, -delta);
+      }
     });
   }
 
@@ -296,6 +346,15 @@ export class PostsService {
   private avatarFromName(name?: string): string {
     const safe = encodeURIComponent((name || 'Member').trim() || 'Member');
     return `https://ui-avatars.com/api/?name=${safe}&background=8FB03D&color=ffffff&bold=true`;
+  }
+
+  private applyLocalLike(postId: string, liked: boolean, delta: number): void {
+    const idx = this.posts.findIndex(p => p.id === postId);
+    if (idx === -1) return;
+    const current = this.posts[idx];
+    const likes = Math.max(0, (current.likesCount || 0) + delta);
+    this.posts[idx] = { ...current, isLikedByCurrentUser: liked, likesCount: likes };
+    this.updatePosts();
   }
 
   /* =====================================================

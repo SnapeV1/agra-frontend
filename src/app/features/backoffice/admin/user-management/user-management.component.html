@@ -1,8 +1,11 @@
 <app-base-layout>
 <div class="user-management">
-  <div class="header">
-    <h1>User Management</h1>
-    <p>Manage your users and their permissions</p>
+  <div class="mgmt-header">
+    <div>
+      <p class="eyebrow">Administration</p>
+      <h1>User Management</h1>
+      <span>Manage your users and their permissions</span>
+    </div>
   </div>
 
   <div class="search-container">
@@ -112,7 +115,31 @@
         <div class="form-row">
           <div class="form-group">
             <label>Phone</label>
-            <input type="text" [(ngModel)]="selectedUser.phone" class="form-input">
+            <div class="phone-control">
+              <div class="country-select" [class.open]="isCountryDropdownOpen">
+                <div class="select-trigger" (click)="toggleCountryDropdown()">
+                  <span class="selected-country">
+                    <span class="fi fi-{{ getSelectedCountry().country.toLowerCase() }}"></span>
+                    {{ getSelectedCountry().code }}
+                  </span>
+                  <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                    <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="select-options" *ngIf="isCountryDropdownOpen">
+                  <div
+                    class="select-option"
+                    *ngFor="let country of countryCodes"
+                    (click)="selectCountry(country)"
+                    [class.selected]="selectedUser && selectedUser.phoneCountryCode === country.code">
+                    <span class="fi fi-{{ country.country.toLowerCase() }}"></span>
+                    <span class="country-code">{{ country.code }}</span>
+                    <span class="country-name">{{ country.name }}</span>
+                  </div>
+                </div>
+              </div>
+              <input type="tel" [(ngModel)]="selectedUser.phone" class="form-input phone-number" placeholder="123 456 789">
+            </div>
           </div>
           <div class="form-group">
             <label>Country</label>

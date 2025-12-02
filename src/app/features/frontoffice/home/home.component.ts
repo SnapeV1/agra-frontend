@@ -9,6 +9,7 @@ import { Subscription } from 'rxjs';
 import { PostsService } from 'src/app/features/backoffice/admin/services/posts.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
 // Google sign-in is handled in dedicated Auth components (Login/Register).
+declare const require: any;
 
 @Component({
   selector: 'app-home',
@@ -48,11 +49,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   featuredCourses: Course[] = [];
   coursesLoading = true;
   coursesError = '';
-featuredPosts: any[] = [];
+  featuredPosts: any[] = [];
   postsLoading: boolean = false;
   postsError: string = '';
   private postsSubscription?: Subscription;
   fallbackAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><rect width='80' height='80' fill='%23f3f4f6'/><circle cx='40' cy='32' r='18' fill='%23cbd5e1'/><path d='M12 72c4-14 16-22 28-22s24 8 28 22' fill='%23cbd5e1'/></svg>";
+  sponsorLogos: string[] = [];
   constructor(
     private router: Router,
     private courseService: CourseService, 
@@ -67,7 +69,21 @@ featuredPosts: any[] = [];
     this.loadFeaturedCourses();
     this.loadFeaturedPosts();
     this.setupScrollObserver();
+    this.loadSponsorLogos();
   }
+
+private loadSponsorLogos(): void {
+  import('../../../../assets/images/sponsors/sponsors.json')
+    .then((data: any) => {
+      const list = Array.isArray(data?.default) ? data.default : (Array.isArray(data) ? data : []);
+      this.sponsorLogos = list.map((file: string) => `assets/images/sponsors/${file}`);
+    })
+    .catch(() => {
+      this.sponsorLogos = [];
+    });
+}
+
+
 
   ngOnDestroy(): void {
      if (this.postsSubscription) {
@@ -104,9 +120,15 @@ featuredPosts: any[] = [];
     this.coursesLoading = true;
     this.coursesError = '';
 
-    this.courseService.getAllCourses().subscribe({
+    this.courseService.getActiveCourses().subscribe({
       next: (courses) => {
-        this.featuredCourses = (courses ?? []).slice(0, 4);
+        const normalized = (courses ?? []).map(c => ({
+          ...c,
+          createdAt: c?.createdAt ? new Date(c.createdAt) : new Date(0)
+        } as Course));
+        const activeCourses = normalized.filter(c => !c?.archived);
+        const sorted = activeCourses.sort((a, b) => (b.createdAt as any) - (a.createdAt as any));
+        this.featuredCourses = sorted.slice(0, 4);
         this.coursesLoading = false;
       },
       error: (err) => {
@@ -149,7 +171,7 @@ featuredPosts: any[] = [];
     return num.toLocaleString();
   }
 
-  @HostListener('window:scroll', ['$event'])
+  @HostListener('window:scroll', [])
   onWindowScroll(): void {
     const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
     this.isScrolled = scrollPosition > 50;
@@ -185,9 +207,20 @@ featuredPosts: any[] = [];
     img.onerror = null;
   }
 
+  setFallbackPostImage(evt: Event): void {
+    const img = evt?.target as HTMLImageElement;
+    if (img) {
+      img.style.display = 'none';
+      const parent = img.parentElement;
+      if (parent) {
+        parent.classList.add('placeholder');
+      }
+    }
+  }
+
 
   private updateActiveSection(): void {
-    const sections = ['overview', 'features', 'courses', 'technical', 'pricing', 'timeline'];
+    const sections = ['overview', 'features', 'courses', 'about', 'sponsors', 'organizations'];
     const scrollPosition = window.pageYOffset + 100;
 
     for (const section of sections) {

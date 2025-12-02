@@ -15,6 +15,10 @@ export class CourseService {
 
   constructor(private http: HttpClient, private authService: AuthService, private mockDataService: MockDataService) { }
 
+  getActiveCourses(): Observable<Course[]> {
+    return this.http.get<Course[]>(`${this.apiUrl}/getActiveCourses`);
+  }
+
   getAllCourses(): Observable<Course[]> {
     return this.http.get<Course[]>(`${this.apiUrl}/getAllCourses`);
   }

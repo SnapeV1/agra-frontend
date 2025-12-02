@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { NewsService, NewsArticle } from 'src/app/core/services/news.service';
@@ -15,6 +15,8 @@ import { User } from 'src/app/core/models/user.model';
 })
 export class FeedComponent implements OnInit, OnDestroy {
   posts: PostViewModel[] = [];
+  visiblePosts: PostViewModel[] = [];
+  private displayLimit = 8;
   loading: boolean = false;
   errorMessage: string = '';
   // News sidebars
@@ -101,6 +103,7 @@ export class FeedComponent implements OnInit, OnDestroy {
           } catch {}
           
           this.posts = updatedPosts;
+          this.updateVisiblePosts();
           this.loading = false;
         },
         error: error => {
@@ -305,5 +308,42 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   onLikeLeave(post: any): void {
     // No-op: hover state handled purely by CSS
+  }
+
+  getPostImageSrc(url?: string | null): string {
+    const { src } = this.buildResponsiveImage(url);
+    return src || '';
+  }
+
+  getPostImageSrcSet(url?: string | null): string | null {
+    const { srcset } = this.buildResponsiveImage(url);
+    return srcset || null;
+  }
+
+  private buildResponsiveImage(url?: string | null, baseWidth = 720): { src: string; srcset?: string } {
+    if (!url) return { src: '' };
+    const uploadToken = '/upload/';
+    if (url.includes('res.cloudinary.com') && url.includes(uploadToken)) {
+      const [prefix, rest] = url.split(uploadToken);
+      const safeRest = rest || '';
+      const oneX = `${prefix}${uploadToken}w_${baseWidth},f_auto,q_auto,dpr_1.0/${safeRest}`;
+      const twoX = `${prefix}${uploadToken}w_${baseWidth * 2},f_auto,q_auto,dpr_2.0/${safeRest}`;
+      return { src: oneX, srcset: `${oneX} 1x, ${twoX} 2x` };
+    }
+    return { src: url };
+  }
+
+  private updateVisiblePosts(): void {
+    this.visiblePosts = this.posts.slice(0, this.displayLimit);
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    const threshold = 400;
+    const scrolled = window.innerHeight + window.scrollY;
+    if (scrolled + threshold >= document.body.scrollHeight) {
+      this.displayLimit += 4;
+      this.updateVisiblePosts();
+    }
   }
 }

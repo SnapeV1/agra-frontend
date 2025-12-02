@@ -13,6 +13,19 @@ export class UserManagementComponent implements OnInit {
   selectedUser: User | null = null;
   showEditModal = false;
   loading = true;
+  isCountryDropdownOpen = false;
+  countryCodes = [
+    { code: '+1', country: 'US', name: 'United States' },
+    { code: '+44', country: 'GB', name: 'United Kingdom' },
+    { code: '+33', country: 'FR', name: 'France' },
+    { code: '+49', country: 'DE', name: 'Germany' },
+    { code: '+91', country: 'IN', name: 'India' },
+    { code: '+966', country: 'SA', name: 'Saudi Arabia' },
+    { code: '+971', country: 'AE', name: 'United Arab Emirates' },
+    { code: '+61', country: 'AU', name: 'Australia' },
+    { code: '+81', country: 'JP', name: 'Japan' },
+    { code: '+86', country: 'CN', name: 'China' }
+  ];
 
   constructor(private usersService: UsersService) {}
 
@@ -59,7 +72,13 @@ export class UserManagementComponent implements OnInit {
 
   openEditModal(user: User): void {
     // Create a deep copy to avoid direct mutation
-    this.selectedUser = { ...user };
+    const countryCodeMatch = (user.phone || '').match(/^(\+\d{1,4})\s+(.*)$/);
+    this.selectedUser = {
+      ...user,
+      phoneCountryCode: countryCodeMatch ? countryCodeMatch[1] : (this.getSelectedCountry().code),
+      phone: countryCodeMatch ? countryCodeMatch[2] : (user.phone || '')
+    } as any;
+    this.isCountryDropdownOpen = false;
     this.showEditModal = true;
     // Prevent body scroll when modal is open
     document.body.style.overflow = 'hidden';
@@ -74,7 +93,11 @@ export class UserManagementComponent implements OnInit {
 
   saveUser(): void {
     if (this.selectedUser) {
-      const pending = { ...this.selectedUser };
+      const pending = { ...this.selectedUser } as any;
+      if (pending.phone) {
+        const code = pending.phoneCountryCode || this.getSelectedCountry().code;
+        pending.phone = `${code} ${pending.phone}`.trim();
+      }
       // Prevent duplicate emails (case-insensitive, excluding the edited user)
       const exists = this.users.some(u => u.id !== pending.id && (u.email || '').toLowerCase() === (pending.email || '').toLowerCase());
       if (exists) {
@@ -116,4 +139,21 @@ export class UserManagementComponent implements OnInit {
     this.selectedUser.archived = !this.selectedUser.archived;
   }
 }
+
+  toggleCountryDropdown(): void {
+    this.isCountryDropdownOpen = !this.isCountryDropdownOpen;
+  }
+
+  selectCountry(country: { code: string; country: string; name: string }): void {
+    if (this.selectedUser) {
+      (this.selectedUser as any).phoneCountryCode = country.code;
+    }
+    this.isCountryDropdownOpen = false;
+  }
+
+  getSelectedCountry(): { code: string; country: string; name: string } {
+    const code = (this.selectedUser as any)?.phoneCountryCode;
+    const found = this.countryCodes.find(c => c.code === code);
+    return found || this.countryCodes[0];
+  }
 }

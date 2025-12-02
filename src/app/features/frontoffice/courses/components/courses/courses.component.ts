@@ -71,7 +71,7 @@ export class CoursesComponent implements OnInit {
       this.cdr.markForCheck();
     }, 2000);
 
-    this.courseService.getAllCourses().subscribe({
+    this.courseService.getActiveCourses().subscribe({
       next: (courses) => {
         this.courses = courses;
         this.filteredCourses = [...courses];

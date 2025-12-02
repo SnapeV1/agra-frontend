@@ -114,6 +114,11 @@ html[data-theme="dark"] {
   --card-hover-bg: #1f2937; /* slightly lighter than bg for hover */
 }
 
+/* Disable navigation view transitions (Chrome) */
+:root { view-transition-name: none; }
+::view-transition-old(*),
+::view-transition-new(*) { animation: none !important; }
+
 /* Global dark hover sanitation for common surfaces */
 html[data-theme="dark"] .overview-card:hover,
 html[data-theme="dark"] .feature-card:hover,

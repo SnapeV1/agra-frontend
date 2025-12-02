@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { AuthUser } from 'src/app/core/models/auth-user.model';
@@ -6,6 +6,7 @@ import { User } from 'src/app/core/models/user.model';
 import { PostsService } from '../services/posts.service';
 import { PostViewModel } from 'src/app/shared/models/post-view.model';
 import { PostComment } from 'src/app/core/models/post-comment.module';
+import { NewsArticle, NewsService } from 'src/app/core/services/news.service';
 
 interface CreatePostForm {
   content: string;
@@ -23,6 +24,15 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
   @ViewChild('editFileInput') editFileInput!: ElementRef<HTMLInputElement>;
 
   posts: PostViewModel[] = [];
+  visiblePosts: PostViewModel[] = [];
+  private displayLimit = 8;
+  leftNews: NewsArticle[] = [];
+  rightNews: NewsArticle[] = [];
+  leftNewsLimit = 8;
+  rightNewsLimit = 8;
+  news: NewsArticle[] = [];
+  newsLoading = false;
+  newsError = '';
   loading = false;
   errorMessage = '';
   isCreatingPost = false; 
@@ -43,12 +53,15 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
-    private postsService: PostsService
+    private postsService: PostsService,
+  private newsService: NewsService
   ) {}
 
   ngOnInit(): void {
     this.initializeAuthentication();
     this.loadPosts();
+    this.loadNews();
+    this.updateVisiblePosts();
   }
 
   ngOnDestroy(): void {
@@ -95,6 +108,7 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
         next: posts => {
           this.posts = posts;
           this.sortPostsByDate();
+          this.updateVisiblePosts();
           this.loading = false;
         },
         error: error => {
@@ -301,31 +315,57 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
     }
   }
 
-  async saveEdit(): Promise<void> {
-    if (!this.editingPost || !this.editingPost.content.trim()) return;
+  getPostImageSrc(url?: string | null): string {
+    const { src } = this.buildResponsiveImage(url);
+    return src || '';
+  }
 
-    let imageUrl = this.editingPost.imageUrl;
+  getPostImageSrcSet(url?: string | null): string | null {
+    const { srcset } = this.buildResponsiveImage(url);
+    return srcset || null;
+  }
 
-    // Upload new image if one is selected
-    if (this.editingImageFile) {
-      try {
-        // Implement image upload logic here if needed
-      } catch (error) {
-        this.errorMessage = 'Failed to upload image. Please try again.';
-        return;
-      }
+  private buildResponsiveImage(url?: string | null, baseWidth = 720): { src: string; srcset?: string } {
+    if (!url) return { src: '' };
+
+    const uploadToken = '/upload/';
+    if (url.includes('res.cloudinary.com') && url.includes(uploadToken)) {
+      const [prefix, rest] = url.split(uploadToken);
+      const safeRest = rest || '';
+      const oneX = `${prefix}${uploadToken}w_${baseWidth},f_auto,q_auto,dpr_1.0/${safeRest}`;
+      const twoX = `${prefix}${uploadToken}w_${baseWidth * 2},f_auto,q_auto,dpr_2.0/${safeRest}`;
+      return { src: oneX, srcset: `${oneX} 1x, ${twoX} 2x` };
     }
 
-    const updatedPost: PostViewModel = {
-      ...this.editingPost,
-      content: this.editingPost.content.trim(),
-      imageUrl: imageUrl,
-      updatedAt: new Date().toISOString()
-    };
+    return { src: url };
+  }
 
-    this.postsService.editPost(updatedPost);
-    this.sortPostsByDate();
-    this.cancelEdit();
+  async saveEdit(): Promise<void> {
+    if (!this.editingPost || !this.editingPost.content.trim() || !this.currentUser) return;
+    if (!this.isAuthenticated) {
+      this.errorMessage = 'You must be signed in to edit posts.';
+      return;
+    }
+
+    const content = this.editingPost.content.trim();
+    const removeImage = !this.editingImageFile && !this.editingPost.imageUrl;
+
+    this.errorMessage = '';
+
+    this.postsService.updatePostOnServer(this.editingPost.id, {
+      content,
+      imageFile: this.editingImageFile || undefined,
+      removeImage,
+      username: this.currentUser.name
+    }).subscribe({
+      next: () => {
+        this.refreshPosts();
+        this.cancelEdit();
+      },
+      error: () => {
+        this.errorMessage = 'Failed to update post. Please try again.';
+      }
+    });
   }
 
   // Delete Post Methods
@@ -342,8 +382,21 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
 
   deletePost(): void {
     if (!this.postToDelete) return;
-    this.postsService.deletePost(this.postToDelete.id);
+    if (!this.isAuthenticated) {
+      this.errorMessage = 'You must be signed in to delete posts.';
+      return;
+    }
+    const toDelete = this.postToDelete;
     this.cancelDelete();
+    this.errorMessage = '';
+    this.postsService.deletePostOnServer(toDelete.id).subscribe({
+      next: () => {
+        this.refreshPosts();
+      },
+      error: () => {
+        this.errorMessage = 'Failed to delete post. Please try again.';
+      }
+    });
   }
 
   // Like functionality
@@ -495,5 +548,65 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
 
   public sortPosts(): void {
     this.sortPostsByDate();
+  }
+
+  private updateVisiblePosts(): void {
+    this.visiblePosts = this.posts.slice(0, this.displayLimit);
+  }
+
+  private loadNews(): void {
+    this.newsLoading = true;
+    this.newsError = '';
+    this.newsService.getAllNews().subscribe({
+      next: articles => {
+        const cleaned = (articles || []).filter(a => !!a && !!a.title);
+        this.news = cleaned;
+        const half = Math.ceil(cleaned.length / 2);
+        this.leftNews = cleaned.slice(0, half);
+        this.rightNews = cleaned.slice(half);
+        this.leftNewsLimit = Math.min(8, this.leftNews.length || 0);
+        this.rightNewsLimit = Math.min(8, this.rightNews.length || 0);
+        this.newsLoading = false;
+      },
+      error: () => {
+        this.newsError = 'Failed to load news.';
+        this.newsLoading = false;
+      }
+    });
+  }
+
+  deleteNews(item: NewsArticle): void {
+    if (!item?.id) return;
+    this.newsService.deleteNews(item.id).subscribe({
+      next: () => {
+        const remove = (arr: NewsArticle[]) => arr.filter(n => n.id !== item.id);
+        this.leftNews = remove(this.leftNews);
+        this.rightNews = remove(this.rightNews);
+        this.news = remove(this.news);
+        this.leftNewsLimit = Math.min(this.leftNewsLimit, this.leftNews.length || 0);
+        this.rightNewsLimit = Math.min(this.rightNewsLimit, this.rightNews.length || 0);
+      },
+      error: () => {
+        // swallow; lightweight operation
+      }
+    });
+  }
+
+  loadMoreLeftNews(): void {
+    this.leftNewsLimit = Math.min(this.leftNewsLimit + 8, this.leftNews.length);
+  }
+
+  loadMoreRightNews(): void {
+    this.rightNewsLimit = Math.min(this.rightNewsLimit + 8, this.rightNews.length);
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    const threshold = 400;
+    const scrolled = window.innerHeight + window.scrollY;
+    if (scrolled + threshold >= document.body.scrollHeight) {
+      this.displayLimit += 4;
+      this.updateVisiblePosts();
+    }
   }
 }

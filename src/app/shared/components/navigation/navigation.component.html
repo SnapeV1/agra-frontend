@@ -1,4 +1,4 @@
-<nav class="navbar" [class.scrolled]="isScrolled">
+﻿<nav class="navbar" [class.scrolled]="isScrolled">
     <div class="nav-container">
         <div class="nav-brand">
             <span class="nav-logo">  <img src="assets/logo2.png" alt="App Logo"></span>
@@ -22,7 +22,7 @@
             <!-- Notifications placed just right of the Admin View button -->
             <div *ngIf="isLoggedIn" class="notif-menu">
               <button class="notif-button" (click)="toggleNotification()" aria-label="Notifications" [class.has-unread]="unread > 0">
-                <lucide-icon name="bell" size="20" [strokeWidth]="2.2"></lucide-icon>
+                <lucide-icon name="Bell" size="20" [strokeWidth]="2.2"></lucide-icon>
                 <span *ngIf="unread > 0" class="notif-badge">{{ unread }}</span>
               </button>
               <div class="notif-dropdown" [class.show]="isNotificationOpen">
@@ -70,7 +70,7 @@
                         (error)="onAvatarError($event)">
                     <span class="profile-name">{{ getUserDisplayName() }}</span>
                   
-                    <span class="dropdown-arrow" [class.open]="isDropdownOpen">▼</span>
+                    <span class="dropdown-arrow" [class.open]="isDropdownOpen">&#9662;</span>
                 </div>
                 
                 <div class="dropdown-menu" [class.show]="isDropdownOpen">
@@ -92,20 +92,20 @@
                     
                     <!-- Dashboard link -->
                     <a class="dropdown-item" (click)="navigateToDashboard()">
-            <lucide-icon name="bar-chart-2" class="w-4 h-4"></lucide-icon>
+                        <lucide-icon name="BarChart2" class="w-4 h-4"></lucide-icon>
                         <span *ngIf="isAdmin()">Admin Dashboard</span>
                         <span *ngIf="!isAdmin()">Dashboard</span>
                     </a>
                     
                     <!-- Profile link -->
                     <a class="dropdown-item" (click)="navigateToProfile()">
-            <lucide-icon name="user" class="w-4 h-4"></lucide-icon>
+                        <lucide-icon name="User" class="w-4 h-4"></lucide-icon>
                         Profil
                     </a>
                     
                     <!-- Settings link -->
                     <a class="dropdown-item" (click)="navigateToSettings()">
-            <lucide-icon name="settings" class="w-4 h-4"></lucide-icon>
+                        <lucide-icon name="Settings" class="w-4 h-4"></lucide-icon>
                         Settings
                     </a>
                     
@@ -113,7 +113,7 @@
                     <div *ngIf="isAdmin()">
                         <div class="dropdown-divider"></div>
                         <a href="#" class="dropdown-item admin" (click)="router.navigate(['/admin']); closeDropdown()">
-<lucide-icon name="wrench" class="w-4 h-4"></lucide-icon>
+                            <lucide-icon name="Wrench" class="w-4 h-4"></lucide-icon>
                             Administration
                         </a>
                     </div>
@@ -122,15 +122,14 @@
                     
                     <!-- Logout -->
                     <a href="#" class="dropdown-item logout" (click)="signOut()">
-            <lucide-icon name="log-out" class="w-4 h-4"></lucide-icon>
-                        Se déconnecter
+                        <lucide-icon name="LogOut" class="w-4 h-4"></lucide-icon>
+                        Se deconnecter
                     </a>
                 </div>
             </div>
 
             <!-- Token expiration warning -->
-            <div *ngIf="isLoggedIn && authService.isTokenExpiringSoon()" class="token-warning">
-                ⚠️ Session expires soon
+            <div *ngIf="isLoggedIn && authService.isTokenExpiringSoon()" class="token-warning">Session expires soon
             </div>
         </div>
 
@@ -146,3 +145,6 @@
         </button>
     </div>
 </nav>
+
+
+

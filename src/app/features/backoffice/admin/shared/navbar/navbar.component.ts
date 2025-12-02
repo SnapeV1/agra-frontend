@@ -36,6 +36,18 @@ export class NavbarComponent implements OnInit, OnDestroy {
   breadcrumbs: BreadcrumbItem[] = [];
   searchQuery: string = '';
   isDropdownOpen = false;
+  isSearchOpen = false;
+  searchItems: { label: string; route: string; icon?: string }[] = [
+    { label: 'Dashboard', route: '/admin/dashboard', icon: 'dashboard' },
+    { label: 'Users', route: '/admin/users', icon: 'group' },
+    { label: 'Posts', route: '/admin/posts', icon: 'article' },
+    { label: 'Courses', route: '/admin/courses', icon: 'school' },
+    { label: 'Tickets', route: '/admin/tickets', icon: 'confirmation_number' },
+    { label: 'Certificates', route: '/admin/certificates', icon: 'verified' },
+    { label: 'Settings', route: '/admin/settings', icon: 'settings' },
+  ];
+  filteredSearch: { label: string; route: string; icon?: string }[] = [];
+  activeSearchIndex = 0;
 
   @Output() search = new EventEmitter<string>();
   @Output() notificationClick = new EventEmitter<void>();
@@ -78,6 +90,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.notifSubs.push(
       this.notificationService.unreadCount().subscribe(count => (this.notificationCount = count))
     );
+
+    this.filteredSearch = [...this.searchItems];
   }
 
   ngOnDestroy() {
@@ -120,16 +134,62 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   /** Handle search input */
   onSearch() {
-    if (this.searchQuery.trim()) {
-      this.search.emit(this.searchQuery);
+    if (!this.searchQuery.trim()) return;
+    const item = this.filteredSearch[this.activeSearchIndex] || this.filteredSearch[0];
+    if (item) {
+      this.router.navigate([item.route]);
     }
+    this.search.emit(this.searchQuery);
+    this.closeSearch();
   }
 
   /** Handle search on Enter key */
   onSearchKeyup(event: KeyboardEvent) {
     if (event.key === 'Enter') {
       this.onSearch();
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.activeSearchIndex = Math.min(this.activeSearchIndex + 1, Math.max(this.filteredSearch.length - 1, 0));
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      this.activeSearchIndex = Math.max(this.activeSearchIndex - 1, 0);
+    } else if (event.key === 'Escape') {
+      this.closeSearch();
+    } else {
+      this.updateSearch();
     }
+  }
+
+  onSearchFocus(): void {
+    this.isSearchOpen = true;
+    this.updateSearch();
+  }
+
+  onSearchBlur(): void {
+    setTimeout(() => this.closeSearch(), 120);
+  }
+
+  updateSearch(): void {
+    const q = this.searchQuery.trim().toLowerCase();
+    if (!q) {
+      this.filteredSearch = [...this.searchItems];
+      this.activeSearchIndex = 0;
+      return;
+    }
+    this.filteredSearch = this.searchItems.filter(item =>
+      item.label.toLowerCase().includes(q) || item.route.toLowerCase().includes(q)
+    );
+    this.activeSearchIndex = 0;
+  }
+
+  selectSearch(item: { label: string; route: string }): void {
+    this.router.navigate([item.route]);
+    this.search.emit(item.label);
+    this.closeSearch();
+  }
+
+  private closeSearch(): void {
+    this.isSearchOpen = false;
   }
 
   /** Toggle dropdown menu */
@@ -214,7 +274,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   /** Navigate to settings */
   navigateToSettings() {
-    this.router.navigate(['/settings']);
+    this.router.navigate(['/admin/settings']);
   }
 
   /** Logout user */

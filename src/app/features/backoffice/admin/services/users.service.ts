@@ -17,12 +17,10 @@ export class UsersService {
     return this.http.get<User[]>(`${this.apiUrl}/AllUsers`);
   }
 
-updateUser(user: Partial<User> & { id: string }): Observable<User> {
-  const formData = new FormData();
-  formData.append('user', JSON.stringify(user));
-  const token = this.authService.getToken();
-  const options = token ? { headers: { 'Authorization': `Bearer ${token}` } } : {};
-  return this.http.put<User>(`${this.apiUrl}/updateUser/${user.id}`, formData, options);
-}
+  updateUser(user: Partial<User> & { id: string }): Observable<User> {
+    const token = this.authService.getToken();
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : undefined;
+    return this.http.put<User>(`${this.apiUrl}/updateUser/${user.id}`, user, { headers });
+  }
 
 }

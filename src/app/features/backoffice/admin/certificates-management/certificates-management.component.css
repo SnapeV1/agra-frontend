@@ -138,9 +138,14 @@
 }
 
 .stat-card.accent {
-
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: #fff;
   border-color: transparent;
+  box-shadow: 0 12px 28px rgba(99, 102, 241, 0.25);
+}
+.stat-card.accent p,
+.stat-card.accent small {
+  color: #e0e7ff;
 }
 
 .stat-card.positive {
@@ -149,6 +154,14 @@
 
 .stat-card.neutral {
   border-color: rgba(248, 113, 113, 0.3);
+}
+:host-context([data-theme='dark']) .stat-card.accent {
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  box-shadow: 0 12px 28px rgba(99, 102, 241, 0.3);
+}
+:host-context([data-theme='dark']) .stat-card.accent small,
+:host-context([data-theme='dark']) .stat-card.accent p {
+  color: #e0e7ff;
 }
 
 .error-banner {

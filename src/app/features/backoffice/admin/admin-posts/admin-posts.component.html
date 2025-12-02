@@ -1,147 +1,193 @@
 <app-base-layout>
   <div class="container">
     <!-- Header -->
-    <div class="header">
-      <h1>Posts</h1>
-      <p>Manage your community posts</p>
-    </div>
-
-    <!-- Post Creator -->
-    <div class="post-creator" [class.creating]="isCreatingPost">
-      <div class="creator-header" *ngIf="!showCreateForm">
-        <ng-container *ngIf="currentUser?.picture; else nameInitialAvatar">
-          <img [src]="currentUser?.picture"
-               [alt]="currentUser?.name || 'User avatar'"
-               class="post-avatar">
-        </ng-container>
-        <ng-template #nameInitialAvatar>
-          <div class="avatar">
-            {{ currentUser?.name?.charAt(0) || 'A' }}
-          </div>
-        </ng-template>
-        <div class="post-input" (click)="toggleCreateForm()" [class.disabled]="isCreatingPost">
-          What's on your mind?
-        </div>
-      </div>
-
-      <div class="post-form" [class.active]="showCreateForm">
-        <div class="form-header">
-          <ng-container *ngIf="currentUser?.picture; else nameInitialAvatarForm">
-            <img [src]="currentUser?.picture"
-                 [alt]="currentUser?.name || 'User avatar'"
-                 class="post-avatar">
-          </ng-container>
-          <ng-template #nameInitialAvatarForm>
-            <div class="avatar">
-              {{ currentUser?.name?.charAt(0) || 'A' }}
-            </div>
-          </ng-template>
-          <textarea 
-            class="post-textarea" 
-            placeholder="What's on your mind?"
-            [(ngModel)]="createForm.content"
-            [disabled]="isCreatingPost"
-            #contentTextarea></textarea>
-        </div>
-
-        <!-- Image Preview -->
-        <div class="image-preview-container" 
-             *ngIf="createForm.imagePreview" 
-             [class.uploading]="isCreatingPost">
-          <img [src]="createForm.imagePreview" alt="Image preview" class="image-preview">
-          <div class="image-info">
-            <span class="file-name">{{ createForm.imageFile?.name }}</span>
-            <span class="file-size">{{ getFileSize(createForm.imageFile?.size || 0) }}</span>
-          </div>
-          <button class="remove-image-btn" 
-                  (click)="removeImage()" 
-                  [disabled]="isCreatingPost">
-            ✕ Remove
-          </button>
-        </div>
-
-        <!-- File Upload -->
-        <div class="file-upload-container" *ngIf="showImageInput && !createForm.imagePreview">
-          <input 
-            #fileInput
-            type="file" 
-            accept="image/*"
-            class="file-input" 
-            (change)="onFileSelect($event)"
-            [disabled]="isCreatingPost"
-            style="display: none;">
-          
-          <div class="upload-area" 
-               (click)="triggerFileInput()" 
-               [class.disabled]="isCreatingPost">
-            <div class="upload-icon">📷</div>
-            <div class="upload-text">
-              <p>Click to select an image</p>
-              <small>Supports JPG, PNG, GIF (max 5MB)</small>
-            </div>
-          </div>
-        </div>
-
-        <div class="post-actions">
-          <div class="media-options">
-            <button class="media-btn" 
-                    (click)="toggleImageInput()" 
-                    [disabled]="isCreatingPost">
-              📷 Photo
-            </button>
-          </div>
-          <div class="form-buttons">
-            <button class="cancel-btn" 
-                    (click)="toggleCreateForm()" 
-                    [disabled]="isCreatingPost">
-              Cancel
-            </button>
-            <button 
-              class="post-btn" 
-              (click)="createPost()" 
-              [disabled]="!createForm.content.trim() || isCreatingPost">
-              
-              <!-- Loading State -->
-              <span *ngIf="isCreatingPost" class="btn-loading">
-                <div class="btn-spinner"></div>
-                <span>{{ createForm.imageFile ? 'Uploading...' : 'Posting...' }}</span>
-              </span>
-              
-              <!-- Normal State -->
-              <span *ngIf="!isCreatingPost">Post</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Loading Overlay -->
-        <div class="post-form-overlay" *ngIf="isCreatingPost">
-          <div class="overlay-content">
-            <div class="upload-spinner"></div>
-            <p class="upload-text">
-              {{ createForm.imageFile ? 'Uploading image and creating post...' : 'Creating your post...' }}
-            </p>
-            <div class="upload-progress" *ngIf="createForm.imageFile">
-              <small>This may take a moment for image uploads</small>
-            </div>
-          </div>
-        </div>
+    <div class="mgmt-header">
+      <div>
+        <p class="eyebrow">Administration</p>
+        <h1>Posts</h1>
+        <span>Manage your community posts</span>
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div class="loading" *ngIf="loading">
-      <div class="spinner"></div>
-      <p>Loading posts...</p>
-    </div>
+    <div class="content-grid three-col">
+      <!-- Left news -->
+      <aside class="news-aside left" *ngIf="newsLoading || leftNews.length || newsError">
+        <div class="admin-news">
+          <div class="admin-news-header">
+            <div>
+              <p class="eyebrow">Updates</p>
+              <h3>Platform News</h3>
+              <small *ngIf="leftNews.length">{{ leftNews.length }} headlines</small>
+            </div>
+            <span class="news-status" *ngIf="newsLoading">Loading...</span>
+            <span class="news-status error" *ngIf="newsError">{{ newsError }}</span>
+          </div>
+          <div class="admin-news-grid" *ngIf="leftNews.length">
+            <article class="news-card" *ngFor="let item of leftNews | slice:0:leftNewsLimit">
+              <p class="news-source">{{ item.source || 'News' }}</p>
+              <h4>{{ item.title }}</h4>
+              <small>{{ item.publishedAt | date:'mediumDate' }}</small>
+              <div class="news-actions">
+                <a class="news-btn ghost" *ngIf="item.url" [href]="item.url" target="_blank" rel="noopener noreferrer">Read</a>
+                <button class="news-btn danger" (click)="deleteNews(item)">Delete</button>
+              </div>
+            </article>
+          </div>
+          <div class="news-empty" *ngIf="!leftNews.length && !newsLoading && !newsError">
+            <p>No news yet</p>
+          </div>
+          <div class="news-more" *ngIf="leftNews.length > leftNewsLimit">
+            <button class="news-btn ghost" (click)="loadMoreLeftNews()">More</button>
+          </div>
+        </div>
+      </aside>
 
-    <!-- Error State -->
-    <div class="error" *ngIf="errorMessage">
-      {{ errorMessage }}
-    </div>
+      <div class="main-column">
+        <!-- Post Creator -->
+        <div class="post-creator" [class.creating]="isCreatingPost">
+          <div class="creator-header" *ngIf="!showCreateForm">
+            <ng-container *ngIf="currentUser?.picture; else nameInitialAvatar">
+              <img [src]="currentUser?.picture"
+                   [alt]="currentUser?.name || 'User avatar'"
+                   class="post-avatar">
+            </ng-container>
+            <ng-template #nameInitialAvatar>
+              <div class="avatar">
+                {{ currentUser?.name?.charAt(0) || 'A' }}
+              </div>
+            </ng-template>
+            <div class="post-input" (click)="toggleCreateForm()" [class.disabled]="isCreatingPost">
+              What's on your mind?
+            </div>
+          </div>
 
-    <!-- Posts List -->
-    <div class="posts-list" *ngIf="!loading && posts.length">
-      <div class="post" *ngFor="let post of posts">
+          <div class="post-form" [class.active]="showCreateForm">
+            <div class="form-header">
+              <ng-container *ngIf="currentUser?.picture; else nameInitialAvatarForm">
+                <img [src]="currentUser?.picture"
+                     [alt]="currentUser?.name || 'User avatar'"
+                     class="post-avatar">
+              </ng-container>
+              <ng-template #nameInitialAvatarForm>
+                <div class="avatar">
+                  {{ currentUser?.name?.charAt(0) || 'A' }}
+                </div>
+              </ng-template>
+              <textarea 
+                class="post-textarea" 
+                placeholder="What's on your mind?"
+                [(ngModel)]="createForm.content"
+                [disabled]="isCreatingPost"
+                #contentTextarea></textarea>
+            </div>
+
+            <!-- Image Preview -->
+            <div class="image-preview-container" 
+                 *ngIf="createForm.imagePreview" 
+                 [class.uploading]="isCreatingPost">
+              <img [src]="createForm.imagePreview" alt="Image preview" class="image-preview">
+              <div class="image-info">
+                <span class="file-name">{{ createForm.imageFile?.name }}</span>
+                <span class="file-size">{{ getFileSize(createForm.imageFile?.size || 0) }}</span>
+              </div>
+              <button class="remove-image-btn" 
+                      (click)="removeImage()" 
+                      [disabled]="isCreatingPost">
+                <span aria-hidden="true">x</span> Remove
+              </button>
+            </div>
+
+            <!-- File Upload -->
+            <div class="file-upload-container" *ngIf="showImageInput && !createForm.imagePreview">
+              <input 
+                #fileInput
+                type="file" 
+                accept="image/*"
+                class="file-input" 
+                (change)="onFileSelect($event)"
+                [disabled]="isCreatingPost"
+                style="display: none;">
+              
+              <div class="upload-area" 
+                   (click)="triggerFileInput()" 
+                   [class.disabled]="isCreatingPost">
+                <div class="upload-icon" aria-hidden="true">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
+                    <circle cx="12" cy="13" r="3" />
+                  </svg>
+                </div>
+                <div class="upload-text">
+                  <p>Click to select an image</p>
+                  <small>Supports JPG, PNG, GIF (max 5MB)</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="post-actions">
+              <div class="media-options">
+                <button class="media-btn" 
+                        (click)="toggleImageInput()" 
+                        [disabled]="isCreatingPost">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
+                    <circle cx="12" cy="13" r="3" />
+                  </svg>
+                  Photo
+                </button>
+              </div>
+              <div class="form-buttons">
+                <button class="cancel-btn" 
+                        (click)="toggleCreateForm()" 
+                        [disabled]="isCreatingPost">
+                  Cancel
+                </button>
+                <button 
+                  class="post-btn" 
+                  (click)="createPost()" 
+                  [disabled]="!createForm.content.trim() || isCreatingPost">
+                  
+                  <!-- Loading State -->
+                  <span *ngIf="isCreatingPost" class="btn-loading">
+                    <div class="btn-spinner"></div>
+                    <span>{{ createForm.imageFile ? 'Uploading...' : 'Posting...' }}</span>
+                  </span>
+                  
+                  <!-- Normal State -->
+                  <span *ngIf="!isCreatingPost">Post</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Loading Overlay -->
+            <div class="post-form-overlay" *ngIf="isCreatingPost">
+              <div class="overlay-content">
+                <div class="upload-spinner"></div>
+                <p class="upload-text">
+                  {{ createForm.imageFile ? 'Uploading image and creating post...' : 'Creating your post...' }}
+                </p>
+                <div class="upload-progress" *ngIf="createForm.imageFile">
+                  <small>This may take a moment for image uploads</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading" *ngIf="loading">
+          <div class="spinner"></div>
+          <p>Loading posts...</p>
+        </div>
+
+        <!-- Error State -->
+        <div class="error" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <!-- Posts List -->
+        <div class="posts-list" *ngIf="!loading && visiblePosts.length">
+          <div class="post" *ngFor="let post of visiblePosts">
         <!-- Post Header -->
         <div class="post-header">
           <div class="post-user-info">
@@ -172,7 +218,7 @@
           <div class="current-image" *ngIf="editingPost.imageUrl && !editingImagePreview">
             <img [src]="editingPost.imageUrl" alt="Current image" class="edit-current-image">
             <button class="remove-current-image" (click)="editingPost.imageUrl = undefined">
-              ✕ Remove current image
+              <span aria-hidden="true">x</span> Remove current image
             </button>
           </div>
 
@@ -184,7 +230,7 @@
               <span class="file-size">{{ getFileSize(editingImageFile?.size || 0) }}</span>
             </div>
             <button class="remove-image-btn" (click)="removeEditImage()">
-              ✕ Remove
+              <span aria-hidden="true">x</span> Remove
             </button>
           </div>
 
@@ -213,7 +259,9 @@
         <div class="post-content" *ngIf="!isEditing(post)">
           <div class="post-text">{{ post.content }}</div>
           <img *ngIf="post.imageUrl && !post.imageLoadFailed" 
-               [src]="post.imageUrl" 
+               [src]="getPostImageSrc(post.imageUrl)" 
+               [attr.srcset]="getPostImageSrcSet(post.imageUrl)" 
+               sizes="(min-width: 1024px) 720px, 100vw"
                alt="Post image" 
                class="post-image"
                (error)="onImageError(post)">
@@ -223,6 +271,7 @@
         <div class="post-actions" *ngIf="!isEditing(post)">
           <!-- Like Button -->
           <button
+            type="button"
             class="action-btn like-btn"
             [class.liked]="post.isLikedByCurrentUser"
             [class.disabled]="!canInteract()"
@@ -237,6 +286,7 @@
 
           <!-- Comment Button -->
           <button
+            type="button"
             class="action-btn comment-btn"
             (click)="toggleComments(post)"
             [attr.aria-label]="'View comments'">
@@ -262,6 +312,7 @@
                 <p class="comment-text">{{ comment.content }}</p>
                 <div class="comment-actions">
                   <button
+                    type="button"
                     class="comment-like-btn"
                     [class.liked]="comment.isLikedByCurrentUser"
                     [class.disabled]="!canInteract()"
@@ -288,6 +339,7 @@
                 class="comment-input"
                 rows="1"></textarea>
               <button
+                type="button"
                 class="send-comment-btn"
                 (click)="addComment(post)"
                 [disabled]="!post.newComment?.trim()"
@@ -303,17 +355,58 @@
       </div>
     </div>
 
-    <div class="empty-state" *ngIf="!loading && posts.length === 0">
-      <h3>No posts yet</h3>
-      <p>Create your first post to get started!</p>
+        <div class="empty-state" *ngIf="!loading && posts.length === 0">
+          <h3>No posts yet</h3>
+          <p>Create your first post to get started!</p>
+        </div>
+      </div>
+
+      <!-- Right news -->
+      <aside class="news-aside right" *ngIf="newsLoading || rightNews.length || newsError">
+        <div class="admin-news">
+          <div class="admin-news-header">
+            <div>
+              <p class="eyebrow">Updates</p>
+              <h3>Platform News</h3>
+              <small *ngIf="rightNews.length">{{ rightNews.length }} headlines</small>
+            </div>
+            <span class="news-status" *ngIf="newsLoading">Loading...</span>
+            <span class="news-status error" *ngIf="newsError">{{ newsError }}</span>
+          </div>
+          <div class="admin-news-grid" *ngIf="rightNews.length">
+            <article class="news-card" *ngFor="let item of rightNews | slice:0:rightNewsLimit">
+              <p class="news-source">{{ item.source || 'News' }}</p>
+              <h4>{{ item.title }}</h4>
+              <small>{{ item.publishedAt | date:'mediumDate' }}</small>
+              <div class="news-actions">
+                <a class="news-btn ghost" *ngIf="item.url" [href]="item.url" target="_blank" rel="noopener noreferrer">Read</a>
+                <button class="news-btn danger" (click)="deleteNews(item)">Delete</button>
+              </div>
+            </article>
+          </div>
+          <div class="news-empty" *ngIf="!rightNews.length && !newsLoading && !newsError">
+            <p>No news yet</p>
+          </div>
+          <div class="news-more" *ngIf="rightNews.length > rightNewsLimit">
+            <button class="news-btn ghost" (click)="loadMoreRightNews()">More</button>
+          </div>
+        </div>
+      </aside>
     </div>
   </div>
 
   <div class="modal" [class.show]="showDeleteModal" (click)="cancelDelete()">
     <div class="modal-content" (click)="$event.stopPropagation()">
-      <h3>Delete Post?</h3>
-      <p>This post will be permanently deleted. You can't undo this action.</p>
-      <div class="preview-post" *ngIf="postToDelete">{{ postToDelete.content }}</div>
+      <div class="modal-header">
+        <div class="modal-icon" aria-hidden="true">!</div>
+        <h3>Delete Post?</h3>
+        <p class="modal-sub">This post will be permanently deleted. You can't undo this action.</p>
+      </div>
+      <div class="modal-body">
+        <div class="preview-post" *ngIf="postToDelete">
+          <div class="preview-content">{{ postToDelete.content }}</div>
+        </div>
+      </div>
       <div class="modal-actions">
         <button class="cancel-btn" (click)="cancelDelete()">Cancel</button>
         <button class="btn-danger" (click)="deletePost()">Delete</button>
@@ -321,4 +414,3 @@
     </div>
   </div>
 </app-base-layout>
-

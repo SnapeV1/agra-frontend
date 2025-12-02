@@ -14,7 +14,7 @@ export class SidebarService {
 
   constructor() {
     const stored = this.readStoredCollapse();
-    this.isCollapsedSubject = new BehaviorSubject<boolean>(stored ?? true);
+    this.isCollapsedSubject = new BehaviorSubject<boolean>(stored ?? false);
     this.isCollapsed$ = this.isCollapsedSubject.asObservable();
     this.isMobileOpen$ = this.isMobileOpenSubject.asObservable();
     // Check initial screen size without forcing collapse on desktop

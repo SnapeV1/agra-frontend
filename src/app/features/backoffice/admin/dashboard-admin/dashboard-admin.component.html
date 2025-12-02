@@ -42,11 +42,11 @@
             <span class="country-name">{{ country.name }}</span>
           </div>
           <div class="country-stats">
-            <span class="country-count">{{ country.students }}</span>
+            <span class="country-count">{{ formatValue(country.students) }}</span>
             <div class="progress-bar">
               <div class="progress-fill" [style.width.%]="country.percentage"></div>
             </div>
-            <span class="country-percentage">{{ country.percentage }}%</span>
+            <span class="country-percentage">{{ formatValue(country.percentage) }}%</span>
           </div>
         </div>
       </div>
@@ -63,12 +63,12 @@
             </div>
             <div class="course-details">
               <h4>{{ course.name }}</h4>
-              <p>{{ course.students }} students enrolled</p>
+              <p>{{ formatValue(course.students) }} students enrolled</p>
             </div>
           </div>
           <div class="course-stats">
             <div class="completion-rate">
-              <span>{{ course.completion }}% completion</span>
+              <span>{{ formatValue(course.completion) }}% completion</span>
               <div class="completion-bar">
                 <div class="completion-fill" [style.width.%]="course.completion"></div>
               </div>
@@ -77,7 +77,7 @@
               <span class="rating-stars">
                 <i class="fas fa-star" *ngFor="let star of getStars(course.rating)"></i>
               </span>
-              <span class="rating-value">{{ course.rating }}</span>
+              <span class="rating-value">{{ formatValue(course.rating) }}</span>
             </div>
           </div>
         </div>
@@ -97,14 +97,14 @@
       <div class="analytics-card">
         <h3>Users Summary</h3>
         <ul class="simple-list">
-          <li>Total users: {{ usersTotal | number }}</li>
-          <li>Active last 30 days: {{ usersActive30 | number }}</li>
+          <li>Total users: {{ formatValue(usersTotal) }}</li>
+          <li>Active last 30 days: {{ formatValue(usersActive30) }}</li>
         </ul>
       </div>
       <div class="analytics-card">
         <h3>Roles Breakdown</h3>
         <ul class="simple-list">
-          <li *ngFor="let r of rolesList">{{ r.role }} — {{ r.count | number }}</li>
+          <li *ngFor="let r of rolesList">{{ r.role }} — {{ formatValue(r.count) }}</li>
           <li *ngIf="rolesList.length === 0" style="color:#6b7280">No data</li>
         </ul>
       </div>
@@ -132,15 +132,15 @@
       <div class="analytics-card">
         <h3>Courses Summary</h3>
         <ul class="simple-list">
-          <li>Active (Published): {{ coursesSummary.published | number }}</li>
-          <li>Archived: {{ coursesSummary.archived | number }}</li>
-          <li>Total: {{ coursesSummary.total | number }}</li>
+          <li>Active (Published): {{ formatValue(coursesSummary.published) }}</li>
+          <li>Archived: {{ formatValue(coursesSummary.archived) }}</li>
+          <li>Total: {{ formatValue(coursesSummary.total) }}</li>
         </ul>
       </div>
       <div class="analytics-card">
         <h3>Top Courses</h3>
         <ul class="simple-list">
-          <li *ngFor="let c of topCourses">{{ c.name }} — {{ c.students | number }} students</li>
+          <li *ngFor="let c of topCourses">{{ c.name }} — {{ formatValue(c.students) }} students</li>
           <li *ngIf="!topCourses || topCourses.length === 0" style="color:#6b7280">No courses yet</li>
         </ul>
       </div>
@@ -177,14 +177,14 @@
            class="w-8 h-8 rounded-full" />
 
       <div class="flex-1">
-        <p class="font-medium text-slate-800 dark:text-slate-200">{{ p.author }}</p>
+        <p class="">{{ p.author }}</p>
         <p class="post-preview text-slate-700 dark:text-slate-300">
           {{ p.content }}
         </p>
       </div>
     </div>
-    <div class="text-sm text-gray-500 mt-1">
-      Engagement: {{ p.engagement | number }}
+    <div class="text-sm text-gray-500 mt-1 post-meta">
+      Engagement: {{ formatValue(p.engagement) }}
     </div>
   </div>
 </div>
@@ -197,15 +197,15 @@
       <div class="analytics-card">
         <h3>Engagement Averages</h3>
         <ul class="simple-list">
-          <li *ngFor="let kv of (engagementAverages | keyvalue)">{{ kv.key }}: {{ kv.value }}</li>
-          <li *ngIf="!engagementAverages" style="color:#6b7280">No data</li>
+          <li *ngFor="let kv of engagementAverageEntries">{{ kv.label }}: {{ kv.value }}</li>
+          <li *ngIf="!engagementAverageEntries.length" style="color:#6b7280">No data</li>
         </ul>
       </div>
       <div class="analytics-card">
         <h3>Featured Performance</h3>
         <ul class="simple-list">
-          <li *ngFor="let kv of (featuredPerformance | keyvalue)">{{ kv.key }}: {{ kv.value }}</li>
-          <li *ngIf="!featuredPerformance" style="color:#6b7280">No data</li>
+          <li *ngFor="let kv of featuredPerformanceEntries">{{ kv.label }}: {{ kv.value }}</li>
+          <li *ngIf="!featuredPerformanceEntries.length" style="color:#6b7280">No data</li>
         </ul>
       </div>
     </div>
@@ -227,20 +227,20 @@
       <div class="analytics-card">
         <h3>Read Status</h3>
         <ul class="simple-list">
-          <li *ngFor="let kv of (notificationRead | keyvalue)">{{ kv.key }}: {{ kv.value | number }}</li>
+          <li *ngFor="let kv of (notificationRead | keyvalue)">{{ kv.key }}: {{ formatValue(kv.value) }}</li>
           <li *ngIf="!notificationRead" style="color:#6b7280">No data</li>
         </ul>
       </div>
       <div class="analytics-card">
         <h3>Top Types</h3>
         <ul class="simple-list">
-          <li *ngFor="let t of notificationTopTypes">{{ t.type }} - {{ t.count | number }}</li>
+          <li *ngFor="let t of notificationTopTypes">{{ t.type }} - {{ formatValue(t.count) }}</li>
           <li *ngIf="!notificationTopTypes || notificationTopTypes.length === 0" style="color:#6b7280">No data</li>
         </ul>
       </div>
       <div class="analytics-card">
         <h3>Live Users Online</h3>
-        <p style="font-size:28px;font-weight:600;">{{ liveUsersOnline | number }}</p>
+        <p style="font-size:28px;font-weight:600;">{{ formatValue(liveUsersOnline) }}</p>
         <p style="color:#6b7280">Active WebSocket connections</p>
       </div>
     </div>

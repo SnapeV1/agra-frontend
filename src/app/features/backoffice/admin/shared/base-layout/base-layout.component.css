@@ -1,5 +1,10 @@
+:host {
+  --sidebar-width: 280px;
+  --sidebar-collapsed-width: 72px;
+}
+
 .dashboard-container {
-  position: relative; 
+  position: relative;
 }
 
 app-sidebar {
@@ -7,8 +12,14 @@ app-sidebar {
 }
 
 .main-content {
-  margin-left: 70px; 
-  transition: margin-left 0.3s ease;
+  margin-left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+  transition: none;
+}
+
+.main-content.collapsed {
+  margin-left: var(--sidebar-collapsed-width);
+  width: calc(100% - var(--sidebar-collapsed-width));
 }
 
 /* Floating logo area between the sticky navbar and the sidebar */
@@ -56,7 +67,12 @@ app-sidebar {
 :host-context([data-theme="dark"]) .brand-corner { background: #0b1220; border-color: #1f2937; }
 :host-context([data-theme="dark"]) .brand-hamburger span { background: #e5e7eb; }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+  .main-content,
+  .main-content.collapsed {
+    margin-left: 0;
+    width: 100%;
+  }
   .brand-corner { display: none; }
 }
 
@@ -68,4 +84,20 @@ app-sidebar {
 
 :host-context([data-theme="dark"]) .main-content {
   background: #0f172a;
+}
+
+/* Theme-aware scrollbars */
+:host ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+:host ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #cbd5e1, #94a3b8);
+  border-radius: 999px;
+}
+:host ::-webkit-scrollbar-track {
+  background: transparent;
+}
+:host-context([data-theme="dark"]) ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #475569, #1f2937);
 }

@@ -274,7 +274,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   private updateActiveSection(): void {
-    const sections = ['overview', 'features', 'technical', 'pricing', 'timeline'];
+    const sections = ['overview', 'features', 'courses', 'about', 'sponsors', 'organizations'];
     const scrollPosition = window.pageYOffset + 100;
 
     for (const section of sections) {

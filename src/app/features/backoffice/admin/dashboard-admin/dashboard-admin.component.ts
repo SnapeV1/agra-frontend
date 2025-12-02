@@ -1,8 +1,8 @@
 import { Component, type OnInit, type OnDestroy } from "@angular/core"
 import { AnalyticsService } from "src/app/core/services/analytics.service";
 import { forkJoin, of } from "rxjs";
-import { catchError, map, tap } from "rxjs/operators";
-import { ChartData, ChartOptions, ChartType, Chart, LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip, Legend } from 'chart.js';
+import { catchError, map } from "rxjs/operators";
+import { ChartData, ChartOptions, Chart, LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip, Legend } from 'chart.js';
 
 interface Metric {
   title: string
@@ -73,7 +73,9 @@ topPostsList: {
   engagement: number;
 }[] = [];
   engagementAverages: Record<string, any> | null = null
+  engagementAverageEntries: { label: string; value: string }[] = []
   featuredPerformance: Record<string, any> | null = null
+  featuredPerformanceEntries: { label: string; value: string }[] = []
   registrationsSeries: { label: string; count: number }[] = []
   notificationRead: Record<string, any> | null = null
   notificationTopTypes: { type: string; count: number }[] = []
@@ -210,11 +212,11 @@ topPostsList: {
 
           // Build metrics
           this.metrics = [
-            { title: 'Total Users', value: this.formatNumber(totalUsers), change: '', changeClass: '', changeIcon: 'fas fa-arrow-up', icon: 'fas fa-users', iconClass: 'users' },
-            { title: 'Active Courses', value: this.formatNumber(publishedCourses), change: '', changeClass: '', changeIcon: 'fas fa-arrow-up', icon: 'fas fa-book-open', iconClass: 'courses' },
-            { title: 'Archived Courses', value: this.formatNumber(archivedCourses), change: '', changeClass: '', changeIcon: 'fas fa-arrow-up', icon: 'fas fa-archive', iconClass: 'archived' },
-            { title: 'Total Courses', value: this.formatNumber(totalCourses), change: '', changeClass: '', changeIcon: 'fas fa-arrow-up', icon: 'fas fa-layer-group', iconClass: 'total' },
-            { title: 'Certificates Issued', value: this.formatNumber(certificatesThisPeriod), change: '', changeClass: '', changeIcon: 'fas fa-arrow-up', icon: 'fas fa-certificate', iconClass: 'certificates' },
+            { title: 'Total Users', value: this.formatValue(totalUsers), change: '', changeClass: '', changeIcon: 'fas fa-arrow-up', icon: 'fas fa-users', iconClass: 'users' },
+            { title: 'Active Courses', value: this.formatValue(publishedCourses), change: '', changeClass: '', changeIcon: 'fas fa-arrow-up', icon: 'fas fa-book-open', iconClass: 'courses' },
+            { title: 'Archived Courses', value: this.formatValue(archivedCourses), change: '', changeClass: '', changeIcon: 'fas fa-arrow-up', icon: 'fas fa-archive', iconClass: 'archived' },
+            { title: 'Total Courses', value: this.formatValue(totalCourses), change: '', changeClass: '', changeIcon: 'fas fa-arrow-up', icon: 'fas fa-layer-group', iconClass: 'total' },
+            { title: 'Certificates Issued', value: this.formatValue(certificatesThisPeriod), change: '', changeClass: '', changeIcon: 'fas fa-arrow-up', icon: 'fas fa-certificate', iconClass: 'certificates' },
           ]
           // Expose only non-user/non-course totals in Overview
           const hidden = new Set(['Total Users','Active Courses','Archived Courses','Total Courses'])
@@ -222,7 +224,7 @@ topPostsList: {
           
           // Cache total users string for template use
           const tu = this.metrics.find(m => m.title === 'Total Users')?.value
-          this.totalUsersDisplay = typeof tu === 'string' ? tu : this.formatNumber(Number(tu || 0))
+          this.totalUsersDisplay = typeof tu === 'string' ? tu : this.formatValue(Number(tu || 0))
           this.usersTotal = totalUsers
           this.rolesList = Object.entries(data.roles$ || {})
             .map(([role, count]) => ({ role, count: Number(count) || 0 }))
@@ -235,7 +237,7 @@ topPostsList: {
             name,
             flag: '',
             students: Number(count) || 0,
-            percentage: totalGeo ? Math.round(((Number(count) || 0) / totalGeo) * 1000) / 10 : 0,
+            percentage: totalGeo ? Math.round(((Number(count) || 0) / totalGeo) * 10000) / 100 : 0,
           }))
           
 
@@ -328,11 +330,12 @@ this.topPostsList = (data.topPosts$ as any[]).map((p: any) => ({
   authorImage: p.user_info?.picture || '',
   engagement: Number(p.engagement || p.likes_count || 0)
 }));
-console.log(this.topPostsList)
           // Engagement averages + featured performance
           this.engagementAverages = (data.engagementAvg$ as any) || null
+          this.engagementAverageEntries = this.normalizeKeyValue(this.engagementAverages)
           this.featuredPerformance = (data.featuredPerf$ as any) || null
-
+          this.featuredPerformanceEntries = this.normalizeKeyValue(this.featuredPerformance)
+          // Engagement averages + featured performance
           // Notifications status + types
           this.notificationRead = (data.notifRead$ as any) || null
           this.notificationTopTypes = Object.entries((data.notifTypes$ as any) || {}).map(([type, count]) => ({ type, count: Number(count) || 0 }))
@@ -380,12 +383,26 @@ console.log(this.topPostsList)
     return sum
   }
 
-  private formatNumber(n: number): string { try { return n.toLocaleString() } catch { return String(n) } }
+  public formatValue(value: any): string {
+    const num = typeof value === 'string' ? Number(value) : value
+    if (typeof num === 'number' && Number.isFinite(num)) {
+      const hasFraction = Math.abs(num % 1) > 0
+      try {
+        return new Intl.NumberFormat(undefined, {
+          maximumFractionDigits: 2,
+          minimumFractionDigits: hasFraction ? 2 : 0
+        }).format(num)
+      } catch {}
+      return num.toFixed(hasFraction ? 2 : 0)
+    }
+    if (value === null || value === undefined) return '-'
+    return String(value)
+  }
 
   private normalizePercent(v: number): number {
     // Accept either [0..1] or [0..100]
-    if (v <= 1) return Math.round(v * 1000) / 10
-    return Math.round(v * 10) / 10
+    if (v <= 1) return Math.round(v * 10000) / 100
+    return Math.round(v * 100) / 100
   }
 
   getBarHeight(count: number): number {
@@ -431,6 +448,25 @@ console.log(this.topPostsList)
         }
       ]
     }
+  }
+
+  private toFriendlyLabel(key: string): string {
+    if (!key) return ''
+    return key
+      .replace(/[_\s]+/g, ' ')
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .trim()
+      .split(' ')
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ')
+  }
+
+  private normalizeKeyValue(obj: Record<string, any> | null): { label: string; value: string }[] {
+    if (!obj) return []
+    return Object.entries(obj).map(([key, value]) => ({
+      label: this.toFriendlyLabel(key),
+      value: this.formatValue(value)
+    }))
   }
 
   getStars(rating: number): number[] {

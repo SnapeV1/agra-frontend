@@ -68,10 +68,11 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
     this.error = '';
     this.ticketService.getAllTickets().subscribe({
       next: tickets => {
-        this.tickets = tickets;
+        const ordered = this.sortTicketsByRecency(tickets);
+        this.tickets = ordered;
         this.loading = false;
-        if (!this.selectedThread && tickets.length) {
-          this.openTicket(tickets[0].id);
+        if (!this.selectedThread && ordered.length) {
+          this.openTicket(ordered[0].id);
         }
       },
       error: err => {
@@ -98,7 +99,7 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
       if (this.sortOption === 'status') {
         return a.status.localeCompare(b.status);
       }
-      return new Date(b.updatedAt || '').getTime() - new Date(a.updatedAt || '').getTime();
+      return new Date(b.updatedAt || b.createdAt || '').getTime() - new Date(a.updatedAt || a.createdAt || '').getTime();
     });
   }
 
@@ -330,5 +331,9 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
     if (evt.type === 'ASSIGNED' && evt.assignedTo && this.selectedThread?.ticket) {
       this.selectedThread = { ...this.selectedThread, ticket: { ...this.selectedThread.ticket, adminInfo: evt.assignedTo, adminId: evt.assignedTo?.id || null } };
     }
+  }
+
+  private sortTicketsByRecency(list: Ticket[]): Ticket[] {
+    return [...list].sort((a, b) => new Date(b.updatedAt || b.createdAt || '').getTime() - new Date(a.updatedAt || a.createdAt || '').getTime());
   }
 }

@@ -1,570 +1,582 @@
-﻿<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plateforme d'Apprentissage AGRA - Proposition Technique</title>
-</head>
-<body>
-<app-navigation></app-navigation>
+﻿<app-navigation></app-navigation>
 
-<!-- Hero Section -->
+<main class="home-page">
+
+<!-- HERO -->
 <section class="hero">
-    <div class="hero-container">
-        <div class="hero-content">
-            <!-- Authentication-aware welcome message -->
-            <div *ngIf="!isLoggedIn" class="hero-auth-message">
-                <p class="auth-prompt">🔐 Connectez-vous pour accéder à toutes les fonctionnalités</p>
-            </div>
-         
+  <div class="hero-container">
 
-            <h1 class="hero-title">Plateforme d'Apprentissage AGRA</h1>
-            <p class="hero-subtitle">Solution d'apprentissage en ligne pour 30+ millions de jeunes agriculteurs en Afrique du Nord</p>
-            
-            <div class="hero-stats">
-                <div class="stat">
-                    <div class="stat-number">30M+</div>
-                    <div class="stat-label">Utilisateurs</div>
-                    <div class="stat-description">Jeunes agriculteurs ciblés</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number">5+</div>
-                    <div class="stat-label">Pays</div>
-                    <div class="stat-description">Afrique du Nord</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number">2025</div>
-                    <div class="stat-label">Lancement</div>
-                    <div class="stat-description">Fin d'année</div>
-                </div>
-            </div>
+    <!-- Left Column -->
+    <div class="hero-content">
 
-            <!-- Call to Action based on auth status -->
-            <div class="hero-cta">
-                <button *ngIf="!isLoggedIn" class="cta-primary" (click)="login()">
-                    Commencer maintenant
-                </button>
-                <button *ngIf="isLoggedIn" class="cta-primary" (click)="onContactClick()">
-                    Accéder au tableau de bord
-                </button>
-                <button class="cta-secondary" (click)="onContactClick()">
-                    Nous contacter
-                </button>
-            </div>
+      <!-- Login banner -->
+      <div *ngIf="!isLoggedIn" class="hero-auth-message">
+        <p class="auth-prompt">Log in to unlock full platform features</p>
+      </div>
+
+      <h1 class="hero-title">AGRA Learning Platform</h1>
+
+      <p class="hero-subtitle">
+        A next-generation e-learning solution designed to empower over 
+        <strong>30 million young farmers</strong> across North Africa.
+      </p>
+
+      <!-- Stats -->
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-number">30M+</div>
+          <div class="stat-label">Users</div>
+          <div class="stat-description">Young farmers impacted</div>
         </div>
-        
-        <div class="hero-visual">
-            <div class="floating-card">
-                <div class="card-icon">👨‍🌾</div>
-                <div class="card-text">Formation Interactive</div>
-            </div>
-            <div class="floating-card delay-1">
-                <div class="card-icon">📚</div>
-                <div class="card-text">Ressources Pédagogiques</div>
-            </div>
-            <div class="floating-card delay-2">
-                <div class="card-icon">🎓</div>
-                <div class="card-text">Certification</div>
-            </div>
+
+        <div class="stat">
+          <div class="stat-number">5+</div>
+          <div class="stat-label">Countries</div>
+          <div class="stat-description">North Africa Region</div>
         </div>
+
+        <div class="stat">
+          <div class="stat-number">2025</div>
+          <div class="stat-label">Launch</div>
+          <div class="stat-description">End of year</div>
+        </div>
+      </div>
+
+      <!-- CTAs -->
+      <div class="hero-cta">
+        <button *ngIf="!isLoggedIn" class="cta-primary" (click)="login()">
+          Get Started
+        </button>
+
+        <button *ngIf="isLoggedIn" class="cta-primary" (click)="onContactClick()">
+          Go to Dashboard
+        </button>
+
+        <button class="cta-secondary" (click)="onContactClick()">
+          Contact Us
+        </button>
+      </div>
+
     </div>
+
+    <!-- Right Column Visual Cards -->
+    <div class="hero-visual">
+
+      <div class="floating-card">
+        <lucide-icon name="BookOpen" class="card-icon"></lucide-icon>
+        <div class="card-text">Interactive Training</div>
+      </div>
+
+      <div class="floating-card delay-1">
+        <lucide-icon name="Layers" class="card-icon"></lucide-icon>
+        <div class="card-text">Learning Resources</div>
+      </div>
+
+      <div class="floating-card delay-2">
+        <lucide-icon name="GraduationCap" class="card-icon"></lucide-icon>
+        <div class="card-text">Certification</div>
+      </div>
+
+    </div>
+  </div>
 </section>
 
-<!-- Overview Section -->
+<!-- OVERVIEW -->
 <section id="overview" class="section">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Vue d'Ensemble du Projet</h2>
-            <p class="section-subtitle">Une plateforme complète et évolutive pour l'éducation agricole moderne</p>
-        </div>
-        
-        <div class="overview-grid">
-            <div class="overview-card">
-                <div class="overview-icon">🎯</div>
-                <h3>Objectif</h3>
-                <p>Former et connecter 30+ millions de jeunes agriculteurs à travers l'Afrique du Nord via une plateforme d'apprentissage innovante et accessible.</p>
-            </div>
-            <div class="overview-card">
-                <div class="overview-icon">🌍</div>
-                <h3>Portée</h3>
-                <p>Couverture complète des pays d'Afrique du Nord avec support multilingue et adaptation aux contextes locaux spécifiques.</p>
-            </div>
-            <div class="overview-card">
-                <div class="overview-icon">⚡</div>
-                <h3>Innovation</h3>
-                <p>Technologies de pointe, IA pour personnalisation, réalité augmentée pour démonstrations pratiques agricoles.</p>
-            </div>
-        </div>
+  <div class="container">
+
+    <div class="section-header">
+      <h2 class="section-title">Project Overview</h2>
+      <p class="section-subtitle">
+        A complete and scalable platform for modern agricultural education.
+      </p>
     </div>
+
+    <div class="overview-grid">
+
+      <div class="overview-card">
+        <lucide-icon name="Target" class="overview-icon"></lucide-icon>
+        <h3>Objective</h3>
+        <p>
+          Deliver modern, high-quality agricultural education accessible to millions 
+          of young farmers across North Africa.
+        </p>
+      </div>
+
+      <div class="overview-card">
+        <lucide-icon name="Globe" class="overview-icon"></lucide-icon>
+        <h3>Regional Reach</h3>
+        <p>
+          Serving 5+ countries with multi-language support and content adapted to 
+          local needs and farming realities.
+        </p>
+      </div>
+
+      <div class="overview-card">
+        <lucide-icon name="Sparkles" class="overview-icon"></lucide-icon>
+        <h3>Innovation</h3>
+        <p>
+          AI-powered personalization, AR-based training modules, modern analytics, 
+          and high-engagement pedagogical tools.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
 </section>
 
-<!-- Features Section -->
+<!-- FEATURES -->
 <section id="features" class="section alt-bg">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Fonctionnalités Principales</h2>
-            <p class="section-subtitle">Tout ce dont vous avez besoin pour une formation agricole efficace</p>
-        </div>
+  <div class="container">
 
-        <div class="features-grid">
-            <div class="feature-card" 
-                 (mouseenter)="onFeatureHover(0, true)" 
-                 (mouseleave)="onFeatureHover(0, false)">
-                <div class="feature-icon">👥</div>
-                <h3>Gestion des Utilisateurs</h3>
-                <ul class="feature-list">
-                    <li>Enregistrement simplifié pour 30M+ utilisateurs</li>
-                    <li>Profils détaillés par domaine et filière</li>
-                    <li>Système de rôles et permissions</li>
-                    <li>Tableau de bord personnalisé</li>
-                </ul>
-            </div>
-
-            <div class="feature-card" 
-                 (mouseenter)="onFeatureHover(1, true)" 
-                 (mouseleave)="onFeatureHover(1, false)">
-                <div class="feature-icon">🎓</div>
-                <h3>Formation en Ligne</h3>
-                <ul class="feature-list">
-                    <li>5+ sessions annuelles personnalisables</li>
-                    <li>Streaming vidéo haute qualité</li>
-                    <li>Contenu interactif et gamifié</li>
-                    <li>Évaluations et certifications</li>
-                </ul>
-            </div>
-
-            <div class="feature-card" 
-                 (mouseenter)="onFeatureHover(2, true)" 
-                 (mouseleave)="onFeatureHover(2, false)">
-                <div class="feature-icon">💬</div>
-                <h3>Interaction & Collaboration</h3>
-                <ul class="feature-list">
-                    <li>Chat en temps réel formateurs-apprenants</li>
-                    <li>Forums de discussion thématiques</li>
-                    <li>Système de mentorat</li>
-                    <li>Partage d'expériences pratiques</li>
-                </ul>
-            </div>
-
-            
-        </div>
+    <div class="section-header">
+      <h2 class="section-title">Key Features</h2>
+      <p class="section-subtitle">Everything you need for high-impact agricultural learning</p>
     </div>
-    </section>
 
-<!-- Featured Courses Section -->
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <lucide-icon name="Users" class="feature-icon"></lucide-icon>
+        <h3>User Management</h3>
+        <ul class="feature-list">
+          <li>Fast onboarding for millions</li>
+          <li>Role-based access control</li>
+          <li>Detailed user profiles</li>
+          <li>Personalized dashboard</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <lucide-icon name="BookOpen" class="feature-icon"></lucide-icon>
+        <h3>Online Training</h3>
+        <ul class="feature-list">
+          <li>High-quality video streaming</li>
+          <li>Interactive and gamified modules</li>
+          <li>Assessments and auto-grading</li>
+          <li>Completion certificates</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <lucide-icon name="MessageSquare" class="feature-icon"></lucide-icon>
+        <h3>Collaboration</h3>
+        <ul class="feature-list">
+          <li>Real-time chat between trainers & learners</li>
+          <li>Thematic discussion forums</li>
+          <li>Mentorship system</li>
+          <li>Knowledge sharing</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- COURSES -->
 <section id="courses" class="section">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Formations Populaires</h2>
-            <p class="section-subtitle">Découvrez nos cours les plus appréciés par les agriculteurs</p>
-        </div>
+  <div class="container">
 
-        <!-- Loading State -->
-        <div *ngIf="coursesLoading" class="courses-loading">
-            <div class="courses-grid">
-                <div class="course-skeleton" *ngFor="let item of [1,2,3,4]">
-                    <div class="skeleton-image"></div>
-                    <div class="skeleton-content">
-                        <div class="skeleton-line skeleton-title"></div>
-                        <div class="skeleton-line skeleton-text"></div>
-                        <div class="skeleton-line skeleton-text short"></div>
-                        <div class="skeleton-line skeleton-button"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Error State -->
-        <div *ngIf="coursesError" class="courses-error">
-            <div class="error-message">
-                <p>{{ coursesError }}</p>
-                <button class="retry-btn" (click)="loadFeaturedCourses()">Réessayer</button>
-            </div>
-        </div>
-
-        <!-- Courses Grid -->
-      <div *ngIf="!coursesLoading && !coursesError" class="courses-grid">
-  <div class="course-card" 
-       *ngFor="let course of featuredCourses | slice:0:3" 
-       (click)="onCourseSelect(course)">
-    <div class="course-image">
-      <img [src]="course.imageUrl " 
-           [alt]="course.title" 
-           onerror="this.onerror=null; this.src='/assets/images/course-placeholder.svg'">
-      <div class="course-duration">{{ '4 semaines' }}</div>
+    <div class="section-header">
+      <h2 class="section-title">Popular Courses</h2>
+      <p class="section-subtitle">Top-rated agricultural training programs</p>
     </div>
-  
 
-
-                
-                <div class="course-content">
-                    <div class="course-meta">
-                        <span class="course-domain">{{ course.domain || 'Agriculture' }}</span>
-                        <span class="course-country">{{ course.country || 'Maroc' }}</span>
-                    </div>
-                    
-                    <h3 class="course-title">{{ course.title }}</h3>
-                    
-                    <p class="course-description">
-                        {{ course.description || 'Description du cours non disponible' }}
-                    </p>
-                    
-                    <div class="course-rating" *ngIf="getCourseRating(course) as rating">
-                        <div class="stars">
-                            <span class="star" 
-                                  *ngFor="let filled of generateStarArray(rating)" 
-                                  [class.filled]="filled">★</span>
-                        </div>
-                        <span class="rating-value">({{ rating }}/5)</span>
-                    </div>
-                    
-                    <div class="course-stats">
-                        <div class="stat">
-                            <span class="stat-icon">👥</span>
-                            <span class="stat-value">{{  0}}</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-icon">📖</span>
-                            <span class="stat-value">{{  12 }} leçons</span>
-                        </div>
-                    </div>
-                    
-                    <div class="course-actions">
-                        <button class="btn-primary" 
-                                (click)="enrollInCourse(course, $event)"
-                                >
-                             Enroll
-                        </button>
-                    
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- View More Button -->
-        <div class="courses-actions">
-            <button class="btn-view-more" (click)="viewAllCourses()">
-                Voir tous les cours
-                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-            </button>
-        </div>
+    <!-- Loading -->
+    <div *ngIf="coursesLoading" class="courses-loading">
+      <div class="courses-grid">
+        <div class="course-skeleton" *ngFor="let i of [1,2,3]"></div>
+      </div>
     </div>
+
+    <!-- Error -->
+    <div *ngIf="coursesError" class="courses-error">
+      <p>{{ coursesError }}</p>
+      <button class="retry-btn" (click)="loadFeaturedCourses()">Retry</button>
+    </div>
+
+    <!-- Grid -->
+    <div *ngIf="!coursesLoading && !coursesError" class="courses-grid">
+
+      <div class="course-card"
+           *ngFor="let course of featuredCourses | slice:0:3"
+           (click)="onCourseSelect(course)">
+
+        <div class="course-image">
+          <img [src]="course.imageUrl"
+               onerror="this.src='/assets/images/course-placeholder.svg'">
+          <div class="course-duration">4 Weeks</div>
+        </div>
+
+        <div class="course-content">
+
+          <div class="course-meta">
+            <span class="course-domain">{{ course.domain || 'Agriculture' }}</span>
+            <span class="course-country">{{ course.country || 'Morocco' }}</span>
+          </div>
+
+          <h3 class="course-title">{{ course.title }}</h3>
+
+          <p class="course-description">
+            {{ course.description || 'Course description unavailable.' }}
+          </p>
+
+          <div *ngIf="getCourseRating(course) as rating" class="course-rating">
+            <div class="stars">
+              <span *ngFor="let filled of generateStarArray(rating)"
+                    class="star" [class.filled]="filled">&#9733;</span>
+            </div>
+            <span class="rating-value">({{ rating }}/5)</span>
+          </div>
+
+          <div class="course-stats">
+            <div class="stat">
+              <lucide-icon name="Users" class="stat-icon"></lucide-icon>
+              <span class="stat-value">0</span>
+            </div>
+
+            <div class="stat">
+              <lucide-icon name="BookOpen" class="stat-icon"></lucide-icon>
+              <span class="stat-value">12 lessons</span>
+            </div>
+          </div>
+
+          <div class="course-actions">
+            <button class="btn-primary"
+                    (click)="enrollInCourse(course, $event)">Enroll</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="courses-actions">
+      <button class="btn-view-more" (click)="viewAllCourses()">
+        View All Courses
+        <lucide-icon name="ArrowRight" class="arrow-icon"></lucide-icon>
+      </button>
+    </div>
+
+  </div>
 </section>
+
+<!-- POSTS -->
 <section id="posts" class="section">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Actualités de la Communauté</h2>
-            <p class="section-subtitle">Découvrez les dernières discussions et partages de notre communauté agricole</p>
-        </div>
+  <div class="container">
 
-        <!-- Loading State -->
-        <div *ngIf="postsLoading" class="posts-loading">
-            <div class="posts-grid">
-                <div class="post-skeleton" *ngFor="let item of [1,2,3]">
-                    <div class="skeleton-header">
-                        <div class="skeleton-avatar"></div>
-                        <div class="skeleton-user-info">
-                            <div class="skeleton-line skeleton-username"></div>
-                            <div class="skeleton-line skeleton-date"></div>
-                        </div>
-                    </div>
-                    <div class="skeleton-content">
-                        <div class="skeleton-line skeleton-text"></div>
-                        <div class="skeleton-line skeleton-text"></div>
-                        <div class="skeleton-line skeleton-text short"></div>
-                    </div>
-                    <div class="skeleton-image"></div>
-                    <div class="skeleton-actions">
-                        <div class="skeleton-line skeleton-button"></div>
-                        <div class="skeleton-line skeleton-button"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Error State -->
-        <div *ngIf="postsError" class="posts-error">
-            <div class="error-message">
-                <p>{{ postsError }}</p>
-                <button class="retry-btn" (click)="loadFeaturedPosts()">Réessayer</button>
-            </div>
-        </div>
-
-        <!-- Posts Grid -->
-        <div *ngIf="!postsLoading && !postsError" class="posts-grid">
-            <div class="post-card" 
-                 *ngFor="let post of featuredPosts | slice:0:3" 
-                 (click)="onPostClick(post)">
-                
-                <!-- Post Header -->
-                <div class="post-header">
-                    <div class="post-avatar">
-                        <img [src]="post.user?.picture || fallbackAvatar" 
-                             [alt]="post.user?.name || 'Utilisateur'"
-                             (error)="setFallbackAvatar($event)">
-                    </div>
-                    <div class="post-user-info">
-                        <h4 class="post-username">{{ post.user?.name || 'Utilisateur anonyme' }}</h4>
-                        <span class="post-date">{{ getTimeAgo(post.timestamp) }}</span>
-                    </div>
-                    <div class="post-menu">
-                        <button class="menu-btn" (click)="onPostMenuClick(post, $event)">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <circle cx="12" cy="12" r="1"/>
-                                <circle cx="12" cy="5" r="1"/>
-                                <circle cx="12" cy="19" r="1"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Post Content -->
-                <div class="post-content">
-                    <p class="post-text">{{ post.content }}</p>
-                    
-                    <!-- Post Image / Placeholder -->
-                    <ng-container *ngIf="post.image; else noPostImage">
-                      <div class="post-image">
-                        <img [src]="post.image" 
-                             [alt]="'Image du post'"
-                             onerror="this.parentElement.style.display='none'">
-                      </div>
-                    </ng-container>
-                    <ng-template #noPostImage>
-                      <div class="post-image placeholder">
-                        <svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                          <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                          <path d="M21 15l-5-5L5 21"></path>
-                        </svg>
-                      </div>
-                    </ng-template>
-                </div>
-
-                <!-- Post Actions -->
-                <div class="post-actions">
-                    <button class="action-btn like-btn" 
-                            [class.liked]="post.isLiked"
-                            (click)="togglePostLike(post, $event)">
-                        <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                        </svg>
-                        <span class="action-count">{{ formatNumber(post.likes) }}</span>
-                    </button>
-
-                    <button class="action-btn comment-btn" 
-                            (click)="onCommentClick(post, $event)">
-                        <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                        </svg>
-                        <span class="action-count">{{ formatNumber(post.comments.length || 0) }}</span>
-                    </button>
-
-                    <button class="action-btn share-btn" 
-                            >
-                        <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <circle cx="18" cy="5" r="3"/>
-                            <circle cx="6" cy="12" r="3"/>
-                            <circle cx="18" cy="19" r="3"/>
-                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- Post Preview Comments -->
-                <div class="post-comments-preview" *ngIf="post.comments && post.comments.length > 0">
-                    <div class="comment-preview" 
-                         *ngFor="let comment of post.comments | slice:0:2">
-                        
-                    </div>
-                    <button class="view-all-comments" 
-                            *ngIf="post.comments.length > 2"
-                            (click)="onViewAllComments(post, $event)">
-                        Voir les {{ post.comments.length - 2 }} autres commentaires
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- View More Button -->
-        <div class="posts-actions">
-            <button class="btn-view-more" (click)="viewAllPosts()">
-                Voir toutes les actualités
-                <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-            </button>
-        </div>
+    <div class="section-header">
+      <h2 class="section-title">Community Updates</h2>
+      <p class="section-subtitle">Latest discussions and shared experiences</p>
     </div>
+
+    <!-- Loading -->
+    <div *ngIf="postsLoading" class="posts-loading">
+      <div class="posts-grid">
+        <div class="post-skeleton" *ngFor="let i of [1,2,3]"></div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="postsError" class="posts-error">
+      <p>{{ postsError }}</p>
+      <button class="retry-btn" (click)="loadFeaturedPosts()">Retry</button>
+    </div>
+
+    <!-- Posts -->
+    <div *ngIf="!postsLoading && !postsError" class="posts-grid">
+
+      <div class="post-card"
+           *ngFor="let post of featuredPosts | slice:0:3"
+           (click)="onPostClick(post)">
+
+        <!-- Header -->
+        <div class="post-header">
+
+          <div class="post-avatar">
+            <img [src]="post.user?.picture || fallbackAvatar"
+                 (error)="setFallbackAvatar($event)">
+          </div>
+
+          <div class="post-user-info">
+            <h4 class="post-username">{{ post.user?.name || 'Anonymous' }}</h4>
+            <span class="post-date">{{ getTimeAgo(post.timestamp) }}</span>
+          </div>
+
+    
+
+        </div>
+
+        <!-- Content -->
+        <div class="post-content">
+          <p class="post-text">{{ post.content }}</p>
+
+          <!-- Image -->
+          <div class="post-image" [class.placeholder]="!post.image">
+            <img *ngIf="post.image"
+                 [src]="post.image"
+                 (error)="setFallbackPostImage($event)">
+            <ng-container *ngIf="!post.image">
+              <lucide-icon name="Image" class="placeholder-icon"></lucide-icon>
+            </ng-container>
+          </div>
+
+        </div>
+
+        <!-- Actions -->
+        <div class="post-actions">
+
+          <button class="action-btn like-btn"
+                  [class.liked]="post.isLiked"
+                  (click)="togglePostLike(post, $event)">
+            <lucide-icon name="Heart"></lucide-icon>
+            <span class="action-count">{{ formatNumber(post.likes) }}</span>
+          </button>
+
+          <button class="action-btn comment-btn"
+                  (click)="onCommentClick(post, $event)">
+            <lucide-icon name="MessageCircle"></lucide-icon>
+            <span class="action-count">{{ formatNumber(post.comments.length || 0) }}</span>
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="posts-actions">
+      <button class="btn-view-more" (click)="viewAllPosts()">
+        View All Posts
+        <lucide-icon name="ArrowRight" class="arrow-icon"></lucide-icon>
+      </button>
+    </div>
+
+  </div>
 </section>
 
-<!-- Technical Section -->
-<section id="technical" class="section alt-bg">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Architecture Technique</h2>
-            <p class="section-subtitle">Technologies modernes pour une performance optimale</p>
-        </div>
+<!-- WHO WE ARE -->
+<section id="about" class="section alt-bg">
+  <div class="container">
 
-        <div class="tech-architecture">
-            <div class="tech-layer">
-                <h3>Frontend</h3>
-                <div class="tech-items">
-                    <div class="tech-item">Angular 17+</div>
-                    <div class="tech-item">TypeScript</div>
-                    <div class="tech-item">Material Design</div>
-                    <div class="tech-item">PWA</div>
-                </div>
-            </div>
-
-            <div class="tech-layer">
-                <h3>Backend</h3>
-                <div class="tech-items">
-                    <div class="tech-item">Node.js</div>
-                    <div class="tech-item">Express.js</div>
-                    <div class="tech-item">Microservices</div>
-                    <div class="tech-item">GraphQL</div>
-                </div>
-            </div>
-
-            <div class="tech-layer">
-                <h3>Base de Données</h3>
-                <div class="tech-items">
-                    <div class="tech-item">MongoDB Atlas</div>
-                    <div class="tech-item">Redis Cache</div>
-                    <div class="tech-item">Elasticsearch</div>
-                    <div class="tech-item">PostgreSQL</div>
-                </div>
-            </div>
-
-            <div class="tech-layer">
-                <h3>Infrastructure</h3>
-                <div class="tech-items">
-                    <div class="tech-item">AWS/Azure</div>
-                    <div class="tech-item">Docker</div>
-                    <div class="tech-item">Kubernetes</div>
-                    <div class="tech-item">CDN Global</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="performance-metrics">
-            <div class="metric">
-                <div class="metric-value">99.9%</div>
-                <div class="metric-label">Disponibilité</div>
-            </div>
-            <div class="metric">
-                <div class="metric-value">&lt; 2s</div>
-                <div class="metric-label">Temps de Chargement</div>
-            </div>
-            <div class="metric">
-                <div class="metric-value">30M+</div>
-                <div class="metric-label">Utilisateurs Simultanés</div>
-            </div>
-            <div class="metric">
-                <div class="metric-value">24/7</div>
-                <div class="metric-label">Support Technique</div>
-            </div>
-        </div>
+    <div class="about-hero">
+      <div class="about-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M7 20h10M12 4v16M8 8l4-4 4 4"/>
+        </svg>
+        <span>Empowering North African agriculture</span>
+      </div>
+      <h2 class="about-title">Growing the future of <span>farming</span></h2>
+      <p class="about-lead">
+        AGRA connects farmers with modern training, trusted experts, and community-driven knowledge to scale sustainable growth across North Africa.
+      </p>
     </div>
+
+    <div class="about-stats">
+      <div class="stat-card">
+        <div class="stat-value">30M+</div>
+        <div class="stat-label">Learners Reached</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">5</div>
+        <div class="stat-label">Countries</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">40%</div>
+        <div class="stat-label">Avg. Yield Lift</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">24/7</div>
+        <div class="stat-label">Mentor Support</div>
+      </div>
+    </div>
+
+    <div class="about-mission-grid">
+      <div class="mission-content">
+        <h3>Our mission</h3>
+        <p>
+          Every farm deserves access to modern tools and locally relevant know-how. We blend agronomic science, AI-assisted personalization, and human mentorship to keep training grounded in real field conditions.
+        </p>
+        <p>
+          From Morocco to Egypt, we are building a connected network of farmers, agronomists, and cooperatives-so knowledge flows freely and resilience scales with every harvest.
+        </p>
+      </div>
+      <div class="mission-image">
+        <div class="mission-image-sheen"></div>
+        <img src="/assets/images/course-placeholder.svg" alt="Modern agricultural training across North Africa">
+      </div>
+    </div>
+
+    <div class="values-section">
+      <h3>What drives us</h3>
+      <div class="values-grid">
+        <div class="value-card">
+          <div class="value-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M12 22c4.97 0 9-4.03 9-9a9 9 0 0 0-9-9 9 9 0 0 0-9 9c0 4.97 4.03 9 9 9zM12 2v7m-5 3H2m18 0h-5"/>
+            </svg>
+          </div>
+          <h4>Sustainability</h4>
+          <p>Eco-friendly, climate-smart practices that protect land and livelihoods for future generations.</p>
+        </div>
+
+        <div class="value-card">
+          <div class="value-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M2 12h20"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </div>
+          <h4>Regional unity</h4>
+          <p>Connecting cooperatives and unions to share resources, research, and best practices across borders.</p>
+        </div>
+
+        <div class="value-card">
+          <div class="value-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87m-4-12a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <h4>Community first</h4>
+          <p>Keeping farmers at the center with mentorship, forums, and collaborative learning cohorts.</p>
+        </div>
+
+        <div class="value-card">
+          <div class="value-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+          <h4>Innovation</h4>
+          <p>Bringing AI insights, AR field simulations, and data-driven coaching to everyday farming.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="performance-metrics">
+      <div class="metric">
+        <div class="metric-value">99.9%</div>
+        <div class="metric-label">Uptime</div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-value">&lt; 2s</div>
+        <div class="metric-label">Load Time</div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-value">30M+</div>
+        <div class="metric-label">Concurrent Users</div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-value">24/7</div>
+        <div class="metric-label">Technical Support</div>
+      </div>
+    </div>
+
+  </div>
 </section>
 
-<!-- Pricing Section -->
-<section id="pricing" class="section">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Proposition Financière</h2>
-            <p class="section-subtitle">Investissement transparent pour un projet d'envergure</p>
-        </div>
+<!-- SPONSORS -->
+<section id="sponsors" class="section alt-bg">
+  <div class="container">
 
-        <div class="pricing-cards">
-            <div class="pricing-card featured" (click)="onPricingCardClick(0)">
-                <div class="pricing-header">
-                    <h3>Phase de Développement</h3>
-                    <div class="price">
-                        <span class="currency">€</span>
-                        <span class="amount">850,000</span>
-                    </div>
-                    <div class="period">Paiement échelonné sur 12 mois</div>
-                </div>
-                <div class="pricing-features">
-                    <div class="feature">✓ Conception et développement complet</div>
-                    <div class="feature">✓ Architecture cloud scalable</div>
-                    <div class="feature">✓ Applications mobile natives</div>
-                    <div class="feature">✓ Tests et validation utilisateur</div>
-                    <div class="feature">✓ Formation équipe technique</div>
-                </div>
-            </div>
-
-            <div class="pricing-card" (click)="onPricingCardClick(1)">
-                <div class="pricing-header">
-                    <h3>Maintenance & Support</h3>
-                    <div class="price">
-                        <span class="currency">€</span>
-                        <span class="amount">180,000</span>
-                    </div>
-                    <div class="period">Par année</div>
-                </div>
-                <div class="pricing-features">
-                    <div class="feature">✓ Support technique 24/7</div>
-                    <div class="feature">✓ Mises à jour automatiques</div>
-                    <div class="feature">✓ Monitoring et sécurité</div>
-                    <div class="feature">✓ Évolutions fonctionnelles</div>
-                    <div class="feature">✓ Formation continue staff</div>
-                </div>
-            </div>
-        </div>
+    <div class="section-header">
+      <h2 class="section-title">Sponsors & Partners</h2>
+      <p class="section-subtitle">Organizations fueling AGRA's mission across North Africa</p>
     </div>
+
+    <div *ngIf="sponsorLogos.length; else sponsorsComing" class="sponsors-grid">
+      <div class="sponsor-card" *ngFor="let logo of sponsorLogos">
+        <img [src]="logo" alt="Sponsor logo">
+      </div>
+    </div>
+
+    <ng-template #sponsorsComing>
+      <div class="sponsors-empty">
+        <p>Sponsors will appear here soon.</p>
+      </div>
+    </ng-template>
+
+  </div>
 </section>
 
-<!-- Timeline Section -->
-<section id="timeline" class="section alt-bg">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Planning de Réalisation</h2>
-            <p class="section-subtitle">Roadmap détaillée vers le lancement fin 2025</p>
-        </div>
-
-        <div class="timeline">
-            <div class="timeline-item" (click)="onTimelineItemClick({phase: 1, title: 'Analyse & Conception', duration: 'Mois 1-2'})">
-                <div class="timeline-marker">
-                    <div class="marker-content">1</div>
-                </div>
-                <div class="timeline-content">
-                    <h3>Analyse & Conception</h3>
-                    <div class="timeline-duration">Mois 1-2</div>
-                    <p>Analyse détaillée des besoins, conception UX/UI, architecture technique, validation avec AGRA.</p>
-                </div>
-            </div>
-
-            <div class="timeline-item" (click)="onTimelineItemClick({phase: 2, title: 'Développement Core', duration: 'Mois 3-6'})">
-                <div class="timeline-marker">
-                    <div class="marker-content">2</div>
-                </div>
-                <div class="timeline-content">
-                    <h3>Développement Core</h3>
-                    <div class="timeline-duration">Mois 3-6</div>
-                    <p>Développement des fonctionnalités principales : authentification, gestion utilisateurs, base de données, API backend.</p>
-                </div>
-            </div>
-
-            <div class="timeline-item" (click)="onTimelineItemClick({phase: 3, title: 'Tests & Déploiement', duration: 'Mois 7-12'})">
-                <div class="timeline-marker">
-                    <div class="marker-content">3</div>
-                </div>
-                <div class="timeline-content">
-                    <h3>Tests & Déploiement</h3>
-                    <div class="timeline-duration">Mois 7-12</div>
-                    <p>Tests de charge, optimisation performance, déploiement production et formation équipe technique.</p>
-                </div>
-            </div>
-        </div>
+<!-- ORGANISATIONS MEMBRES -->
+<section id="organizations" class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Organisations membres</h2>
+      <p class="section-subtitle">Network of national partners.</p>
     </div>
+
+    <div class="org-grid">
+      <div class="org-card">
+        <div class="org-flag fi fi-dz"></div>
+        <div class="org-meta">
+          <div class="org-country">Algeria</div>
+          <div class="org-name">National Union of Algerian Farmers</div>
+        </div>
+      </div>
+
+      <div class="org-card">
+        <div class="org-flag fi fi-eg"></div>
+        <div class="org-meta">
+          <div class="org-country">Egypt</div>
+          <div class="org-name">Central Union of Agricultural Cooperatives</div>
+        </div>
+      </div>
+
+      <div class="org-card">
+        <div class="org-flag fi fi-ly"></div>
+        <div class="org-meta">
+          <div class="org-country">Libya</div>
+          <div class="org-name">General Union of Farmers and Breeders</div>
+        </div>
+      </div>
+
+      <div class="org-card">
+        <div class="org-flag fi fi-ma"></div>
+        <div class="org-meta">
+          <div class="org-country">Morocco</div>
+          <div class="org-name">Moroccan Union of Agriculture</div>
+        </div>
+      </div>
+
+      <div class="org-card">
+        <div class="org-flag fi fi-mr"></div>
+        <div class="org-meta">
+          <div class="org-country">Mauritania</div>
+          <div class="org-name">Mauritanian Federation of Agriculture</div>
+        </div>
+      </div>
+
+      <div class="org-card">
+        <div class="org-flag fi fi-tn"></div>
+        <div class="org-meta">
+          <div class="org-country">Tunisia</div>
+          <div class="org-name">Tunisian Union of Agriculture and Fisheries</div>
+        </div>
+      </div>
+
+      <div class="org-card">
+        <div class="org-flag fi fi-sd"></div>
+        <div class="org-meta">
+          <div class="org-country">Sudan</div>
+          <div class="org-name">National Farmers Organization</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
+
+</main>
 
 <app-footer></app-footer>
-</body>
-</html>
+
+

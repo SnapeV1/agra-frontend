@@ -26,8 +26,24 @@
       placeholder="Search..."
       [(ngModel)]="searchQuery"
       (keyup)="onSearchKeyup($event)"
+      (focus)="onSearchFocus()"
+      (blur)="onSearchBlur()"
     />
     <span class="material-symbols-outlined search-icon"></span>
+    <div class="search-dropdown" *ngIf="isSearchOpen && filteredSearch.length">
+      <button
+        class="search-option"
+        type="button"
+        *ngFor="let item of filteredSearch; let i = index"
+        [class.active]="i === activeSearchIndex"
+        (mousedown)="selectSearch(item)">
+        <span class="material-symbols-outlined">{{ item.icon || 'search' }}</span>
+        <div class="option-text">
+          <div class="option-title">{{ item.label }}</div>
+          <div class="option-route">{{ item.route }}</div>
+        </div>
+      </button>
+    </div>
   </div>
 
   <div class="navbar-right">

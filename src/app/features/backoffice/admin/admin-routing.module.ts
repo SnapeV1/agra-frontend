@@ -22,7 +22,7 @@ const routes: Routes = [
       { path: 'settings', component: AdminSettingsComponent },
       { path: 'coursedetails/:id', component: AdminCourseDetailsComponent },
       
-      { path: '', redirectTo: 'courses', pathMatch: 'full' } 
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' } 
     ]
   }
 ];

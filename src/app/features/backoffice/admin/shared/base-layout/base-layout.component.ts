@@ -14,8 +14,6 @@ export class BaseLayoutComponent {
       const isMobile = window.innerWidth <= 768;
       if (isMobile) {
         this.sidebarService.closeMobile();
-      } else {
-        this.sidebarService.collapse();
       }
     } catch {
       // no-op

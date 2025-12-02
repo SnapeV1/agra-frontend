@@ -66,7 +66,7 @@
   </div>
 
   <div class="posts-container" *ngIf="!loading">
-    <article class="post" *ngFor="let post of posts; trackBy: trackByPostId">
+    <article class="post" *ngFor="let post of visiblePosts; trackBy: trackByPostId">
       <div class="post-header">
         <div class="user-info">
           <img [src]="post.userInfo.picture || fallbackAvatar"
@@ -90,7 +90,12 @@
       <!-- Post Content -->
       <div class="post-content">
         <p class="post-text">{{ post.content }}</p>
-        <img *ngIf="post.imageUrl" [src]="post.imageUrl" alt="Post image" class="post-image">
+        <img *ngIf="post.imageUrl"
+             [src]="getPostImageSrc(post.imageUrl)"
+             [attr.srcset]="getPostImageSrcSet(post.imageUrl)"
+             sizes="(min-width: 1024px) 720px, 100vw"
+             alt="Post image"
+             class="post-image">
       </div>
 
       <!-- Post Actions -->
