@@ -6,7 +6,7 @@ import { CoursesComponent } from './components/courses/courses.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { LucideAngularModule, AlertTriangle, RefreshCw, Search, X, BookOpen, Globe, Users, Clock, Eye, Plus, ArrowLeft, Menu, Maximize, Maximize2, MoreVertical, CheckCircle, Play, ChevronLeft, ChevronRight, FileText, Download, Award, Share2, ExternalLink, Image as ImageIcon, Video, Music, File as FileIcon } from 'lucide-angular';
+import { LucideAngularModule, AlertTriangle, RefreshCw, Search, X, BookOpen, Globe, Users, Clock, Eye, Plus, ArrowLeft, Menu, Maximize, Maximize2, Minimize2, MoreVertical, CheckCircle, Play, ChevronLeft, ChevronRight, FileText, Download, Award, Share2, ExternalLink, Image as ImageIcon, Video, Music, File as FileIcon, PartyPopper } from 'lucide-angular';
 import { CourseDetailsComponent } from './components/course-details/course-details.component';
 import { CourseEnrolledComponent } from './components/course-enrolled/course-enrolled.component';
 import { CertificateComponent } from './components/certificate/certificate.component';
@@ -44,6 +44,7 @@ import { LiveSessionPlayerComponent } from './components/sessions/live-session-p
       Menu,
       Maximize,
       Maximize2,
+      Minimize2,
       MoreVertical,
       CheckCircle,
       Play,
@@ -54,6 +55,7 @@ import { LiveSessionPlayerComponent } from './components/sessions/live-session-p
       Award,
       Share2,
       ExternalLink,
+      PartyPopper,
       // Icons used in course-enrolled resources
       Image: ImageIcon,
       Video,

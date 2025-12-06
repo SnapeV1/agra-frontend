@@ -5,7 +5,7 @@ import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { trigger, state, style, transition, animate, query, stagger } from '@angular/animations';
 import { Course } from 'src/app/core/models/course';
 import { CourseService } from 'src/app/core/services/course/course.service';
-import { Subscription } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { PostsService } from 'src/app/features/backoffice/admin/services/posts.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
 // Google sign-in is handled in dedicated Auth components (Login/Register).
@@ -53,6 +53,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   postsLoading: boolean = false;
   postsError: string = '';
   private postsSubscription?: Subscription;
+  private enrollmentStatusSub?: Subscription;
+  enrolledCourseIds: Set<string> = new Set();
   fallbackAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><rect width='80' height='80' fill='%23f3f4f6'/><circle cx='40' cy='32' r='18' fill='%23cbd5e1'/><path d='M12 72c4-14 16-22 28-22s24 8 28 22' fill='%23cbd5e1'/></svg>";
   sponsorLogos: string[] = [];
   constructor(
@@ -88,6 +90,9 @@ private loadSponsorLogos(): void {
   ngOnDestroy(): void {
      if (this.postsSubscription) {
       this.postsSubscription.unsubscribe();
+    }
+    if (this.enrollmentStatusSub) {
+      this.enrollmentStatusSub.unsubscribe();
     }
   }
 
@@ -129,6 +134,11 @@ private loadSponsorLogos(): void {
         const activeCourses = normalized.filter(c => !c?.archived);
         const sorted = activeCourses.sort((a, b) => (b.createdAt as any) - (a.createdAt as any));
         this.featuredCourses = sorted.slice(0, 4);
+        if (this.isLoggedIn) {
+          this.refreshEnrollmentStatuses();
+        } else {
+          this.enrolledCourseIds.clear();
+        }
         this.coursesLoading = false;
       },
       error: (err) => {
@@ -143,16 +153,65 @@ private loadSponsorLogos(): void {
   }
 
  
-  onCourseSelect(course: Course): void {
-    this.router.navigate(['/course-details', course.id]);
+  onCourseSelect(course: Course, event?: Event): void {
+    event?.stopPropagation();
+    const courseId = course?.id;
+    if (!courseId) {
+      return;
+    }
+    const isEnrolled = this.isCourseEnrolled(courseId);
+    const target = isEnrolled
+      ? ['/courses/course-enrolled', courseId]
+      : ['/courses/course-details', courseId];
+    this.router.navigate(target);
   }
 
   
   enrollInCourse(course: Course, event: Event): void {
     event.stopPropagation();
-    
+    this.onCourseSelect(course);
   }
 
+  isCourseEnrolled(course: Course | string): boolean {
+    const id = typeof course === 'string' ? course : course?.id;
+    if (!id) {
+      return false;
+    }
+    return this.enrolledCourseIds.has(id);
+  }
+
+  private refreshEnrollmentStatuses(): void {
+    if (!this.isLoggedIn || !this.featuredCourses.length) {
+      this.enrolledCourseIds.clear();
+      return;
+    }
+
+    const coursesToCheck = this.featuredCourses.filter(course => !!course.id);
+    if (!coursesToCheck.length) {
+      this.enrolledCourseIds.clear();
+      return;
+    }
+
+    this.enrollmentStatusSub?.unsubscribe();
+    const checks = coursesToCheck.map(course =>
+      this.courseService.checkEnrollmentStatus(course.id!)
+    );
+
+    this.enrollmentStatusSub = forkJoin(checks).subscribe({
+      next: (statuses) => {
+        const enrolled = new Set<string>();
+        statuses.forEach((status, idx) => {
+          if (status?.enrolled && coursesToCheck[idx]?.id) {
+            enrolled.add(coursesToCheck[idx].id as string);
+          }
+        });
+        this.enrolledCourseIds = enrolled;
+      },
+      error: () => {
+        this.enrolledCourseIds.clear();
+      }
+    });
+  }
   
   getCourseRating(course: any): number | null {
     const r = course?.rating;

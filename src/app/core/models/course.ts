@@ -38,7 +38,30 @@ export interface TextContent {
   title: string;
   content: string;
   order: number;
-  type: 'lesson' | 'assignment' | 'reading';
+  type: 'lesson' | 'assignment' | 'reading' | 'quiz';
+  questions?: QuizQuestion[];
+  quizQuestions?: QuizQuestionApi[];
+}
+
+export interface QuizQuestion {
+  question: string;
+  options: string[];
+  correctAnswer?: string;
+  explanation?: string;
+  // UI-only flag for editor collapse state
+  uiCollapsed?: boolean;
+}
+
+export interface QuizAnswer {
+  id?: string;
+  text: string;
+  correct?: boolean;
+}
+
+export interface QuizQuestionApi {
+  id?: string;
+  question: string;
+  answers: QuizAnswer[];
 }
 
 export interface CourseProgress {

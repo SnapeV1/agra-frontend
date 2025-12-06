@@ -1,6 +1,16 @@
 <div class="live-session">
-  <div *ngIf="loading" class="loading">Joining session…</div>
-  <div *ngIf="error" class="error">{{ error }}</div>
+  <div *ngIf="loading" class="loading">Joining session...</div>
+  <div *ngIf="error" class="error">
+    <div>{{ error }}</div>
+    <button *ngIf="joinUrl" class="retry-btn" (click)="openJoinUrl()">
+      Open live session
+    </button>
+  </div>
+  <div *ngIf="!loading && !error && info" class="info">
+    {{ info }}
+    <button *ngIf="joinUrl" class="retry-btn" (click)="openJoinUrl()">
+      Open live session
+    </button>
+  </div>
   <div #playerContainer class="player-container"></div>
 </div>
-

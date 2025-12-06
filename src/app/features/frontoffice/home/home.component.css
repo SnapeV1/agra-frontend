@@ -760,7 +760,7 @@ html[data-theme="dark"] .about-title span {
 
 .mission-image {
     position: relative;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 4 / 2;
     border-radius: 14px;
     overflow: hidden;
     background: linear-gradient(135deg, rgba(74,124,34,0.18), rgba(107,176,51,0.15));

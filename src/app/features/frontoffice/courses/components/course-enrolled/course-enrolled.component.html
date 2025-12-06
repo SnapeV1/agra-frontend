@@ -24,6 +24,7 @@
      class="course-player" 
      [class.fullscreen]="isFullscreen"
      [class.sidebar-hidden]="!showSidebar">
+  <app-navigation *ngIf="!isFullscreen" class="embedded-nav"></app-navigation>
   
   <!-- Header -->
   <header class="course-header">
@@ -115,7 +116,9 @@
           <div class="lesson-actions">
             <button *ngIf="!getLessonProgress(currentLesson.id || '')?.completed" 
                     class="btn-complete" 
-                    (click)="markLessonComplete()">
+                    (click)="markLessonComplete()"
+                    [disabled]="currentLesson.type === 'quiz' ? !isQuizLessonPassable() : false"
+                    [title]="currentLesson.type === 'quiz' && !isQuizLessonPassable() ? getQuizCompletionLockReason() : ''">
               <lucide-icon name="CheckCircle" class="btn-icon"></lucide-icon>
               Mark Complete
             </button>
@@ -128,30 +131,191 @@
         </div>
 
         <!-- Lesson Content -->
-        <div class="lesson-body">
-          <div class="lesson-text" [innerHTML]="currentLesson.content"></div>
+        <div class="lesson-body" [class.quiz-mode]="currentLesson.type === 'quiz'">
+          <div *ngIf="currentLesson.type !== 'quiz'" class="lesson-text" [innerHTML]="currentLesson.content"></div>
+          <div *ngIf="currentLesson.type === 'quiz'" class="quiz-layout">
+            <div class="quiz-card">
+              <div class="quiz-header-mini">
+                <span class="quiz-pill-mini">
+                  Q {{ quizQuestionCount ? (currentQuizState?.currentIndex || 0) + 1 : 0 }} / {{ quizQuestionCount }}
+                </span>
+                <span class="quiz-score-mini">
+                  <lucide-icon name="Award"></lucide-icon>
+                  <ng-container *ngIf="currentQuizState?.submitted; else progressMini">
+                    {{ currentQuizState?.score }} / {{ quizQuestionCount }}
+                  </ng-container>
+                  <ng-template #progressMini>
+                    {{ quizAnsweredCount }} / {{ quizQuestionCount }}
+                  </ng-template>
+                </span>
+              </div>
+
+              <div *ngIf="currentQuizQuestion as quizQuestion" class="quiz-body-compact">
+                <div class="quiz-title-small">{{ quizQuestion.question }}</div>
+                <div class="quiz-options-compact">
+                  <label *ngFor="let opt of quizQuestion.options; let oi = index"
+                         class="quiz-option-compact"
+                         [class.selected]="getSelectedAnswer(currentQuizState?.currentIndex) === opt"
+                         [class.correct]="currentQuizState?.submitted && opt === quizQuestion.correctAnswer"
+                         [class.incorrect]="currentQuizState?.submitted && getSelectedAnswer(currentQuizState?.currentIndex) === opt && opt !== quizQuestion.correctAnswer">
+                    <input
+                      type="radio"
+                      [name]="'quiz-'+(currentLesson.id || 'lesson')"
+                      [value]="opt"
+                      [checked]="getSelectedAnswer(currentQuizState?.currentIndex) === opt"
+                      [disabled]="currentQuizState?.submitted"
+                      (change)="selectQuizOption(opt)">
+                    <span>{{ opt }}</span>
+                  </label>
+                </div>
+              </div>
+
+              <div *ngIf="quizStatusMessage" class="quiz-inline-result">
+                {{ quizStatusMessage }}
+              </div>
+
+              <div *ngIf="currentQuizState?.submitted" class="quiz-inline-result" [class.success]="currentQuizState?.allCorrect">
+                <lucide-icon [name]="currentQuizState?.allCorrect ? 'PartyPopper' : 'RefreshCw'"></lucide-icon>
+                <span>
+                  {{ currentQuizState?.allCorrect ? 'All answers correct!'' : 'Review and try again.' }}
+                </span>
+              </div>
+
+              <div class="quiz-actions">
+                <div class="quiz-controls">
+                  <button class="quiz-nav-btn ghost"
+                          type="button"
+                          (click)="previousQuizQuestion()"
+                          [disabled]="(currentQuizState?.currentIndex || 0) === 0">
+                    <lucide-icon name="ArrowLeft" class="btn-icon"></lucide-icon>
+                    Previous
+                  </button>
+                  <button class="quiz-nav-btn ghost"
+                          type="button"
+                          (click)="nextQuizQuestion()"
+                          [disabled]="isLastQuizQuestion()">
+                    Next
+                    <lucide-icon name="ChevronRight" class="btn-icon"></lucide-icon>
+                  </button>
+                  <button class="quiz-nav-btn primary" type="button" (click)="submitQuiz()" [disabled]="!quizQuestionCount">
+                    Submit Quiz
+                  </button>
+                  <button *ngIf="currentQuizState?.submitted && !currentQuizState?.allCorrect"
+                          class="quiz-nav-btn subtle"
+                          type="button"
+                          (click)="resetQuizAttempt()">
+                    Try Again
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <!-- Navigation -->
-        <div class="lesson-navigation">
+        <div class="lesson-navigation compact">
           <button class="btn-nav" 
                   [disabled]="currentLessonIndex === 0"
                   (click)="previousLesson()">
             <lucide-icon name="ArrowLeft" class="btn-icon"></lucide-icon>
-            Previous Lesson
+            Prev
           </button>
           
           <div class="nav-info">
-            Lesson {{ currentLessonIndex + 1 }} of {{ course.textContent.length }}
+            {{ currentLessonIndex + 1 }} / {{ course.textContent.length }}
           </div>
           
           <button class="btn-nav" 
                   [disabled]="currentLessonIndex === course.textContent.length - 1"
                   (click)="nextLesson()">
-            Next Lesson
+            Next
             <lucide-icon name="ChevronRight" class="btn-icon"></lucide-icon>
           </button>
         </div>
+
+        <section class="course-global-panels">
+          <div class="live-sessions inline-panel" [class.collapsed]="!showLiveSessions">
+            <div class="sessions-header" (click)="toggleLiveSessions()">
+              <h3>Live Sessions</h3>
+              <div class="header-actions">
+                <lucide-icon [name]="showLiveSessions ? 'X' : 'Plus'" class="toggle-icon"></lucide-icon>
+              </div>
+            </div>
+            <div class="sessions-content" [class.collapsed]="!showLiveSessions">
+              <div *ngIf="sessionsLoading" class="loading" aria-busy="true" aria-live="polite">
+                <div class="skeleton-list">
+                  <div class="skeleton-item" *ngFor="let i of [1,2]">
+                    <div class="skeleton-title"></div>
+                    <div class="skeleton-text"></div>
+                    <div class="skeleton-meta"></div>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="sessionsError" class="error">{{ sessionsError }}</div>
+              <div *ngIf="!sessionsLoading && !sessionsError">
+                <div *ngIf="sessionJoinError" class="error">{{ sessionJoinError }}</div>
+                <div *ngIf="sessions.length === 0" class="empty" role="status" aria-live="polite">
+                  No upcoming sessions. Check back later.
+                </div>
+                <div class="session-cards single" *ngIf="sessions.length > 0">
+                  <button class="nav-arrow left" (click)="prevSession()" [disabled]="sessions.length <= 1" aria-label="Previous session"><</button>
+                  <div class="session-card">
+                    <div class="title">{{ currentSession?.title || 'Session' }}</div>
+                    <div class="time">
+                      <span>Start: {{ currentSession?.startTime | date:'medium' }}</span>
+                      <span *ngIf="currentSession?.endTime"> - End: {{ currentSession?.endTime | date:'medium' }}</span>
+                    </div>
+                    <div class="actions">
+                      <button
+                        class="btn-primary"
+                        *ngIf="currentSession && isLive(currentSession)"
+                        (click)="joinSession(currentSession.id)"
+                        [disabled]="joiningSessionId === currentSession.id">
+                        Join Now
+                      </button>
+                      <span class="badge" *ngIf="currentSession && !isLive(currentSession)">Not live</span>
+                      <span class="index">{{ (sessionCarouselIndex + 1) }} / {{ sessions.length }}</span>
+                    </div>
+                  </div>
+                  <button class="nav-arrow right" (click)="nextSession()" [disabled]="sessions.length <= 1" aria-label="Next session">></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="course-resources inline-panel" [class.collapsed]="!showResources">
+            <div class="resources-header" (click)="toggleResources()">
+              <h3>Course Resources</h3>
+              <lucide-icon [name]="showResources ? 'X' : 'Plus'" class="toggle-icon"></lucide-icon>
+            </div>
+            <div class="resources-content" [class.collapsed]="!showResources">
+              <div class="resource-category" *ngIf="course.files && course.files.length > 0; else noDynamicFiles">
+                <div class="resource-list">
+                  <a *ngFor="let file of course.files"
+                     [href]="file.url"
+                     target="_blank"
+                     class="resource-item">
+                    <lucide-icon [name]="getFileIcon(file)" class="resource-icon"></lucide-icon>
+                    <span class="resource-name">{{ file.name }}</span>
+                    <span class="resource-type">{{ getFileType(file) }}</span>
+                  </a>
+                </div>
+              </div>
+              <ng-template #noDynamicFiles>
+                <div class="resource-category">
+                  <div class="resource-list">
+                    <div class="resource-item" style="opacity:.7;pointer-events:none;">
+                      <lucide-icon name="File" class="resource-icon"></lucide-icon>
+                      <span class="resource-name">No resources available yet</span>
+                      <span class="resource-type"></span>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </section>
       </div>
 
       <!-- No Lesson Selected -->
@@ -161,103 +325,6 @@
         <p>Choose a lesson from the sidebar to start learning</p>
       </div>
     </main>
-  </div>
-
-  
-  <div class="learning-analytics" *ngIf="sessionAnalytics">
-    <div class="analytics-card">
-      <span class="analytics-label">Avg lesson duration</span>
-      <span class="analytics-value">{{ sessionAnalytics.averageLessonMinutes || 0 }} min</span>
-    </div>
-    <div class="analytics-card">
-      <span class="analytics-label">Peak activity hour</span>
-      <span class="analytics-value">
-        <ng-container *ngIf="sessionAnalytics.peakHour !== null; else noPeak">
-          {{ sessionAnalytics.peakHourRange }}
-        </ng-container>
-      </span>
-      <ng-template #noPeak>
-        <span class="analytics-helper">Need more study data</span>
-      </ng-template>
-    </div>
-  </div>
-
-  <!-- Static Resources Section -->
-  <div class="live-sessions">
-    <div class="sessions-header" (click)="toggleLiveSessions()">
-      <h3>Live Sessions</h3>
-      <div class="header-actions">
-        <lucide-icon [name]="showLiveSessions ? 'X' : 'Plus'" class="toggle-icon"></lucide-icon>
-      </div>
-    </div>
-    <div class="sessions-content" [class.collapsed]="!showLiveSessions">
-      <div *ngIf="sessionsLoading" class="loading" aria-busy="true" aria-live="polite">
-        <div class="skeleton-list">
-          <div class="skeleton-item" *ngFor="let i of [1,2]">
-            <div class="skeleton-title"></div>
-            <div class="skeleton-text"></div>
-            <div class="skeleton-meta"></div>
-          </div>
-        </div>
-      </div>
-      <div *ngIf="sessionsError" class="error">{{ sessionsError }}</div>
-      <div *ngIf="!sessionsLoading && !sessionsError">
-        <div *ngIf="sessions.length === 0" class="empty" role="status" aria-live="polite">
-          No upcoming sessions. Check back later.
-        </div>
-        <div class="session-cards single" *ngIf="sessions.length > 0">
-          <button class="nav-arrow left" (click)="prevSession()" [disabled]="sessions.length <= 1" aria-label="Previous session">‹</button>
-          <div class="session-card">
-            <div class="title">{{ currentSession?.title || 'Session' }}</div>
-            <div class="time">
-              <span>Start: {{ currentSession?.startTime | date:'medium' }}</span>
-              <span *ngIf="currentSession?.endTime"> • End: {{ currentSession?.endTime | date:'medium' }}</span>
-            </div>
-            <div class="actions">
-              <button class="btn-primary" *ngIf="currentSession && isLive(currentSession)" (click)="joinSession(currentSession.id)">Join Now</button>
-              <span class="badge" *ngIf="currentSession && !isLive(currentSession)">Not live</span>
-              <span class="index">{{ (sessionCarouselIndex + 1) }} / {{ sessions.length }}</span>
-            </div>
-          </div>
-          <button class="nav-arrow right" (click)="nextSession()" [disabled]="sessions.length <= 1" aria-label="Next session">›</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Course Resources Section (dynamic from course.files) -->
-  <div class="course-resources">
-    <div class="resources-header" (click)="toggleResources()">
-      <h3>Course Resources</h3>
-      <lucide-icon [name]="showResources ? 'X' : 'Plus'" class="toggle-icon"></lucide-icon>
-    </div>
-    <div class="resources-content" [class.collapsed]="!showResources">
-      <div class="resource-category" *ngIf="course.files && course.files.length > 0; else noDynamicFiles">
-        <h4>Downloads</h4>
-        <div class="resource-list">
-          <a *ngFor="let file of course.files"
-             [href]="file.url"
-             target="_blank"
-             class="resource-item">
-            <lucide-icon [name]="getFileIcon(file)" class="resource-icon"></lucide-icon>
-            <span class="resource-name">{{ file.name }}</span>
-            <span class="resource-type">{{ getFileType(file) }}</span>
-          </a>
-        </div>
-      </div>
-      <ng-template #noDynamicFiles>
-        <div class="resource-category">
-          <h4>Downloads</h4>
-          <div class="resource-list">
-            <div class="resource-item" style="opacity:.7;pointer-events:none;">
-              <lucide-icon name="File" class="resource-icon"></lucide-icon>
-              <span class="resource-name">No resources available yet</span>
-              <span class="resource-type"></span>
-            </div>
-          </div>
-        </div>
-      </ng-template>
-    </div>
   </div>
 </div>
 

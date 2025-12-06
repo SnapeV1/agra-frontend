@@ -134,6 +134,12 @@
   }
 }
 
+@media (max-width: 640px) {
+  .main-content {
+    padding: 20px 14px;
+  }
+}
+
 .main-column {
   display: flex;
   flex-direction: column;
@@ -601,6 +607,106 @@
   min-height: 100px;
 }
 
+.quiz-editor {
+  border: 1px solid var(--card-border, #e5e7eb);
+  border-radius: 12px;
+  padding: 1rem;
+  background: var(--card-bg, #fafafa);
+  display: grid;
+  gap: 1rem;
+  color: var(--text-primary, #111827);
+}
+
+.quiz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.quiz-header h4 {
+  margin: 0;
+}
+
+.quiz-questions-container {
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-secondary, #94a3b8) var(--card-border, #e5e7eb);
+}
+
+.quiz-questions-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.quiz-questions-container::-webkit-scrollbar-track {
+  background: var(--card-border, #e5e7eb);
+  border-radius: 999px;
+}
+
+.quiz-questions-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #0ea5e9, #22c55e);
+  border-radius: 999px;
+}
+
+.quiz-question-card {
+  border: 1px solid var(--card-border, #e5e7eb);
+  border-radius: 10px;
+  padding: 0.8rem 0.9rem;
+  background: var(--card-bg, #ffffff);
+  display: grid;
+  gap: 0.6rem;
+}
+
+.quiz-question-card.collapsed {
+  padding: 0.6rem 0.75rem;
+}
+
+.quiz-question-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.quiz-question-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text-primary, #0f172a);
+}
+
+.quiz-question-body {
+  margin-top: 0.5rem;
+}
+
+.quiz-options {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.quiz-option {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.quiz-option input[type="text"] {
+  background: var(--card-bg, #fff);
+  color: var(--text-primary, #111827);
+  border: 1px solid var(--card-border, #e5e7eb);
+}
+
+.quiz-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+
 .error-message {
   font-size: 12px;
   color: #ef4444;
@@ -968,9 +1074,126 @@ input:checked + .slider:before {
   gap: 12px;
 }
 
+.session-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.session-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.session-title {
+  font-weight: 600;
+  font-size: 15px;
+  color: #111827;
+}
+
+.session-desc {
+  color: #4b5563;
+  font-size: 13px;
+}
+
+.session-times {
+  display: flex;
+  gap: 12px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.session-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.session-actions .btn-secondary {
+  border-radius: 999px;
+}
+
+.session-actions .btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  border: none;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.session-actions .btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(239, 68, 68, 0.35);
+}
+
+.session-actions .btn-danger:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 14px rgba(239, 68, 68, 0.25);
+}
+
 .session-item .form-input,
 .goal-item .goal-input {
   flex: 1;
+}
+
+@media (max-width: 768px) {
+  .session-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .session-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .session-actions .btn-secondary,
+  .session-actions .btn-danger {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .card-content {
+    padding: 16px;
+  }
+
+  .session-create-flags {
+    grid-template-columns: 1fr;
+    justify-items: flex-start;
+  }
+
+  .session-create-actions .btn {
+    width: 100%;
+  }
+
+  .session-times {
+    flex-direction: column;
+    gap: 4px;
+  }
 }
 
 .goal-bullet {

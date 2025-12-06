@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { LiveSessionLauncherService } from 'src/app/core/services/live-session-launcher.service';
 import { SessionService } from 'src/app/core/services/session.service';
 import { SessionModule } from 'src/app/core/models/session.model';
 
@@ -23,7 +24,8 @@ export class SessionListComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private liveSessionLauncher: LiveSessionLauncherService
   ) {}
 
   ngOnInit(): void {
@@ -96,7 +98,14 @@ export class SessionListComponent implements OnInit, OnDestroy {
 
   join(sessionId?: string): void {
     if (!sessionId) return;
-    this.router.navigate(['/courses', this.courseId, 'sessions', sessionId]);
+    this.liveSessionLauncher.launch(sessionId).subscribe({
+      next: (res) => {
+        if (res?.blocked) {
+          console.warn('[SessionList] popup blocked when joining session', res.targetUrl);
+        }
+      },
+      error: (err) => console.error('[SessionList] join session failed', err)
+    });
   }
 
   ngOnDestroy(): void {

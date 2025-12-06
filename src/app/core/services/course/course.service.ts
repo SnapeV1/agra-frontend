@@ -16,7 +16,9 @@ export class CourseService {
   constructor(private http: HttpClient, private authService: AuthService, private mockDataService: MockDataService) { }
 
   getActiveCourses(): Observable<Course[]> {
-    return this.http.get<Course[]>(`${this.apiUrl}/getActiveCourses`);
+    return this.http.get<any>(`${this.apiUrl}/getActiveCourses`).pipe(
+      map((res) => this.normalizeCourseList(res))
+    );
   }
 
   getAllCourses(): Observable<Course[]> {
@@ -195,6 +197,14 @@ updateCourse(id: string, course: Course, image?: File, video?: File, attachments
         throw error;
       })
     );
+  }
+
+  private normalizeCourseList(res: any): Course[] {
+    if (Array.isArray(res)) return res;
+    if (Array.isArray(res?.courses)) return res.courses;
+    if (Array.isArray(res?.content)) return res.content;
+    if (Array.isArray(res?.data)) return res.data;
+    return [];
   }
 
   getUserEnrolledCourses(): Observable<CourseProgress[]> {

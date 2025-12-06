@@ -291,15 +291,15 @@
                (click)="toggleSection('sessions')"
                [title]="sectionCollapsed['sessions'] ? 'Expand Section' : 'Collapse Section'">
             <div class="card-header-content">
-              <div>
-                <h2 class="card-title">Sessions</h2>
-                <p class="card-description">Add session IDs for this course</p>
-              </div>
-              <div class="header-actions">
-                <button type="button" class="btn btn-primary btn-sm" (click)="addSession(); $event.stopPropagation()">
-                  <lucide-icon name="plus"></lucide-icon>
-                  Add Session
-                </button>
+                <div>
+                  <h2 class="card-title">Sessions</h2>
+                  <p class="card-description">Manage live sessions for this course</p>
+                </div>
+                <div class="header-actions">
+                  <button type="button" class="btn btn-primary btn-sm" (click)="sectionCollapsed['sessions']=false; $event.stopPropagation()">
+                    <lucide-icon name="plus"></lucide-icon>
+                    Add Session
+                  </button>
                 <lucide-icon class="header-chevron" [name]="sectionCollapsed['sessions'] ? 'chevron-down' : 'chevron-up'"></lucide-icon>
               </div>
             </div>
@@ -309,7 +309,7 @@
             <div class="session-create-grid">
               <div class="form-group">
                 <label class="form-label">Title</label>
-                <input type="text" class="form-input" [(ngModel)]="newSession.title" placeholder="Live session title">
+                <input type="text" class="form-input" [(ngModel)]="newSession.title" placeholder="Live session title (defaults to course name)">
               </div>
               <div class="form-group">
                 <label class="form-label">Start</label>
@@ -339,21 +339,26 @@
                 </button>
               </div>
             </div>
-            <div *ngIf="formData['sessionIds'].length === 0" class="empty-state">
-              <p>No sessions added yet. Click "Add Session" to get started.</p>
+            <div *ngIf="sessionsLoading" class="loading">Loading sessions...</div>
+            <div *ngIf="sessionsError" class="error">{{ sessionsError }}</div>
+            <div *ngIf="!sessionsLoading && !sessionsError && sessions.length === 0" class="empty-state">
+              <p>No sessions added yet. Use "Create Session" to get started.</p>
             </div>
-            <div *ngIf="formData['sessionIds'].length > 0" class="session-list">
-              <div *ngFor="let sessionId of formData['sessionIds']; let i = index; trackBy: trackByIndex" class="session-item">
-                <input
-                  type="text"
-                  class="form-input"
-                  [(ngModel)]="formData['sessionIds'][i]"
-                  placeholder="Enter session ID">
+            <div *ngIf="!sessionsLoading && sessions.length > 0" class="session-list">
+              <div *ngFor="let session of sessions; let i = index" class="session-item">
+                <div class="session-meta">
+                  <div class="session-title">{{ session.title || ('Session ' + (i + 1)) }}</div>
+                  <div class="session-desc">{{ session.description }}</div>
+                  <div class="session-times">
+                    <span>Start: {{ session.startTime | date:'medium' }}</span>
+                    <span *ngIf="session.endTime">End: {{ session.endTime | date:'medium' }}</span>
+                  </div>
+                </div>
                 <div class="session-actions" style="display:flex; gap:8px;">
-                  <button type="button" class="btn btn-secondary btn-sm" (click)="startSession(sessionId)">
+                  <button type="button" class="btn btn-secondary btn-sm" (click)="startSession(session.id)">
                     Start/Join
                   </button>
-                  <button type="button" class="btn btn-danger btn-sm" (click)="removeSession(i)">
+                  <button type="button" class="btn btn-danger btn-sm" (click)="removeSession(session.id || '', i)">
                     <i class="icon-trash"></i>
                   </button>
                 </div>
@@ -487,20 +492,88 @@
                       <label class="form-label">Type</label>
                       <select
                         class="form-select"
-                        [(ngModel)]="formData['textContent'][i].type">
+                        [(ngModel)]="formData['textContent'][i].type"
+                        (ngModelChange)="onContentTypeChange(i, $event)">
                         <option *ngFor="let type of textContentTypes" [value]="type">
                           {{ type | titlecase }}
                         </option>
                       </select>
                     </div>
                   </div>
-                  <div class="form-group">
+                  <div *ngIf="formData['textContent'][i].type !== 'quiz'" class="form-group">
                     <label class="form-label">Content</label>
                     <textarea
                       class="form-textarea"
                       [(ngModel)]="formData['textContent'][i].content"
                       placeholder="Enter content"
                       rows="4"></textarea>
+                  </div>
+
+                  <div *ngIf="formData['textContent'][i].type === 'quiz'" class="quiz-editor">
+                    <div class="quiz-header">
+                      <h4>Quiz Questions</h4>
+                      <button type="button" class="btn btn-secondary btn-sm" (click)="addQuizQuestion(i)">
+                        <lucide-icon name="plus"></lucide-icon> Add question
+                      </button>
+                    </div>
+
+                    <div class="quiz-questions-container">
+                      <div class="quiz-question-card" *ngFor="let q of formData['textContent'][i].questions || []; let qi = index; trackBy: trackByIndex" [class.collapsed]="q.uiCollapsed">
+                        <div class="quiz-question-header" (click)="toggleQuizQuestion(i, qi)">
+                          <div class="quiz-question-title">
+                            <lucide-icon [name]="q.uiCollapsed ? 'ChevronRight' : 'ChevronDown'"></lucide-icon>
+                            <span>Question {{ qi + 1 }}</span>
+                          </div>
+                          <div class="quiz-question-actions">
+                            <button type="button" class="btn btn-icon btn-danger" (click)="removeQuizQuestion(i, qi); $event.stopPropagation()">
+                              <lucide-icon name="trash-2"></lucide-icon>
+                            </button>
+                          </div>
+                        </div>
+
+                        <div class="quiz-question-body" *ngIf="!q.uiCollapsed">
+                          <div class="form-group">
+                            <label class="form-label">Question {{ qi + 1 }}</label>
+                            <input
+                              type="text"
+                              class="form-input"
+                              [attr.id]="'quiz-q-'+i+'-'+qi"
+                              [attr.name]="'quiz-question-'+i+'-'+qi"
+                              autocomplete="off"
+                              [(ngModel)]="q.question"
+                              placeholder="Enter question text">
+                          </div>
+
+                          <div class="quiz-options">
+                            <label class="form-label">Options</label>
+                            <div class="quiz-option" *ngFor="let opt of q.options; let oi = index; trackBy: trackByOption">
+                              <label class="radio">
+                                <input
+                                  type="radio"
+                                  [attr.name]="'correct-'+i+'-'+qi"
+                                  [value]="opt"
+                                  [(ngModel)]="q.correctAnswer">
+                                <span>Correct</span>
+                              </label>
+                              <input
+                                type="text"
+                                class="form-input"
+                                [attr.id]="'quiz-opt-'+i+'-'+qi+'-'+oi"
+                                [attr.name]="'quiz-option-'+i+'-'+qi+'-'+oi"
+                                autocomplete="off"
+                                [(ngModel)]="q.options[oi]"
+                                placeholder="Option text">
+                              <button type="button" class="btn btn-icon btn-danger" (click)="removeQuizOption(i, qi, oi)" [disabled]="q.options.length <= 2">
+                                <lucide-icon name="trash-2"></lucide-icon>
+                              </button>
+                            </div>
+                            <button type="button" class="btn btn-link" (click)="addQuizOption(i, qi)">
+                              <lucide-icon name="plus"></lucide-icon> Add option
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

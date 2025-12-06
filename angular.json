@@ -51,7 +51,7 @@
               "optimization": false,
               "vendorChunk": true,
               "extractLicenses": false,
-              "sourceMap": true,
+              "sourceMap": false,
               "namedChunks": true
             }
           },
@@ -60,7 +60,11 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "agra-frontend:build:development"
+            "browserTarget": "agra-frontend:build:development",
+            "headers": {
+              "Content-Security-Policy": "default-src * data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' data: blob:; style-src * 'unsafe-inline' data:; img-src * data: blob:; font-src * data:; connect-src *; frame-ancestors *; media-src * data: blob:",
+              "Content-Security-Policy-Report-Only": ""
+            }
           },
           "configurations": {
             "production": {

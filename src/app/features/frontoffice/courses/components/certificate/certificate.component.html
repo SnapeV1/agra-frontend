@@ -7,7 +7,7 @@
 
   <!-- Error State -->
   <div *ngIf="error && !loading" class="error-container">
-    <div class="error-icon">⚠️</div>
+    <div class="error-icon">!</div>
     <h3>Certificate Not Available</h3>
     <p>{{ error }}</p>
     <button class="btn-primary" (click)="goBack()">Go Back</button>
@@ -81,7 +81,7 @@
                 <i class="fas fa-clock"></i>
               </div>
               <div class="stat-content">
-                <span class="stat-value">{{ formatTime(certificateData.totalTimeSpent) }}</span>
+                <span class="stat-value">{{ formatTime(certificateData.totalTimeSpent || 0) }}</span>
                 <span class="stat-label">Time Invested</span>
               </div>
             </div>
@@ -148,7 +148,7 @@
     <!-- Additional Actions -->
     <div class="post-certificate-actions no-print">
       <div class="action-card">
-        <h4>🎉 Congratulations!</h4>
+        <h4>Congratulations!</h4>
         <p>You've successfully completed this course. Continue your learning journey!</p>
         <button class="btn-primary" (click)="goToCourses()">
           <i class="fas fa-graduation-cap"></i> Explore More Courses

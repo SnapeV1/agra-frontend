@@ -83,7 +83,9 @@
   [class.hidden]="!showScrollTop"
   (click)="scrollTop()"
   aria-label="Back to top"
-  [attr.aria-hidden]="!showScrollTop">
+  [attr.tabindex]="showScrollTop ? 0 : -1"
+  [attr.aria-disabled]="!showScrollTop"
+  [attr.inert]="!showScrollTop ? '' : null">
   <lucide-icon name="arrow-up"></lucide-icon>
 </button>
 </footer>

@@ -18,7 +18,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   showPassword = false;
   errorMessage: string | null = null;
   infoMessage: string | null = null;
-  rememberMe = false;
+  // Default to "remember me" so auth lives in localStorage and is shared across tabs
+  rememberMe = true;
   // Forgot-password cooldown state
   forgotCooldown = 0; // seconds remaining
   private forgotTimer: any = null;

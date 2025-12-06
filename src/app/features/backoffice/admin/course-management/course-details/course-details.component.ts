@@ -1,12 +1,13 @@
 import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Course } from "src/app/core/models/course";
+import { Course, QuizAnswer, QuizQuestion, QuizQuestionApi, TextContent } from "src/app/core/models/course";
 import { CourseService } from "src/app/core/services/course/course.service";
 import { ProgressService } from "src/app/core/services/progress.service";
 import { SessionService } from "src/app/core/services/session.service";
-import { CreateSessionDto } from "src/app/core/models/session.model";
+import { CreateSessionDto, SessionModule } from "src/app/core/models/session.model";
 import { forkJoin, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
+import { LiveSessionLauncherService } from "src/app/core/services/live-session-launcher.service";
 
 @Component({
   selector: "app-course-details",
@@ -136,14 +137,22 @@ export class AdminCourseDetailsComponent implements OnInit {
     lobbyEnabled: true,
     recordingEnabled: false
   };
+  sessions: SessionModule[] = [];
+  sessionsLoading = false;
+  sessionsError = '';
 
   createSession(): void {
     if (!this.courseId) return;
+    this.setDefaultSessionTitle();
     this.creatingSession = true;
     this.sessionService.create(this.courseId, this.newSession).subscribe({
       next: (s: any) => {
         this.formData.sessionIds = this.formData.sessionIds || [];
-        if (s?.id) this.formData.sessionIds.push(s.id);
+        if (s?.id) {
+          this.formData.sessionIds.push(s.id);
+          this.sessions = [{ ...(s as SessionModule) }, ...this.sessions];
+        }
+        this.resetNewSessionTimes();
         this.creatingSession = false;
       },
       error: () => {
@@ -171,20 +180,31 @@ export class AdminCourseDetailsComponent implements OnInit {
     private courseService: CourseService, 
     private router: Router,
     private progressService: ProgressService,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private liveSessionLauncher: LiveSessionLauncherService
   ) {}
 
   ngOnInit(): void {
     this.courseId = this.route.snapshot.paramMap.get("id");
     if (this.courseId && this.courseId !== "new") {
       this.loadCourse(this.courseId);
+      this.loadSessions(this.courseId);
     }
   }
 
   // Admin: start/join a live room for a session
   startSession(sessionId?: string): void {
     if (!sessionId || !this.courseId) { return; }
-    this.router.navigate(['/courses', this.courseId, 'sessions', sessionId]);
+    this.liveSessionLauncher.launch(sessionId).subscribe({
+      next: (res) => {
+        if (res?.blocked) {
+          console.warn('[AdminCourseDetails] Popup blocked when opening live session', res.targetUrl);
+        }
+      },
+      error: () => {
+        alert('Failed to open live session. Please try again.');
+      }
+    });
   }
 
   loadCourse(id: string): void {
@@ -197,16 +217,45 @@ export class AdminCourseDetailsComponent implements OnInit {
           sessionIds: course.sessionIds || [],
           languagesAvailable: course.languagesAvailable || [],
           files: course.files || [],
-          textContent: course.textContent || [],
-          goals: course.goals || []
-        };
-        
-        // Initialize all text content items as collapsed
-        this.textContentCollapsed = {};
-        (this.formData.textContent || []).forEach((_, index) => {
-          this.textContentCollapsed[index] = true;
-        });
-        
+          textContent: (course.textContent || []).map((tc, idx) => {
+            const type = (tc.type || '').toString().toLowerCase();
+            // Normalize quiz payload from backend into UI-friendly structure
+            if (type === 'quiz') {
+              const questions = (tc.quizQuestions || []).map((q: QuizQuestionApi) => {
+                const options = (q.answers || []).map(a => a.text);
+                const correct = (q.answers || []).find(a => a.correct)?.text || '';
+                return {
+                  id: q.id,
+                  question: q.question || '',
+                  options: options.length ? options : ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
+                  correctAnswer: correct
+                } as QuizQuestion;
+              });
+              return {
+                ...tc,
+                order: typeof tc.order === 'number' ? tc.order : idx + 1,
+                type: 'quiz',
+                questions
+              } as TextContent;
+            }
+              return {
+                ...tc,
+                order: typeof tc.order === 'number' ? tc.order : idx + 1,
+                type: type as any
+              } as TextContent;
+            }),
+            goals: course.goals || []
+          };
+
+      this.hydrateQuizContent();
+
+      // Initialize all text content items as collapsed
+      this.textContentCollapsed = {};
+      (this.formData.textContent || []).forEach((_, index) => {
+        this.textContentCollapsed[index] = true;
+      });
+      this.setDefaultSessionTitle();
+      
         this.loading = false;
       },
       error: (err) => {
@@ -214,6 +263,38 @@ export class AdminCourseDetailsComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+
+  private loadSessions(courseId: string): void {
+    this.sessionsLoading = true;
+    this.sessionsError = '';
+    this.sessionService.upcoming(courseId).subscribe({
+      next: (items) => {
+        this.sessions = items || [];
+        this.formData.sessionIds = (items || []).map(s => s.id).filter((id): id is string => !!id);
+        this.sessionsLoading = false;
+      },
+      error: () => {
+        this.sessionsError = 'Failed to load sessions';
+        this.sessionsLoading = false;
+      }
+    });
+  }
+
+  private setDefaultSessionTitle(): void {
+    if (!this.newSession.title || !this.newSession.title.trim()) {
+      const title = this.formData.title || this.course?.title || '';
+      this.newSession.title = title;
+    }
+  }
+
+  private resetNewSessionTimes(): void {
+    const start = new Date();
+    const end = new Date(Date.now() + 60 * 60 * 1000);
+    this.newSession.startTime = start.toISOString();
+    this.newSession.endTime = end.toISOString();
+    this.newSession.description = '';
+    this.setDefaultSessionTitle();
   }
 
   validateField(field: keyof Course, value: any): string {
@@ -249,14 +330,9 @@ export class AdminCourseDetailsComponent implements OnInit {
     }
   }
 
-  addSession(): void {
-    const currentSessions = this.formData.sessionIds || [];
-    this.formData.sessionIds = [...currentSessions, ""];
-  }
-
-  removeSession(index: number): void {
-    const currentSessions = this.formData.sessionIds || [];
-    this.formData.sessionIds = currentSessions.filter((_, i) => i !== index);
+  removeSession(sessionId: string, index: number): void {
+    this.formData.sessionIds = (this.formData.sessionIds || []).filter((id) => id !== sessionId);
+    this.sessions = this.sessions.filter((_, i) => i !== index);
   }
 
   addGoal(): void {
@@ -272,6 +348,9 @@ export class AdminCourseDetailsComponent implements OnInit {
   }
 
   trackByIndex(index: number, item: any): number {
+    return index;
+  }
+  trackByOption(index: number, _opt: string): number {
     return index;
   }
 
@@ -315,6 +394,140 @@ export class AdminCourseDetailsComponent implements OnInit {
     this.sectionCollapsed['textContent'] = false;
   }
 
+  onContentTypeChange(index: number, type: string): void {
+    this.formData.textContent[index].type = type as any;
+    if (type === 'quiz') {
+      this.initQuizContent(index);
+      this.textContentCollapsed[index] = false;
+    }
+  }
+
+  private initQuizContent(index: number): void {
+    const item = this.formData.textContent[index];
+    if (!item.questions || !item.questions.length) {
+      item.questions = [{
+        question: '',
+        options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
+        correctAnswer: '',
+        uiCollapsed: false
+      }];
+    }
+  }
+  private ensureQuizDefaults(): void {
+    (this.formData.textContent || []).forEach((item, idx) => {
+      if (item.type === 'quiz') {
+        this.initQuizContent(idx);
+        item.questions?.forEach(q => {
+          if (!q.options || !q.options.length) {
+            q.options = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
+          }
+          if ((q as any).uiCollapsed === undefined) {
+            (q as any).uiCollapsed = false;
+          }
+        });
+      }
+    });
+  }
+
+  private hydrateQuizContent(): void {
+    (this.formData.textContent || []).forEach((item, idx) => {
+      const type = (item.type || '').toString().toLowerCase();
+      if (type === 'quiz') {
+        item.type = 'quiz' as any;
+        // Prefer API quizQuestions if present
+        if (item.quizQuestions && item.quizQuestions.length) {
+          item.questions = item.quizQuestions.map((q: QuizQuestionApi) => {
+            const options = (q.answers || []).map(a => a.text);
+            const correct = (q.answers || []).find(a => a.correct)?.text || '';
+            return {
+              question: q.question || '',
+              options: options.length ? options : ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
+              correctAnswer: correct,
+              uiCollapsed: false
+            } as QuizQuestion;
+          });
+        } else if (item.questions && item.questions.length) {
+          item.questions = item.questions.map((q: any) => {
+            const answers = (q.answers || []) as QuizAnswer[];
+            const optionsFromAnswers = answers.map(a => a.text).filter(Boolean);
+            const mergedOptions = (q.options && q.options.length ? q.options : optionsFromAnswers);
+            const normalizedOptions = mergedOptions && mergedOptions.length
+              ? mergedOptions
+              : ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
+            const correctFromAnswers = answers.find(a => a?.correct || (a as any)?.isCorrect || (a as any)?.isTrue)?.text || '';
+            const resolvedCorrect = q.correctAnswer || correctFromAnswers;
+
+            return {
+              question: q.question || '',
+              options: normalizedOptions,
+              correctAnswer: normalizedOptions.includes(resolvedCorrect) ? resolvedCorrect : '',
+              uiCollapsed: q.uiCollapsed ?? false
+            } as QuizQuestion;
+          });
+        }
+        this.initQuizContent(idx);
+      }
+      // Normalize non-quiz type casing
+      if (type !== 'quiz') {
+        item.type = type as any;
+      }
+    });
+  }
+
+  addQuizQuestion(contentIndex: number): void {
+    const item = this.formData.textContent[contentIndex];
+    if (!item.questions) {
+      item.questions = [];
+    }
+    item.questions.push({
+      question: '',
+      options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
+      correctAnswer: '',
+      uiCollapsed: false
+    });
+  }
+
+  removeQuizQuestion(contentIndex: number, questionIndex: number): void {
+    const item = this.formData.textContent[contentIndex];
+    if (!item.questions) return;
+    item.questions = item.questions.filter((_, idx) => idx !== questionIndex);
+  }
+
+  addQuizOption(contentIndex: number, questionIndex: number): void {
+    const item = this.formData.textContent[contentIndex];
+    if (!item.questions) return;
+    const question = item.questions[questionIndex];
+    if (!question) return;
+    question.options = question.options || [];
+    question.options.push(`Option ${question.options.length + 1}`);
+  }
+
+  removeQuizOption(contentIndex: number, questionIndex: number, optionIndex: number): void {
+    const item = this.formData.textContent[contentIndex];
+    if (!item.questions) return;
+    const question = item.questions[questionIndex];
+    if (!question) return;
+    if (!question.options || question.options.length <= 2) return;
+    const removed = question.options.splice(optionIndex, 1)[0];
+    if (removed === question.correctAnswer) {
+      question.correctAnswer = '';
+    }
+  }
+
+  setCorrectOption(contentIndex: number, questionIndex: number, option: string): void {
+    const item = this.formData.textContent[contentIndex];
+    if (!item.questions) return;
+    const question = item.questions[questionIndex];
+    if (!question) return;
+    question.correctAnswer = option;
+  }
+
+  toggleQuizQuestion(contentIndex: number, questionIndex: number): void {
+    const item = this.formData.textContent[contentIndex];
+    if (!item?.questions || !item.questions[questionIndex]) return;
+    const q: any = item.questions[questionIndex];
+    q.uiCollapsed = !q.uiCollapsed;
+  }
 
 
   removeTextContent(index: number): void {
@@ -546,6 +759,38 @@ export class AdminCourseDetailsComponent implements OnInit {
     return requiredFields.every((f) => !this.validateField(f, this.formData[f]));
   }
 
+  private validateQuizContent(): string[] {
+    const errors: string[] = [];
+    (this.formData.textContent || []).forEach((tc, lessonIdx) => {
+      const type = (tc.type || '').toString().toLowerCase();
+      if (type !== 'quiz') return;
+
+      (tc.questions || []).forEach((q: QuizQuestion, qi: number) => {
+        const title = tc.title || `Lesson ${lessonIdx + 1}`;
+        const questionLabel = `Quiz "${title}" question ${qi + 1}`;
+        const questionText = (q.question || '').trim();
+        if (!questionText) {
+          errors.push(`${questionLabel} is empty.`);
+        }
+
+        const options = (q.options || []).map(opt => (opt || '').trim()).filter(opt => opt !== '');
+        if (options.length < 2) {
+          errors.push(`${questionLabel} needs at least two answers.`);
+        }
+        const hasEmptyOption = (q.options || []).some(opt => !(opt || '').trim());
+        if (hasEmptyOption) {
+          errors.push(`${questionLabel} has blank answers.`);
+        }
+
+        const correct = (q.correctAnswer || '').trim();
+        if (!correct || !options.includes(correct)) {
+          errors.push(`${questionLabel} must have a correct answer selected.`);
+        }
+      });
+    });
+    return errors;
+  }
+
   hasValidationErrors(): boolean {
     return Object.values(this.formErrors).some((error) => error);
   }
@@ -560,6 +805,12 @@ export class AdminCourseDetailsComponent implements OnInit {
       return;
     }
 
+    const quizErrors = this.validateQuizContent();
+    if (quizErrors.length) {
+      alert(quizErrors.join('\n'));
+      return;
+    }
+
     this.loading = true;
     this.formData.updatedAt = new Date();
     
@@ -571,15 +822,48 @@ export class AdminCourseDetailsComponent implements OnInit {
     // Files are managed exclusively via upload/delete endpoints to avoid overwriting server state
     const filteredGoals = this.formData.goals.filter(goal => goal.trim() !== "");
     const { files: _omitFiles, ...rest } = this.formData as any;
+
+    const mappedTextContent = (rest.textContent || []).map((tc: TextContent, idx: number) => {
+      const normalizedType = (tc.type || '').toString().toUpperCase();
+      const base = {
+        id: tc.id,
+        title: tc.title,
+        content: tc.content || '',
+        order: typeof tc.order === 'number' ? tc.order : idx + 1,
+        type: normalizedType
+      } as any;
+
+      if (normalizedType !== 'QUIZ') {
+        return base;
+      }
+
+      const quizQuestions = (tc.questions || []).map((q: QuizQuestion, qi: number) => ({
+        id: (tc.quizQuestions && tc.quizQuestions[qi]?.id) || '',
+        question: q.question || '',
+        answers: (q.options || []).map((opt: string, oi: number) => ({
+          id: (tc.quizQuestions && tc.quizQuestions[qi]?.answers?.[oi]?.id) || '',
+          text: opt,
+          correct: q.correctAnswer === opt
+        }))
+      }));
+
+      return {
+        ...base,
+        quizQuestions
+      };
+    });
+
     const courseDataToSave = {
       ...rest,
-      goals: filteredGoals
+      goals: filteredGoals,
+      textContent: mappedTextContent
     } as Course;
 
     const saveCall = this.courseId === "new"
       ? this.courseService.addCourse(courseDataToSave, this.selectedImageFile ?? undefined, this.selectedVideoFile ?? undefined)
       : this.courseService.updateCourse(this.formData.id!, courseDataToSave, this.selectedImageFile ?? undefined, this.selectedVideoFile ?? undefined);
 
+console.log("📤 Sending course to backend:", courseDataToSave);
 
     saveCall.subscribe({
       next: (savedCourse) => {

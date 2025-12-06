@@ -1,13 +1,22 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil, Subscription, interval } from 'rxjs';
-import { Course, CourseProgress, TextContent } from 'src/app/core/models/course';
-import { ProgressService, LessonProgress, CourseEnrollment, SessionAnalytics } from 'src/app/core/services/progress.service';
+import { Course, TextContent } from 'src/app/core/models/course';
+import { ProgressService, LessonProgress, CourseEnrollment } from 'src/app/core/services/progress.service';
 import { CertificateService, CertificateData } from 'src/app/core/services/certificate.service';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { CourseService } from 'src/app/core/services/course/course.service';
+import { LiveSessionLauncherService } from 'src/app/core/services/live-session-launcher.service';
 import { SessionService } from 'src/app/core/services/session.service';
 import { SessionModule } from 'src/app/core/models/session.model';
+
+interface QuizRunState {
+  currentIndex: number;
+  answers: Record<number, string>;
+  submitted: boolean;
+  score: number;
+  allCorrect: boolean;
+}
 
 @Component({
   selector: 'app-course-enrolled',
@@ -40,10 +49,11 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
   isGeneratingCertificate = false;
   certificateData: CertificateData | null = null;
   certificateError: string | null = null;
-  sessionAnalytics: SessionAnalytics | null = null;
   private idleTimer: any;
   private readonly idleTimeoutMs = 60000;
   isIdle = false;
+  quizStates: Record<string, QuizRunState> = {};
+  quizStatusMessage: string | null = null;
   
   private destroy$ = new Subject<void>();
 
@@ -54,7 +64,8 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     private courseService: CourseService,
     private certificateService: CertificateService,
     private authService: AuthService,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private liveSessionLauncher: LiveSessionLauncherService
   ) {}
 
   ngOnInit(): void {
@@ -77,6 +88,9 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
   sessionsLoading = false;
   sessionsError: string | null = null;
   sessionCarouselIndex = 0;
+  joiningSessionId: string | null = null;
+  joinPopupBlockedUrl: string | null = null;
+  sessionJoinError: string | null = null;
 
   private loadSessions(): void {
     if (!this.courseId) return;
@@ -113,7 +127,26 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
 
   joinSession(sessionId?: string): void {
     if (!sessionId) return;
-    this.router.navigate(['/courses', this.courseId, 'sessions', sessionId]);
+    this.sessionJoinError = null;
+    this.joinPopupBlockedUrl = null;
+    this.joiningSessionId = sessionId;
+
+    this.liveSessionLauncher.launch(sessionId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.joiningSessionId = null;
+          if (res?.blocked) {
+            this.sessionJoinError = 'Popup was blocked. Please allow popups or use the button below to open the live session.';
+            this.joinPopupBlockedUrl = res.targetUrl;
+          }
+        },
+        error: (err) => {
+          console.error('[CourseEnrolled] join session failed', err);
+          this.sessionJoinError = err?.message || 'Failed to join session';
+          this.joiningSessionId = null;
+        }
+      });
   }
 
   // Carousel controls for sessions preview
@@ -151,7 +184,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (course) => {
-          this.course = course;
+          this.course = this.normalizeQuizLessons(course);
           this.checkDataLoadComplete();
         },
         error: (error) => {
@@ -223,13 +256,47 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
       });
   }
 
+  private normalizeQuizLessons(course: Course): Course {
+    const normalized = { ...course };
+    normalized.textContent = (course.textContent || []).map((lesson) => {
+      const rawType = (lesson.type || '').toString().toLowerCase();
+      const normalizedType: 'lesson' | 'assignment' | 'reading' | 'quiz' =
+        rawType === 'quiz'
+          ? 'quiz'
+          : rawType === 'assignment'
+          ? 'assignment'
+          : rawType === 'reading'
+          ? 'reading'
+          : 'lesson';
+
+      if (normalizedType !== 'quiz') {
+        return { ...lesson, type: normalizedType } as TextContent;
+      }
+
+      const quizQuestions = (lesson as any).quizQuestions || [];
+      const mappedQuestions = (quizQuestions.length ? quizQuestions : lesson.questions || []).map((q: any) => {
+        const answers = (q.answers || []) as Array<{ text?: string; correct?: boolean; isCorrect?: boolean; isTrue?: boolean }>;
+        const options = (q.options && q.options.length ? q.options : answers.map(a => a.text).filter(Boolean)) as string[];
+        const correctAnswer = q.correctAnswer || answers.find(a => a?.correct || a?.isCorrect || a?.isTrue)?.text || '';
+        return {
+          id: q.id,
+          question: q.question || '',
+          options: options && options.length ? options : ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
+          correctAnswer
+        };
+      });
+
+      return { ...(lesson as any), type: 'quiz', questions: mappedQuestions } as TextContent;
+    }) as TextContent[];
+    return normalized;
+  }
+
   private checkDataLoadComplete(): void {
     if (this.course && this.courseEnrollment) {
       this.initializeLessons();
       this.setCurrentLesson();
       this.loading = false;
       this.syncCertificateMetadata();
-      this.refreshSessionAnalytics();
     }
   }
 
@@ -289,6 +356,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     this.currentLesson = this.course.textContent[this.currentLessonIndex] || null;
     
     if (this.currentLesson) {
+      this.prepareQuizStateForLesson(this.currentLesson);
       this.startTimeTracking();
     }
   }
@@ -305,6 +373,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     // Now update to the new lesson
     this.currentLesson = lesson;
     this.currentLessonIndex = index;
+    this.quizStatusMessage = null;
     
     // Update current lesson in backend
     if (lesson.id) {
@@ -312,7 +381,168 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     }
     
     // Start time tracking for new lesson
+    this.prepareQuizStateForLesson(lesson);
     this.startTimeTracking();
+  }
+
+  private prepareQuizStateForLesson(lesson: TextContent | null): void {
+    if (!lesson || lesson.type !== 'quiz' || !lesson.id) {
+      return;
+    }
+    const totalQuestions = lesson.questions?.length || 0;
+    const existing = this.quizStates[lesson.id] || {
+      currentIndex: 0,
+      answers: {},
+      submitted: false,
+      score: 0,
+      allCorrect: false
+    };
+
+    // Ensure we always have an entry for each question index
+    for (let i = 0; i < totalQuestions; i++) {
+      if (existing.answers[i] === undefined) {
+        existing.answers[i] = '';
+      }
+    }
+
+    // Clamp current index to available questions
+    existing.currentIndex = Math.min(existing.currentIndex, Math.max(0, totalQuestions - 1));
+    this.quizStates[lesson.id] = existing;
+  }
+
+  get currentQuizState(): QuizRunState | null {
+    if (!this.currentLesson || this.currentLesson.type !== 'quiz' || !this.currentLesson.id) {
+      return null;
+    }
+    return this.quizStates[this.currentLesson.id] || null;
+  }
+
+  get currentQuizQuestion(): any {
+    if (!this.currentLesson || this.currentLesson.type !== 'quiz') {
+      return null;
+    }
+    const idx = this.currentQuizState?.currentIndex || 0;
+    return this.currentLesson.questions?.[idx] || null;
+  }
+
+  get quizQuestionCount(): number {
+    if (!this.currentLesson || this.currentLesson.type !== 'quiz') {
+      return 0;
+    }
+    return this.currentLesson.questions?.length || 0;
+  }
+
+  get quizAnsweredCount(): number {
+    const state = this.currentQuizState;
+    if (!state) return 0;
+    return Object.values(state.answers || {}).filter(value => !!value).length;
+  }
+
+  get quizProgressPercent(): number {
+    const total = this.quizQuestionCount;
+    if (!total) return 0;
+    return Math.round((this.quizAnsweredCount / total) * 100);
+  }
+
+  private getLessonQuizState(lesson: TextContent | null): QuizRunState | null {
+    if (!lesson?.id || lesson.type !== 'quiz') {
+      return null;
+    }
+    return this.quizStates[lesson.id] || null;
+  }
+
+  getSelectedAnswer(index?: number): string {
+    const state = this.currentQuizState;
+    if (!state) return '';
+    const idx = typeof index === 'number' ? index : state.currentIndex;
+    return state.answers[idx] || '';
+  }
+
+  nextQuizQuestion(): void {
+    const state = this.currentQuizState;
+    if (!state || this.quizQuestionCount === 0) return;
+    if (!this.getSelectedAnswer(state.currentIndex)) {
+      this.quizStatusMessage = 'Select an answer to continue.';
+      return;
+    }
+    this.quizStatusMessage = null;
+    if (state.currentIndex < this.quizQuestionCount - 1) {
+      state.currentIndex += 1;
+    }
+  }
+
+  previousQuizQuestion(): void {
+    const state = this.currentQuizState;
+    if (!state) return;
+    this.quizStatusMessage = null;
+    if (state.currentIndex > 0) {
+      state.currentIndex -= 1;
+    }
+  }
+
+  selectQuizOption(option: string): void {
+    const state = this.currentQuizState;
+    if (!state || !this.currentLesson?.id) {
+      return;
+    }
+    state.answers[state.currentIndex] = option;
+    this.quizStatusMessage = null;
+  }
+
+  submitQuiz(): void {
+    if (!this.currentLesson || this.currentLesson.type !== 'quiz' || !this.currentLesson.id) {
+      return;
+    }
+    const state = this.currentQuizState;
+    const total = this.quizQuestionCount;
+    if (!state || total === 0) {
+      this.quizStatusMessage = 'No questions found for this quiz.';
+      return;
+    }
+    const answeredAll = this.quizAnsweredCount === total && Object.values(state.answers).every(ans => !!ans);
+    if (!answeredAll) {
+      this.quizStatusMessage = 'Answer every question before submitting.';
+      return;
+    }
+
+    let correct = 0;
+    this.currentLesson.questions?.forEach((q, idx) => {
+      const selected = state.answers[idx];
+      if (selected && q.correctAnswer && selected === q.correctAnswer) {
+        correct += 1;
+      }
+    });
+
+    state.score = correct;
+    state.submitted = true;
+    state.allCorrect = correct === total;
+    this.quizStatusMessage = state.allCorrect
+      ? 'Perfect! You can mark this lesson complete.'
+      : 'Review the answers and try again.';
+
+    // Auto-complete the lesson when all answers are correct
+    if (state.allCorrect && !this.getLessonProgress(this.currentLesson.id || '')?.completed) {
+      this.markLessonComplete();
+    }
+  }
+
+  resetQuizAttempt(): void {
+    if (!this.currentLesson?.id || this.currentLesson.type !== 'quiz') {
+      return;
+    }
+    const state = this.quizStates[this.currentLesson.id];
+    if (state) {
+      state.submitted = false;
+      state.score = 0;
+      state.allCorrect = false;
+    }
+    this.quizStatusMessage = null;
+  }
+
+  isLastQuizQuestion(): boolean {
+    const state = this.currentQuizState;
+    if (!state) return false;
+    return state.currentIndex >= this.quizQuestionCount - 1;
   }
 
   nextLesson(): void {
@@ -327,10 +557,56 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     this.selectLesson(this.course.textContent[this.currentLessonIndex - 1], this.currentLessonIndex - 1);
   }
 
+  canMarkCurrentLessonComplete(): boolean {
+    if (!this.currentLesson) {
+      return false;
+    }
+    if (this.currentLesson.type !== 'quiz') {
+      return true;
+    }
+    const quizState = this.getLessonQuizState(this.currentLesson);
+    return !!(quizState && quizState.submitted && quizState.allCorrect);
+  }
+
+  isQuizLessonPassable(): boolean {
+    if (!this.currentLesson || this.currentLesson.type !== 'quiz') {
+      return true;
+    }
+    return this.canMarkCurrentLessonComplete();
+  }
+
+  getQuizCompletionLockReason(): string {
+    if (!this.currentLesson || this.currentLesson.type !== 'quiz') {
+      return '';
+    }
+    const quizState = this.getLessonQuizState(this.currentLesson);
+    if (!quizState?.submitted) {
+      return 'Submit the quiz with answers for every question to unlock Mark Complete.';
+    }
+    if (!quizState.allCorrect) {
+      return 'All quiz answers must be correct to unlock Mark Complete.';
+    }
+    return '';
+  }
+
   markLessonComplete(): void {
     if (!this.currentLesson?.id || !this.courseEnrollment) {
       return;
     }
+
+    if (this.currentLesson.type === 'quiz') {
+      const quizState = this.getLessonQuizState(this.currentLesson);
+      if (!quizState?.submitted) {
+        this.quizStatusMessage = 'Submit the quiz to check your answers before completing.';
+        return;
+      }
+      if (!quizState.allCorrect) {
+        this.quizStatusMessage = 'All answers must be correct to complete this lesson.';
+        return;
+      }
+    }
+
+    this.quizStatusMessage = null;
     
     const lessonProgress = this.courseEnrollment.lessons.find(l => l.lessonId === this.currentLesson!.id);
     if (!lessonProgress) {
@@ -455,7 +731,6 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     // Only add time if there's actual time spent
     if (timeSpent > 0) {
       lessonProgress.timeSpent += timeSpent;
-      this.refreshSessionAnalytics();
     }
     
     // Update backend - always send request to update lastAccessedAt
@@ -471,14 +746,6 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     // Reset start time
     this.lessonStartTime = new Date();
     this.resetIdleTimer();
-  }
-
-  private refreshSessionAnalytics(): void {
-    if (!this.courseEnrollment) {
-      this.sessionAnalytics = null;
-      return;
-    }
-    this.sessionAnalytics = this.progressService.calculateSessionAnalytics(this.courseEnrollment.lessons);
   }
 
   private resetIdleTimer(): void {

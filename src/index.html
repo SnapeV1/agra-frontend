@@ -64,8 +64,7 @@
     html[data-theme="dark"] .cookie-btn--primary { background: #059669; border-color: #059669; }
     html[data-theme="dark"] .cookie-btn--primary:hover { background: #047857; border-color: #047857; }
   </style>
-  </style>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://accounts.google.com; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdnjs.cloudflare.com; connect-src 'self' http: https: ws: wss:; frame-src 'self' https: http:;">
+
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link
   rel="stylesheet"
@@ -87,8 +86,8 @@
     (function() {
       try {
         var hasCookies = (document.cookie || '').trim().length > 0;
-        var isLoggedIn = !!(localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token'));
-        var show = isLoggedIn && !hasCookies;
+        var consent = (localStorage.getItem('cookie_consent') || '').toLowerCase() === 'accepted';
+        var show = !consent && !hasCookies;
         var banner = document.getElementById('cookie-banner');
         if (banner && show) {
           banner.style.display = 'flex';

@@ -14,7 +14,7 @@
         <p class="auth-prompt">Log in to unlock full platform features</p>
       </div>
 
-      <h1 class="hero-title">AGRA Learning Platform</h1>
+      <h1 class="hero-title">YEFFA Learning Platform</h1>
 
       <p class="hero-subtitle">
         A next-generation e-learning solution designed to empower over 
@@ -244,7 +244,9 @@
 
           <div class="course-actions">
             <button class="btn-primary"
-                    (click)="enrollInCourse(course, $event)">Enroll</button>
+                    (click)="onCourseSelect(course, $event)">
+              {{ isCourseEnrolled(course) ? 'Continue' : 'Enroll' }}
+            </button>
           </div>
         </div>
 
@@ -369,7 +371,7 @@
       </div>
       <h2 class="about-title">Growing the future of <span>farming</span></h2>
       <p class="about-lead">
-        AGRA connects farmers with modern training, trusted experts, and community-driven knowledge to scale sustainable growth across North Africa.
+        YEFFA connects farmers with modern training, trusted experts, and community-driven knowledge to scale sustainable growth across North Africa.
       </p>
     </div>
 
@@ -404,7 +406,7 @@
       </div>
       <div class="mission-image">
         <div class="mission-image-sheen"></div>
-        <img src="/assets/images/course-placeholder.svg" alt="Modern agricultural training across North Africa">
+        <img src="/assets/images/aboutplaceholder.png" alt="Modern agricultural training across North Africa">
       </div>
     </div>
 
