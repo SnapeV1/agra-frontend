@@ -40,6 +40,11 @@ export class CoursesComponent implements OnInit {
   totalPages = 1;
 
   skeletonArray = Array(6).fill(0);
+  private sampleReviews = [
+    { quote: 'Clear structure and actionable tips.', author: 'Amina B.', role: 'Agri student', rating: 5 },
+    { quote: 'Loved the real-world examples.', author: 'Youssef K.', role: 'Co-op trainer', rating: 4 },
+    { quote: 'Concise lessons, easy to follow.', author: 'Salma R.', role: 'Farmer', rating: 5 },
+  ];
 
   constructor(
     private courseService: CourseService,
@@ -73,6 +78,7 @@ export class CoursesComponent implements OnInit {
 
     this.courseService.getActiveCourses().subscribe({
       next: (courses) => {
+        console.log('Active courses loaded:', courses);
         this.courses = courses;
         this.filteredCourses = [...courses];
         // Ensure pagination is initialized based on the loaded data
@@ -205,6 +211,7 @@ onCourseSelect(course: Course): void {
     return num.toLocaleString();
   }
 
+
   // Pagination methods
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
@@ -241,6 +248,10 @@ onCourseSelect(course: Course): void {
 
   getTotalCourses(): number {
     return this.filteredCourses.length;
+  }
+
+  getReviewForCourse(index: number) {
+    return this.sampleReviews[index % this.sampleReviews.length];
   }
 
   // For "Show more": return cumulative items up to the current page

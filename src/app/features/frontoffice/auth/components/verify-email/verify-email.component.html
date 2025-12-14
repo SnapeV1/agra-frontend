@@ -1,0 +1,60 @@
+<div class="verify-wrapper">
+  <div class="verify-card">
+    <div class="status-icon" [ngClass]="status">
+      <span *ngIf="status === 'success'">&#10003;</span>
+      <span *ngIf="status === 'error'">&#9888;</span>
+      <div *ngIf="status === 'verifying'" class="spinner"></div>
+      <span *ngIf="status === 'pending'">&#9993;</span>
+    </div>
+
+    <h1>
+      {{ status === 'success' ? 'Email verified' :
+         status === 'error' ? 'Verification failed' :
+         status === 'verifying' ? 'Verifying your email' :
+         'Check your inbox' }}
+    </h1>
+
+    <p *ngIf="status === 'pending'">
+      We sent a verification link to
+      <strong>{{ emailHint || 'your email address' }}</strong>.
+      The link expires in 1 hour. Open it on this device to finish verifying.
+    </p>
+
+    <p *ngIf="status === 'verifying'">
+      We are confirming your email. This only takes a moment.
+    </p>
+
+    <p *ngIf="status === 'success'">
+      Your account is now verified. You can close this tab or sign in to continue.
+    </p>
+
+    <p *ngIf="status === 'error'">
+      {{ message || 'The verification link is invalid or expired. Please request a new link and try again.' }}
+    </p>
+
+    <p *ngIf="status === 'pending' && !emailHint" class="hint">
+      Didn’t get the email? Check spam or try registering again with the correct address.
+    </p>
+
+    <div class="resend" *ngIf="status !== 'success'">
+      <div class="resend-input readonly">
+        <div class="email-chip">
+          {{ emailHint || 'Unknown email' }}
+        </div>
+        <button class="link" [disabled]="resendLoading || resendCooldown > 0 || !hasToken" (click)="resend()">
+          {{ resendLoading ? 'Sending…' : (resendCooldown ? 'Wait ' + resendCooldown + 's' : 'Resend verification') }}
+        </button>
+      </div>
+      <div class="resend-message success" *ngIf="resendMessage">{{ resendMessage }}</div>
+      <div class="resend-message error" *ngIf="resendError">{{ resendError }}</div>
+      <div class="resend-message hint" *ngIf="!hasToken">
+        Sign in first to send a new verification email.
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="primary" (click)="goToLogin()">Go to login</button>
+      <button class="ghost" (click)="goHome()">Back to home</button>
+    </div>
+  </div>
+</div>

@@ -1,9 +1,9 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject, Subscription, tap } from 'rxjs';
 import { Client, IMessage } from '@stomp/stompjs';
-import { NotificationItem } from '../models/notification.model';
+import { NotificationItem, NotificationType } from '../models/notification.model';
 import { NotificationPreferences, DEFAULT_NOTIFICATION_PREFERENCES } from '../models/notification-preferences.model';
 import { AuthService } from './auth/auth.service';
 import { environment } from 'src/environments/environment';
@@ -142,13 +142,15 @@ export class NotificationService implements OnDestroy {
   fetchAll(): void {
     this.http.get<NotificationItem[]>(`${this.apiUrl}/me`).subscribe({
       next: (list) => {
-        const normalized = (list || []).map(n => ({ ...n, seen: !!n.seen })) as NotificationItem[];
+        const normalized = (list || [])
+          .map(n => ({ ...n, seen: !!n.seen })) as NotificationItem[];
+        const filteredSelf = normalized.filter(n => !this.shouldIgnoreNotification(n));
         const userKey = this.userId || this.authService.currentUserValue?.user?.id || '';
         const seenSet = userKey ? this.loadIdSet(this.LS_SEEN_KEY_PREFIX + userKey) : new Set<string>();
         const deletedSet = userKey ? this.loadIdSet(this.LS_DELETED_KEY_PREFIX + userKey) : new Set<string>();
         const existingSeen = new Set<string>(this.notifications$.value.filter(n => n.seen).map(n => n.id));
         // Filter out locally-deleted notifications and apply local seen overrides (including prior in-memory seen)
-        const filtered = normalized
+        const filtered = filteredSelf
           .filter(n => !deletedSet.has(n.id))
           .map(n => ({ ...n, seen: n.seen || seenSet.has(n.id) || existingSeen.has(n.id) } as NotificationItem));
         const sorted = filtered.sort((a, b) => {
@@ -171,13 +173,17 @@ export class NotificationService implements OnDestroy {
   }
 
   fetchPreferences(): Observable<NotificationPreferences> {
-    return this.http.get<NotificationPreferences>(`${this.preferencesUrl}/me`).pipe(
+    return this.http.get<NotificationPreferences>(`${this.preferencesUrl}/me`, {
+      headers: this.buildAuthHeaders()
+    }).pipe(
       tap(pref => this.setPreferences(this.normalizePreferences(pref)))
     );
   }
 
   updatePreferences(payload: Partial<NotificationPreferences>): Observable<NotificationPreferences> {
-    return this.http.put<NotificationPreferences>(`${this.preferencesUrl}/me`, payload).pipe(
+    return this.http.put<NotificationPreferences>(`${this.preferencesUrl}/me`, payload, {
+      headers: this.buildAuthHeaders()
+    }).pipe(
       tap(pref => this.setPreferences(this.normalizePreferences(pref)))
     );
   }
@@ -263,6 +269,9 @@ export class NotificationService implements OnDestroy {
       const parsed = JSON.parse(message.body) as NotificationItem;
       const data: NotificationItem = { ...parsed, seen: !!parsed.seen };
       if (!data.content || !data.content.trim()) {
+        return;
+      }
+      if (this.shouldIgnoreNotification(data)) {
         return;
       }
       if (!this.isAllowedByPreferences(data)) {
@@ -380,6 +389,11 @@ export class NotificationService implements OnDestroy {
     return null;
   }
 
+  private buildAuthHeaders(): HttpHeaders {
+    const token = this.authService.getToken();
+    return token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
+  }
+
   private isAllowedByPreferences(notification: NotificationItem): boolean {
     const pref = this.preferenceSnapshot;
     if (!pref) return true;
@@ -444,6 +458,31 @@ export class NotificationService implements OnDestroy {
       clearInterval(this.syncTimer);
       this.syncTimer = undefined;
     }
+  }
+
+  private shouldIgnoreNotification(n: NotificationItem): boolean {
+    const currentUserId = this.authService.currentUserValue?.user?.id;
+    if (!currentUserId) return false;
+    const incomingType = (n.type || '').toString().toUpperCase();
+    const actorId = this.resolveActorId(n);
+    if (incomingType === NotificationType.POST && actorId && actorId === currentUserId) {
+      return true;
+    }
+    return false;
+  }
+
+  private resolveActorId(n: NotificationItem): string | undefined {
+    const meta = (n as any)?.metadata || {};
+    return (
+      (n as any)?.actorId ||
+      meta.actorId ||
+      meta.authorId ||
+      meta.creatorId ||
+      meta.createdBy ||
+      meta.postAuthorId ||
+      (n as any)?.userId ||
+      undefined
+    );
   }
 
   // Local cache helpers

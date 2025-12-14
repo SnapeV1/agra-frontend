@@ -733,6 +733,48 @@
   font-size: 14px;
 }
 
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.reviews-grid.left-stack {
+  max-width: 420px;
+  margin: 0;
+  justify-items: start;
+}
+
+.review-card {
+  padding: 1rem;
+  border: 1px solid var(--border-primary, #e5e7eb);
+  border-radius: 12px;
+  background: var(--card-bg, #fff);
+  box-shadow: var(--shadow-sm);
+}
+
+.review-stars {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.35rem;
+}
+
+.review-quote {
+  margin: 0 0 0.35rem 0;
+  color: var(--text-primary, #111827);
+  font-size: 0.95rem;
+}
+
+.review-stars .star {
+  width: 16px;
+  height: 16px;
+  fill: #f6c34f;
+}
+
+.review-stars .star.empty {
+  fill: #e5e7eb;
+}
+
 /* Dark theme overrides */
 :host-context([data-theme="dark"]) .course-details { background: linear-gradient(135deg, #0f172a 0%, #0b1220 100%); }
 :host-context([data-theme="dark"]) .hero { background: linear-gradient(135deg, #0b1220 0%, #0f172a 100%); color: #e5e7eb; }

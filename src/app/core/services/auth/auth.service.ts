@@ -41,6 +41,7 @@ export class AuthService implements OnDestroy {
   private readonly ROLE_KEY = 'user_role';
   private readonly NAME_KEY = 'user_name';
   private readonly PICTURE_KEY = 'user_picture';
+  private readonly VERIFIED_KEY = 'user_verified';
   private readonly TOKEN_REFRESH_THRESHOLD = 5 * 60; 
   private readonly THEME_KEY = 'pref_theme';
   private readonly PROVISIONAL_SIGNUP_KEY = 'signup_google_profile';
@@ -72,15 +73,18 @@ export class AuthService implements OnDestroy {
   const role = this.normalizeRole(rawRole);
   const name = this.getStoredItem(this.NAME_KEY);
   const picture = this.getStoredItem(this.PICTURE_KEY); 
+  const verified = this.getStoredItem(this.VERIFIED_KEY) === 'true';
 
   if (token && email && role && this.isTokenValid()) {
     const authUser: AuthUser = {
       token,
-      user: { email, role, name: name || '', picture } as User, 
+      user: { email, role, name: name || '', picture, verified } as User, 
       refreshToken: refreshToken || undefined
     };
     this.currentUserSubject.next(authUser);
-    this.isAuthenticatedSubject.next(true);
+    // Only mark fully authenticated when verified is true or not set
+    const isAuthed = this.getStoredItem(this.VERIFIED_KEY) === null ? true : verified;
+    this.isAuthenticatedSubject.next(isAuthed);
   } else {
     this.clearAuthData();
   }
@@ -101,6 +105,20 @@ export class AuthService implements OnDestroy {
 
   requestPasswordReset(email: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/forgot-password`, { email }).pipe(
+      tap(() => {}),
+      catchError(this.handleError)
+    );
+  }
+
+  requestPasswordResetSms(phone: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/forgot-password/sms`, { phone }).pipe(
+      tap(() => {}),
+      catchError(this.handleError)
+    );
+  }
+
+  verifyPasswordResetSms(phone: string, code: string): Observable<{ token: string }> {
+    return this.http.post<{ token: string }>(`${this.apiUrl}/reset-password/sms`, { phone, code }).pipe(
       tap(() => {}),
       catchError(this.handleError)
     );
@@ -231,14 +249,46 @@ export class AuthService implements OnDestroy {
     );
   }
 
+  verifyEmail(token: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/verify-email`, {
+      params: { token }
+    }).pipe(
+      tap(() => {
+        const current = this.currentUserSubject.value;
+        if (current) {
+          const updatedUser = { ...current.user, verified: true };
+          this.currentUserSubject.next({ ...current, user: updatedUser });
+        }
+        this.setStoredItem(this.VERIFIED_KEY, 'true');
+        this.isAuthenticatedSubject.next(true);
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  resendVerification(): Observable<any> {
+    const token = this.getStoredItem(this.TOKEN_KEY);
+    if (!token) return throwError(() => new Error('You must be signed in to resend verification.'));
+    return this.http.post<any>(`${this.apiUrl}/resend-verification`, {}, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    }).pipe(
+      tap(() => {}),
+      catchError(this.handleError)
+    );
+  }
+
   private handleSuccessfulAuth(response: LoginResponse): void {
+  const safeRole = this.normalizeRole(response.user.role);
+  const isVerified = (response.user as any)?.verified === true;
+
   this.setStoredItem(this.TOKEN_KEY, response.token);
   this.setStoredItem(this.EMAIL_KEY, response.user.email);
-  const safeRole = this.normalizeRole(response.user.role);
   this.setStoredItem(this.ROLE_KEY, safeRole);
   if (response.user.name) this.setStoredItem(this.NAME_KEY, response.user.name);
   if (response.user.picture) this.setStoredItem(this.PICTURE_KEY, response.user.picture); 
-  if (response.refreshToken) this.setStoredItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
+  this.setStoredItem(this.VERIFIED_KEY, isVerified ? 'true' : 'false');
+  if (!this.useSessionStorage && response.refreshToken) this.setStoredItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
+  else if (this.useSessionStorage) this.removeStoredItem(this.REFRESH_TOKEN_KEY);
   // Capture any password-set token and completion flag from backend if provided
   let profileCompleted = true;
   try {
@@ -252,14 +302,21 @@ export class AuthService implements OnDestroy {
 
   const authUser: AuthUser = {
     token: response.token,
-    user: { ...response.user, role: safeRole },
+    user: { ...response.user, role: safeRole, verified: isVerified },
     refreshToken: response.refreshToken
   };
 
   this.currentUserSubject.next(authUser);
-  this.isAuthenticatedSubject.next(true);
-  this.setupTokenRefreshTimer();
-  // Route based on profileCompleted and presence of a setup token
+  this.isAuthenticatedSubject.next(isVerified);
+  if (!this.useSessionStorage) this.setupTokenRefreshTimer();
+
+  // Route based on verification and profile completion
+  if (!isVerified) {
+    this.ngZone.run(() => this.router.navigate(['/verify-email'], { queryParams: { email: response.user.email } }));
+    this.redirectUrl = null;
+    return;
+  }
+
   const hasSetupToken = !!this.getStoredItem(this.PASSWORD_SET_TOKEN_KEY);
   let fallback = '/home';
   if (!profileCompleted && hasSetupToken) fallback = '/complete-signup';
@@ -271,6 +328,7 @@ export class AuthService implements OnDestroy {
 
 
   logout(): void {
+    this.revokeRefreshToken();
     this.clearAuthData();
     this.redirectUrl = null;
     this.navigateToLogin();
@@ -308,6 +366,9 @@ export class AuthService implements OnDestroy {
 
 
   refreshToken(): Observable<RefreshTokenResponse> {
+    if (this.useSessionStorage) {
+      return throwError(() => new Error('Session-based sign-in does not use refresh tokens.'));
+    }
     const refreshToken = this.getStoredItem(this.REFRESH_TOKEN_KEY);
     if (!refreshToken) return throwError(() => new Error('No refresh token available'));
 
@@ -340,6 +401,7 @@ private clearAuthData(): void {
   this.removeStoredItem(this.ROLE_KEY);
   this.removeStoredItem(this.NAME_KEY);
   this.removeStoredItem(this.PICTURE_KEY); 
+  this.removeStoredItem(this.VERIFIED_KEY);
   // Clear theme so logged-out state doesn't keep last user's preference
   try {
     this.removeStoredItem(this.THEME_KEY);
@@ -403,6 +465,7 @@ private clearAuthData(): void {
   }
 
   private setupTokenRefreshTimer(): void {
+    if (this.useSessionStorage) return;
     const token = this.getStoredItem(this.TOKEN_KEY);
     if (!token) return;
     try {
@@ -417,6 +480,7 @@ private clearAuthData(): void {
   }
 
   private attemptTokenRefresh(): void {
+    if (this.useSessionStorage) return;
     if (this.isRefreshing) return;
     this.isRefreshing = true;
     this.refreshToken().subscribe({
@@ -498,9 +562,16 @@ isUser(): boolean {
       }
     }).pipe(
       tap(user => {
+        const normalizedRole = this.normalizeRole(user.role);
+        // Persist latest profile bits
+        this.setStoredItem(this.EMAIL_KEY, user.email);
+        this.setStoredItem(this.ROLE_KEY, normalizedRole);
+        if (user.name) this.setStoredItem(this.NAME_KEY, user.name); else this.removeStoredItem(this.NAME_KEY);
+        if (user.picture) this.setStoredItem(this.PICTURE_KEY, user.picture); else this.removeStoredItem(this.PICTURE_KEY);
+        this.setStoredItem(this.VERIFIED_KEY, (user as any)?.verified ? 'true' : 'false');
         const currentAuthUser = this.currentUserSubject.value;
         if (currentAuthUser) {
-          currentAuthUser.user = { ...user, role: this.normalizeRole(user.role) };
+          currentAuthUser.user = { ...user, role: normalizedRole, verified: (user as any)?.verified };
           this.currentUserSubject.next(currentAuthUser);
         }
         try { this.applyThemePreference((user as any)?.themePreference); } catch {}
@@ -522,7 +593,7 @@ isUser(): boolean {
   if (currentAuthUser) {
     const updatedAuthUser = {
       ...currentAuthUser,
-      user: { ...updatedUser, role: this.normalizeRole(updatedUser.role) }
+      user: { ...updatedUser, role: this.normalizeRole(updatedUser.role), verified: (updatedUser as any)?.verified }
     };
     
     this.currentUserSubject.next(updatedAuthUser);
@@ -541,6 +612,7 @@ isUser(): boolean {
     } else {
       this.removeStoredItem(this.PICTURE_KEY);
     }
+    this.setStoredItem(this.VERIFIED_KEY, (updatedUser as any)?.verified ? 'true' : 'false');
     // Apply any updated theme preference
     try { this.applyThemePreference((updatedUser as any)?.themePreference); } catch {}
     
@@ -600,6 +672,21 @@ getToken(): string | null {
   private normalizeRole(role: string | null | undefined): 'USER' | 'ADMIN' {
     const r = (role || '').toString().trim().toUpperCase();
     return r === 'ADMIN' ? 'ADMIN' : 'USER';
+  }
+
+  // Best-effort server-side revocation of refresh token
+  private revokeRefreshToken(): void {
+    const refreshToken = this.getStoredItem(this.REFRESH_TOKEN_KEY);
+    if (!refreshToken) return;
+    const accessToken = this.getStoredItem(this.TOKEN_KEY);
+    try {
+      this.http.post(`${this.apiUrl}/logout`, { refreshToken }, {
+        headers: accessToken ? { 'Authorization': `Bearer ${accessToken}` } : undefined
+      }).subscribe({
+        next: () => {},
+        error: () => {}
+      });
+    } catch {}
   }
 
 }

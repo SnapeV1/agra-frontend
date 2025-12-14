@@ -259,7 +259,7 @@ private initGoogleButton() {
    this.authService.register(userData).subscribe({
   next: (response) => {
     this.isLoading = false;
-    this.router.navigate(['/login']);
+    this.router.navigate(['/verify-email'], { queryParams: { email: this.registerData.email } });
   },
   error: (error) => {
     this.isLoading = false;
@@ -452,4 +452,3 @@ private initGoogleButton() {
     this.isCountryDropdownOpen = false;
   }
 }
-

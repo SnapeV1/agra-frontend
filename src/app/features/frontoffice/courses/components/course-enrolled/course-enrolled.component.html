@@ -177,7 +177,7 @@
               <div *ngIf="currentQuizState?.submitted" class="quiz-inline-result" [class.success]="currentQuizState?.allCorrect">
                 <lucide-icon [name]="currentQuizState?.allCorrect ? 'PartyPopper' : 'RefreshCw'"></lucide-icon>
                 <span>
-                  {{ currentQuizState?.allCorrect ? 'All answers correct!'' : 'Review and try again.' }}
+                  {{ currentQuizState?.allCorrect ? 'All answers correct!' : 'Review and try again.' }}
                 </span>
               </div>
 
@@ -238,6 +238,7 @@
           <div class="live-sessions inline-panel" [class.collapsed]="!showLiveSessions">
             <div class="sessions-header" (click)="toggleLiveSessions()">
               <h3>Live Sessions</h3>
+              <span class="live-badge" *ngIf="hasLiveSession">Live session</span>
               <div class="header-actions">
                 <lucide-icon [name]="showLiveSessions ? 'X' : 'Plus'" class="toggle-icon"></lucide-icon>
               </div>
@@ -332,22 +333,24 @@
 <div *ngIf="showCompletionModal" class="modal-overlay" (click)="closeCompletionModal()">
   <div class="completion-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
+      <div class="badge-glow">Completed</div>
       <button class="close-btn" (click)="closeCompletionModal()">
         <lucide-icon name="X"></lucide-icon>
       </button>
     </div>
     
     <div class="modal-content">
-      <div class="celebration-banner">
-        <div class="banner-icon">
-          <lucide-icon name="Award"></lucide-icon>
+      <div class="celebration-banner modern">
+        <div class="banner-icon modern">
+          <div class="icon-glow"></div>
+          <lucide-icon name="Sparkles"></lucide-icon>
         </div>
         <div class="banner-text">
-          <p class="eyebrow">Course completed</p>
-          <h2>You’re officially certified!</h2>
+          <p class="eyebrow">Certificate unlocked</p>
+          <h2>Well done, {{ courseEnrollment?.progress?.completionPercentage || 100 }}% completed!</h2>
           <p>Great work finishing <strong>{{ course?.title }}</strong>. Keep the momentum going.</p>
           <div class="banner-meta">
-            <span><lucide-icon name="CheckCircle"></lucide-icon>100% complete</span>
+            <span><lucide-icon name="CheckCircle"></lucide-icon>{{ courseEnrollment?.lessons?.length || 0 }} lessons</span>
             <span><lucide-icon name="Clock"></lucide-icon>{{ formatTime(getTotalTimeSpent()) }} tracked</span>
           </div>
         </div>
@@ -373,13 +376,13 @@
           <div class="stat-pill">
             <div>
               <p class="label">Progress</p>
-              <p class="value">100%</p>
+              <p class="value">{{ courseEnrollment?.progress?.completionPercentage || 100 }}%</p>
             </div>
-            <lucide-icon name="Award"></lucide-icon>
+            <lucide-icon name="Target"></lucide-icon>
           </div>
         </div>
 
-        <div class="certificate-card">
+        <div class="certificate-card modern">
           <h3>Certificate</h3>
           <div *ngIf="isGeneratingCertificate" class="cert-loading">
             <div class="spinner small"></div>

@@ -172,6 +172,7 @@ private loadSponsorLogos(): void {
     this.onCourseSelect(course);
   }
 
+
   isCourseEnrolled(course: Course | string): boolean {
     const id = typeof course === 'string' ? course : course?.id;
     if (!id) {

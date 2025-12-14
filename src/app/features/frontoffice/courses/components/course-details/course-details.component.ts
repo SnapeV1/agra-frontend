@@ -27,6 +27,11 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
   relatedStart = 0;
   resumeLessonTitle = '';
   resumeLessonNumber: number | null = null;
+  private sampleReviews = [
+    { quote: 'Concise lessons with clear takeaways.', author: 'Amina B.', role: 'Agri learner', rating: 5 },
+    { quote: 'Great practical examples I can apply on farm.', author: 'Youssef K.', role: 'Co-op trainer', rating: 4 },
+    { quote: 'Well structured and easy to follow.', author: 'Salma R.', role: 'Farmer', rating: 5 },
+  ];
   get canPrev(): boolean { return this.relatedStart > 0; }
   get canNext(): boolean { return this.relatedStart + 2 < this.relatedCourses.length; }
   get showResumeCta(): boolean {
@@ -154,6 +159,10 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
   getCourseRating(): number | null {
     // No rating in model yet; hide reviews until available
     return null;
+  }
+
+  getStaticReviews() {
+    return this.sampleReviews;
   }
 
   generateStarArray(rating: number): boolean[] {

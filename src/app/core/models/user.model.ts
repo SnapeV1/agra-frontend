@@ -14,6 +14,8 @@ export interface User {
   role: string;
   // User-selected theme preference persisted server-side
   themePreference?: 'light' | 'dark' | 'auto' | string;
+  // Email verification status
+  verified?: boolean;
   registeredAt: string; 
   progress?: CourseProgress[];
   archived: boolean;

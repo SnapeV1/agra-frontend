@@ -5,13 +5,16 @@ import { AuthService } from './auth/auth.service';
 import { Subject, Observable } from 'rxjs';
 import { TicketEventPayload, TicketMessage, TicketStatus } from '../models/ticket.model';
 
+type TicketSubscription = { pub?: any; user?: any; msg?: any };
+
 @Injectable({
   providedIn: 'root'
 })
 export class TicketSocketService implements OnDestroy {
   private client: Client;
   private readonly events$ = new Subject<TicketEventPayload>();
-  private readonly subscriptions = new Map<string, { pub?: any; user?: any }>();
+  private readonly subscriptions = new Map<string, TicketSubscription>();
+  private updatesSub?: any;
   private readonly wsBaseUrl = (() => {
     try {
       const origin = new URL(environment.apiBaseUrl).origin;
@@ -38,6 +41,7 @@ export class TicketSocketService implements OnDestroy {
         const active = Array.from(this.subscriptions.keys());
         this.subscriptions.clear();
         active.forEach(id => this.subscribeToTicket(id));
+        this.subscribeToUpdates();
       }
     });
   }
@@ -50,6 +54,7 @@ export class TicketSocketService implements OnDestroy {
     if (!this.client.active) {
       this.client.activate();
     }
+    this.subscribeToUpdates();
   }
 
   disconnect(): void {
@@ -67,10 +72,12 @@ export class TicketSocketService implements OnDestroy {
     if (this.subscriptions.has(ticketId)) return;
     const pubDest = `/topic/tickets/${ticketId}`;
     const userDest = `/user/queue/tickets/${ticketId}`;
+    const msgDest = `/topic/tickets/${ticketId}/messages`;
     try {
       const pubSub = this.client.subscribe(pubDest, (msg: IMessage) => this.handleEvent(msg, ticketId));
       const userSub = this.client.subscribe(userDest, (msg: IMessage) => this.handleEvent(msg, ticketId));
-      this.subscriptions.set(ticketId, { pub: pubSub, user: userSub });
+      const msgSub = this.client.subscribe(msgDest, (msg: IMessage) => this.handleEvent(msg, ticketId));
+      this.subscriptions.set(ticketId, { pub: pubSub, user: userSub, msg: msgSub });
     } catch {
       // ignore subscription errors
     }
@@ -89,10 +96,21 @@ export class TicketSocketService implements OnDestroy {
     this.disconnect();
   }
 
-  private handleEvent(msg: IMessage, ticketId: string): void {
+  private subscribeToUpdates(): void {
+    if (this.updatesSub) return;
+    try {
+      this.updatesSub = this.client.subscribe('/topic/tickets/updates', (msg: IMessage) => this.handleEvent(msg));
+    } catch {
+      // ignore
+    }
+  }
+
+  private handleEvent(msg: IMessage, ticketIdFromSubscription?: string): void {
     try {
       const payload = JSON.parse(msg.body) as any;
       const type = (payload?.type || payload?.eventType || '').toString().toUpperCase();
+      const ticketId = ticketIdFromSubscription || payload?.ticketId || payload?.id;
+      if (!ticketId) return;
       const event: TicketEventPayload = {
         ticketId,
         type: this.normalizeType(type),

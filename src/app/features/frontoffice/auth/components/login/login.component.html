@@ -47,10 +47,8 @@
     <div style="text-align:right; margin-top:10px;">
       <a href="#"
          class="forgot-password"
-         [class.disabled]="forgotCooldown > 0"
-         [attr.aria-disabled]="forgotCooldown > 0 ? 'true' : null"
          (click)="onForgotPassword($event)">
-        {{ forgotCooldown > 0 ? ('Resend in ' + forgotCooldown + 's') : 'Forgot password?' }}
+        Forgot password?
       </a>
     </div>
       </div>
@@ -63,6 +61,8 @@
         <span *ngIf="isLoading" class="loading-spinner"></span>
       </button>
     </form>
+
+    <!-- Forgot password flow moved to dedicated reset page -->
 
     <div class="divider"><span>Or continue with</span></div>
 

@@ -166,6 +166,10 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     this.sessionCarouselIndex = (this.sessionCarouselIndex + 1) % this.sessions.length;
   }
 
+  get hasLiveSession(): boolean {
+    return (this.sessions || []).some(s => this.isLive(s));
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -303,6 +307,12 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
   initializeLessons(): void {
     if (!this.course || !this.courseEnrollment) return;
     
+    // Ensure every lesson has a stable id for progress tracking
+    this.course.textContent = this.course.textContent.map((lesson, idx) => ({
+      ...lesson,
+      id: lesson.id || `lesson-${lesson.order ?? idx + 1}`
+    }));
+
     // Initialize lessons array if it doesn't exist
     if (!this.courseEnrollment.lessons) {
       this.courseEnrollment.lessons = [];

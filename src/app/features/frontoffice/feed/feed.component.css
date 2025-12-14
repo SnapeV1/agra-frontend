@@ -161,7 +161,42 @@
 }
 
 .feed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
   margin-bottom: 1.5rem;
+}
+
+.feed-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.refresh-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: var(--card-hover-bg, #f3f4f6);
+  border: 1px solid var(--card-border);
+  color: var(--primary-color);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.refresh-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  background: var(--card-bg);
+}
+
+.refresh-chip:active {
+  transform: translateY(0);
 }
 
 .feed-header h2 {

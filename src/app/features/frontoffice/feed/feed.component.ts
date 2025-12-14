@@ -7,6 +7,8 @@ import { PostsService } from 'src/app/features/backoffice/admin/services/posts.s
 import { AuthUser } from 'src/app/core/models/auth-user.model';
 import { PostComment } from 'src/app/core/models/post-comment.module';
 import { User } from 'src/app/core/models/user.model';
+import { NotificationService } from 'src/app/core/services/notification.service';
+import { NotificationType } from 'src/app/core/models/notification.model';
 
 @Component({
   selector: 'app-feed',
@@ -19,6 +21,7 @@ export class FeedComponent implements OnInit, OnDestroy {
   private displayLimit = 8;
   loading: boolean = false;
   errorMessage: string = '';
+  newPostAvailable = false;
   // News sidebars
   leftNews: NewsArticle[] = [];
   rightNews: NewsArticle[] = [];
@@ -37,13 +40,15 @@ export class FeedComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private postsService: PostsService,
-    private newsService: NewsService
+    private newsService: NewsService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
     this.initializeAuthentication();
     this.loadPosts();
     this.loadNews();
+    this.listenForPostNotifications();
   }
 
   ngOnDestroy(): void {
@@ -72,6 +77,7 @@ export class FeedComponent implements OnInit, OnDestroy {
   }
 
   private loadPosts(): void {
+    this.displayLimit = 8;
     this.loading = true;
     this.errorMessage = '';
 
@@ -113,6 +119,22 @@ export class FeedComponent implements OnInit, OnDestroy {
       })
     );
 
+    this.postsService.fetchPosts();
+  }
+
+  private listenForPostNotifications(): void {
+    this.subscriptions.add(
+      this.notificationService.newNotifications$.subscribe(n => {
+        if (n?.type === NotificationType.POST) {
+          this.newPostAvailable = true;
+        }
+      })
+    );
+  }
+
+  refreshPosts(): void {
+    this.newPostAvailable = false;
+    this.displayLimit = 8;
     this.postsService.fetchPosts();
   }
 

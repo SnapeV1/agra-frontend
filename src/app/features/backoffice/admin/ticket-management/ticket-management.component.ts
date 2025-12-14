@@ -36,6 +36,8 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
   replyAttachment: File | null = null;
   previewAttachmentUrl: string | null = null;
   private ticketEventsSub?: Subscription;
+  private readonly isCurrentAdminUser: boolean;
+  private seenMessageKeys = new Set<string>();
 
   private conversationBody?: ElementRef<HTMLDivElement>;
   @ViewChild('conversationBody') set conversationBodySetter(el: ElementRef<HTMLDivElement> | undefined) {
@@ -46,9 +48,12 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
 
   constructor(private ticketService: TicketService, private auth: AuthService, private ticketSocket: TicketSocketService) {
     this.currentAdminId = this.auth.currentUserValue?.user?.id || null;
+    this.isCurrentAdminUser = (this.auth.currentUserValue?.user?.role || '').toUpperCase() === 'ADMIN';
   }
 
   ngOnInit(): void {
+    // Ensure WS is active so incoming ticket events arrive without refresh
+    this.ticketSocket.connect();
     this.loadTickets();
   }
 
@@ -113,7 +118,9 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
     this.ticketService.getTicketThread(ticketId).subscribe({
       next: thread => {
         this.selectedThread = thread;
-        this.messages = thread.messages || [];
+        const normalized = (thread.messages || []).map(m => this.normalizeMessage(m, thread.ticket));
+        this.seedSeenKeys(normalized);
+        this.messages = normalized;
         this.reply = '';
         this.clearReplyAttachment();
         this.scrollConversationToBottom();
@@ -132,7 +139,6 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
     this.sending = true;
     this.ticketService.sendMessage(ticketId, { content: this.reply.trim() }, this.replyAttachment || undefined).subscribe({
       next: message => {
-        this.messages = [...this.messages, message];
         this.reply = '';
         this.sending = false;
         this.clearReplyAttachment();
@@ -246,17 +252,13 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   isAdminMessage(msg: TicketMessage, ticket: Ticket): boolean {
-    if (typeof msg.isAdminMessage === 'boolean') {
-      return msg.isAdminMessage;
-    }
+    if (msg?.isAdminMessage === true) return true;
     const senderId = msg.senderId ?? msg.sender?.id;
     const ticketAdminId = ticket.adminId || ticket.adminInfo?.id || null;
-    if (ticketAdminId && senderId) {
-      return senderId === ticketAdminId;
-    }
-    if (this.currentAdminId && senderId) {
-      return senderId === this.currentAdminId;
-    }
+    const senderRole = ((msg.sender as any)?.role || '').toString().toUpperCase();
+    if (senderRole === 'ADMIN') return true;
+    if (ticketAdminId && senderId && senderId === ticketAdminId) return true;
+    if (this.isCurrentAdminUser && senderId && senderId === this.currentAdminId) return true;
     return false;
   }
 
@@ -317,11 +319,25 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   private applyTicketEvent(evt: any): void {
+    // Always update matching ticket in list to reflect recency
+    if (evt?.ticketId) {
+      this.tickets = this.tickets.map(t =>
+        t.id === evt.ticketId ? { ...t, updatedAt: new Date().toISOString(), status: evt.status || t.status } : t
+      );
+      this.tickets = this.sortTicketsByRecency(this.tickets);
+    }
+
     if (!this.selectedThread || evt.ticketId !== this.selectedThread.ticket.id) return;
+
     if (evt.type === 'MESSAGE' && evt.message) {
-      const exists = this.messages.some(m => m.id === evt.message.id);
-      if (!exists) {
-        this.messages = [...this.messages, evt.message];
+      const normalized = this.normalizeMessage(evt.message, this.selectedThread.ticket);
+      if (!this.isDuplicateMessage(normalized)) {
+        this.messages = [...this.messages, normalized];
+        // bump thread updatedAt to keep UI consistent
+        this.selectedThread = {
+          ...this.selectedThread,
+          ticket: { ...this.selectedThread.ticket, updatedAt: new Date().toISOString() }
+        };
         this.scrollConversationToBottom();
       }
     }
@@ -335,5 +351,48 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
 
   private sortTicketsByRecency(list: Ticket[]): Ticket[] {
     return [...list].sort((a, b) => new Date(b.updatedAt || b.createdAt || '').getTime() - new Date(a.updatedAt || a.createdAt || '').getTime());
+  }
+
+  private normalizeMessage(msg: TicketMessage, ticket: Ticket): TicketMessage {
+    const senderId = msg.senderId ?? msg.sender?.id;
+    const senderRole = ((msg.sender as any)?.role || '').toString().toUpperCase();
+    const ticketAdminId = ticket?.adminId || ticket?.adminInfo?.id || null;
+    const derivedIsAdmin =
+      msg.isAdminMessage === true ||
+      senderRole === 'ADMIN' ||
+      (!!ticketAdminId && !!senderId && senderId === ticketAdminId) ||
+      (this.isCurrentAdminUser && !!senderId && senderId === this.currentAdminId);
+    return { ...msg, senderId, isAdminMessage: derivedIsAdmin };
+  }
+
+  private buildMessageKeys(msg: TicketMessage): string[] {
+    const keys: string[] = [];
+    if (msg.id) keys.push(`id:${msg.id}`);
+    const sender = msg.senderId ?? msg.sender?.id ?? '';
+    const ts = msg.timestamp ? new Date(msg.timestamp).getTime() : '';
+    const content = (msg.content || '').trim();
+    keys.push(`sig:${sender}|${ts}|${content}`);
+    if (content) keys.push(`content:${sender}|${content}`);
+    return keys;
+  }
+
+  private isDuplicateMessage(msg: TicketMessage): boolean {
+    const keys = this.buildMessageKeys(msg);
+    const alreadySeen = keys.some(k => this.seenMessageKeys.has(k));
+    this.markKeysSeen(keys);
+    return alreadySeen;
+  }
+
+  private markMessageSeen(msg: TicketMessage): void {
+    this.markKeysSeen(this.buildMessageKeys(msg));
+  }
+
+  private markKeysSeen(keys: string[]): void {
+    keys.forEach(k => this.seenMessageKeys.add(k));
+  }
+
+  private seedSeenKeys(messages: TicketMessage[]): void {
+    this.seenMessageKeys.clear();
+    messages.forEach(m => this.markMessageSeen(m));
   }
 }

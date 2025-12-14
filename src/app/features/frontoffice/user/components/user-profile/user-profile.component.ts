@@ -369,6 +369,11 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.isSaving = true;
     
     const updateData: any = {};
+    // Preserve current settings-driven fields (e.g., themePreference) so they are not dropped by a partial update
+    const currentThemePref =
+      (this.authService.currentUserValue?.user as any)?.themePreference ||
+      localStorage.getItem('pref_theme') ||
+      undefined;
     
     if (this.editForm.name && this.editForm.name !== this.originalProfile?.name) {
       updateData.name = this.editForm.name;
@@ -393,14 +398,22 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     if (this.editForm.domain && this.editForm.domain !== this.originalProfile?.domain) {
       updateData.domain = this.editForm.domain;
     }
+    if (currentThemePref && !updateData.themePreference) {
+      updateData.themePreference = currentThemePref;
+    }
 
     this.profileService.updateUserProfile(updateData, this.selectedFile || undefined)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updatedUser: User) => {
-          this.userProfile = updatedUser;
+          const mergedUser = {
+            ...(this.authService.currentUserValue?.user || {}),
+            ...updatedUser,
+            themePreference: (updatedUser as any)?.themePreference ?? currentThemePref
+          } as User;
+          this.userProfile = mergedUser;
           
-          this.authService.updateCurrentUser(updatedUser);
+          this.authService.updateCurrentUser(mergedUser);
           
           this.resetEditState();
           this.isEditing = false;

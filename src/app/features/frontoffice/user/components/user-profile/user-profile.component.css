@@ -1,8 +1,8 @@
 .profile-container {
   font-family: "Inter", sans-serif;
   margin-top: 3%;
-  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
-  color: var(--text-primary);
+  background: #f8fafc;
+  color: #0f172a;
 }
 
 /* Theme variables */
@@ -72,14 +72,34 @@
 /* Dark theme overrides (profile-specific) */
 /* Container + general surfaces */
 :host-context([data-theme="dark"]) .profile-container {
-  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+  background: linear-gradient(135deg, #0b1220, #111827);
+  color: #e5e7eb;
 }
 
 /* Tailwind utility overrides inside this component for dark mode */
-:host-context([data-theme="dark"]) .bg-white { background-color: var(--card-bg) !important; }
-:host-context([data-theme="dark"]) .bg-gray-50 { background-color: var(--bg-secondary) !important; }
-:host-context([data-theme="dark"]) .text-gray-900 { color: var(--text-primary) !important; }
-:host-context([data-theme="dark"]) .border-gray-300 { border-color: var(--border-primary) !important; }
+:host-context([data-theme="dark"]) .bg-white { background-color: #111827 !important; }
+:host-context([data-theme="dark"]) .bg-gray-50 { background-color: #0f172a !important; }
+:host-context([data-theme="dark"]) .text-gray-900 { color: #e5e7eb !important; }
+:host-context([data-theme="dark"]) .text-gray-700 { color: #cbd5e1 !important; }
+:host-context([data-theme="dark"]) .text-gray-600,
+:host-context([data-theme="dark"]) .text-gray-500 { color: #94a3b8 !important; }
+:host-context([data-theme="dark"]) .border-gray-300 { border-color: #1f2937 !important; }
+:host-context([data-theme="dark"]) input,
+:host-context([data-theme="dark"]) select,
+:host-context([data-theme="dark"]) .select-trigger,
+:host-context([data-theme="dark"]) .phone-input-wrapper input {
+  background: #111827 !important;
+  color: #e5e7eb !important;
+  border-color: #1f2937 !important;
+}
+:host-context([data-theme="dark"]) .select-options {
+  background: #0f172a !important;
+  border-color: #1f2937 !important;
+}
+:host-context([data-theme="dark"]) .select-option {
+  color: #e5e7eb !important;
+  border-bottom-color: #1f2937 !important;
+}
 
 /* Dropdown + phone input surfaces */
 :host-context([data-theme="dark"]) .select-options {

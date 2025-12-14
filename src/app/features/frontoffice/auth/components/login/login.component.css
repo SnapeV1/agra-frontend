@@ -313,6 +313,15 @@
   cursor: not-allowed;
 }
 
+.login-btn.subtle {
+  margin-top: 0.75rem;
+  background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+  box-shadow: 0 4px 14px rgba(17, 24, 39, 0.25);
+}
+.login-btn.subtle:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
+}
+
 .loading-spinner {
   width: 20px;
   height: 20px;
@@ -407,6 +416,7 @@
   color: #059669;
   text-decoration: underline;
 }
+
 
 /* Responsive Design */
 @media (max-width: 640px) {

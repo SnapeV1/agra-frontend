@@ -135,10 +135,10 @@ lucide-icon {
 }
 
 .hero-stats {
-  display: flex;
-  gap: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
   margin-bottom: 2rem;
-  flex-wrap: wrap;
 }
 
 .hero-stats .stat {
@@ -147,6 +147,7 @@ lucide-icon {
   border-radius: 14px;
   padding: 1rem 1.2rem;
   box-shadow: var(--shadow-sm);
+  height: 100%;
 }
 
 .stat-number {

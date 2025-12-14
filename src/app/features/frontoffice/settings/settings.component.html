@@ -35,6 +35,73 @@
       </div>
     </div>
 
+    <div class="setting-item setting-item-stack phone-reset-card">
+      <div class="setting-info">
+        <div class="setting-label">Reset password with your phone</div>
+        <div class="setting-description">Send a one-time SMS code to reset your password without email.</div>
+        <div class="phone-reset-grid">
+          <div class="input-group inline-input">
+            <label>Phone number</label>
+            <input
+              type="tel"
+              placeholder="+212 6 12 34 56 78"
+              [(ngModel)]="phoneResetPhone"
+              name="phoneResetPhone" />
+          </div>
+          <button
+            class="btn btn-outline"
+            type="button"
+            (click)="sendPhoneResetCode()"
+            [disabled]="phoneResetLoading">
+            {{ phoneResetLoading ? 'Sending...' : (phoneResetCodeSent ? 'Resend code' : 'Send code') }}
+          </button>
+        </div>
+
+        <div class="phone-reset-grid">
+          <div class="input-group inline-input">
+            <label>SMS code</label>
+            <input
+              type="text"
+              placeholder="Enter the 6-digit code"
+              [(ngModel)]="phoneResetCode"
+              name="phoneResetCode"
+              [disabled]="!phoneResetCodeSent" />
+          </div>
+          <div class="input-group inline-input">
+            <label>New password</label>
+            <input
+              type="password"
+              placeholder="Create a new password"
+              [(ngModel)]="phoneResetNewPassword"
+              name="phoneResetNewPassword"
+              [disabled]="!phoneResetCodeSent" />
+          </div>
+          <div class="input-group inline-input">
+            <label>Confirm new password</label>
+            <input
+              type="password"
+              placeholder="Re-enter new password"
+              [(ngModel)]="phoneResetConfirmPassword"
+              name="phoneResetConfirmPassword"
+              [disabled]="!phoneResetCodeSent" />
+          </div>
+        </div>
+        <div class="phone-reset-messages">
+          <p class="ok" *ngIf="phoneResetMessage">{{ phoneResetMessage }}</p>
+          <p class="err" *ngIf="phoneResetError">{{ phoneResetError }}</p>
+        </div>
+      </div>
+      <div class="setting-action">
+        <button
+          class="btn btn-primary"
+          type="button"
+          (click)="resetPasswordWithPhone()"
+          [disabled]="phoneResetLoading || !phoneResetCodeSent">
+          {{ phoneResetLoading ? 'Processing...' : 'Reset via phone' }}
+        </button>
+      </div>
+    </div>
+
     <div class="setting-item">
       <div class="setting-info">
         <div class="setting-label">Two-Factor Authentication</div>

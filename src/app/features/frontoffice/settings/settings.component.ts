@@ -72,11 +72,23 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
   replyAttachment: File | null = null;
   previewAttachmentUrl: string | null = null;
   private ticketEventsSub?: Subscription;
+  private readonly isCurrentAdminUser: boolean;
+  private seenMessageKeys = new Set<string>();
 
   // Modals
   showEmailModal = false;
   showPasswordModal = false;
   showDeleteModal = false;
+
+  // Password reset via phone
+  phoneResetPhone = '';
+  phoneResetCode = '';
+  phoneResetNewPassword = '';
+  phoneResetConfirmPassword = '';
+  phoneResetCodeSent = false;
+  phoneResetLoading = false;
+  phoneResetMessage = '';
+  phoneResetError = '';
 
   private conversationBody?: ElementRef<HTMLDivElement>;
   @ViewChild('userConversationBody') set conversationBodySetter(el: ElementRef<HTMLDivElement> | undefined) {
@@ -96,6 +108,7 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
     private ticketSocket: TicketSocketService
   ) {
     this.currentUserId = this.auth.currentUserValue?.user?.id || null;
+    this.isCurrentAdminUser = (this.auth.currentUserValue?.user?.role || '').toUpperCase() === 'ADMIN';
   }
 
   ngOnInit(): void {
@@ -285,6 +298,55 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showDeleteModal = kind === 'delete';
   }
 
+  sendPhoneResetCode(): void {
+    this.phoneResetError = '';
+    this.phoneResetMessage = '';
+    const phone = this.phoneResetPhone.trim();
+    if (!phone || phone.length < 8) {
+      this.phoneResetError = 'Please enter a valid phone number.';
+      return;
+    }
+    this.phoneResetLoading = true;
+    // TODO: replace with real API call to request SMS code
+    setTimeout(() => {
+      this.phoneResetLoading = false;
+      this.phoneResetCodeSent = true;
+      this.phoneResetMessage = `Verification code sent to ${phone}.`;
+      try { this.toastr.success('SMS code sent'); } catch {}
+    }, 400);
+  }
+
+  resetPasswordWithPhone(): void {
+    this.phoneResetError = '';
+    this.phoneResetMessage = '';
+    if (!this.phoneResetCodeSent) {
+      this.phoneResetError = 'Request a verification code first.';
+      return;
+    }
+    if (!this.phoneResetCode.trim()) {
+      this.phoneResetError = 'Enter the verification code you received.';
+      return;
+    }
+    if (!this.phoneResetNewPassword || !this.phoneResetConfirmPassword) {
+      this.phoneResetError = 'Enter and confirm your new password.';
+      return;
+    }
+    if (this.phoneResetNewPassword !== this.phoneResetConfirmPassword) {
+      this.phoneResetError = 'Passwords do not match.';
+      return;
+    }
+    this.phoneResetLoading = true;
+    // TODO: replace with real API call to verify code and set new password
+    setTimeout(() => {
+      this.phoneResetLoading = false;
+      this.phoneResetMessage = 'Your password was reset via phone verification.';
+      this.phoneResetCode = '';
+      this.phoneResetNewPassword = '';
+      this.phoneResetConfirmPassword = '';
+      try { this.toastr.success('Password reset'); } catch {}
+    }, 450);
+  }
+
   closeModal(): void {
     this.showEmailModal = this.showPasswordModal = this.showDeleteModal = false;
   }
@@ -422,6 +484,7 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe(evt => this.applyTicketEvent(evt));
 
     this.selectedTicketId = ticketId;
+    this.seenMessageKeys.clear();
     this.threadLoading = true;
     this.threadError = '';
     const requestForId = ticketId;
@@ -429,7 +492,9 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
       next: thread => {
         if (this.selectedTicketId !== requestForId) return;
         this.selectedThread = thread;
-        this.threadMessages = thread.messages || [];
+        const normalized = (thread.messages || []).map(m => this.normalizeMessage(m, thread.ticket));
+        this.threadMessages = normalized;
+        this.seedSeenKeys(normalized);
         this.threadLoading = false;
         this.replyMessage = '';
         this.clearReplyAttachment();
@@ -444,25 +509,27 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   sendReply(): void {
-    if (!this.selectedThread || !this.replyMessage.trim() || this.sendingReply) return;
-    if (this.selectedThread.ticket.status === TicketStatus.CLOSED) return;
-    const ticketId = this.selectedThread.ticket.id;
-    const content = this.replyMessage.trim();
-    this.sendingReply = true;
-    this.ticketService.sendMessage(ticketId, { content }, this.replyAttachment || undefined).subscribe({
-      next: message => {
-        this.threadMessages = [...this.threadMessages, message];
-        this.replyMessage = '';
-        this.sendingReply = false;
-        this.clearReplyAttachment();
-        this.scrollConversationToBottom();
-      },
-      error: err => {
-        this.threadError = err?.error?.message || err?.message || 'Unable to send your reply right now.';
-        this.sendingReply = false;
-      }
-    });
-  }
+  if (!this.selectedThread || !this.replyMessage.trim() || this.sendingReply) return;
+  if (this.selectedThread.ticket.status === TicketStatus.CLOSED) return;
+
+  const ticketId = this.selectedThread.ticket.id;
+  const content = this.replyMessage.trim();
+  this.sendingReply = true;
+
+  this.ticketService.sendMessage(ticketId, { content }, this.replyAttachment || undefined).subscribe({
+    next: message => {
+      this.replyMessage = '';
+      this.sendingReply = false;
+      this.clearReplyAttachment();
+      this.scrollConversationToBottom();
+    },
+    error: err => {
+      this.threadError = err?.error?.message || err?.message || 'Unable to send your reply right now.';
+      this.sendingReply = false;
+    }
+  });
+}
+
 
   lastUpdateLabel(ticket: Ticket): string {
     if (ticket.updatedAt) {
@@ -503,15 +570,13 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   isAdminMessage(msg: TicketMessage, ticket?: Ticket): boolean {
-    if (typeof msg.isAdminMessage === 'boolean') {
-      return msg.isAdminMessage;
-    }
+    if (msg?.isAdminMessage === true) return true;
     const senderId = msg.senderId ?? msg.sender?.id;
-    const assignedAdminId = ticket?.adminId || ticket?.adminInfo?.id || null;
-    if (assignedAdminId && senderId) {
-      return senderId === assignedAdminId;
-    }
-    return false;
+    const senderRole = ((msg.sender as any)?.role || '').toString().toUpperCase();
+    const ticketAdminId = ticket?.adminId || ticket?.adminInfo?.id || null;
+    const senderIsAdmin = senderRole === 'ADMIN' || (!!ticketAdminId && !!senderId && senderId === ticketAdminId);
+    const currentAdminSending = this.isCurrentAdminUser && !!senderId && senderId === this.currentUserId;
+    return senderIsAdmin || currentAdminSending;
   }
 
   isUserMessage(msg: TicketMessage, ticket?: Ticket): boolean {
@@ -569,14 +634,59 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
   private applyTicketEvent(evt: any): void {
     if (!this.selectedThread || evt.ticketId !== this.selectedThread.ticket.id) return;
     if (evt.type === 'MESSAGE' && evt.message) {
-      const exists = this.threadMessages.some(m => m.id === evt.message.id);
-      if (!exists) {
-        this.threadMessages = [...this.threadMessages, evt.message];
+      const normalized = this.normalizeMessage(evt.message, this.selectedThread.ticket);
+      if (!this.isDuplicateMessage(normalized)) {
+        this.threadMessages = [...this.threadMessages, normalized];
         this.scrollConversationToBottom();
       }
     }
     if (evt.type === 'STATUS' && evt.status && this.selectedThread?.ticket) {
       this.selectedThread = { ...this.selectedThread, ticket: { ...this.selectedThread.ticket, status: evt.status } };
     }
+  }
+
+  private normalizeMessage(msg: TicketMessage, ticket: Ticket): TicketMessage {
+    const senderId = msg.senderId ?? msg.sender?.id;
+    const senderRole = ((msg.sender as any)?.role || '').toString().toUpperCase();
+    const ticketAdminId = ticket?.adminId || ticket?.adminInfo?.id || null;
+    const derivedIsAdmin =
+      msg.isAdminMessage === true ||
+      senderRole === 'ADMIN' ||
+      (!!ticketAdminId && !!senderId && senderId === ticketAdminId) ||
+      (this.isCurrentAdminUser && !!senderId && senderId === this.currentUserId);
+    return { ...msg, senderId, isAdminMessage: derivedIsAdmin };
+  }
+
+  private buildMessageKeys(msg: TicketMessage): string[] {
+    const keys: string[] = [];
+    if (msg.id) keys.push(`id:${msg.id}`);
+    const sender = msg.senderId ?? msg.sender?.id ?? '';
+    const ts = msg.timestamp ? new Date(msg.timestamp).getTime() : '';
+    const content = (msg.content || '').trim();
+    keys.push(`sig:${sender}|${ts}|${content}`);
+    if (content) keys.push(`content:${sender}|${content}`);
+    return keys;
+  }
+
+  private isDuplicateMessage(msg: TicketMessage): boolean {
+    const keys = this.buildMessageKeys(msg);
+    const already = keys.some(k => this.seenMessageKeys.has(k));
+    this.markKeysSeen(keys);
+    return already;
+  }
+
+  private seedSeenKeys(messages: TicketMessage[]): void {
+    this.seenMessageKeys.clear();
+    for (const m of messages) {
+      this.markMessageSeen(m);
+    }
+  }
+
+  private markMessageSeen(msg: TicketMessage): void {
+    this.markKeysSeen(this.buildMessageKeys(msg));
+  }
+
+  private markKeysSeen(keys: string[]): void {
+    keys.forEach(k => this.seenMessageKeys.add(k));
   }
 }
