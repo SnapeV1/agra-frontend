@@ -32,7 +32,7 @@
 
 .settings-section { background: var(--bg-primary); border-radius: 12px; padding: 30px; margin-bottom: 20px; box-shadow: var(--shadow); transition: var(--transition); }
 .settings-section:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
-.section-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 20px; color: var(--text-primary); display: flex; align-items: center; gap: 10px; }
+.section-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 20px; color: var(--text-primary); display: flex; align-items: center; gap: 10px; white-space: nowrap; }
 .section-subtitle { color: var(--text-secondary); font-size: 0.95rem; }
 
 .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border); }
@@ -186,6 +186,7 @@
 @media (max-width: 600px) {
   .container { padding: 10px; }
   .settings-section { padding: 20px; }
+  .section-title { white-space: normal; }
   .setting-item { flex-direction: column; align-items: flex-start; gap: 10px; }
   .setting-action { width: 100%; justify-content: flex-end; }
   .tickets-actions { width: 100%; justify-content: flex-start; }

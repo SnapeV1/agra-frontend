@@ -1,21 +1,21 @@
 <app-navigation></app-navigation>
 <div class="min-h-screen contact-root">
-<header class="contact-hero">
-  <div class="container mx-auto px-6 py-24 lg:py-32">
-    <div class="max-w-3xl">
-      <div class="flex items-center gap-3 mb-6">
-        <div class="icon-badge-lg">
-          <lucide-icon name="leaf" class="w-8 h-8"></lucide-icon>
+  <header class="contact-hero">
+    <div class="container mx-auto px-6 py-24 lg:py-32">
+      <div class="max-w-3xl">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="icon-badge-lg">
+            <lucide-icon name="leaf" class="w-8 h-8"></lucide-icon>
+          </div>
+          <span class="contact-hero-kicker">{{ 'contact.hero.kicker' | translate }}</span>
         </div>
-        <span class="contact-hero-kicker">Agricultural Education</span>
+        <h1 class="contact-hero-title">{{ 'contact.hero.title' | translate }}</h1>
+        <p class="contact-hero-subtitle">
+          {{ 'contact.hero.subtitle' | translate }}
+        </p>
       </div>
-      <h1 class="contact-hero-title">Let's Connect</h1>
-      <p class="contact-hero-subtitle">
-        Ready to grow your agricultural knowledge? We're here to help you cultivate success.
-      </p>
     </div>
-  </div>
-</header>
+  </header>
 
   <main class="container mx-auto px-6 py-16 lg:py-24">
     <!-- Statistics Section -->
@@ -24,22 +24,22 @@
         <div class="icon-badge mx-auto mb-4">
           <lucide-icon name="users" class="w-8 h-8"></lucide-icon>
         </div>
-        <h3 class="stat-number text-2xl font-bold mb-2">5,000+</h3>
-        <p class="stat-label">Students Educated</p>
+        <h3 class="stat-number text-2xl font-bold mb-2">{{ 'contact.stats.students.value' | translate }}</h3>
+        <p class="stat-label">{{ 'contact.stats.students.label' | translate }}</p>
       </div>
       <div class="stat-card text-center p-8 rounded-2xl">
         <div class="icon-badge mx-auto mb-4">
           <lucide-icon name="award" class="w-8 h-8"></lucide-icon>
         </div>
-        <h3 class="stat-number text-2xl font-bold mb-2">25+</h3>
-        <p class="stat-label">Years Experience</p>
+        <h3 class="stat-number text-2xl font-bold mb-2">{{ 'contact.stats.experience.value' | translate }}</h3>
+        <p class="stat-label">{{ 'contact.stats.experience.label' | translate }}</p>
       </div>
       <div class="stat-card text-center p-8 rounded-2xl">
         <div class="icon-badge mx-auto mb-4">
           <lucide-icon name="clock" class="w-8 h-8"></lucide-icon>
         </div>
-        <h3 class="stat-number text-2xl font-bold mb-2">24hr</h3>
-        <p class="stat-label">Response Time</p>
+        <h3 class="stat-number text-2xl font-bold mb-2">{{ 'contact.stats.response.value' | translate }}</h3>
+        <p class="stat-label">{{ 'contact.stats.response.label' | translate }}</p>
       </div>
     </div>
 
@@ -51,10 +51,10 @@
           <div class="contact-card__header p-8">
             <h2 class="text-3xl font-bold flex items-center gap-3">
               <lucide-icon name="send" class="w-8 h-8"></lucide-icon>
-              Send Message
+              {{ 'contact.form.title' | translate }}
             </h2>
             <p class="text-lg">
-              Get in touch and we'll respond within 24 hours
+              {{ 'contact.form.subtitle' | translate }}
             </p>
           </div>
           <div class="p-8 space-y-8">
@@ -62,63 +62,63 @@
               <div class="grid md:grid-cols-2 gap-6">
                 <div class="space-y-3">
                   <label for="fullName" class="text-slate-700 font-semibold text-sm uppercase tracking-wide">
-                    Full Name
+                    {{ 'contact.form.fullName' | translate }}
                   </label>
                   <input
                     id="fullName"
                     type="text"
                     formControlName="fullName"
-                    placeholder="John Doe"
+                    [placeholder]="'contact.form.fullNamePlaceholder' | translate"
                     class="form-input h-12 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-emerald-500/20 text-lg w-full"
                   />
                   <p class="text-sm text-red-500" *ngIf="fullName?.touched && fullName?.invalid">
-                    Please enter your full name.
+                    {{ 'contact.form.fullNameError' | translate }}
                   </p>
                 </div>
                 <div class="space-y-3">
                   <label for="email" class="text-slate-700 font-semibold text-sm uppercase tracking-wide">
-                    Email Address
+                    {{ 'contact.form.email' | translate }}
                   </label>
                   <input
                     id="email"
                     type="email"
                     formControlName="email"
-                    placeholder="john@example.com"
+                    [placeholder]="'contact.form.emailPlaceholder' | translate"
                     class="form-input h-12 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-emerald-500/20 text-lg w-full"
                   />
                   <p class="text-sm text-red-500" *ngIf="email?.touched && email?.invalid">
-                    Please provide a valid email.
+                    {{ 'contact.form.emailError' | translate }}
                   </p>
                 </div>
               </div>
               <div class="space-y-3">
                 <label for="subject" class="text-slate-700 font-semibold text-sm uppercase tracking-wide">
-                  Subject
+                  {{ 'contact.form.subject' | translate }}
                 </label>
                 <input
                   id="subject"
                   type="text"
                   formControlName="subject"
-                  placeholder="How can we help you?"
+                  [placeholder]="'contact.form.subjectPlaceholder' | translate"
                   class="form-input h-12 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-emerald-500/20 text-lg w-full"
                 />
                 <p class="text-sm text-red-500" *ngIf="subject?.touched && subject?.invalid">
-                  Subject must be at least 5 characters.
+                  {{ 'contact.form.subjectError' | translate }}
                 </p>
               </div>
               <div class="space-y-3">
                 <label for="message" class="text-slate-700 font-semibold text-sm uppercase tracking-wide">
-                  Message
+                  {{ 'contact.form.message' | translate }}
                 </label>
                 <textarea
                   id="message"
                   formControlName="message"
-                  placeholder="Tell us about your agricultural education goals..."
+                  [placeholder]="'contact.form.messagePlaceholder' | translate"
                   rows="6"
                   class="form-textarea border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-emerald-500/20 resize-none text-lg leading-relaxed w-full"
                 ></textarea>
                 <p class="text-sm text-red-500" *ngIf="message?.touched && message?.invalid">
-                  Please provide at least 10 characters.
+                  {{ 'contact.form.messageError' | translate }}
                 </p>
               </div>
               <button
@@ -126,14 +126,14 @@
                 [disabled]="!contactForm.valid || isSubmitting"
                 class="btn-primary w-full h-14 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold text-lg rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-200 flex items-center justify-center gap-2"
               >
-                <span *ngIf="!isSubmitting">Send Message</span>
-                <span *ngIf="isSubmitting">Sending...</span>
+                <span *ngIf="!isSubmitting">{{ 'contact.form.submit' | translate }}</span>
+                <span *ngIf="isSubmitting">{{ 'contact.form.submitting' | translate }}</span>
                 <lucide-icon name="send" class="w-5 h-5"></lucide-icon>
               </button>
 
               <div *ngIf="status === 'success'" class="p-4 rounded-xl bg-emerald-50 text-emerald-700 flex items-center gap-2">
                 <lucide-icon name="check-circle" class="w-5 h-5"></lucide-icon>
-                Thanks for reaching out! We'll respond shortly.
+                {{ 'contact.form.success' | translate }}
               </div>
               <div *ngIf="status === 'error'" class="p-4 rounded-xl bg-red-50 text-red-600 flex items-center gap-2">
                 <lucide-icon name="alert-triangle" class="w-5 h-5"></lucide-icon>
@@ -149,29 +149,29 @@
         <div class="contact-card border-0 shadow-xl shadow-slate-200/50 rounded-3xl overflow-hidden">
           <div class="p-8 space-y-8">
             <div>
-              <h3 class="text-2xl font-bold text-slate-900 mb-6">Contact Information</h3>
+              <h3 class="text-2xl font-bold text-slate-900 mb-6">{{ 'contact.info.title' | translate }}</h3>
               <div class="space-y-6">
                 <div class="flex items-start gap-4">
                   <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center flex-shrink-0">
                     <lucide-icon name="map-pin" class="w-6 h-6 text-emerald-600"></lucide-icon>
                   </div>
                   <div>
-                    <h4 class="font-semibold text-slate-900 mb-1">Visit Us</h4>
+                    <h4 class="font-semibold text-slate-900 mb-1">{{ 'contact.info.visit.title' | translate }}</h4>
                     <p class="text-slate-600 leading-relaxed">
-                      123 Agricultural Education Center<br />
-                      Farm Valley Road<br />
-                      Greenfield, ST 12345
+                      {{ 'contact.info.visit.body' | translate }}
                     </p>
                   </div>
                 </div>
 
                 <div class="flex items-center gap-4">
                   <div class="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center flex-shrink-0">
-                    <lucide-icon name="phone" class="w-6 h-6 text-blue-600"></lucide-icon>
+                    <lucide-icon name="globe" class="w-6 h-6 text-blue-600"></lucide-icon>
                   </div>
                   <div>
-                    <h4 class="font-semibold text-slate-900 mb-1">Call Us</h4>
-                    <p class="text-slate-600">(555) 123-4567</p>
+                    <h4 class="font-semibold text-slate-900 mb-1">{{ 'contact.info.website.title' | translate }}</h4>
+                    <p class="text-slate-600">
+                      <a href="https://umnagri.net" class="text-blue-700 hover:underline" target="_blank" rel="noopener">{{ 'contact.info.website.link' | translate }}</a>
+                    </p>
                   </div>
                 </div>
 
@@ -180,15 +180,17 @@
                     <lucide-icon name="mail" class="w-6 h-6 text-purple-600"></lucide-icon>
                   </div>
                   <div>
-                    <h4 class="font-semibold text-slate-900 mb-1">Email Us</h4>
-                    <p class="text-slate-600">info@ageducation.edu</p>
+                    <h4 class="font-semibold text-slate-900 mb-1">{{ 'contact.info.email.title' | translate }}</h4>
+                    <p class="text-slate-600">
+                      <a href="mailto:info@umnagri.com" class="text-purple-700 hover:underline">info@umnagri.com</a>
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
 
             <div class="pt-6 border-t border-slate-200">
-              <h4 class="font-semibold text-slate-900 mb-4">Follow Us</h4>
+              <h4 class="font-semibold text-slate-900 mb-4">{{ 'contact.info.follow' | translate }}</h4>
               <div class="flex gap-3">
                 <button class="social-btn w-12 h-12 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white p-0">
                   <lucide-icon name="facebook" class="w-5 h-5"></lucide-icon>
@@ -213,8 +215,8 @@
                 <div class="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <lucide-icon name="map-pin" class="w-8 h-8 text-white"></lucide-icon>
                 </div>
-                <p class="font-semibold text-slate-900">Interactive Map</p>
-                <p class="text-sm text-slate-600">Agricultural Education Center</p>
+                <p class="font-semibold text-slate-900">{{ 'contact.map.title' | translate }}</p>
+                <p class="text-sm text-slate-600">{{ 'contact.map.subtitle' | translate }}</p>
               </div>
             </div>
           </div>
@@ -225,9 +227,9 @@
     <!-- Quick Resources Section -->
     <div class="mt-24 max-w-6xl mx-auto resources-section">
       <div class="text-center mb-16">
-        <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 mb-4">Quick Resources</h2>
+        <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 mb-4">{{ 'contact.resources.title' | translate }}</h2>
         <p class="text-xl text-slate-600 max-w-2xl mx-auto">
-          Everything you need to get started with agricultural education
+          {{ 'contact.resources.subtitle' | translate }}
         </p>
       </div>
 
@@ -236,10 +238,10 @@
           <div class="icon-badge mb-4">
             <lucide-icon name="users" class="w-6 h-6"></lucide-icon>
           </div>
-          <h3 class="font-semibold mb-2">Program Enrollment</h3>
-          <p class="text-sm mb-4">Learn about admission requirements and application process</p>
+          <h3 class="font-semibold mb-2">{{ 'contact.resources.enrollment.title' | translate }}</h3>
+          <p class="text-sm mb-4">{{ 'contact.resources.enrollment.desc' | translate }}</p>
           <button class="btn-outline w-full rounded-xl bg-transparent">
-            Learn More
+            {{ 'contact.resources.enrollment.cta' | translate }}
           </button>
         </div>
 
@@ -247,10 +249,10 @@
           <div class="icon-badge mb-4">
             <lucide-icon name="clock" class="w-6 h-6"></lucide-icon>
           </div>
-          <h3 class="font-semibold mb-2">Course Schedules</h3>
-          <p class="text-sm mb-4">View current semester schedules and upcoming workshops</p>
+          <h3 class="font-semibold mb-2">{{ 'contact.resources.schedule.title' | translate }}</h3>
+          <p class="text-sm mb-4">{{ 'contact.resources.schedule.desc' | translate }}</p>
           <button class="btn-outline w-full rounded-xl bg-transparent">
-            View Schedule
+            {{ 'contact.resources.schedule.cta' | translate }}
           </button>
         </div>
 
@@ -258,10 +260,10 @@
           <div class="icon-badge mb-4">
             <lucide-icon name="award" class="w-6 h-6"></lucide-icon>
           </div>
-          <h3 class="font-semibold mb-2">Student Portal</h3>
-          <p class="text-sm mb-4">Access your courses, grades, and academic resources</p>
-          <button class="btn-outline w-full rounded-xl bg-transparent">
-            Access Portal
+          <h3 class="font-semibold mb-2">{{ 'contact.resources.portal.title' | translate }}</h3>
+          <p class="text-sm mb-4">{{ 'contact.resources.portal.desc' | translate }}</p>
+          <button class="btn-outline w-full rounded-2xl bg-transparent">
+            {{ 'contact.resources.portal.cta' | translate }}
           </button>
         </div>
 
@@ -269,10 +271,10 @@
           <div class="icon-badge mb-4">
             <lucide-icon name="wheat" class="w-6 h-6"></lucide-icon>
           </div>
-          <h3 class="font-semibold mb-2">Course Catalog</h3>
-          <p class="text-sm mb-4">Explore our comprehensive agricultural education programs</p>
+          <h3 class="font-semibold mb-2">{{ 'contact.resources.catalog.title' | translate }}</h3>
+          <p class="text-sm mb-4">{{ 'contact.resources.catalog.desc' | translate }}</p>
           <button class="btn-outline w-full rounded-xl bg-transparent">
-            Browse Catalog
+            {{ 'contact.resources.catalog.cta' | translate }}
           </button>
         </div>
       </div>
@@ -281,5 +283,4 @@
 
   <app-footer></app-footer>
 </div>
-
 

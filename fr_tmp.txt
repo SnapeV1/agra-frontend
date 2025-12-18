@@ -1,0 +1,436 @@
+{
+  "lang": {
+    "en": "Anglais",
+    "fr": "Français"
+  },
+  "nav": {
+    "home": "Accueil",
+    "courses": "Cours",
+    "feed": "Fil d'actualité",
+    "contact": "Contact",
+    "login": "Se connecter",
+    "adminDashboard": "Tableau admin",
+    "dashboard": "Tableau de bord",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "administration": "Administration",
+    "logout": "Se déconnecter",
+    "notifications": {
+      "title": "Notifications",
+      "markAll": "Tout marquer comme lu",
+      "clearAll": "Tout effacer",
+      "empty": "Vous êtes à jour !"
+    },
+    "admin": {
+      "search": "Rechercher...",
+      "viewUser": "Vue utilisateur"
+    }
+  },
+  "footer": {
+    "tagline": "Cultiver le savoir pour la prochaine génération d'agriculteurs.",
+    "product": {
+      "title": "Produit",
+      "home": "Accueil",
+      "courses": "Cours",
+      "feed": "Fil",
+      "verify": "Vérifier un certificat",
+      "contact": "Contact"
+    },
+    "resources": {
+      "title": "Ressources",
+      "docs": "Documentation",
+      "help": "Centre d'aide",
+      "blog": "Blog"
+    },
+    "contact": {
+      "title": "Contact",
+      "address": "Centre Tunis, Rue Alain Savary, Cité El Khadra, Tunis, Tunisie"
+    },
+    "news": {
+      "title": "Rester en contact",
+      "placeholder": "Votre e-mail",
+      "subscribe": "S'inscrire"
+    },
+    "legal": {
+      "privacy": "Confidentialité",
+      "terms": "Conditions",
+      "legal": "Mentions légales"
+    }
+  },
+  "common": {
+    "liveNow": "En direct",
+    "usersOnline": "Utilisateurs en ligne",
+    "showMore": "Voir plus",
+    "save": "Enregistrer",
+    "saved": "Enregistré",
+    "noData": "Pas de données",
+    "noPosts": "Aucun post"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "Gérez vos préférences de compte et votre personnalisation",
+    "account": {
+      "title": "Paramètres du compte",
+      "email": "Adresse e-mail",
+      "password": "Mot de passe",
+      "passwordDesc": "Sécurisez votre compte en le mettant à jour régulièrement",
+      "twoFactor": "Authentification à deux facteurs",
+      "twoFactorDesc": "Ajoutez une couche de sécurité supplémentaire"
+    },
+    "appearance": {
+      "title": "Apparence",
+      "theme": "Thème",
+      "themeDesc": "Choisissez votre thème préféré",
+      "language": "Langue",
+      "languageDesc": "Sélectionnez votre langue",
+      "light": "Clair",
+      "dark": "Sombre",
+      "saveTitle": "Enregistrer l'apparence",
+      "saveDesc": "Conserver le thème et la langue"
+    },
+    "buttons": {
+      "change": "Modifier",
+      "enable": "Activer",
+      "save": "Enregistrer",
+      "remove": "Supprimer",
+      "cancel": "Annuler",
+      "saveChanges": "Enregistrer",
+      "updatePassword": "Mettre à jour le mot de passe",
+      "request": "Demander",
+      "view": "Voir",
+      "deactivate": "Désactiver",
+      "delete": "Supprimer le compte"
+    },
+    "notifications": {
+      "title": "Préférences de notification",
+      "subtitle": "Choisissez ce que vous recevez et comment.",
+      "loading": "Chargement de vos préférences...",
+      "typesTitle": "Types de notification",
+      "typesSubtitle": "Activer ou désactiver les catégories.",
+      "likes": "Mentions J'aime :",
+      "likesDesc": "Activité lorsque quelqu'un aime vos posts.",
+      "comments": "Commentaires :",
+      "commentsDesc": "Nouveaux commentaires sur vos contenus.",
+      "replies": "Réponses :",
+      "repliesDesc": "Réponses à vos commentaires.",
+      "tickets": "Tickets :",
+      "ticketsDesc": "Mises à jour de vos tickets de support.",
+      "system": "Système :",
+      "systemDesc": "Sécurité, politique ou mises à jour de plateforme.",
+      "courses": "Cours :",
+      "coursesDesc": "Lancements, inscriptions et rappels de cours.",
+      "posts": "Posts :",
+      "postsDesc": "Nouveaux posts des personnes que vous suivez.",
+      "quietHours": "Heures silencieuses",
+      "quietHoursDesc": "Coupez les notifications selon un horaire (nuit gérée).",
+      "quietHoursEnable": "Activer les heures silencieuses",
+      "quietHoursEnableDesc": "Plage où in-app/email/push sont coupés.",
+      "start": "Début",
+      "end": "Fin",
+      "helper": "Les plages de nuit sont prises en charge (ex. 22:00 à 07:00). Les deux horaires sont requis si activé.",
+      "reset": "Réinitialiser",
+      "muteAll": "Tout couper",
+      "save": "Enregistrer les préférences",
+      "saving": "Enregistrement..."
+    },
+    "tickets": {
+      "title": "Tickets de support",
+      "subtitle": "Suivez vos conversations ou démarrez une nouvelle demande.",
+      "refresh": "Rafraîchir",
+      "refreshing": "Actualisation...",
+      "start": "Créer un ticket",
+      "close": "Fermer",
+      "subject": "Sujet",
+      "subjectPlaceholder": "Résumé bref du problème",
+      "message": "Message",
+      "messagePlaceholder": "Décrivez le problème ou la demande",
+      "attachImage": "Joindre une image",
+      "changeAttachment": "Changer la pièce jointe",
+      "submit": "Envoyer le ticket",
+      "sending": "Envoi...",
+      "loading": "Chargement de vos tickets...",
+      "emptyTitle": "Aucun ticket pour le moment",
+      "emptyDesc": "Besoin d'aide pour les cours, paiements ou votre compte ? Créez un ticket et notre équipe répondra rapidement.",
+      "ticketId": "Ticket n°",
+      "conversationLoading": "Chargement de la conversation...",
+      "noReplies": "Pas encore de réponses. Nous y travaillons !",
+      "replyPlaceholder": "Ajoutez des détails ou une question",
+      "sendReply": "Envoyer la réponse",
+      "closed": "Ce ticket est fermé. Créez-en un nouveau si besoin.",
+      "select": "Sélectionnez un ticket pour voir la conversation."
+    },
+    "privacy": {
+      "title": "Confidentialité et données",
+      "profile": "Visibilité du profil",
+      "profileDesc": "Contrôlez qui peut voir votre profil",
+      "public": "Public",
+      "friends": "Amis uniquement",
+      "private": "Privé",
+      "download": "Téléchargement de données",
+      "downloadDesc": "Téléchargez une copie de vos données",
+      "activity": "Historique d'activité",
+      "activityDesc": "Voir et gérer votre activité"
+    },
+    "danger": {
+      "title": "Zone de danger",
+      "deactivate": "Désactiver le compte",
+      "deactivateDesc": "Désactivez temporairement votre compte",
+      "delete": "Supprimer le compte",
+      "deleteDesc": "Supprime définitivement votre compte et vos données"
+    },
+    "modals": {
+      "emailTitle": "Changer l'adresse e-mail",
+      "newEmail": "Nouvelle adresse e-mail",
+      "newEmailPlaceholder": "Saisissez la nouvelle adresse",
+      "currentPassword": "Mot de passe actuel",
+      "passwordPlaceholder": "Saisissez votre mot de passe",
+      "passwordTitle": "Changer le mot de passe",
+      "newPassword": "Nouveau mot de passe",
+      "newPasswordPlaceholder": "Saisissez le nouveau mot de passe",
+      "confirmNewPassword": "Confirmer le nouveau mot de passe",
+      "confirmPasswordPlaceholder": "Confirmez le nouveau mot de passe",
+      "deleteTitle": "Supprimer le compte",
+      "deleteBody": "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est définitive et supprimera toutes vos données.",
+      "deleteConfirmLabel": "Tapez « DELETE » pour confirmer",
+      "deletePlaceholder": "DELETE"
+    }
+  },
+  "dashboard": {
+    "title": "Tableau de bord éducatif",
+    "subtitle": "Analytique complète pour votre plateforme d'apprentissage",
+    "nav": {
+      "overview": "Vue d’ensemble",
+      "users": "Utilisateurs",
+      "courses": "Cours",
+      "social": "Social",
+      "notifications": "Notifications"
+    },
+    "welcome": {
+      "eyebrow": "Bienvenue",
+      "title": "Bienvenue sur votre tableau de bord éducatif",
+      "body": "Suivez la progression des étudiants, la performance des cours et analysez les résultats d'apprentissage sur votre plateforme.",
+      "addCourse": "Ajouter un cours",
+      "viewReports": "Voir les rapports"
+    },
+    "overview": {
+      "title": "Vue d’ensemble",
+      "subtitle": "Indicateurs clés",
+      "totalUsers": "Utilisateurs totaux",
+      "activeLast30": "Actifs sur 30 jours",
+      "activeCourses": "Cours actifs",
+      "totalCourses": "Cours totaux",
+      "completionRate": "Taux d’achèvement",
+      "acrossCourses": "Sur les cours suivis",
+      "liveUsers": "Utilisateurs en direct",
+      "wsConnections": "Connexions WebSocket"
+    },
+    "activity": {
+      "title": "Activité",
+      "subtitle": "Croissance et activité dans le temps",
+      "studentDistribution": "Répartition des étudiants par pays",
+      "topCourses": "Meilleurs cours",
+      "studentsEnrolled": "étudiants inscrits",
+      "completion": "achèvement"
+    },
+    "users": {
+      "title": "Utilisateurs",
+      "subtitle": "Vue d’ensemble de votre base",
+      "summary": "Résumé utilisateurs",
+      "roles": "Répartition des rôles",
+      "quickStats": "Statistiques rapides",
+      "latestRegistrations": "Dernières inscriptions",
+      "activeCourses": "Cours actifs",
+      "completionRate": "Taux d’achèvement",
+      "growth": "Croissance utilisateurs (mensuelle)",
+      "totalUsers": "Utilisateurs totaux"
+    },
+    "social": {
+      "title": "Social",
+      "subtitle": "Activité des posts et commentaires",
+      "topPosts": "Meilleurs posts",
+      "engagementAvg": "Moyennes d’engagement",
+      "featuredPerformance": "Performance mise en avant"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Notifications utilisateurs et activité en temps réel",
+      "trend": "Tendance",
+      "readStatus": "Statut de lecture",
+      "topTypes": "Types principaux"
+    }
+  },
+  "home": {
+    "hero": {
+      "authPrompt": "Connectez-vous pour débloquer toutes les fonctionnalités",
+      "title": "Plateforme d'apprentissage YEFFA",
+      "subtitle": "Une solution e-learning de nouvelle génération conçue pour autonomiser plus de <strong>30 millions de jeunes agriculteurs</strong> à travers l'Afrique du Nord.",
+      "stats": {
+        "users": {
+          "value": "30M+",
+          "label": "Utilisateurs",
+          "desc": "Jeunes agriculteurs impactés"
+        },
+        "countries": {
+          "value": "5+",
+          "label": "Pays",
+          "desc": "Région Afrique du Nord"
+        },
+        "launch": {
+          "value": "2025",
+          "label": "Lancement",
+          "desc": "Fin d'année"
+        }
+      },
+      "cta": {
+        "getStarted": "Commencer",
+        "dashboard": "Aller au tableau de bord",
+        "contact": "Nous contacter"
+      },
+      "cards": {
+        "training": "Formation interactive",
+        "resources": "Ressources pédagogiques",
+        "cert": "Certification"
+      }
+    },
+    "overview": {
+      "title": "Présentation du projet",
+      "subtitle": "Une plateforme complète et scalable pour l'éducation agricole moderne.",
+      "objectiveTitle": "Objectif",
+      "objectiveText": "Offrir une éducation agricole moderne et de qualité à des millions de jeunes agriculteurs en Afrique du Nord.",
+      "reachTitle": "Portée régionale",
+      "reachText": "Desservir 5+ pays avec support multilingue et contenus adaptés aux besoins locaux.",
+      "innovationTitle": "Innovation",
+      "innovationText": "Personnalisation IA, modules AR, analytics modernes et outils pédagogiques engageants."
+    },
+    "features": {
+      "title": "Fonctionnalités clés",
+      "subtitle": "Tout ce qu’il faut pour un apprentissage agricole à fort impact",
+      "userMgmt": {
+        "title": "Gestion des utilisateurs",
+        "items": [
+          "Onboarding rapide pour des millions d’utilisateurs",
+          "Contrôle d’accès par rôle",
+          "Profils détaillés",
+          "Tableau de bord personnalisé"
+        ]
+      },
+      "training": {
+        "title": "Formation en ligne",
+        "items": [
+          "Streaming vidéo de haute qualité",
+          "Modules interactifs et gamifiés",
+          "Évaluations et notation automatique",
+          "Certificats d'achèvement"
+        ]
+      },
+      "collab": {
+        "title": "Collaboration",
+        "items": [
+          "Chat en temps réel entre formateurs et apprenants",
+          "Forums de discussion thématiques",
+          "Système de mentorat",
+          "Partage de connaissances"
+        ]
+      }
+    },
+    "courses": {
+      "title": "Cours populaires",
+      "subtitle": "Programmes de formation agricole les mieux notés",
+      "duration": "4 semaines",
+      "lessons": "12 leçons",
+      "domainFallback": "Agriculture",
+      "countryFallback": "Maroc",
+      "descFallback": "Description du cours indisponible.",
+      "button": {
+        "continue": "Continuer",
+        "enroll": "S'inscrire"
+      },
+      "viewAll": "Voir tous les cours",
+      "retry": "Réessayer"
+    },
+    "posts": {
+      "title": "Actualités de la communauté",
+      "subtitle": "Dernières discussions et expériences partagées",
+      "anonymous": "Anonyme",
+      "viewAll": "Voir tous les posts",
+      "retry": "Réessayer"
+    },
+    "about": {
+      "badge": "Renforcer l'agriculture nord-africaine",
+      "title": "Cultiver l'avenir de l’<span>agriculture</span>",
+      "lead": "YEFFA connecte les agriculteurs à une formation moderne, à des experts de confiance et à une communauté de partage pour développer une croissance durable en Afrique du Nord.",
+      "missionTitle": "Notre mission",
+      "missionP1": "Chaque ferme mérite des outils modernes et des savoir-faire locaux. Nous combinons science agronomique, personnalisation assistée par IA et mentorat humain pour rester ancrés dans les réalités du terrain.",
+      "missionP2": "Du Maroc à l'Égypte, nous construisons un réseau connecté d'agriculteurs, d'agronomes et de coopératives pour que le savoir circule librement et que la résilience grandisse à chaque récolte.",
+      "valuesTitle": "Nos moteurs",
+      "values": {
+        "sustainability": {
+          "title": "Durabilité",
+          "text": "Pratiques éco-responsables et climato-intelligentes qui protègent terres et moyens de subsistance."
+        },
+        "unity": {
+          "title": "Unité régionale",
+          "text": "Connecter coopératives et unions pour partager ressources et bonnes pratiques à travers les frontières."
+        },
+        "community": {
+          "title": "Communauté d'abord",
+          "text": "Mettre les agriculteurs au centre via mentorat, forums et apprentissage collaboratif."
+        },
+        "innovation": {
+          "title": "Innovation",
+          "text": "Apporter IA, simulations AR et coaching data-driven au quotidien des agriculteurs."
+        }
+      },
+      "stats": {
+        "learners": "Apprenants touchés",
+        "countries": "Pays",
+        "yield": "Gain moyen de rendement",
+        "support": "Support mentor 24/7",
+        "uptime": "Disponibilité",
+        "loadTime": "Temps de chargement",
+        "concurrent": "Utilisateurs simultanés",
+        "techSupport": "Support technique"
+      }
+    },
+    "sponsors": {
+      "title": "Sponsors et partenaires",
+      "subtitle": "Organisations soutenant la mission d'AGRA en Afrique du Nord",
+      "coming": "Les sponsors apparaîtront bientôt ici."
+    },
+    "orgs": {
+      "title": "Organisations membres",
+      "subtitle": "Réseau de partenaires nationaux.",
+      "list": {
+        "dz": {
+          "country": "Algérie",
+          "name": "Union nationale des agriculteurs algériens"
+        },
+        "eg": {
+          "country": "Égypte",
+          "name": "Union centrale des coopératives agricoles"
+        },
+        "ly": {
+          "country": "Libye",
+          "name": "Union générale des agriculteurs et éleveurs"
+        },
+        "ma": {
+          "country": "Maroc",
+          "name": "Union marocaine de l'agriculture"
+        },
+        "mr": {
+          "country": "Mauritanie",
+          "name": "Fédération mauritanienne de l'agriculture"
+        },
+        "tn": {
+          "country": "Tunisie",
+          "name": "Union tunisienne de l'agriculture et de la pêche"
+        },
+        "sd": {
+          "country": "Soudan",
+          "name": "Organisation nationale des agriculteurs"
+        }
+      }
+    }
+  }
+}
+

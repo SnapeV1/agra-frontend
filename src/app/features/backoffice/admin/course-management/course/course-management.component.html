@@ -4,12 +4,12 @@
   <div class="header mgmt-header">
     <div class="title-section">
       <p class="eyebrow">Administration</p>
-      <h1>Course Management</h1>
-      <p class="subtitle">Manage all courses and their details</p>
+      <h1>{{ 'adminPages.courseManagement.title' | translate }}</h1>
+      <p class="subtitle">{{ 'adminPages.courseManagement.subtitle' | translate }}</p>
     </div>
     <button class="btn-primary" (click)="openAddModal()">
       <i class="icon-plus"></i>
-      Add New Course
+      {{ 'adminPages.courseManagement.addCourse' | translate }}
     </button>
   </div>
 
@@ -21,7 +21,7 @@
         type="text" 
         [(ngModel)]="searchTerm"
         (ngModelChange)="onFiltersChange()"
-        placeholder="Search courses, trainer ID, domain, or country..." 
+        [placeholder]="'adminPages.courseManagement.searchPlaceholder' | translate"
         class="search-input"
         name="searchTerm"
       >
@@ -29,9 +29,9 @@
     
     <div class="filter-section">
       <select id="statusFilter" [(ngModel)]="filterStatus" (ngModelChange)="onFiltersChange()" class="filter-select">
-        <option value="all">All Courses</option>
-        <option value="active">Active</option>
-        <option value="archived">Archived</option>
+        <option value="all">{{ 'adminPages.courseManagement.filter.all' | translate }}</option>
+        <option value="active">{{ 'adminPages.courseManagement.filter.active' | translate }}</option>
+        <option value="archived">{{ 'adminPages.courseManagement.filter.archived' | translate }}</option>
       </select>
     </div>
   </div>

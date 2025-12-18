@@ -25,6 +25,7 @@ import {
   Phone,
   Mail,
   Bell,
+  Globe,
   Facebook,
   Twitter,
   Instagram,
@@ -37,6 +38,7 @@ import {
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ChatbotWidgetComponent } from './components/chatbot-widget/chatbot-widget.component';
+import { TranslateModule } from '@ngx-translate/core';
 @NgModule({
   declarations: [
     NavigationComponent,
@@ -66,6 +68,7 @@ import { ChatbotWidgetComponent } from './components/chatbot-widget/chatbot-widg
       Phone,
       Mail,
       Bell,
+      Globe,
       Facebook,
       Twitter,
       Instagram,
@@ -76,13 +79,15 @@ import { ChatbotWidgetComponent } from './components/chatbot-widget/chatbot-widg
       ArrowUp
     }),
     RouterModule,
-    FormsModule
+    FormsModule,
+    TranslateModule
   ],
   exports: [
     NavigationComponent,
     FooterComponent,
     ChatbotWidgetComponent,
-    LucideAngularModule
+    LucideAngularModule,
+    TranslateModule
   ]
 })
 export class SharedModule {

@@ -23,11 +23,26 @@
             <div class="setting-hint">Choose light or dark theme</div>
           </div>
           <div class="select-wrapper">
-            <select [(ngModel)]="theme" (change)="saveTheme()">
+            <select [(ngModel)]="theme">
               <option value="light">Light</option>
               <option value="dark">Dark</option>
             </select>
           </div>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Language</div>
+            <div class="setting-hint">Select your preferred language</div>
+          </div>
+          <div class="select-wrapper">
+            <select [(ngModel)]="language">
+              <option value="en">English</option>
+              <option value="fr">French</option>
+            </select>
+          </div>
+        </div>
+        <div class="settings-actions">
+          <button class="btn btn-primary" (click)="saveDisplayPrefs()">Save display</button>
         </div>
       </section>
 
@@ -38,24 +53,29 @@
             <h3>Admin Alerts</h3>
             <small>Quick toggles for platform alerts</small>
           </div>
-        </div>
-        <div class="setting-row" *ngFor="let pref of notificationToggles">
-          <div>
-            <div class="setting-label">{{ pref.label }}</div>
-            <div class="setting-hint">{{ pref.hint }}</div>
-          </div>
-          <label class="switch">
-            <input type="checkbox" [(ngModel)]="pref.enabled" (change)="saveNotificationPrefs()">
-            <span class="slider"></span>
-          </label>
-        </div>
-        <div class="settings-actions">
-          <button class="btn btn-primary" (click)="saveNotificationPrefs()" [disabled]="savingPrefs">
-            {{ savingPrefs ? 'Saving...' : 'Save preferences' }}
+          <button class="btn btn-secondary inline" type="button" (click)="toggleNotifications()">
+            {{ notificationsCollapsed ? 'Expand' : 'Collapse' }}
           </button>
-          <span class="status" *ngIf="prefsMessage">{{ prefsMessage }}</span>
-          <span class="status error" *ngIf="prefsError">{{ prefsError }}</span>
         </div>
+        <ng-container *ngIf="!notificationsCollapsed">
+          <div class="setting-row" *ngFor="let pref of notificationToggles">
+            <div>
+              <div class="setting-label">{{ pref.label }}</div>
+              <div class="setting-hint">{{ pref.hint }}</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" [(ngModel)]="pref.enabled" (change)="saveNotificationPrefs()">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="settings-actions">
+            <button class="btn btn-primary" (click)="saveNotificationPrefs()" [disabled]="savingPrefs">
+              {{ savingPrefs ? 'Saving...' : 'Save preferences' }}
+            </button>
+            <span class="status" *ngIf="prefsMessage">{{ prefsMessage }}</span>
+            <span class="status error" *ngIf="prefsError">{{ prefsError }}</span>
+          </div>
+        </ng-container>
       </section>
 
       <section class="settings-card">
@@ -108,7 +128,10 @@
             <div class="setting-label">Two-factor authentication</div>
             <div class="setting-hint">Require 2FA for admin sign-in</div>
           </div>
-          <div class="stack">
+          <button class="btn btn-secondary inline" type="button" (click)="toggleTwoFactor()">
+            {{ twoFactorCollapsed ? 'Expand' : 'Collapse' }}
+          </button>
+          <div class="stack" *ngIf="!twoFactorCollapsed">
             <label class="switch">
               <input type="checkbox" [(ngModel)]="twoFactorEnabled">
               <span class="slider"></span>

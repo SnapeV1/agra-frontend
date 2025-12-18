@@ -299,6 +299,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     if (this.course && this.courseEnrollment) {
       this.initializeLessons();
       this.setCurrentLesson();
+      this.refreshCompletionPercentage();
       this.loading = false;
       this.syncCertificateMetadata();
     }
@@ -641,6 +642,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
       next: (response) => {
         // Update the progress service's shared state to notify other components
         this.progressService.setCurrentProgress(this.courseEnrollment!);
+        this.refreshCompletionPercentage();
         
         // Check if course is complete
         this.checkCourseCompletion();
@@ -671,6 +673,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
           this.courseEnrollment!.progress.completed = true;
           this.courseEnrollment!.progress.completedAt = new Date();
           this.courseEnrollment!.progress.completionPercentage = 100;
+          this.refreshCompletionPercentage();
           
           // Show completion modal and generate certificate with enhanced data
           this.showCompletionModal = true;
@@ -717,6 +720,11 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Skip tracking when user is not authenticated (avoid 403 errors)
+    if (!this.authService.getToken()) {
+      return;
+    }
+
     // Additional validation for lesson ID
     if (!this.currentLesson.id) {
       return;
@@ -745,11 +753,9 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     
     // Update backend - always send request to update lastAccessedAt
     this.progressService.updateLessonProgress(this.courseId, this.currentLesson.id, lessonProgress.timeSpent).subscribe({
-      next: (response) => {
-        // Progress updated successfully
-      },
-      error: (error) => {
-        
+      next: () => {},
+      error: () => {
+        // Swallow errors to avoid surfacing when user session is invalid/expired
       }
     });
     
@@ -850,7 +856,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
   getOverallProgress(): number {
     if (!this.courseEnrollment) return 0;
     const progress = this.progressService.calculateCompletionPercentage(this.courseEnrollment.lessons);
-    
+    this.courseEnrollment.progress.completionPercentage = progress;
     return progress;
   }
 
@@ -1011,5 +1017,14 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
       return;
     }
     navigator.clipboard.writeText(this.certificateCode).catch(() => {});
+  }
+
+  private refreshCompletionPercentage(): void {
+    if (!this.courseEnrollment) {
+      return;
+    }
+    this.courseEnrollment.progress.completionPercentage = this.progressService.calculateCompletionPercentage(
+      this.courseEnrollment.lessons || []
+    );
   }
 }

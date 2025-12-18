@@ -36,60 +36,60 @@
        class="menu-item" 
        routerLinkActive="active"
        [routerLinkActiveOptions]="{ exact: false }"
-       data-tooltip="Dashboard"
+       [attr.data-tooltip]="'admin.menu.dashboard' | translate"
        (click)="setActiveMenuItem('dashboard')">
       <i class="fas fa-tachometer-alt"></i>
-      <span class="menu-text">Dashboard</span>
+      <span class="menu-text">{{ 'admin.menu.dashboard' | translate }}</span>
     </a>
 
     <a routerLink="/admin/users"
        class="menu-item" 
        routerLinkActive="active"
        [routerLinkActiveOptions]="{ exact: false }"
-       data-tooltip="Users"
+       [attr.data-tooltip]="'admin.menu.users' | translate"
        (click)="setActiveMenuItem('users')">
       <i class="fas fa-users"></i>
-      <span class="menu-text">Users</span>
+      <span class="menu-text">{{ 'admin.menu.users' | translate }}</span>
     </a>
 
     <a routerLink="/admin/posts"
        class="menu-item" 
        routerLinkActive="active"
        [routerLinkActiveOptions]="{ exact: false }"
-       data-tooltip="Posts"
+       [attr.data-tooltip]="'admin.menu.posts' | translate"
        (click)="setActiveMenuItem('posts')">
       <i class="fas fa-newspaper"></i>
-      <span class="menu-text">Posts</span>
+      <span class="menu-text">{{ 'admin.menu.posts' | translate }}</span>
     </a>
 
     <a routerLink="/admin/courses"
        class="menu-item" 
        routerLinkActive="active"
        [routerLinkActiveOptions]="{ exact: false }"
-       data-tooltip="Courses"
+       [attr.data-tooltip]="'admin.menu.courses' | translate"
        (click)="setActiveMenuItem('courses')">
       <i class="fas fa-graduation-cap"></i>
-      <span class="menu-text">Courses</span>
+      <span class="menu-text">{{ 'admin.menu.courses' | translate }}</span>
     </a>
 
     <a routerLink="/admin/tickets"
        class="menu-item"
        routerLinkActive="active"
        [routerLinkActiveOptions]="{ exact: false }"
-       data-tooltip="Tickets"
+       [attr.data-tooltip]="'admin.menu.tickets' | translate"
        (click)="setActiveMenuItem('tickets')">
       <i class="fas fa-ticket-alt"></i>
-      <span class="menu-text">Tickets</span>
+      <span class="menu-text">{{ 'admin.menu.tickets' | translate }}</span>
     </a>
 
     <a routerLink="/admin/certificates"
        class="menu-item"
        routerLinkActive="active"
        [routerLinkActiveOptions]="{ exact: false }"
-       data-tooltip="Certificates"
+        [attr.data-tooltip]="'admin.menu.certificates' | translate"
        (click)="setActiveMenuItem('certificates')">
       <i class="fas fa-certificate"></i>
-      <span class="menu-text">Certificates</span>
+      <span class="menu-text">{{ 'admin.menu.certificates' | translate }}</span>
     </a>
 
   </div>

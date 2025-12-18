@@ -3,27 +3,27 @@
   <!-- Left News Sidebar -->
   <aside class="side-news left">
     <div class="news-header">
-      <h3 class="section-title">Agri News</h3>
-      <span class="section-subtitle">Latest updates</span>
+      <h3 class="section-title">{{ 'feed.left.title' | translate }}</h3>
+      <span class="section-subtitle">{{ 'feed.left.subtitle' | translate }}</span>
     </div>
     <ul class="news-list" *ngIf="leftNews.length > 0; else leftNewsEmpty">
       <li *ngFor="let item of leftNews | slice:0:leftNewsLimit">
         <a class="news-item" [href]="item.url" target="_blank" rel="noopener noreferrer">
           <div class="news-item-title">{{ item.title }}</div>
           <div class="news-item-meta">
-            {{ item.country || 'Global' }} • {{ item.publishedAt | date:'short' }}
+            {{ item.country || ('feed.left.countryFallback' | translate) }} • {{ item.publishedAt | date:'short' }}
           </div>
         </a>
       </li>
     </ul>
     <div class="view-more-container" *ngIf="leftNews.length > leftNewsLimit">
-      <button class="view-more-btn" (click)="showMoreLeft()">View more</button>
+      <button class="view-more-btn" (click)="showMoreLeft()">{{ 'feed.left.viewMore' | translate }}</button>
     </div>
     <ng-template #leftNewsEmpty>
       <ul class="news-list">
         <li class="news-item">
-          <div class="news-item-title">No news yet</div>
-          <div class="news-item-meta">Will appear once available</div>
+          <div class="news-item-title">{{ 'feed.left.emptyTitle' | translate }}</div>
+          <div class="news-item-meta">{{ 'feed.left.emptySubtitle' | translate }}</div>
         </li>
       </ul>
     </ng-template>
@@ -33,18 +33,18 @@
   <div class="feed-container">
   <div class="feed-header">
     <div class="feed-header-left">
-      <h2>Feed</h2>
+      <h2>{{ 'feed.header.title' | translate }}</h2>
       <div *ngIf="newPostAvailable" class="refresh-chip" (click)="refreshPosts()" role="button" tabindex="0">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <polyline points="23 4 23 10 17 10" />
           <polyline points="1 20 1 14 7 14" />
           <path d="M3.51 9a9 9 0 0 1 14.88-3.36L23 10M1 14l4.62 4.62A9 9 0 0 0 20.49 15" />
         </svg>
-        <span>New posts</span>
+        <span>{{ 'feed.header.newPosts' | translate }}</span>
       </div>
     </div>
     <div *ngIf="!isAuthenticated" class="auth-status login-prompt">
-      <p>Please <a routerLink="/login">log in</a> to interact with posts</p>
+      <p>{{ 'feed.header.loginPrompt' | translate }} <a routerLink="/login">{{ 'feed.header.loginLink' | translate }}</a> {{ 'feed.header.loginRest' | translate }}</p>
     </div>
   </div>
 
@@ -119,7 +119,7 @@
           (mouseenter)="onLikeHover(post)"
           (mouseleave)="onLikeLeave(post)"
           [attr.data-liked]="post.isLikedByCurrentUser"
-          [attr.aria-label]="post.isLikedByCurrentUser ? 'Unlike post' : 'Like post'">
+          [attr.aria-label]="post.isLikedByCurrentUser ? ('feed.actions.unlike' | translate) : ('feed.actions.like' | translate)">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
           </svg>
@@ -130,7 +130,7 @@
         <button
           class="action-btn comment-btn"
           (click)="toggleComments(post)"
-          [attr.aria-label]="'View comments'">
+          [attr.aria-label]="'feed.actions.viewComments' | translate">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
@@ -140,7 +140,7 @@
         <!-- Share Button -->
         <button
           class="action-btn share-btn"
-          aria-label="Share post"
+          [attr.aria-label]="'feed.actions.share' | translate"
           [class.disabled]="!canInteract()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
@@ -171,7 +171,7 @@
                   [class.liked]="comment.isLikedByCurrentUser"
                   [class.disabled]="!canInteract()"
                   (click)="toggleCommentLike(comment)"
-                  [attr.aria-label]="comment.isLikedByCurrentUser ? 'Unlike comment' : 'Like comment'">
+                  [attr.aria-label]="comment.isLikedByCurrentUser ? ('feed.actions.unlikeComment' | translate) : ('feed.actions.likeComment' | translate)">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                   </svg>
@@ -189,14 +189,14 @@
             <textarea
               [(ngModel)]="post.newComment"
               (keydown)="onCommentKeyPress($event, post)"
-              placeholder="Write a comment..."
+              [placeholder]="'feed.actions.commentPlaceholder' | translate"
               class="comment-input"
               rows="1"></textarea>
             <button
               class="send-comment-btn"
               (click)="addComment(post)"
               [disabled]="!post.newComment?.trim()"
-              aria-label="Post comment">
+              [attr.aria-label]="'feed.actions.postComment' | translate">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <line x1="22" y1="2" x2="11" y2="13" />
                 <polygon points="22,2 15,22 11,13 2,9 22,2" />
@@ -208,7 +208,7 @@
         <!-- Login Prompt for Guests -->
         <div class="login-to-comment" *ngIf="!canInteract()">
           <p class="login-message">
-            <a routerLink="/login">Log in</a> to comment on this post
+            <a routerLink="/login">{{ 'feed.actions.login' | translate }}</a> {{ 'feed.actions.loginToComment' | translate }}
           </p>
         </div>
       </div>
@@ -216,7 +216,7 @@
 
     <!-- Empty State -->
     <div class="empty-state" *ngIf="posts.length === 0 && !loading">
-      <p>No posts available at the moment.</p>
+      <p>{{ 'feed.empty' | translate }}</p>
     </div>
   </div>
   </div>
@@ -224,27 +224,27 @@
   <!-- Right News Sidebar -->
   <aside class="side-news right">
     <div class="news-header">
-      <h3 class="section-title">Weather & Advisory</h3>
-      <span class="section-subtitle">Regional insights</span>
+      <h3 class="section-title">{{ 'feed.right.title' | translate }}</h3>
+      <span class="section-subtitle">{{ 'feed.right.subtitle' | translate }}</span>
     </div>
     <ul class="news-list" *ngIf="rightNews.length > 0; else rightNewsEmpty">
       <li *ngFor="let item of rightNews | slice:0:rightNewsLimit">
         <a class="news-item" [href]="item.url" target="_blank" rel="noopener noreferrer">
           <div class="news-item-title">{{ item.title }}</div>
           <div class="news-item-meta">
-            {{ item.country || 'Global' }} • {{ item.publishedAt | date:'short' }}
+            {{ item.country || ('feed.right.countryFallback' | translate) }} • {{ item.publishedAt | date:'short' }}
           </div>
         </a>
       </li>
     </ul>
     <div class="view-more-container" *ngIf="rightNews.length > rightNewsLimit">
-      <button class="view-more-btn" (click)="showMoreRight()">View more</button>
+      <button class="view-more-btn" (click)="showMoreRight()">{{ 'feed.right.viewMore' | translate }}</button>
     </div>
     <ng-template #rightNewsEmpty>
       <ul class="news-list">
         <li class="news-item">
-          <div class="news-item-title">No advisories yet</div>
-          <div class="news-item-meta">Will appear once available</div>
+          <div class="news-item-title">{{ 'feed.right.emptyTitle' | translate }}</div>
+          <div class="news-item-meta">{{ 'feed.right.emptySubtitle' | translate }}</div>
         </li>
       </ul>
     </ng-template>

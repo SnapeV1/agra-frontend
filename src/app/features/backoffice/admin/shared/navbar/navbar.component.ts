@@ -16,6 +16,7 @@ import { filter } from 'rxjs/operators';
 import { AuthUser } from 'src/app/core/models/auth-user.model';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { SidebarService } from '../../services/sidebar.service';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface BreadcrumbItem {
   label: string;
@@ -33,6 +34,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   notifications: NotificationItem[] = [];
   isNotifOpen = false;
   pageTitle: string = 'Dashboard';
+  pageTitleKey: string | null = 'admin.menu.dashboard';
   breadcrumbs: BreadcrumbItem[] = [];
   searchQuery: string = '';
   isDropdownOpen = false;
@@ -57,6 +59,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private routerSubscription!: Subscription;
   private userSubscription!: Subscription;
   private notifSubs: Subscription[] = [];
+  private adminTitleMap: Record<string, string> = {
+    dashboard: 'admin.menu.dashboard',
+    users: 'admin.menu.users',
+    posts: 'admin.menu.posts',
+    courses: 'admin.menu.courses',
+    tickets: 'admin.menu.tickets',
+    certificates: 'admin.menu.certificates',
+    settings: 'nav.settings'
+  };
 
   constructor(
     private router: Router,
@@ -64,7 +75,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private eRef: ElementRef,
     private notificationService: NotificationService,
     private courseService: CourseService,
-    public sidebarService: SidebarService
+    public sidebarService: SidebarService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {
@@ -288,9 +300,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
     const parts = url.split('/').filter(Boolean);
 
     // Default title
+    this.pageTitleKey = parts.length > 0 ? null : 'admin.menu.dashboard';
     this.pageTitle = parts.length > 0
       ? parts[parts.length - 1].replace(/-/g, ' ').toUpperCase()
-      : 'Dashboard';
+      : this.translate.instant('admin.menu.dashboard');
 
     // Special handling for Admin section breadcrumbs
     if (parts[0] === 'admin') {
@@ -325,17 +338,18 @@ export class NavbarComponent implements OnInit, OnDestroy {
       // Append the rest segments in order, mapping names/links sensibly
       for (let i = 1; i < parts.length; i++) {
         const seg = parts[i];
-        if (seg === 'courses') {
-          crumbs.push({ label: 'Courses', route: '/admin/courses' });
-        } else {
-          const label = seg.charAt(0).toUpperCase() + seg.slice(1);
-          crumbs.push({ label, route: '/' + parts.slice(0, i + 1).join('/') });
-        }
+        const labelKey = this.adminTitleMap[seg];
+        const label = labelKey ? this.translate.instant(labelKey) : seg.charAt(0).toUpperCase() + seg.slice(1);
+        crumbs.push({ label, route: '/' + parts.slice(0, i + 1).join('/') });
       }
       this.breadcrumbs = crumbs;
       // Adjust title for known segments
       const last = parts[parts.length - 1];
-      if (last === 'courses') this.pageTitle = 'COURSES';
+      const mapped = this.adminTitleMap[last];
+      if (mapped) {
+        this.pageTitleKey = mapped;
+        this.pageTitle = this.translate.instant(mapped);
+      }
       return;
     }
 

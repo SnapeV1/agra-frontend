@@ -8,6 +8,7 @@ import { NavbarComponent } from './navbar/navbar.component';
 import { FooterComponent } from './footer/footer.component';
 import { BaseLayoutComponent } from './base-layout/base-layout.component';
 import { SidebarService } from '../services/sidebar.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { SidebarService } from '../services/sidebar.service';
   imports: [
     CommonModule,
     RouterModule,
-    FormsModule
+    FormsModule,
+    TranslateModule
   ],
   exports: [
     SidebarComponent,
@@ -27,7 +29,8 @@ import { SidebarService } from '../services/sidebar.service';
     FooterComponent,
     BaseLayoutComponent,
     RouterModule,
-    FormsModule
+    FormsModule,
+    TranslateModule
   ],
   providers: [
     SidebarService

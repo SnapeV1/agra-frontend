@@ -180,7 +180,7 @@ export class ProgressService {
     const completedLessons = lessons.filter(lesson => lesson.completed).length;
     const percentage = Math.round((completedLessons / lessons.length) * 100);
     
-    return percentage;
+    return Math.min(100, Math.max(0, percentage));
   }
 
   // Get total time spent on course

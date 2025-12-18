@@ -6,6 +6,7 @@ import { AuthGuard } from './core/guards/authguards.guard';
 import { AdminGuard } from './core/guards/admin.guard';
 import { FeedComponent } from './features/frontoffice/feed/feed.component';
 import { ContactComponent } from './features/frontoffice/contact/contact.component';
+import { VerifyCertificateComponent } from './features/frontoffice/verify-certificate/verify-certificate.component';
 
 
 
@@ -14,6 +15,8 @@ const routes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full' },
 
   { path: 'home', component: HomeComponent },
+  { path: 'verifyCertificate', component: VerifyCertificateComponent },
+  { path: 'verifyCertificate/:code', component: VerifyCertificateComponent },
   {
     path: 'settings',
     loadChildren: () =>

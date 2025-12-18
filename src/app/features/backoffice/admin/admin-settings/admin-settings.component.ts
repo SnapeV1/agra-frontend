@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
+import { LanguageService } from 'src/app/core/services/language.service';
 
 interface TogglePref {
   key: string;
@@ -29,7 +30,8 @@ theme: 'light' | 'dark' = (() => {
     const resolved = prefersDark ? 'dark' : 'light';
     try { localStorage.setItem('pref_theme', resolved); } catch {}
     return resolved as 'light' | 'dark';
-  })();  notificationToggles: TogglePref[] = [
+  })();
+  notificationToggles: TogglePref[] = [
     { key: 'system', label: 'System alerts', hint: 'Platform health and uptime notices', enabled: true },
     { key: 'posts', label: 'Post activity', hint: 'New reports or flagged posts', enabled: true },
     { key: 'courses', label: 'Course updates', hint: 'Course publishing and approvals', enabled: true },
@@ -62,10 +64,14 @@ theme: 'light' | 'dark' = (() => {
   twoFactorError = '';
   showEmailForm = false;
   showPasswordForm = false;
+  notificationsCollapsed = false;
+  twoFactorCollapsed = false;
+  language = localStorage.getItem('pref_lang') || 'en';
 
   constructor(
     private auth: AuthService,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private languageService: LanguageService
   ) {
  
     this.applyThemeToRoot();
@@ -89,14 +95,16 @@ theme: 'light' | 'dark' = (() => {
     } catch {}
   }
 
-  saveTheme(): void {
+  saveDisplayPrefs(): void {
     try { localStorage.setItem('pref_theme', this.theme); } catch {}
+    try { localStorage.setItem('pref_lang', this.language); } catch {}
     this.applyThemeToRoot();
-    this.profileService.updateUserProfile({ themePreference: this.theme }).subscribe({
+    this.languageService.setLanguage(this.language);
+    this.profileService.updateUserProfile({ themePreference: this.theme, language: this.language }).subscribe({
       next: () => {
         const current = this.auth.currentUserValue?.user;
         if (current) {
-          this.auth.updateCurrentUser({ ...current, themePreference: this.theme } as any);
+          this.auth.updateCurrentUser({ ...current, themePreference: this.theme, language: this.language } as any);
         }
       },
       error: () => {}
@@ -230,5 +238,13 @@ theme: 'light' | 'dark' = (() => {
       this.pwMessage = '';
       this.pwError = '';
     }
+  }
+
+  toggleNotifications(): void {
+    this.notificationsCollapsed = !this.notificationsCollapsed;
+  }
+
+  toggleTwoFactor(): void {
+    this.twoFactorCollapsed = !this.twoFactorCollapsed;
   }
 }

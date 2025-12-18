@@ -8,6 +8,8 @@ import { environment } from 'src/environments/environment';
 export interface CertificateData {
   id: string;
   studentName: string;
+  studentEmail?: string;
+  studentBirthdate?: string;
   studentId: string;
   courseId: string;
   courseTitle: string;
@@ -43,6 +45,8 @@ export interface CertificateVerificationResult {
   isValid: boolean;
   certificateData?: CertificateData;
   errorMessage?: string;
+  revoked?: boolean;
+  revokedReason?: string;
 }
 
 @Injectable({
@@ -196,6 +200,8 @@ export class CertificateService {
     return {
       id: response.id,
       studentName: response.studentName,
+      studentEmail: response.studentEmail || response.email || response.userEmail,
+      studentBirthdate: response.studentBirthdate || response.birthdate,
       studentId: response.studentId,
       courseId: response.courseId,
       courseTitle: response.courseTitle,
@@ -221,11 +227,21 @@ export class CertificateService {
       return { isValid: false, errorMessage: 'Certificate not found' };
     }
     const certificatePayload = response.certificate || response.data || response;
-    const isValid = response.isValid !== false && !!certificatePayload;
+    const validFlag = response.valid;
+    const isValidFlag = response.isValid;
+    const isValid = (validFlag !== undefined ? validFlag : isValidFlag) !== false && !!certificatePayload;
+    const revoked = isValid === false && (response.revoked === true || response.status === 'revoked' || response.revokedReason);
+    const revokedReason = response.revokedReason || response.reason || response.message;
     return {
       isValid,
+      revoked,
+      revokedReason: revoked ? revokedReason : undefined,
       certificateData: isValid ? this.mapResponseToCertificateData(certificatePayload) : undefined,
-      errorMessage: isValid ? undefined : (response.errorMessage || 'Invalid certificate code')
+      errorMessage: isValid
+        ? undefined
+        : revoked
+          ? revokedReason || 'This certificate has been revoked.'
+          : (response.errorMessage || response.message || 'Invalid certificate code')
     };
   }
 

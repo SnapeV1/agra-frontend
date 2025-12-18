@@ -1,6 +1,6 @@
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import {
   AlertTriangle,
   ArrowDown,
@@ -35,6 +35,7 @@ import {
   Instagram,
   Layers,
   Leaf,
+  Shield,
   Linkedin,
   Loader2,
   LogOut,
@@ -77,8 +78,12 @@ import { FeedModule } from './features/frontoffice/feed/feed.module';
 import { RouterModule } from '@angular/router';
 import { ContactModule } from './features/frontoffice/contact/contact.module';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { LanguageInterceptor } from './core/interceptors/language.interceptor';
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { VerifyCertificateComponent } from './features/frontoffice/verify-certificate/verify-certificate.component';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 const lucideIcons = {
   AlertTriangle,
   ArrowDown,
@@ -113,6 +118,7 @@ const lucideIcons = {
   Instagram,
   Layers,
   Leaf,
+  Shield,
   Linkedin,
   Loader2,
   LogOut,
@@ -161,6 +167,7 @@ const lucideIconAliases = {
   github: Github,
   instagram: Instagram,
   leaf: Leaf,
+  shield: Shield,
   linkedin: Linkedin,
   'log-out': LogOut,
   mail: Mail,
@@ -195,6 +202,7 @@ export function initializeAuth(authService: AuthService) {
   declarations: [
     AppComponent,
     HomeComponent,
+    VerifyCertificateComponent,
 
     
   
@@ -213,7 +221,14 @@ export function initializeAuth(authService: AuthService) {
     FeedModule,
     RouterModule,
     BrowserAnimationsModule,
-    LucideAngularModule.pick({ ...lucideIcons, ...lucideIconAliases }),
+    LucideAngularModule.pick(lucideIcons),
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient]
+      }
+    }),
      ToastrModule.forRoot({
       positionClass: 'toast-bottom-right',
       preventDuplicates: true,
@@ -228,8 +243,13 @@ export function initializeAuth(authService: AuthService) {
       deps: [AuthService],
       multi: true
     },
+    { provide: HTTP_INTERCEPTORS, useClass: LanguageInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+
+export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}

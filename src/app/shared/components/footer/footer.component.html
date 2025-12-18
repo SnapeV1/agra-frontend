@@ -1,4 +1,4 @@
-﻿<!-- Footer -->
+<!-- Footer -->
 <footer class="site-footer">
   <div class="footer-container">
     <!-- Top brand area -->
@@ -7,53 +7,54 @@
         <img src="assets/logo2.png" alt="AGRA"/>
         <span class="brand-name">AGRA Platform</span>
       </div>
-      <p class="brand-tagline">Cultivating knowledge for the next generation of farmers.</p>
+      <p class="brand-tagline">{{ 'footer.tagline' | translate }}</p>
     </div>
 
     <!-- Grid -->
     <div class="links-grid">
       <div class="col" role="navigation" aria-label="Product links">
-        <h4>Product</h4>
+        <h4>{{ 'footer.product.title' | translate }}</h4>
         <ul>
-          <li><a routerLink="/home" aria-label="Go to Home page">Home</a></li>
-          <li><a routerLink="/courses" aria-label="Browse Courses">Courses</a></li>
-          <li><a routerLink="/feed" aria-label="Open Feed">Feed</a></li>
-          <li><a routerLink="/contact" aria-label="Contact us">Contact</a></li>
+          <li><a routerLink="/home" aria-label="Go to Home page">{{ 'footer.product.home' | translate }}</a></li>
+          <li><a routerLink="/courses" aria-label="Browse Courses">{{ 'footer.product.courses' | translate }}</a></li>
+          <li><a routerLink="/feed" aria-label="Open Feed">{{ 'footer.product.feed' | translate }}</a></li>
+          <li><a routerLink="/verifyCertificate" aria-label="Verify a certificate">{{ 'footer.product.verify' | translate }}</a></li>
+          <li><a routerLink="/contact" aria-label="Contact us">{{ 'footer.product.contact' | translate }}</a></li>
         </ul>
       </div>
 
       <div class="col" role="navigation" aria-label="Resources links">
-        <h4>Resources</h4>
+        <h4>{{ 'footer.resources.title' | translate }}</h4>
         <ul>
-          <li><a href="#" rel="noopener" aria-label="View documentation">Documentation</a></li>
-          <li><a href="#" rel="noopener" aria-label="Visit help center">Help Center</a></li>
-          <li><a href="#" rel="noopener" aria-label="Read our blog">Blog</a></li>
+          <li><a href="#" rel="noopener" aria-label="View documentation">{{ 'footer.resources.docs' | translate }}</a></li>
+          <li><a href="#" rel="noopener" aria-label="Visit help center">{{ 'footer.resources.help' | translate }}</a></li>
+          <li><a href="#" rel="noopener" aria-label="Read our blog">{{ 'footer.resources.blog' | translate }}</a></li>
         </ul>
       </div>
 
       <div class="col">
-        <h4>Contact</h4>
+        <h4>{{ 'footer.contact.title' | translate }}</h4>
         <ul class="contact">
           <li>
             <lucide-icon name="map-pin"></lucide-icon>
-            <span>Rabat, Morocco</span>
+            <span>{{ 'footer.contact.address' | translate }}</span>
           </li>
           <li>
-            <lucide-icon name="phone"></lucide-icon>
-            <span>+212 5XX XX XX XX</span>
+            <lucide-icon name="globe"></lucide-icon>
+            <span><a href="https://umnagri.net" target="_blank" rel="noopener">umnagri.net</a></span>
           </li>
           <li>
             <lucide-icon name="mail"></lucide-icon>
-            <span>contact@agra-platform.com</span>
+            <span><a href="mailto:info@umnagri.com">info@umnagri.com</a></span>
           </li>
         </ul>
       </div>
 
       <div class="col">
-        <h4>Stay in touch</h4>
+        <h4>{{ 'footer.news.title' | translate }}</h4>
         <form class="newsletter" (submit)="$event.preventDefault()" role="form" aria-label="Newsletter subscription">
-          <input type="email" placeholder="Your email" aria-label="Email address"/>
-          <button type="submit" aria-label="Subscribe to newsletter">Subscribe</button>
+          <input type="email" [placeholder]="'footer.news.placeholder' | translate" aria-label="Email address"/>
+          <button type="submit" aria-label="Subscribe to newsletter">{{ 'footer.news.subscribe' | translate }}</button>
         </form>
         <div class="social">
           <a href="#" aria-label="Facebook"><lucide-icon name="facebook" aria-hidden="true"></lucide-icon></a>
@@ -70,9 +71,9 @@
     <div class="bottom">
       <span>&copy; {{ year }} AGRA Platform</span>
       <div class="legal" role="navigation" aria-label="Legal links">
-        <a href="#" aria-label="Privacy policy">Privacy</a>
-        <a href="#" aria-label="Terms of service">Terms</a>
-        <a href="#" aria-label="Legal information">Legal</a>
+        <a href="#" aria-label="Privacy policy">{{ 'footer.legal.privacy' | translate }}</a>
+        <a href="#" aria-label="Terms of service">{{ 'footer.legal.terms' | translate }}</a>
+        <a href="#" aria-label="Legal information">{{ 'footer.legal.legal' | translate }}</a>
       </div>
     </div>
   </div>

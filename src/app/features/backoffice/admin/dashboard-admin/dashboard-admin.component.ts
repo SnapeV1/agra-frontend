@@ -1,5 +1,6 @@
 import { Component, type OnInit, type OnDestroy } from "@angular/core"
 import { AnalyticsService } from "src/app/core/services/analytics.service";
+import { LanguageService } from "src/app/core/services/language.service";
 import { forkJoin, of } from "rxjs";
 import { catchError, map } from "rxjs/operators";
 import { ChartData, ChartOptions, Chart, LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip, Legend } from 'chart.js';
@@ -44,16 +45,25 @@ interface GrowthPoint {
 export class DashboardAdminComponent implements OnInit, OnDestroy {
   metrics: Metric[] = []
   otherMetrics: Metric[] = []
+  averageCompletion = 0
+  roleColors: string[] = ['#3b82f6', '#10b981', '#f59e0b', '#f43f5e', '#06b6d4', '#8b5cf6']
+  activeSection: 'overview' | 'users' | 'courses' | 'social' | 'notifications' | 'activity' = 'overview'
+  languages = [
+    { code: 'en', labelKey: 'lang.en' },
+    { code: 'fr', labelKey: 'lang.fr' }
+  ]
+  currentLang = 'en'
+  displayPrefsSaved = false
 
   studentDistribution: Country[] = [
-    { name: "United States", flag: "🇺🇸", students: 8420, percentage: 34.3 },
-    { name: "United Kingdom", flag: "🇬🇧", students: 3680, percentage: 15.0 },
-    { name: "Canada", flag: "🇨🇦", students: 2940, percentage: 12.0 },
-    { name: "Australia", flag: "🇦🇺", students: 2210, percentage: 9.0 },
-    { name: "Germany", flag: "🇩🇪", students: 1970, percentage: 8.0 },
-    { name: "France", flag: "🇫🇷", students: 1720, percentage: 7.0 },
-    { name: "India", flag: "🇮🇳", students: 1480, percentage: 6.0 },
-    { name: "Others", flag: "🌍", students: 2160, percentage: 8.7 },
+    { name: "United States", flag: "????", students: 8420, percentage: 34.3 },
+    { name: "United Kingdom", flag: "????", students: 3680, percentage: 15.0 },
+    { name: "Canada", flag: "????", students: 2940, percentage: 12.0 },
+    { name: "Australia", flag: "????", students: 2210, percentage: 9.0 },
+    { name: "Germany", flag: "????", students: 1970, percentage: 8.0 },
+    { name: "France", flag: "????", students: 1720, percentage: 7.0 },
+    { name: "India", flag: "????", students: 1480, percentage: 6.0 },
+    { name: "Others", flag: "??", students: 2160, percentage: 8.7 },
   ]
 
   topCourses: Course[] = []
@@ -66,12 +76,27 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
   rolesList: { role: string; count: number }[] = []
   coursesSummary = { published: 0, archived: 0, total: 0 }
   // Social + notifications + registrations
-topPostsList: {
-  content: string;
-  author: string;
-  authorImage: string;
-  engagement: number;
-}[] = [];
+  allTopPosts: {
+    id?: string;
+    content: string;
+    author: string;
+    authorImage: string;
+    engagement: number;
+    likes: number;
+    comments: number;
+    createdAt?: string;
+  }[] = [];
+  topPostsList: {
+    id?: string;
+    content: string;
+    author: string;
+    authorImage: string;
+    engagement: number;
+    likes: number;
+    comments: number;
+    createdAt?: string;
+  }[] = [];
+  showAllPosts = false;
   engagementAverages: Record<string, any> | null = null
   engagementAverageEntries: { label: string; value: string }[] = []
   featuredPerformance: Record<string, any> | null = null
@@ -121,12 +146,16 @@ topPostsList: {
   public commentsChartData: ChartData<'line'> = { labels: [], datasets: [{ data: [], label: 'Comments', borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.15)', fill: true, tension: 0.35 }] }
   public notificationsChartData: ChartData<'line'> = { labels: [], datasets: [{ data: [], label: 'Notifications', borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.15)', fill: true, tension: 0.35 }] }
 
-  constructor(private analytics: AnalyticsService) {}
+  constructor(private analytics: AnalyticsService, private languageService: LanguageService) {}
 
   ngOnInit(): void {
     Chart.register(LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip, Legend)
     // Apply theme-aware chart styling now and on theme changes
     this.applyChartTheme()
+    this.currentLang = this.languageService.current
+    this.languageService.language$?.subscribe(lang => {
+      if (lang) this.currentLang = lang
+    })
     try {
       this.themeObserver = new MutationObserver(() => this.applyChartTheme())
       const root = document.documentElement
@@ -207,6 +236,7 @@ topPostsList: {
           const archivedCourses = this.pickNumber(data.courseSummary$, ['archived'])
           const totalCourses = this.pickNumber(data.courseSummary$, ['total', 'all', 'count'])
           const avgCompletion = this.averageFromArray(data.completion$, ['completion', 'completionRate', 'rate'])
+          this.averageCompletion = Math.round(avgCompletion * 10) / 10
           const certificatesThisPeriod = this.sumArrayValues(data.certificates$, ['count', 'value', 'total'])
           this.coursesSummary = { published: publishedCourses, archived: archivedCourses, total: totalCourses }
 
@@ -323,13 +353,17 @@ topPostsList: {
           this.notificationsChartData = { labels: notifT.map(x=>fmt(x.d)), datasets: [{ ...(this.notificationsChartData.datasets[0] as any), data: notifT.map(x=>x.c) }] }
 
           // Top posts simple list
-this.topPostsList = (data.topPosts$ as any[]).map((p: any) => ({
-  id: p._id?.$oid || p._id || '',
-  content: p.content || '',
-  author: p.user_info?.name || 'Unknown User',
-  authorImage: p.user_info?.picture || '',
-  engagement: Number(p.engagement || p.likes_count || 0)
-}));
+          this.allTopPosts = (data.topPosts$ as any[]).map((p: any) => ({
+            id: p._id?.$oid || p._id || '',
+            content: p.content || '',
+            author: p.user_info?.name || 'Unknown User',
+            authorImage: p.user_info?.picture || '',
+            engagement: Number(p.engagement || p.likes_count || 0),
+            likes: Number(p.likes_count || p.likes || p.likesCount || 0),
+            comments: Number(p.comments_count || p.comments || p.commentCount || 0),
+            createdAt: p.createdAt || p.created_at || p.date || p.timestamp || null,
+          }))
+          this.topPostsList = this.showAllPosts ? this.allTopPosts : this.allTopPosts.slice(0, 3)
           // Engagement averages + featured performance
           this.engagementAverages = (data.engagementAvg$ as any) || null
           this.engagementAverageEntries = this.normalizeKeyValue(this.engagementAverages)
@@ -471,5 +505,52 @@ this.topPostsList = (data.topPosts$ as any[]).map((p: any) => ({
 
   getStars(rating: number): number[] {
     return Array(Math.floor(rating)).fill(0)
+  }
+
+  formatDate(value: any): string {
+    if (!value) return ''
+    try {
+      const date = new Date(value)
+      if (isNaN(date.getTime())) return ''
+      return date.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+    } catch {
+      return ''
+    }
+  }
+
+  get latestRegistrationCount(): number {
+    if (!this.registrationsSeries || !this.registrationsSeries.length) return 0
+    const last = this.registrationsSeries[this.registrationsSeries.length - 1]
+    return last?.count || 0
+  }
+
+  onAddCourse(): void {
+    this.setSection('courses')
+  }
+
+  onViewReports(): void {
+    this.setSection('users')
+  }
+
+  setSection(section: DashboardAdminComponent['activeSection']): void {
+    this.activeSection = section
+  }
+
+  onShowAllPosts(): void {
+    this.showAllPosts = true
+    this.topPostsList = this.allTopPosts
+  }
+
+  onLanguageChange(lang: string): void {
+    this.currentLang = lang
+    this.languageService.setLanguage(lang)
+  }
+
+  saveDisplayPrefs(): void {
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'
+    try { localStorage.setItem('pref_theme', theme) } catch {}
+    this.languageService.setLanguage(this.currentLang || 'en')
+    this.displayPrefsSaved = true
+    setTimeout(() => this.displayPrefsSaved = false, 1500)
   }
 }

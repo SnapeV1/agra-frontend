@@ -5,6 +5,7 @@ import { AuthUser } from 'src/app/core/models/auth-user.model';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { NotificationItem, NotificationType } from 'src/app/core/models/notification.model';
+import { LanguageService } from 'src/app/core/services/language.service';
 
 @Component({
   selector: 'app-navigation',
@@ -29,9 +30,12 @@ export class NavigationComponent implements OnInit, OnDestroy {
     public router: Router,
     public authService: AuthService,
     private notificationService: NotificationService,
+    private languageService: LanguageService
   ) {}
 
   ngOnInit(): void {
+    // Ensure language service initializes and applies current language
+    this.languageService.setLanguage(this.languageService.current || 'en');
     this.subscribeToAuthState();
     this.checkTokenExpiration();
     // Initialize notifications only when authenticated

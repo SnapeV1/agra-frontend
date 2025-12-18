@@ -8,10 +8,10 @@
           
 
 <div class="nav-menu">
-    <a [routerLink]="'/home'" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="onNavLinkClick()">Home</a>
-    <a [routerLink]="'/courses'" routerLinkActive="active" (click)="onNavLinkClick()">Courses</a>
-    <a [routerLink]="'/feed'" routerLinkActive="active" (click)="onNavLinkClick()">Feed</a>
-    <a [routerLink]="'/contact'" routerLinkActive="active" (click)="onNavLinkClick()">Contact us</a>
+    <a [routerLink]="'/home'" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="onNavLinkClick()">{{ 'nav.home' | translate }}</a>
+    <a [routerLink]="'/courses'" routerLinkActive="active" (click)="onNavLinkClick()">{{ 'nav.courses' | translate }}</a>
+    <a [routerLink]="'/feed'" routerLinkActive="active" (click)="onNavLinkClick()">{{ 'nav.feed' | translate }}</a>
+    <a [routerLink]="'/contact'" routerLinkActive="active" (click)="onNavLinkClick()">{{ 'nav.contact' | translate }}</a>
 </div>
         <div class="nav-auth">
           
@@ -27,10 +27,10 @@
               </button>
               <div class="notif-dropdown" [class.show]="isNotificationOpen">
                 <div class="notif-header">
-                  <span>Notifications</span>
+                  <span>{{ 'nav.notifications.title' | translate }}</span>
                   <div class="actions">
-                    <button class="mark-read" (click)="markAllNotificationsAsRead()" [disabled]="unread === 0">Mark all as read</button>
-                    <button class="mark-read" (click)="clearAllNotifications()" [disabled]="notifications.length === 0">Clear all</button>
+                    <button class="mark-read" (click)="markAllNotificationsAsRead()" [disabled]="unread === 0">{{ 'nav.notifications.markAll' | translate }}</button>
+                    <button class="mark-read" (click)="clearAllNotifications()" [disabled]="notifications.length === 0">{{ 'nav.notifications.clearAll' | translate }}</button>
                   </div>
                 </div>
                 <div class="notif-list" *ngIf="notifications?.length; else noNotif">
@@ -46,7 +46,7 @@
                   </div>
                 </div>
                 <ng-template #noNotif>
-                  <div class="notif-empty">You're all caught up!</div>
+                  <div class="notif-empty">{{ 'nav.notifications.empty' | translate }}</div>
                 </ng-template>
               </div>
             </div>
@@ -57,7 +57,7 @@
                 class="auth-btn login-btn" 
                 (click)="login()">
                 <span class="btn-icon"></span>
-                Se connecter
+                {{ 'nav.login' | translate }}
             </button>
             
             <div *ngIf="isLoggedIn" class="user-menu">
@@ -93,20 +93,20 @@
                     <!-- Dashboard link -->
                     <a class="dropdown-item" (click)="navigateToDashboard()">
                         <lucide-icon name="BarChart2" class="w-4 h-4"></lucide-icon>
-                        <span *ngIf="isAdmin()">Admin Dashboard</span>
-                        <span *ngIf="!isAdmin()">Dashboard</span>
+                        <span *ngIf="isAdmin()">{{ 'nav.adminDashboard' | translate }}</span>
+                        <span *ngIf="!isAdmin()">{{ 'nav.dashboard' | translate }}</span>
                     </a>
                     
                     <!-- Profile link -->
                     <a class="dropdown-item" (click)="navigateToProfile()">
                         <lucide-icon name="User" class="w-4 h-4"></lucide-icon>
-                        Profil
+                        {{ 'nav.profile' | translate }}
                     </a>
                     
                     <!-- Settings link -->
                     <a class="dropdown-item" (click)="navigateToSettings()">
                         <lucide-icon name="Settings" class="w-4 h-4"></lucide-icon>
-                        Settings
+                        {{ 'nav.settings' | translate }}
                     </a>
                     
                     <!-- Admin-only section -->
@@ -114,7 +114,7 @@
                         <div class="dropdown-divider"></div>
                         <a href="#" class="dropdown-item admin" (click)="router.navigate(['/admin']); closeDropdown()">
                             <lucide-icon name="Wrench" class="w-4 h-4"></lucide-icon>
-                            Administration
+                            {{ 'nav.administration' | translate }}
                         </a>
                     </div>
                     
@@ -123,7 +123,7 @@
                     <!-- Logout -->
                     <a href="#" class="dropdown-item logout" (click)="signOut()">
                         <lucide-icon name="LogOut" class="w-4 h-4"></lucide-icon>
-                        Se deconnecter
+                        {{ 'nav.logout' | translate }}
                     </a>
                 </div>
             </div>

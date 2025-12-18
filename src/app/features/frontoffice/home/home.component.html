@@ -1,584 +1,490 @@
-﻿<app-navigation></app-navigation>
+<app-navigation></app-navigation>
 
 <main class="home-page">
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-container">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-container">
 
-    <!-- Left Column -->
-    <div class="hero-content">
-
-      <!-- Login banner -->
-      <div *ngIf="!isLoggedIn" class="hero-auth-message">
-        <p class="auth-prompt">Log in to unlock full platform features</p>
-      </div>
-
-      <h1 class="hero-title">YEFFA Learning Platform</h1>
-
-      <p class="hero-subtitle">
-        A next-generation e-learning solution designed to empower over 
-        <strong>30 million young farmers</strong> across North Africa.
-      </p>
-
-      <!-- Stats -->
-      <div class="hero-stats">
-        <div class="stat">
-          <div class="stat-number">30M+</div>
-          <div class="stat-label">Users</div>
-          <div class="stat-description">Young farmers impacted</div>
+      <!-- Left Column -->
+      <div class="hero-content">
+        <div *ngIf="!isLoggedIn" class="hero-auth-message">
+          <p class="auth-prompt">{{ 'home.hero.authPrompt' | translate }}</p>
         </div>
 
-        <div class="stat">
-          <div class="stat-number">5+</div>
-          <div class="stat-label">Countries</div>
-          <div class="stat-description">North Africa Region</div>
-        </div>
+        <h1 class="hero-title">{{ 'home.hero.title' | translate }}</h1>
 
-        <div class="stat">
-          <div class="stat-number">2025</div>
-          <div class="stat-label">Launch</div>
-          <div class="stat-description">End of year</div>
-        </div>
-      </div>
+        <p class="hero-subtitle" [innerHTML]="'home.hero.subtitle' | translate"></p>
 
-      <!-- CTAs -->
-      <div class="hero-cta">
-        <button *ngIf="!isLoggedIn" class="cta-primary" (click)="login()">
-          Get Started
-        </button>
-
-        <button *ngIf="isLoggedIn" class="cta-primary" (click)="onContactClick()">
-          Go to Dashboard
-        </button>
-
-        <button class="cta-secondary" (click)="onContactClick()">
-          Contact Us
-        </button>
-      </div>
-
-    </div>
-
-    <!-- Right Column Visual Cards -->
-    <div class="hero-visual">
-
-      <div class="floating-card">
-        <lucide-icon name="BookOpen" class="card-icon"></lucide-icon>
-        <div class="card-text">Interactive Training</div>
-      </div>
-
-      <div class="floating-card delay-1">
-        <lucide-icon name="Layers" class="card-icon"></lucide-icon>
-        <div class="card-text">Learning Resources</div>
-      </div>
-
-      <div class="floating-card delay-2">
-        <lucide-icon name="GraduationCap" class="card-icon"></lucide-icon>
-        <div class="card-text">Certification</div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- OVERVIEW -->
-<section id="overview" class="section">
-  <div class="container">
-
-    <div class="section-header">
-      <h2 class="section-title">Project Overview</h2>
-      <p class="section-subtitle">
-        A complete and scalable platform for modern agricultural education.
-      </p>
-    </div>
-
-    <div class="overview-grid">
-
-      <div class="overview-card">
-        <lucide-icon name="Target" class="overview-icon"></lucide-icon>
-        <h3>Objective</h3>
-        <p>
-          Deliver modern, high-quality agricultural education accessible to millions 
-          of young farmers across North Africa.
-        </p>
-      </div>
-
-      <div class="overview-card">
-        <lucide-icon name="Globe" class="overview-icon"></lucide-icon>
-        <h3>Regional Reach</h3>
-        <p>
-          Serving 5+ countries with multi-language support and content adapted to 
-          local needs and farming realities.
-        </p>
-      </div>
-
-      <div class="overview-card">
-        <lucide-icon name="Sparkles" class="overview-icon"></lucide-icon>
-        <h3>Innovation</h3>
-        <p>
-          AI-powered personalization, AR-based training modules, modern analytics, 
-          and high-engagement pedagogical tools.
-        </p>
-      </div>
-
-    </div>
-
-  </div>
-</section>
-
-<!-- FEATURES -->
-<section id="features" class="section alt-bg">
-  <div class="container">
-
-    <div class="section-header">
-      <h2 class="section-title">Key Features</h2>
-      <p class="section-subtitle">Everything you need for high-impact agricultural learning</p>
-    </div>
-
-    <div class="features-grid">
-
-      <div class="feature-card">
-        <lucide-icon name="Users" class="feature-icon"></lucide-icon>
-        <h3>User Management</h3>
-        <ul class="feature-list">
-          <li>Fast onboarding for millions</li>
-          <li>Role-based access control</li>
-          <li>Detailed user profiles</li>
-          <li>Personalized dashboard</li>
-        </ul>
-      </div>
-
-      <div class="feature-card">
-        <lucide-icon name="BookOpen" class="feature-icon"></lucide-icon>
-        <h3>Online Training</h3>
-        <ul class="feature-list">
-          <li>High-quality video streaming</li>
-          <li>Interactive and gamified modules</li>
-          <li>Assessments and auto-grading</li>
-          <li>Completion certificates</li>
-        </ul>
-      </div>
-
-      <div class="feature-card">
-        <lucide-icon name="MessageSquare" class="feature-icon"></lucide-icon>
-        <h3>Collaboration</h3>
-        <ul class="feature-list">
-          <li>Real-time chat between trainers & learners</li>
-          <li>Thematic discussion forums</li>
-          <li>Mentorship system</li>
-          <li>Knowledge sharing</li>
-        </ul>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- COURSES -->
-<section id="courses" class="section">
-  <div class="container">
-
-    <div class="section-header">
-      <h2 class="section-title">Popular Courses</h2>
-      <p class="section-subtitle">Top-rated agricultural training programs</p>
-    </div>
-
-    <!-- Loading -->
-    <div *ngIf="coursesLoading" class="courses-loading">
-      <div class="courses-grid">
-        <div class="course-skeleton" *ngFor="let i of [1,2,3]"></div>
-      </div>
-    </div>
-
-    <!-- Error -->
-    <div *ngIf="coursesError" class="courses-error">
-      <p>{{ coursesError }}</p>
-      <button class="retry-btn" (click)="loadFeaturedCourses()">Retry</button>
-    </div>
-
-    <!-- Grid -->
-    <div *ngIf="!coursesLoading && !coursesError" class="courses-grid">
-
-      <div class="course-card"
-           *ngFor="let course of featuredCourses | slice:0:3"
-           (click)="onCourseSelect(course)">
-
-        <div class="course-image">
-          <img [src]="course.imageUrl"
-               onerror="this.src='/assets/images/course-placeholder.svg'">
-          <div class="course-duration">4 Weeks</div>
-        </div>
-
-        <div class="course-content">
-
-          <div class="course-meta">
-            <span class="course-domain">{{ course.domain || 'Agriculture' }}</span>
-            <span class="course-country">{{ course.country || 'Morocco' }}</span>
+        <!-- Stats -->
+        <div class="hero-stats">
+          <div class="stat">
+            <div class="stat-number">{{ 'home.hero.stats.users.value' | translate }}</div>
+            <div class="stat-label">{{ 'home.hero.stats.users.label' | translate }}</div>
+            <div class="stat-description">{{ 'home.hero.stats.users.desc' | translate }}</div>
           </div>
 
-          <h3 class="course-title">{{ course.title }}</h3>
-
-          <p class="course-description">
-            {{ course.description || 'Course description unavailable.' }}
-          </p>
-
-          <div *ngIf="getCourseRating(course) as rating" class="course-rating">
-            <div class="stars">
-              <span *ngFor="let filled of generateStarArray(rating)"
-                    class="star" [class.filled]="filled">&#9733;</span>
-            </div>
-            <span class="rating-value">({{ rating }}/5)</span>
+          <div class="stat">
+            <div class="stat-number">{{ 'home.hero.stats.countries.value' | translate }}</div>
+            <div class="stat-label">{{ 'home.hero.stats.countries.label' | translate }}</div>
+            <div class="stat-description">{{ 'home.hero.stats.countries.desc' | translate }}</div>
           </div>
 
-          <div class="course-stats">
-            <div class="stat">
-              <lucide-icon name="Users" class="stat-icon"></lucide-icon>
-              <span class="stat-value">0</span>
+          <div class="stat">
+            <div class="stat-number">{{ 'home.hero.stats.launch.value' | translate }}</div>
+            <div class="stat-label">{{ 'home.hero.stats.launch.label' | translate }}</div>
+            <div class="stat-description">{{ 'home.hero.stats.launch.desc' | translate }}</div>
+          </div>
+        </div>
+
+        <!-- CTAs -->
+        <div class="hero-cta">
+          <button *ngIf="!isLoggedIn" class="cta-primary" (click)="login()">
+            {{ 'home.hero.cta.getStarted' | translate }}
+          </button>
+
+          <button *ngIf="isLoggedIn" class="cta-primary" (click)="onContactClick()">
+            {{ 'home.hero.cta.dashboard' | translate }}
+          </button>
+
+          <button class="cta-secondary" (click)="onContactClick()">
+            {{ 'home.hero.cta.contact' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Column Visual Cards -->
+      <div class="hero-visual">
+        <div class="floating-card">
+          <lucide-icon name="BookOpen" class="card-icon"></lucide-icon>
+          <div class="card-text">{{ 'home.hero.cards.training' | translate }}</div>
+        </div>
+
+        <div class="floating-card delay-1">
+          <lucide-icon name="Layers" class="card-icon"></lucide-icon>
+          <div class="card-text">{{ 'home.hero.cards.resources' | translate }}</div>
+        </div>
+
+        <div class="floating-card delay-2">
+          <lucide-icon name="GraduationCap" class="card-icon"></lucide-icon>
+          <div class="card-text">{{ 'home.hero.cards.cert' | translate }}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OVERVIEW -->
+  <section id="overview" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">{{ 'home.overview.title' | translate }}</h2>
+        <p class="section-subtitle">{{ 'home.overview.subtitle' | translate }}</p>
+      </div>
+
+      <div class="overview-grid">
+        <div class="overview-card">
+          <lucide-icon name="Target" class="overview-icon"></lucide-icon>
+          <h3>{{ 'home.overview.objectiveTitle' | translate }}</h3>
+          <p>{{ 'home.overview.objectiveText' | translate }}</p>
+        </div>
+
+        <div class="overview-card">
+          <lucide-icon name="Globe" class="overview-icon"></lucide-icon>
+          <h3>{{ 'home.overview.reachTitle' | translate }}</h3>
+          <p>{{ 'home.overview.reachText' | translate }}</p>
+        </div>
+
+        <div class="overview-card">
+          <lucide-icon name="Sparkles" class="overview-icon"></lucide-icon>
+          <h3>{{ 'home.overview.innovationTitle' | translate }}</h3>
+          <p>{{ 'home.overview.innovationText' | translate }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" class="section alt-bg">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">{{ 'home.features.title' | translate }}</h2>
+        <p class="section-subtitle">{{ 'home.features.subtitle' | translate }}</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <lucide-icon name="Users" class="feature-icon"></lucide-icon>
+          <h3>{{ 'home.features.userMgmt.title' | translate }}</h3>
+          <ul class="feature-list">
+            <li *ngFor="let i of [0,1,2,3]">{{ ('home.features.userMgmt.items.' + i) | translate }}</li>
+          </ul>
+        </div>
+
+        <div class="feature-card">
+          <lucide-icon name="BookOpen" class="feature-icon"></lucide-icon>
+          <h3>{{ 'home.features.training.title' | translate }}</h3>
+          <ul class="feature-list">
+            <li *ngFor="let i of [0,1,2,3]">{{ ('home.features.training.items.' + i) | translate }}</li>
+          </ul>
+        </div>
+
+        <div class="feature-card">
+          <lucide-icon name="MessageSquare" class="feature-icon"></lucide-icon>
+          <h3>{{ 'home.features.collab.title' | translate }}</h3>
+          <ul class="feature-list">
+            <li *ngFor="let i of [0,1,2,3]">{{ ('home.features.collab.items.' + i) | translate }}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COURSES -->
+  <section id="courses" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">{{ 'home.courses.title' | translate }}</h2>
+        <p class="section-subtitle">{{ 'home.courses.subtitle' | translate }}</p>
+      </div>
+
+      <div *ngIf="coursesLoading" class="courses-loading">
+        <div class="courses-grid">
+          <div class="course-skeleton" *ngFor="let i of [1,2,3]"></div>
+        </div>
+      </div>
+
+      <div *ngIf="coursesError" class="courses-error">
+        <p>{{ coursesError }}</p>
+        <button class="retry-btn" (click)="loadFeaturedCourses()">{{ 'home.courses.retry' | translate }}</button>
+      </div>
+
+      <div *ngIf="!coursesLoading && !coursesError" class="courses-grid">
+        <div class="course-card" *ngFor="let course of featuredCourses | slice:0:3" (click)="onCourseSelect(course)">
+          <div class="course-image">
+            <img [src]="course.imageUrl" onerror="this.src='/assets/images/course-placeholder.svg'">
+            <div class="course-duration">{{ 'home.courses.duration' | translate }}</div>
+          </div>
+
+          <div class="course-content">
+            <div class="course-meta">
+              <span class="course-domain">{{ course.domain || ('home.courses.domainFallback' | translate) }}</span>
+              <span class="course-country">{{ course.country || ('home.courses.countryFallback' | translate) }}</span>
             </div>
 
-            <div class="stat">
-              <lucide-icon name="BookOpen" class="stat-icon"></lucide-icon>
-              <span class="stat-value">12 lessons</span>
+            <h3 class="course-title">{{ course.title }}</h3>
+
+            <p class="course-description">
+              {{ course.description || ('home.courses.descFallback' | translate) }}
+            </p>
+
+            <div *ngIf="getCourseRating(course) as rating" class="course-rating">
+              <div class="stars">
+                <span *ngFor="let filled of generateStarArray(rating)" class="star" [class.filled]="filled">&#9733;</span>
+              </div>
+              <span class="rating-value">({{ rating }}/5)</span>
+            </div>
+
+            <div class="course-stats">
+              <div class="stat">
+                <lucide-icon name="Users" class="stat-icon"></lucide-icon>
+                <span class="stat-value">0</span>
+              </div>
+
+              <div class="stat">
+                <lucide-icon name="BookOpen" class="stat-icon"></lucide-icon>
+                <span class="stat-value">{{ 'home.courses.lessons' | translate }}</span>
+              </div>
+            </div>
+
+            <div class="course-actions">
+              <button class="btn-primary" (click)="onCourseSelect(course, $event)">
+                {{ isCourseEnrolled(course) ? ('home.courses.button.continue' | translate) : ('home.courses.button.enroll' | translate) }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="courses-actions">
+        <button class="btn-view-more" (click)="viewAllCourses()">
+          {{ 'home.courses.viewAll' | translate }}
+          <lucide-icon name="ArrowRight" class="arrow-icon"></lucide-icon>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- POSTS -->
+  <section id="posts" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">{{ 'home.posts.title' | translate }}</h2>
+        <p class="section-subtitle">{{ 'home.posts.subtitle' | translate }}</p>
+      </div>
+
+      <div *ngIf="postsLoading" class="posts-loading">
+        <div class="posts-grid">
+          <div class="post-skeleton" *ngFor="let i of [1,2,3]"></div>
+        </div>
+      </div>
+
+      <div *ngIf="postsError" class="posts-error">
+        <p>{{ postsError }}</p>
+        <button class="retry-btn" (click)="loadFeaturedPosts()">{{ 'home.posts.retry' | translate }}</button>
+      </div>
+
+      <div *ngIf="!postsLoading && !postsError" class="posts-grid">
+        <div class="post-card" *ngFor="let post of featuredPosts | slice:0:3" (click)="onPostClick(post)">
+          <div class="post-header">
+            <div class="post-avatar">
+              <img [src]="post.user?.picture || fallbackAvatar" (error)="setFallbackAvatar($event)">
+            </div>
+            <div class="post-user-info">
+              <h4 class="post-username">{{ post.user?.name || ('home.posts.anonymous' | translate) }}</h4>
+              <span class="post-date">{{ getTimeAgo(post.timestamp) }}</span>
             </div>
           </div>
 
-          <div class="course-actions">
-            <button class="btn-primary"
-                    (click)="onCourseSelect(course, $event)">
-              {{ isCourseEnrolled(course) ? 'Continue' : 'Enroll' }}
+          <div class="post-content">
+            <p class="post-text">{{ post.content }}</p>
+
+            <div class="post-image" [class.placeholder]="!post.image">
+              <img *ngIf="post.image" [src]="post.image" (error)="setFallbackPostImage($event)">
+              <ng-container *ngIf="!post.image">
+                <lucide-icon name="Image" class="placeholder-icon"></lucide-icon>
+              </ng-container>
+            </div>
+          </div>
+
+          <div class="post-actions">
+            <button class="action-btn like-btn" [class.liked]="post.isLiked" (click)="togglePostLike(post, $event)">
+              <lucide-icon name="Heart"></lucide-icon>
+              <span class="action-count">{{ formatNumber(post.likes) }}</span>
+            </button>
+
+            <button class="action-btn comment-btn" (click)="onCommentClick(post, $event)">
+              <lucide-icon name="MessageCircle"></lucide-icon>
+              <span class="action-count">{{ formatNumber(post.comments.length || 0) }}</span>
             </button>
           </div>
         </div>
-
       </div>
 
-    </div>
-
-    <div class="courses-actions">
-      <button class="btn-view-more" (click)="viewAllCourses()">
-        View All Courses
-        <lucide-icon name="ArrowRight" class="arrow-icon"></lucide-icon>
-      </button>
-    </div>
-
-  </div>
-</section>
-
-<!-- POSTS -->
-<section id="posts" class="section">
-  <div class="container">
-
-    <div class="section-header">
-      <h2 class="section-title">Community Updates</h2>
-      <p class="section-subtitle">Latest discussions and shared experiences</p>
-    </div>
-
-    <!-- Loading -->
-    <div *ngIf="postsLoading" class="posts-loading">
-      <div class="posts-grid">
-        <div class="post-skeleton" *ngFor="let i of [1,2,3]"></div>
+      <div class="posts-actions">
+        <button class="btn-view-more" (click)="viewAllPosts()">
+          {{ 'home.posts.viewAll' | translate }}
+          <lucide-icon name="ArrowRight" class="arrow-icon"></lucide-icon>
+        </button>
       </div>
     </div>
+  </section>
 
-    <!-- Error -->
-    <div *ngIf="postsError" class="posts-error">
-      <p>{{ postsError }}</p>
-      <button class="retry-btn" (click)="loadFeaturedPosts()">Retry</button>
-    </div>
+  <!-- WHO WE ARE -->
+  <section id="about" class="section alt-bg">
+    <div class="container">
+      <div class="about-hero">
+        <div class="about-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M7 20h10M12 4v16M8 8l4-4 4 4"/>
+          </svg>
+          <span>{{ 'home.about.badge' | translate }}</span>
+        </div>
+        <h2 class="about-title" [innerHTML]="'home.about.title' | translate"></h2>
+        <p class="about-lead">{{ 'home.about.lead' | translate }}</p>
+      </div>
 
-    <!-- Posts -->
-    <div *ngIf="!postsLoading && !postsError" class="posts-grid">
+      <div class="about-stats">
+        <div class="stat-card">
+          <div class="stat-value">30M+</div>
+          <div class="stat-label">{{ 'home.about.stats.learners' | translate }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">5</div>
+          <div class="stat-label">{{ 'home.about.stats.countries' | translate }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">40%</div>
+          <div class="stat-label">{{ 'home.about.stats.yield' | translate }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">24/7</div>
+          <div class="stat-label">{{ 'home.about.stats.support' | translate }}</div>
+        </div>
+      </div>
 
-      <div class="post-card"
-           *ngFor="let post of featuredPosts | slice:0:3"
-           (click)="onPostClick(post)">
+      <div class="about-mission-grid">
+        <div class="mission-content">
+          <h3>{{ 'home.about.missionTitle' | translate }}</h3>
+          <p>{{ 'home.about.missionP1' | translate }}</p>
+          <p>{{ 'home.about.missionP2' | translate }}</p>
+        </div>
+        <div class="mission-image">
+          <div class="mission-image-sheen"></div>
+          <img src="/assets/images/aboutplaceholder.png" alt="Modern agricultural training across North Africa">
+        </div>
+      </div>
 
-        <!-- Header -->
-        <div class="post-header">
-
-          <div class="post-avatar">
-            <img [src]="post.user?.picture || fallbackAvatar"
-                 (error)="setFallbackAvatar($event)">
+      <div class="values-section">
+        <h3>{{ 'home.about.valuesTitle' | translate }}</h3>
+        <div class="values-grid">
+          <div class="value-card">
+            <div class="value-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 22c4.97 0 9-4.03 9-9a9 9 0 0 0-9-9 9 9 0 0 0-9 9c0 4.97 4.03 9 9 9zM12 2v7m-5 3H2m18 0h-5"/>
+              </svg>
+            </div>
+            <h4>{{ 'home.about.values.sustainability.title' | translate }}</h4>
+            <p>{{ 'home.about.values.sustainability.text' | translate }}</p>
           </div>
 
-          <div class="post-user-info">
-            <h4 class="post-username">{{ post.user?.name || 'Anonymous' }}</h4>
-            <span class="post-date">{{ getTimeAgo(post.timestamp) }}</span>
+          <div class="value-card">
+            <div class="value-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M2 12h20"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </div>
+            <h4>{{ 'home.about.values.unity.title' | translate }}</h4>
+            <p>{{ 'home.about.values.unity.text' | translate }}</p>
           </div>
 
-    
-
-        </div>
-
-        <!-- Content -->
-        <div class="post-content">
-          <p class="post-text">{{ post.content }}</p>
-
-          <!-- Image -->
-          <div class="post-image" [class.placeholder]="!post.image">
-            <img *ngIf="post.image"
-                 [src]="post.image"
-                 (error)="setFallbackPostImage($event)">
-            <ng-container *ngIf="!post.image">
-              <lucide-icon name="Image" class="placeholder-icon"></lucide-icon>
-            </ng-container>
+          <div class="value-card">
+            <div class="value-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87m-4-12a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <h4>{{ 'home.about.values.community.title' | translate }}</h4>
+            <p>{{ 'home.about.values.community.text' | translate }}</p>
           </div>
 
-        </div>
-
-        <!-- Actions -->
-        <div class="post-actions">
-
-          <button class="action-btn like-btn"
-                  [class.liked]="post.isLiked"
-                  (click)="togglePostLike(post, $event)">
-            <lucide-icon name="Heart"></lucide-icon>
-            <span class="action-count">{{ formatNumber(post.likes) }}</span>
-          </button>
-
-          <button class="action-btn comment-btn"
-                  (click)="onCommentClick(post, $event)">
-            <lucide-icon name="MessageCircle"></lucide-icon>
-            <span class="action-count">{{ formatNumber(post.comments.length || 0) }}</span>
-          </button>
-
-        </div>
-
-      </div>
-
-    </div>
-
-    <div class="posts-actions">
-      <button class="btn-view-more" (click)="viewAllPosts()">
-        View All Posts
-        <lucide-icon name="ArrowRight" class="arrow-icon"></lucide-icon>
-      </button>
-    </div>
-
-  </div>
-</section>
-
-<!-- WHO WE ARE -->
-<section id="about" class="section alt-bg">
-  <div class="container">
-
-    <div class="about-hero">
-      <div class="about-badge">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path d="M7 20h10M12 4v16M8 8l4-4 4 4"/>
-        </svg>
-        <span>Empowering North African agriculture</span>
-      </div>
-      <h2 class="about-title">Growing the future of <span>farming</span></h2>
-      <p class="about-lead">
-        YEFFA connects farmers with modern training, trusted experts, and community-driven knowledge to scale sustainable growth across North Africa.
-      </p>
-    </div>
-
-    <div class="about-stats">
-      <div class="stat-card">
-        <div class="stat-value">30M+</div>
-        <div class="stat-label">Learners Reached</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">5</div>
-        <div class="stat-label">Countries</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">40%</div>
-        <div class="stat-label">Avg. Yield Lift</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">24/7</div>
-        <div class="stat-label">Mentor Support</div>
-      </div>
-    </div>
-
-    <div class="about-mission-grid">
-      <div class="mission-content">
-        <h3>Our mission</h3>
-        <p>
-          Every farm deserves access to modern tools and locally relevant know-how. We blend agronomic science, AI-assisted personalization, and human mentorship to keep training grounded in real field conditions.
-        </p>
-        <p>
-          From Morocco to Egypt, we are building a connected network of farmers, agronomists, and cooperatives-so knowledge flows freely and resilience scales with every harvest.
-        </p>
-      </div>
-      <div class="mission-image">
-        <div class="mission-image-sheen"></div>
-        <img src="/assets/images/aboutplaceholder.png" alt="Modern agricultural training across North Africa">
-      </div>
-    </div>
-
-    <div class="values-section">
-      <h3>What drives us</h3>
-      <div class="values-grid">
-        <div class="value-card">
-          <div class="value-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path d="M12 22c4.97 0 9-4.03 9-9a9 9 0 0 0-9-9 9 9 0 0 0-9 9c0 4.97 4.03 9 9 9zM12 2v7m-5 3H2m18 0h-5"/>
-            </svg>
+          <div class="value-card">
+            <div class="value-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </div>
+            <h4>{{ 'home.about.values.innovation.title' | translate }}</h4>
+            <p>{{ 'home.about.values.innovation.text' | translate }}</p>
           </div>
-          <h4>Sustainability</h4>
-          <p>Eco-friendly, climate-smart practices that protect land and livelihoods for future generations.</p>
         </div>
+      </div>
 
-        <div class="value-card">
-          <div class="value-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M2 12h20"/>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-            </svg>
+      <!-- Metrics -->
+      <div class="performance-metrics">
+        <div class="metric">
+          <div class="metric-value">99.9%</div>
+          <div class="metric-label">{{ 'home.about.stats.uptime' | translate }}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">&lt; 2s</div>
+          <div class="metric-label">{{ 'home.about.stats.loadTime' | translate }}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">30M+</div>
+          <div class="metric-label">{{ 'home.about.stats.concurrent' | translate }}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">24/7</div>
+          <div class="metric-label">{{ 'home.about.stats.techSupport' | translate }}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPONSORS -->
+  <section id="sponsors" class="section alt-bg">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">{{ 'home.sponsors.title' | translate }}</h2>
+        <p class="section-subtitle">{{ 'home.sponsors.subtitle' | translate }}</p>
+      </div>
+
+      <div *ngIf="sponsorLogos.length; else sponsorsComing" class="sponsors-grid">
+        <div class="sponsor-card" *ngFor="let logo of sponsorLogos">
+          <img [src]="logo" alt="Sponsor logo">
+        </div>
+      </div>
+
+      <ng-template #sponsorsComing>
+        <div class="sponsors-empty">
+          <p>{{ 'home.sponsors.coming' | translate }}</p>
+        </div>
+      </ng-template>
+    </div>
+  </section>
+
+  <!-- ORGANISATIONS MEMBRES -->
+  <section id="organizations" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">{{ 'home.orgs.title' | translate }}</h2>
+        <p class="section-subtitle">{{ 'home.orgs.subtitle' | translate }}</p>
+      </div>
+
+      <div class="org-grid">
+        <div class="org-card">
+          <div class="org-flag fi fi-dz"></div>
+          <div class="org-meta">
+            <div class="org-country">{{ 'home.orgs.list.dz.country' | translate }}</div>
+            <div class="org-name">{{ 'home.orgs.list.dz.name' | translate }}</div>
           </div>
-          <h4>Regional unity</h4>
-          <p>Connecting cooperatives and unions to share resources, research, and best practices across borders.</p>
         </div>
 
-        <div class="value-card">
-          <div class="value-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87m-4-12a4 4 0 0 1 0 7.75"/>
-            </svg>
+        <div class="org-card">
+          <div class="org-flag fi fi-eg"></div>
+          <div class="org-meta">
+            <div class="org-country">{{ 'home.orgs.list.eg.country' | translate }}</div>
+            <div class="org-name">{{ 'home.orgs.list.eg.name' | translate }}</div>
           </div>
-          <h4>Community first</h4>
-          <p>Keeping farmers at the center with mentorship, forums, and collaborative learning cohorts.</p>
         </div>
 
-        <div class="value-card">
-          <div class="value-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-            </svg>
+        <div class="org-card">
+          <div class="org-flag fi fi-ly"></div>
+          <div class="org-meta">
+            <div class="org-country">{{ 'home.orgs.list.ly.country' | translate }}</div>
+            <div class="org-name">{{ 'home.orgs.list.ly.name' | translate }}</div>
           </div>
-          <h4>Innovation</h4>
-          <p>Bringing AI insights, AR field simulations, and data-driven coaching to everyday farming.</p>
+        </div>
+
+        <div class="org-card">
+          <div class="org-flag fi fi-ma"></div>
+          <div class="org-meta">
+            <div class="org-country">{{ 'home.orgs.list.ma.country' | translate }}</div>
+            <div class="org-name">{{ 'home.orgs.list.ma.name' | translate }}</div>
+          </div>
+        </div>
+
+        <div class="org-card">
+          <div class="org-flag fi fi-mr"></div>
+          <div class="org-meta">
+            <div class="org-country">{{ 'home.orgs.list.mr.country' | translate }}</div>
+            <div class="org-name">{{ 'home.orgs.list.mr.name' | translate }}</div>
+          </div>
+        </div>
+
+        <div class="org-card">
+          <div class="org-flag fi fi-tn"></div>
+          <div class="org-meta">
+            <div class="org-country">{{ 'home.orgs.list.tn.country' | translate }}</div>
+            <div class="org-name">{{ 'home.orgs.list.tn.name' | translate }}</div>
+          </div>
+        </div>
+
+        <div class="org-card">
+          <div class="org-flag fi fi-sd"></div>
+          <div class="org-meta">
+            <div class="org-country">{{ 'home.orgs.list.sd.country' | translate }}</div>
+            <div class="org-name">{{ 'home.orgs.list.sd.name' | translate }}</div>
+          </div>
         </div>
       </div>
     </div>
-
-    <!-- Metrics -->
-    <div class="performance-metrics">
-      <div class="metric">
-        <div class="metric-value">99.9%</div>
-        <div class="metric-label">Uptime</div>
-      </div>
-
-      <div class="metric">
-        <div class="metric-value">&lt; 2s</div>
-        <div class="metric-label">Load Time</div>
-      </div>
-
-      <div class="metric">
-        <div class="metric-value">30M+</div>
-        <div class="metric-label">Concurrent Users</div>
-      </div>
-
-      <div class="metric">
-        <div class="metric-value">24/7</div>
-        <div class="metric-label">Technical Support</div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- SPONSORS -->
-<section id="sponsors" class="section alt-bg">
-  <div class="container">
-
-    <div class="section-header">
-      <h2 class="section-title">Sponsors & Partners</h2>
-      <p class="section-subtitle">Organizations fueling AGRA's mission across North Africa</p>
-    </div>
-
-    <div *ngIf="sponsorLogos.length; else sponsorsComing" class="sponsors-grid">
-      <div class="sponsor-card" *ngFor="let logo of sponsorLogos">
-        <img [src]="logo" alt="Sponsor logo">
-      </div>
-    </div>
-
-    <ng-template #sponsorsComing>
-      <div class="sponsors-empty">
-        <p>Sponsors will appear here soon.</p>
-      </div>
-    </ng-template>
-
-  </div>
-</section>
-
-<!-- ORGANISATIONS MEMBRES -->
-<section id="organizations" class="section">
-  <div class="container">
-    <div class="section-header">
-      <h2 class="section-title">Organisations membres</h2>
-      <p class="section-subtitle">Network of national partners.</p>
-    </div>
-
-    <div class="org-grid">
-      <div class="org-card">
-        <div class="org-flag fi fi-dz"></div>
-        <div class="org-meta">
-          <div class="org-country">Algeria</div>
-          <div class="org-name">National Union of Algerian Farmers</div>
-        </div>
-      </div>
-
-      <div class="org-card">
-        <div class="org-flag fi fi-eg"></div>
-        <div class="org-meta">
-          <div class="org-country">Egypt</div>
-          <div class="org-name">Central Union of Agricultural Cooperatives</div>
-        </div>
-      </div>
-
-      <div class="org-card">
-        <div class="org-flag fi fi-ly"></div>
-        <div class="org-meta">
-          <div class="org-country">Libya</div>
-          <div class="org-name">General Union of Farmers and Breeders</div>
-        </div>
-      </div>
-
-      <div class="org-card">
-        <div class="org-flag fi fi-ma"></div>
-        <div class="org-meta">
-          <div class="org-country">Morocco</div>
-          <div class="org-name">Moroccan Union of Agriculture</div>
-        </div>
-      </div>
-
-      <div class="org-card">
-        <div class="org-flag fi fi-mr"></div>
-        <div class="org-meta">
-          <div class="org-country">Mauritania</div>
-          <div class="org-name">Mauritanian Federation of Agriculture</div>
-        </div>
-      </div>
-
-      <div class="org-card">
-        <div class="org-flag fi fi-tn"></div>
-        <div class="org-meta">
-          <div class="org-country">Tunisia</div>
-          <div class="org-name">Tunisian Union of Agriculture and Fisheries</div>
-        </div>
-      </div>
-
-      <div class="org-card">
-        <div class="org-flag fi fi-sd"></div>
-        <div class="org-meta">
-          <div class="org-country">Sudan</div>
-          <div class="org-name">National Farmers Organization</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+  </section>
 
 </main>
 
 <app-footer></app-footer>
-
-

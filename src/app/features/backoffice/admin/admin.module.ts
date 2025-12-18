@@ -16,6 +16,7 @@ import { TicketManagementComponent } from './ticket-management/ticket-management
 import { CertificatesManagementComponent } from './certificates-management/certificates-management.component';
 import { AdminSettingsComponent } from './admin-settings/admin-settings.component';
 import { SettingsModule } from 'src/app/features/frontoffice/settings/settings.module';
+import { TranslateModule } from '@ngx-translate/core';
 
 
 @NgModule({
@@ -38,7 +39,8 @@ import { SettingsModule } from 'src/app/features/frontoffice/settings/settings.m
     SettingsModule,
     NgChartsModule,
     RouterModule,
-    AdminRoutingModule
+    AdminRoutingModule,
+    TranslateModule
 
   ]
 })

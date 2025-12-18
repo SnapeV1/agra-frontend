@@ -1,0 +1,752 @@
+{
+  "lang": {
+    "en": "English",
+    "fr": "French"
+  },
+  "nav": {
+    "home": "Home",
+    "courses": "Courses",
+    "feed": "Feed",
+    "contact": "Contact us",
+    "login": "Log in",
+    "adminDashboard": "Admin Dashboard",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "administration": "Administration",
+    "logout": "Log out",
+    "notifications": {
+      "title": "Notifications",
+      "markAll": "Mark all as read",
+      "clearAll": "Clear all",
+      "empty": "You're all caught up!"
+    },
+    "admin": {
+      "search": "Search...",
+      "viewUser": "View as User"
+    }
+  },
+  "admin": {
+    "menu": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "posts": "Posts",
+      "courses": "Courses",
+      "tickets": "Tickets",
+      "certificates": "Certificates"
+    },
+    "pages": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "posts": "Posts",
+      "courses": "Courses",
+      "tickets": "Tickets",
+      "certificates": "Certificates"
+    }
+  },
+  "adminPages": {
+    "userManagement": {
+      "title": "User Management",
+      "subtitle": "Manage your users and their permissions"
+    },
+    "courseManagement": {
+      "title": "Course Management",
+      "subtitle": "Manage all courses and their details",
+      "addCourse": "Add New Course",
+      "searchPlaceholder": "Search courses, trainer ID, domain, or country...",
+      "filter": {
+        "all": "All Courses",
+        "active": "Active",
+        "archived": "Archived"
+      }
+    },
+    "ticketManagement": {
+      "title": "Ticket Management"
+    },
+    "certificatesManagement": {
+      "title": "Certificates Management"
+    }
+  },
+  "footer": {
+    "tagline": "Cultivating knowledge for the next generation of farmers.",
+    "product": {
+      "title": "Product",
+      "home": "Home",
+      "courses": "Courses",
+      "feed": "Feed",
+      "verify": "Verify Certificate",
+      "contact": "Contact"
+    },
+    "resources": {
+      "title": "Resources",
+      "docs": "Documentation",
+      "help": "Help Center",
+      "blog": "Blog"
+    },
+    "contact": {
+      "title": "Contact",
+      "address": "Centre Tunis, Rue Alain Savary, Cité El Khadra, Tunis, Tunisia"
+    },
+    "news": {
+      "title": "Stay in touch",
+      "placeholder": "Your email",
+      "subscribe": "Subscribe"
+    },
+    "legal": {
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "legal": "Legal"
+    }
+  },
+  "common": {
+    "liveNow": "Live Now",
+    "usersOnline": "Users Online",
+    "showMore": "Show more",
+    "save": "Save",
+    "saved": "Saved",
+    "noData": "No data",
+    "noPosts": "No posts found"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account preferences and personalization",
+    "account": {
+      "title": "Account Settings",
+      "email": "Email Address",
+      "password": "Password",
+      "passwordDesc": "Keep your account secure by updating regularly",
+      "twoFactor": "Two-Factor Authentication",
+      "twoFactorDesc": "Add an extra layer of security"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "theme": "Theme",
+      "themeDesc": "Choose your preferred theme",
+      "language": "Language",
+      "languageDesc": "Select your language",
+      "light": "Light",
+      "dark": "Dark",
+      "saveTitle": "Save appearance",
+      "saveDesc": "Persist theme and language"
+    },
+    "buttons": {
+      "change": "Change",
+      "enable": "Enable",
+      "save": "Save",
+      "remove": "Remove",
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes",
+      "updatePassword": "Update Password",
+      "request": "Request",
+      "view": "View",
+      "deactivate": "Deactivate",
+      "delete": "Delete Account"
+    },
+    "notifications": {
+      "title": "Notification Preferences",
+      "subtitle": "Choose what you get notified about and how you receive it.",
+      "loading": "Loading your preferences...",
+      "typesTitle": "Notification types",
+      "typesSubtitle": "Turn categories on or off.",
+      "likes": "Likes:",
+      "likesDesc": "Activity when someone likes your posts.",
+      "comments": "Comments:",
+      "commentsDesc": "New comments on your content.",
+      "replies": "Replies:",
+      "repliesDesc": "Responses to your comments.",
+      "tickets": "Tickets:",
+      "ticketsDesc": "Updates on your support tickets.",
+      "system": "System:",
+      "systemDesc": "Security, policy, or platform updates.",
+      "courses": "Courses:",
+      "coursesDesc": "Course launches, enrollments, and reminders.",
+      "posts": "Posts:",
+      "postsDesc": "New posts from people you follow.",
+      "quietHours": "Quiet hours",
+      "quietHoursDesc": "Silence notifications on a schedule (overnight supported).",
+      "quietHoursEnable": "Enable quiet hours",
+      "quietHoursEnableDesc": "Set a window where in-app/email/push are muted.",
+      "start": "Start",
+      "end": "End",
+      "helper": "Overnight ranges are supported (e.g., 22:00 to 07:00). Both times are required when enabled.",
+      "reset": "Reset to defaults",
+      "muteAll": "Mute all",
+      "save": "Save preferences",
+      "saving": "Saving..."
+    },
+    "tickets": {
+      "title": "Support Tickets",
+      "subtitle": "Track past conversations or start a new request.",
+      "refresh": "Refresh",
+      "refreshing": "Refreshing...",
+      "start": "Start Ticket",
+      "close": "Close",
+      "subject": "Subject",
+      "subjectPlaceholder": "Brief summary of the issue",
+      "message": "Message",
+      "messagePlaceholder": "Describe the problem or request",
+      "attachImage": "Attach image",
+      "changeAttachment": "Change attachment",
+      "submit": "Submit Ticket",
+      "sending": "Sending...",
+      "loading": "Loading your tickets...",
+      "emptyTitle": "No tickets yet",
+      "emptyDesc": "Need help with courses, payments, or your account? Start a support ticket and our team will reply quickly.",
+      "ticketId": "Ticket #",
+      "conversationLoading": "Loading conversation...",
+      "noReplies": "No replies yet. We're on it!",
+      "replyPlaceholder": "Share more details or ask a follow-up question",
+      "sendReply": "Send Reply",
+      "closed": "This ticket is closed. Start a new ticket if you need more help.",
+      "select": "Select a ticket to view the conversation."
+    },
+    "privacy": {
+      "title": "Privacy & Data",
+      "profile": "Profile Visibility",
+      "profileDesc": "Control who can see your profile",
+      "public": "Public",
+      "friends": "Friends Only",
+      "private": "Private",
+      "download": "Data Download",
+      "downloadDesc": "Download a copy of your data",
+      "activity": "Activity History",
+      "activityDesc": "View and manage your activity"
+    },
+    "danger": {
+      "title": "Danger Zone",
+      "deactivate": "Deactivate Account",
+      "deactivateDesc": "Temporarily disable your account",
+      "delete": "Delete Account",
+      "deleteDesc": "Permanently delete your account and all data"
+    },
+    "modals": {
+      "emailTitle": "Change Email Address",
+      "newEmail": "New Email Address",
+      "newEmailPlaceholder": "Enter new email",
+      "currentPassword": "Current Password",
+      "passwordPlaceholder": "Enter your password",
+      "passwordTitle": "Change Password",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter new password",
+      "confirmNewPassword": "Confirm New Password",
+      "confirmPasswordPlaceholder": "Confirm new password",
+      "deleteTitle": "Delete Account",
+      "deleteBody": "Are you sure you want to delete your account? This action cannot be undone and will permanently delete all your data.",
+      "deleteConfirmLabel": "Type \"DELETE\" to confirm",
+      "deletePlaceholder": "DELETE"
+    }
+  },
+  "dashboard": {
+    "title": "Educational Dashboard",
+    "subtitle": "Comprehensive analytics for your learning platform",
+    "nav": {
+      "overview": "Overview",
+      "users": "Users",
+      "courses": "Courses",
+      "social": "Social",
+      "notifications": "Notifications"
+    },
+    "welcome": {
+      "eyebrow": "Welcome",
+      "title": "Welcome to your Educational Dashboard",
+      "body": "Monitor student progress, track course performance, and analyze learning outcomes across your platform.",
+      "addCourse": "Add Course",
+      "viewReports": "View Reports"
+    },
+    "overview": {
+      "title": "Overview",
+      "subtitle": "Key metrics at a glance",
+      "totalUsers": "Total Users",
+      "activeLast30": "Active last 30 days",
+      "activeCourses": "Active Courses",
+      "totalCourses": "Total courses",
+      "completionRate": "Completion Rate",
+      "acrossCourses": "Across tracked courses",
+      "liveUsers": "Live Users",
+      "wsConnections": "WebSocket connections"
+    },
+    "activity": {
+      "title": "Activity",
+      "subtitle": "Growth and activity over time",
+      "studentDistribution": "Student Distribution by Country",
+      "topCourses": "Top Performing Courses",
+      "studentsEnrolled": "students enrolled",
+      "completion": "completion"
+    },
+    "users": {
+      "title": "Users",
+      "subtitle": "Overview of your user base",
+      "summary": "Users Summary",
+      "roles": "Roles Breakdown",
+      "quickStats": "Quick Stats",
+      "latestRegistrations": "Latest registrations",
+      "activeCourses": "Active courses",
+      "completionRate": "Completion rate",
+      "growth": "User Growth (Monthly)",
+      "totalUsers": "Total users"
+    },
+    "social": {
+      "title": "Social",
+      "subtitle": "Posts and comments activity",
+      "topPosts": "Top Posts",
+      "engagementAvg": "Engagement Averages",
+      "featuredPerformance": "Featured Performance"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "User notifications and real-time activity",
+      "trend": "Trend",
+      "readStatus": "Read Status",
+      "topTypes": "Top Types"
+    }
+  },
+  "contact": {
+    "hero": {
+      "kicker": "Agricultural Education",
+      "title": "Let's Connect",
+      "subtitle": "Ready to grow your agricultural knowledge? We're here to help you cultivate success."
+    },
+    "stats": {
+      "students": { "value": "5,000+", "label": "Students Educated" },
+      "experience": { "value": "25+", "label": "Years Experience" },
+      "response": { "value": "24hr", "label": "Response Time" }
+    },
+    "form": {
+      "title": "Send Message",
+      "subtitle": "Get in touch and we'll respond within 24 hours",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "John Doe",
+      "fullNameError": "Please enter your full name.",
+      "email": "Email Address",
+      "emailPlaceholder": "john@example.com",
+      "emailError": "Please provide a valid email.",
+      "subject": "Subject",
+      "subjectPlaceholder": "How can we help you?",
+      "subjectError": "Subject must be at least 5 characters.",
+      "message": "Message",
+      "messagePlaceholder": "Tell us about your agricultural education goals...",
+      "messageError": "Please provide at least 10 characters.",
+      "submit": "Send Message",
+      "submitting": "Sending...",
+      "success": "Thanks for reaching out! We'll respond shortly."
+    },
+    "info": {
+      "title": "Contact Information",
+      "visit": {
+        "title": "Visit Us",
+        "body": "UMNAGRI (Union Maghrébine et de l’Afrique du Nord des Agriculteurs) HQ\nCentre Tunis, Rue Alain Savary, Cité El Khadra\nTunis, Republic of Tunisia"
+      },
+      "website": {
+        "title": "Website",
+        "link": "umnagri.net"
+      },
+      "email": { "title": "Email Us" },
+      "follow": "Follow Us"
+    },
+    "map": {
+      "title": "Interactive Map",
+      "subtitle": "Agricultural Education Center"
+    },
+    "resources": {
+      "title": "Quick Resources",
+      "subtitle": "Everything you need to get started with agricultural education",
+      "enrollment": {
+        "title": "Program Enrollment",
+        "desc": "Learn about admission requirements and application process",
+        "cta": "Learn More"
+      },
+      "schedule": {
+        "title": "Course Schedules",
+        "desc": "View current semester schedules and upcoming workshops",
+        "cta": "View Schedule"
+      },
+      "portal": {
+        "title": "Student Portal",
+        "desc": "Access your courses, grades, and academic resources",
+        "cta": "Access Portal"
+      },
+      "catalog": {
+        "title": "Course Catalog",
+        "desc": "Explore our comprehensive agricultural education programs",
+        "cta": "Browse Catalog"
+      }
+    }
+  },
+  "coursesPage": {
+    "heroTitle": "Discover Your Next Skill",
+    "heroSubtitle": "Choose from over 1,200 courses taught by industry experts",
+    "searchPlaceholder": "Search courses...",
+    "language": "Language",
+    "sectionTitle": "Featured Courses",
+    "sortLabel": "Sort by:",
+    "sort": {
+      "popular": "Most Popular",
+      "newest": "Newest",
+      "rating": "Highest Rated",
+      "priceLow": "Price: Low to High",
+      "priceHigh": "Price: High to Low"
+    },
+    "noResultsTitle": "No courses found",
+    "noResultsBody": "Try adjusting your search terms or filters.",
+    "resetFilters": "Reset Filters",
+    "badgePopular": "Popular",
+    "categoryFallback": "Programming",
+    "duration": "8 hours",
+    "lessons": "lessons",
+    "students": "1,234 students",
+    "instructorFallback": "Expert Instructor",
+    "priceFree": "Free",
+    "preview": "Preview",
+    "enroll": "Enroll Now",
+    "showing": "Showing {{shown}} of {{total}} courses",
+    "showMore": "Show more"
+  },
+  "feed": {
+    "left": {
+      "title": "Agri News",
+      "subtitle": "Latest updates",
+      "viewMore": "View more",
+      "emptyTitle": "No news yet",
+      "emptySubtitle": "Will appear once available",
+      "countryFallback": "Global"
+    },
+    "header": {
+      "title": "Feed",
+      "newPosts": "New posts",
+      "loginPrompt": "Please",
+      "loginLink": "log in",
+      "loginRest": "to interact with posts"
+    },
+    "actions": {
+      "like": "Like post",
+      "unlike": "Unlike post",
+      "viewComments": "View comments",
+      "share": "Share post",
+      "commentPlaceholder": "Write a comment...",
+      "postComment": "Post comment",
+      "login": "Log in",
+      "loginToComment": "to comment on this post",
+      "likeComment": "Like comment",
+      "unlikeComment": "Unlike comment"
+    },
+    "empty": "No posts available at the moment.",
+    "right": {
+      "title": "Weather & Advisory",
+      "subtitle": "Regional insights",
+      "viewMore": "View more",
+      "emptyTitle": "No advisories yet",
+      "emptySubtitle": "Will appear once available",
+      "countryFallback": "Global"
+    }
+  },
+  "courseDetails": {
+    "loading": "Loading course details...",
+    "errorTitle": "Error Loading Course",
+    "retry": "Try Again",
+    "back": "Go Back",
+    "breadcrumb": "Course Details",
+    "banner": {
+      "enrolled": "Enrolled",
+      "resumeTitle": "You are enrolled — resume your course",
+      "jumpBack": "You are enrolled — jump back in anytime",
+      "resumeSubtitle": "Currently on lesson {{number}} · {{title}}",
+      "pickUp": "Pick up the course whenever you're ready.",
+      "resumeCta": "Resume learning",
+      "openCta": "Open learning space"
+    },
+    "meta": {
+      "instructor": "Instructor",
+      "instructorFallback": "Instructor",
+      "lessons": "Lessons",
+      "languages": "Languages",
+      "level": "Level"
+    },
+    "video": {
+      "lockedTitle": "Video Locked",
+      "lockedBody": "Enroll in this course to watch the preview",
+      "captionAuth": "Watch the course introduction (3:24)",
+      "captionGuest": "Enroll to watch preview"
+    },
+    "enrollment": {
+      "priceFree": "Free",
+      "priceOneTime": "one-time",
+      "enrolling": "Enrolling...",
+      "enrolled": "Enrolled",
+      "enrollNow": "Enroll Now",
+      "resumeLesson": "Resume Lesson {{number}}",
+      "continueCourse": "Continue Course",
+      "wishlist": "Add to Wishlist"
+    },
+    "includes": {
+      "title": "This course includes:",
+      "empty": "No goals provided by the instructor yet."
+    },
+    "progress": {
+      "label": "Course Progress",
+      "subtitle": "Currently on lesson {{number}} · {{title}}"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "curriculum": "Curriculum",
+      "instructor": "Instructor",
+      "reviews": "Reviews"
+    },
+    "overview": {
+      "learnTitle": "What you'll learn",
+      "descriptionTitle": "Course Description",
+      "languagesTitle": "Languages"
+    },
+    "curriculum": {
+      "title": "Course Curriculum",
+      "empty": "No curriculum items yet."
+    },
+    "instructor": {
+      "title": "About the Instructor",
+      "role": "Course Instructor",
+      "languages": "Languages:"
+    },
+    "reviews": {
+      "title": "What learners say"
+    },
+    "related": {
+      "title": "Related Courses",
+      "meta": "Instructed by {{instructor}}",
+      "price": "Free",
+      "prev": "Previous related course",
+      "next": "Next related course",
+      "empty": "No related courses yet."
+    }
+  },
+  "userProfile": {
+    "header": {
+      "changePhoto": "Change Photo",
+      "editAria": "Edit Profile",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel"
+    },
+    "performance": {
+      "title": "Performance Overview"
+    },
+    "personal": {
+      "title": "Personal Information",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "Enter your full name",
+      "phone": "Phone Number",
+      "phonePlaceholder": "123-456-7890",
+      "language": "Language",
+      "languageSelect": "Select language",
+      "email": "Email Address",
+      "emailPlaceholder": "Enter your email address",
+      "birthdate": "Birthdate",
+      "country": "Country",
+      "countryValue": "Tunisia",
+      "role": "Role",
+      "required": "*"
+    },
+    "enrolled": {
+      "title": "My Enrolled Courses",
+      "courses": "Courses",
+      "errorTitle": "Failed to Load Courses",
+      "tryAgain": "Try Again",
+      "emptyTitle": "No Enrolled Courses",
+      "emptyDesc": "Start your learning journey by enrolling in courses",
+      "browse": "Browse Courses",
+      "status": {
+        "notStarted": "Not Started",
+        "inProgress": "In Progress",
+        "completed": "Completed"
+      },
+      "hours": "h studied",
+      "titleFallback": "Course Title",
+      "descriptionFallback": "Course description",
+      "countryFallback": "N/A",
+      "domainFallback": "N/A",
+      "overallProgress": "Overall Progress",
+      "sessions": "Sessions",
+      "sessionDetails": "Session Progress Details",
+      "legend": {
+        "completed": "Completed",
+        "current": "Current",
+        "upcoming": "Upcoming"
+      },
+      "start": "Start Course",
+      "continue": "Continue",
+      "certificate": "Certificate",
+      "completedOn": "Completed on {{date}}"
+    }
+  },
+  "home": {
+    "hero": {
+      "authPrompt": "Log in to unlock full platform features",
+      "title": "YEFFA Learning Platform",
+      "subtitle": "A next-generation e-learning solution designed to empower over <strong>30 million young farmers</strong> across North Africa.",
+      "stats": {
+        "users": {
+          "value": "30M+",
+          "label": "Users",
+          "desc": "Young farmers impacted"
+        },
+        "countries": {
+          "value": "5+",
+          "label": "Countries",
+          "desc": "North Africa Region"
+        },
+        "launch": {
+          "value": "2025",
+          "label": "Launch",
+          "desc": "End of year"
+        }
+      },
+      "cta": {
+        "getStarted": "Get Started",
+        "dashboard": "Go to Dashboard",
+        "contact": "Contact Us"
+      },
+      "cards": {
+        "training": "Interactive Training",
+        "resources": "Learning Resources",
+        "cert": "Certification"
+      }
+    },
+    "overview": {
+      "title": "Project Overview",
+      "subtitle": "A complete and scalable platform for modern agricultural education.",
+      "objectiveTitle": "Objective",
+      "objectiveText": "Deliver modern, high-quality agricultural education accessible to millions of young farmers across North Africa.",
+      "reachTitle": "Regional Reach",
+      "reachText": "Serving 5+ countries with multi-language support and content adapted to local needs and farming realities.",
+      "innovationTitle": "Innovation",
+      "innovationText": "AI-powered personalization, AR-based training modules, modern analytics, and high-engagement pedagogical tools."
+    },
+    "features": {
+      "title": "Key Features",
+      "subtitle": "Everything you need for high-impact agricultural learning",
+      "userMgmt": {
+        "title": "User Management",
+        "items": [
+          "Fast onboarding for millions",
+          "Role-based access control",
+          "Detailed user profiles",
+          "Personalized dashboard"
+        ]
+      },
+      "training": {
+        "title": "Online Training",
+        "items": [
+          "High-quality video streaming",
+          "Interactive and gamified modules",
+          "Assessments and auto-grading",
+          "Completion certificates"
+        ]
+      },
+      "collab": {
+        "title": "Collaboration",
+        "items": [
+          "Real-time chat between trainers & learners",
+          "Thematic discussion forums",
+          "Mentorship system",
+          "Knowledge sharing"
+        ]
+      }
+    },
+    "courses": {
+      "title": "Popular Courses",
+      "subtitle": "Top-rated agricultural training programs",
+      "duration": "4 Weeks",
+      "lessons": "12 lessons",
+      "domainFallback": "Agriculture",
+      "countryFallback": "Morocco",
+      "descFallback": "Course description unavailable.",
+      "button": {
+        "continue": "Continue",
+        "enroll": "Enroll"
+      },
+      "viewAll": "View All Courses",
+      "retry": "Retry"
+    },
+    "posts": {
+      "title": "Community Updates",
+      "subtitle": "Latest discussions and shared experiences",
+      "anonymous": "Anonymous",
+      "viewAll": "View All Posts",
+      "retry": "Retry"
+    },
+    "about": {
+      "badge": "Empowering North African agriculture",
+      "title": "Growing the future of <span>farming</span>",
+      "lead": "YEFFA connects farmers with modern training, trusted experts, and community-driven knowledge to scale sustainable growth across North Africa.",
+      "missionTitle": "Our mission",
+      "missionP1": "Every farm deserves access to modern tools and locally relevant know-how. We blend agronomic science, AI-assisted personalization, and human mentorship to keep training grounded in real field conditions.",
+      "missionP2": "From Morocco to Egypt, we are building a connected network of farmers, agronomists, and cooperatives—so knowledge flows freely and resilience scales with every harvest.",
+      "valuesTitle": "What drives us",
+      "values": {
+        "sustainability": {
+          "title": "Sustainability",
+          "text": "Eco-friendly, climate-smart practices that protect land and livelihoods for future generations."
+        },
+        "unity": {
+          "title": "Regional unity",
+          "text": "Connecting cooperatives and unions to share resources, research, and best practices across borders."
+        },
+        "community": {
+          "title": "Community first",
+          "text": "Keeping farmers at the center with mentorship, forums, and collaborative learning cohorts."
+        },
+        "innovation": {
+          "title": "Innovation",
+          "text": "Bringing AI insights, AR field simulations, and data-driven coaching to everyday farming."
+        }
+      },
+      "stats": {
+        "learners": "Learners Reached",
+        "countries": "Countries",
+        "yield": "Avg. Yield Lift",
+        "support": "Mentor Support",
+        "uptime": "Uptime",
+        "loadTime": "Load Time",
+        "concurrent": "Concurrent Users",
+        "techSupport": "Technical Support"
+      }
+    },
+    "sponsors": {
+      "title": "Sponsors & Partners",
+      "subtitle": "Organizations fueling AGRA's mission across North Africa",
+      "coming": "Sponsors will appear here soon."
+    },
+    "orgs": {
+      "title": "Organisations membres",
+      "subtitle": "Network of national partners.",
+      "list": {
+        "dz": {
+          "country": "Algeria",
+          "name": "National Union of Algerian Farmers"
+        },
+        "eg": {
+          "country": "Egypt",
+          "name": "Central Union of Agricultural Cooperatives"
+        },
+        "ly": {
+          "country": "Libya",
+          "name": "General Union of Farmers and Breeders"
+        },
+        "ma": {
+          "country": "Morocco",
+          "name": "Moroccan Union of Agriculture"
+        },
+        "mr": {
+          "country": "Mauritania",
+          "name": "Mauritanian Federation of Agriculture"
+        },
+        "tn": {
+          "country": "Tunisia",
+          "name": "Tunisian Union of Agriculture and Fisheries"
+        },
+        "sd": {
+          "country": "Sudan",
+          "name": "National Farmers Organization"
+        }
+      }
+    }
+  }
+}

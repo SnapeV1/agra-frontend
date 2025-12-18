@@ -2,8 +2,8 @@
 
 <div class="container">
   <div class="header">
-    <h1>Settings</h1>
-    <p>Manage your account preferences and personalization</p>
+    <h1>{{ 'settings.title' | translate }}</h1>
+    <p>{{ 'settings.subtitle' | translate }}</p>
   </div>
 
   <!-- Account Settings -->
@@ -12,103 +12,36 @@
       <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
       </svg>
-      Account Settings
+      {{ 'settings.account.title' | translate }}
     </h2>
 
     <div class="setting-item">
       <div class="setting-info">
-        <div class="setting-label">Email Address</div>
+        <div class="setting-label">{{ 'settings.account.email' | translate }}</div>
         <div class="setting-description">{{ currentEmail }}</div>
       </div>
       <div class="setting-action">
-        <button class="btn btn-outline" (click)="openModal('email')">Change</button>
+        <button class="btn btn-outline" (click)="openModal('email')">{{ 'settings.buttons.change' | translate }}</button>
       </div>
     </div>
 
     <div class="setting-item">
       <div class="setting-info">
-        <div class="setting-label">Password</div>
-        <div class="setting-description">Keep your account secure by updating regularly</div>
+        <div class="setting-label">{{ 'settings.account.password' | translate }}</div>
+        <div class="setting-description">{{ 'settings.account.passwordDesc' | translate }}</div>
       </div>
       <div class="setting-action">
-        <button class="btn btn-outline" (click)="openModal('password')">Change</button>
-      </div>
-    </div>
-
-    <div class="setting-item setting-item-stack phone-reset-card">
-      <div class="setting-info">
-        <div class="setting-label">Reset password with your phone</div>
-        <div class="setting-description">Send a one-time SMS code to reset your password without email.</div>
-        <div class="phone-reset-grid">
-          <div class="input-group inline-input">
-            <label>Phone number</label>
-            <input
-              type="tel"
-              placeholder="+212 6 12 34 56 78"
-              [(ngModel)]="phoneResetPhone"
-              name="phoneResetPhone" />
-          </div>
-          <button
-            class="btn btn-outline"
-            type="button"
-            (click)="sendPhoneResetCode()"
-            [disabled]="phoneResetLoading">
-            {{ phoneResetLoading ? 'Sending...' : (phoneResetCodeSent ? 'Resend code' : 'Send code') }}
-          </button>
-        </div>
-
-        <div class="phone-reset-grid">
-          <div class="input-group inline-input">
-            <label>SMS code</label>
-            <input
-              type="text"
-              placeholder="Enter the 6-digit code"
-              [(ngModel)]="phoneResetCode"
-              name="phoneResetCode"
-              [disabled]="!phoneResetCodeSent" />
-          </div>
-          <div class="input-group inline-input">
-            <label>New password</label>
-            <input
-              type="password"
-              placeholder="Create a new password"
-              [(ngModel)]="phoneResetNewPassword"
-              name="phoneResetNewPassword"
-              [disabled]="!phoneResetCodeSent" />
-          </div>
-          <div class="input-group inline-input">
-            <label>Confirm new password</label>
-            <input
-              type="password"
-              placeholder="Re-enter new password"
-              [(ngModel)]="phoneResetConfirmPassword"
-              name="phoneResetConfirmPassword"
-              [disabled]="!phoneResetCodeSent" />
-          </div>
-        </div>
-        <div class="phone-reset-messages">
-          <p class="ok" *ngIf="phoneResetMessage">{{ phoneResetMessage }}</p>
-          <p class="err" *ngIf="phoneResetError">{{ phoneResetError }}</p>
-        </div>
-      </div>
-      <div class="setting-action">
-        <button
-          class="btn btn-primary"
-          type="button"
-          (click)="resetPasswordWithPhone()"
-          [disabled]="phoneResetLoading || !phoneResetCodeSent">
-          {{ phoneResetLoading ? 'Processing...' : 'Reset via phone' }}
-        </button>
+        <button class="btn btn-outline" (click)="openModal('password')">{{ 'settings.buttons.change' | translate }}</button>
       </div>
     </div>
 
     <div class="setting-item">
       <div class="setting-info">
-        <div class="setting-label">Two-Factor Authentication</div>
-        <div class="setting-description">Add an extra layer of security</div>
+        <div class="setting-label">{{ 'settings.account.twoFactor' | translate }}</div>
+        <div class="setting-description">{{ 'settings.account.twoFactorDesc' | translate }}</div>
       </div>
       <div class="setting-action">
-        <button class="btn btn-outline" disabled>Enable</button>
+        <button class="btn btn-outline" disabled>{{ 'settings.buttons.enable' | translate }}</button>
       </div>
     </div>
   </div>
@@ -119,19 +52,19 @@
       <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
       </svg>
-      Appearance
+      {{ 'settings.appearance.title' | translate }}
     </h2>
 
     <div class="setting-item">
       <div class="setting-info">
-        <div class="setting-label">Theme</div>
-        <div class="setting-description">Choose your preferred theme</div>
+        <div class="setting-label">{{ 'settings.appearance.theme' | translate }}</div>
+        <div class="setting-description">{{ 'settings.appearance.themeDesc' | translate }}</div>
       </div>
       <div class="setting-action">
         <div class="select-wrapper">
-          <select [(ngModel)]="theme" name="theme" (change)="saveTheme()">
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
+          <select [(ngModel)]="theme" name="theme">
+            <option value="light">{{ 'settings.appearance.light' | translate }}</option>
+            <option value="dark">{{ 'settings.appearance.dark' | translate }}</option>
           </select>
         </div>
       </div>
@@ -139,19 +72,26 @@
 
     <div class="setting-item">
       <div class="setting-info">
-        <div class="setting-label">Language</div>
-        <div class="setting-description">Select your language</div>
+        <div class="setting-label">{{ 'settings.appearance.language' | translate }}</div>
+        <div class="setting-description">{{ 'settings.appearance.languageDesc' | translate }}</div>
       </div>
       <div class="setting-action">
         <div class="select-wrapper">
-          <select [(ngModel)]="language" name="language" (change)="saveLanguage()">
-            <option value="en">English</option>
-            <option value="es">Spanish</option>
-            <option value="fr">French</option>
-            <option value="de">German</option>
-            <option value="zh">Chinese</option>
+          <select [(ngModel)]="language" name="language">
+            <option value="en">{{ 'lang.en' | translate }}</option>
+            <option value="fr">{{ 'lang.fr' | translate }}</option>
           </select>
         </div>
+      </div>
+    </div>
+
+    <div class="setting-item">
+      <div class="setting-info">
+        <div class="setting-label">{{ 'settings.appearance.saveTitle' | translate }}</div>
+        <div class="setting-description">{{ 'settings.appearance.saveDesc' | translate }}</div>
+      </div>
+      <div class="setting-action">
+        <button class="btn btn-primary" type="button" (click)="saveDisplayPrefs()">{{ 'settings.buttons.save' | translate }}</button>
       </div>
     </div>
   </div>
@@ -164,15 +104,16 @@
           <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
           </svg>
-          Notification Preferences
+          {{ 'settings.notifications.title' | translate }}
         </h2>
-        <p class="section-subtitle">Choose what you get notified about and how you receive it.</p>
+        <p class="section-subtitle">{{ 'settings.notifications.subtitle' | translate }}</p>
       </div>
-      <span class="collapse-indicator" [class.collapsed]="notificationPrefsCollapsed">▾</span>
+<span
+  class="collapse-indicator" [class.collapsed]="notificationPrefsCollapsed">▾</span>
     </div>
 
     <ng-container *ngIf="!notificationPrefsCollapsed">
-      <p class="prefs-status" *ngIf="notificationPrefsLoading">Loading your preferences...</p>
+      <p class="prefs-status" *ngIf="notificationPrefsLoading">{{ 'settings.notifications.loading' | translate }}</p>
       <p class="ok" *ngIf="notificationPrefsMessage">{{ notificationPrefsMessage }}</p>
       <p class="err" *ngIf="notificationPrefsError">{{ notificationPrefsError }}</p>
 
@@ -180,56 +121,56 @@
         <div class="pref-card">
           <div class="pref-card-header">
             <div>
-              <p class="pref-heading">Notification types</p>
-              <small>Turn categories on or off.</small>
+              <p class="pref-heading">{{ 'settings.notifications.typesTitle' | translate }}</p>
+              <small>{{ 'settings.notifications.typesSubtitle' | translate }}</small>
             </div>
           </div>
           <div class="pref-row">
             <div>
-              <p class="pref-label">Likes:</p>
-              <small>Activity when someone likes your posts.</small>
+              <p class="pref-label">{{ 'settings.notifications.likes' | translate }}</p>
+              <small>{{ 'settings.notifications.likesDesc' | translate }}</small>
             </div>
             <div class="toggle-switch" [class.active]="notificationPrefs.likeEnabled" (click)="notificationPrefs.likeEnabled = !notificationPrefs.likeEnabled"></div>
           </div>
           <div class="pref-row">
             <div>
-              <p class="pref-label">Comments:</p>
-              <small>New comments on your content.</small>
+              <p class="pref-label">{{ 'settings.notifications.comments' | translate }}</p>
+              <small>{{ 'settings.notifications.commentsDesc' | translate }}</small>
             </div>
             <div class="toggle-switch" [class.active]="notificationPrefs.commentEnabled" (click)="notificationPrefs.commentEnabled = !notificationPrefs.commentEnabled"></div>
           </div>
           <div class="pref-row">
             <div>
-              <p class="pref-label">Replies:</p>
-              <small>Responses to your comments.</small>
+              <p class="pref-label">{{ 'settings.notifications.replies' | translate }}</p>
+              <small>{{ 'settings.notifications.repliesDesc' | translate }}</small>
             </div>
             <div class="toggle-switch" [class.active]="notificationPrefs.replyEnabled" (click)="notificationPrefs.replyEnabled = !notificationPrefs.replyEnabled"></div>
           </div>
           <div class="pref-row">
             <div>
-              <p class="pref-label">Tickets:</p>
-              <small>Updates on your support tickets.</small>
+              <p class="pref-label">{{ 'settings.notifications.tickets' | translate }}</p>
+              <small>{{ 'settings.notifications.ticketsDesc' | translate }}</small>
             </div>
             <div class="toggle-switch" [class.active]="notificationPrefs.ticketEnabled" (click)="notificationPrefs.ticketEnabled = !notificationPrefs.ticketEnabled"></div>
           </div>
           <div class="pref-row">
             <div>
-              <p class="pref-label">System:</p>
-              <small>Security, policy, or platform updates.</small>
+              <p class="pref-label">{{ 'settings.notifications.system' | translate }}</p>
+              <small>{{ 'settings.notifications.systemDesc' | translate }}</small>
             </div>
             <div class="toggle-switch" [class.active]="notificationPrefs.systemEnabled" (click)="notificationPrefs.systemEnabled = !notificationPrefs.systemEnabled"></div>
           </div>
           <div class="pref-row">
             <div>
-              <p class="pref-label">Courses:</p>
-              <small>Course launches, enrollments, and reminders.</small>
+              <p class="pref-label">{{ 'settings.notifications.courses' | translate }}</p>
+              <small>{{ 'settings.notifications.coursesDesc' | translate }}</small>
             </div>
             <div class="toggle-switch" [class.active]="notificationPrefs.courseEnabled" (click)="notificationPrefs.courseEnabled = !notificationPrefs.courseEnabled"></div>
           </div>
           <div class="pref-row">
             <div>
-              <p class="pref-label">Posts:</p>
-              <small>New posts from people you follow.</small>
+              <p class="pref-label">{{ 'settings.notifications.posts' | translate }}</p>
+              <small>{{ 'settings.notifications.postsDesc' | translate }}</small>
             </div>
             <div class="toggle-switch" [class.active]="notificationPrefs.postEnabled" (click)="notificationPrefs.postEnabled = !notificationPrefs.postEnabled"></div>
           </div>
@@ -238,20 +179,20 @@
         <div class="pref-card quiet-hours-card">
           <div class="pref-card-header">
             <div>
-              <p class="pref-heading">Quiet hours</p>
-              <small>Silence notifications on a schedule (overnight supported).</small>
+              <p class="pref-heading">{{ 'settings.notifications.quietHours' | translate }}</p>
+              <small>{{ 'settings.notifications.quietHoursDesc' | translate }}</small>
             </div>
           </div>
           <div class="pref-row">
             <div>
-              <p class="pref-label">Enable quiet hours</p>
-              <small>Set a window where in-app/email/push are muted.</small>
+              <p class="pref-label">{{ 'settings.notifications.quietHoursEnable' | translate }}</p>
+              <small>{{ 'settings.notifications.quietHoursEnableDesc' | translate }}</small>
             </div>
             <div class="toggle-switch" [class.active]="notificationPrefs.quietHoursEnabled" (click)="toggleQuietHours()"></div>
           </div>
           <div class="quiet-hours-grid">
             <div class="input-group">
-              <label for="quiet-start">Start</label>
+              <label for="quiet-start">{{ 'settings.notifications.start' | translate }}</label>
               <input
                 id="quiet-start"
                 name="quiet-start"
@@ -260,7 +201,7 @@
                 [(ngModel)]="quietHoursStartInput" />
             </div>
             <div class="input-group">
-              <label for="quiet-end">End</label>
+              <label for="quiet-end">{{ 'settings.notifications.end' | translate }}</label>
               <input
                 id="quiet-end"
                 name="quiet-end"
@@ -269,17 +210,17 @@
                 [(ngModel)]="quietHoursEndInput" />
             </div>
           </div>
-          <p class="helper-text">Overnight ranges are supported (e.g., 22:00 to 07:00). Both times are required when enabled.</p>
+          <p class="helper-text">{{ 'settings.notifications.helper' | translate }}</p>
         </div>
       </div>
 
       <div class="pref-actions pref-actions-bottom" *ngIf="!notificationPrefsLoading">
         <div class="action-buttons">
-          <button class="btn btn-outline" type="button" (click)="resetNotificationPreferences()" [disabled]="notificationPrefsSaving">Reset to defaults</button>
-          <button class="btn btn-outline" type="button" (click)="muteAllNotifications()" [disabled]="notificationPrefsSaving">Mute all</button>
+          <button class="btn btn-outline" type="button" (click)="resetNotificationPreferences()" [disabled]="notificationPrefsSaving">{{ 'settings.notifications.reset' | translate }}</button>
+          <button class="btn btn-outline" type="button" (click)="muteAllNotifications()" [disabled]="notificationPrefsSaving">{{ 'settings.notifications.muteAll' | translate }}</button>
         </div>
         <button class="btn btn-primary" type="button" (click)="saveNotificationPreferences()" [disabled]="notificationPrefsSaving || notificationPrefsLoading">
-          {{ notificationPrefsSaving ? 'Saving...' : 'Save preferences' }}
+          {{ notificationPrefsSaving ? ('settings.notifications.saving' | translate) : ('settings.notifications.save' | translate) }}
         </button>
       </div>
     </ng-container>
@@ -294,37 +235,37 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M8 10h.01M12 10h.01M16 10h.01M21 12l-2-2v7a2 2 0 01-2 2H7l-4 4V7a2 2 0 012-2h9" />
           </svg>
-          Support Tickets
+          {{ 'settings.tickets.title' | translate }}
         </h2>
-        <p class="section-subtitle">Track past conversations or start a new request.</p>
+        <p class="section-subtitle">{{ 'settings.tickets.subtitle' | translate }}</p>
       </div>
       <div class="tickets-actions">
         <button class="btn btn-outline" (click)="fetchTickets()" [disabled]="ticketsLoading">
-          {{ ticketsLoading ? 'Refreshing...' : 'Refresh' }}
+          {{ ticketsLoading ? ('settings.tickets.refreshing' | translate) : ('settings.tickets.refresh' | translate) }}
         </button>
         <button class="btn btn-primary" (click)="startTicket()">
-          {{ showTicketForm ? 'Close' : 'Start Ticket' }}
+          {{ showTicketForm ? ('settings.tickets.close' | translate) : ('settings.tickets.start' | translate) }}
         </button>
       </div>
     </div>
 
     <form class="ticket-form" *ngIf="showTicketForm" (ngSubmit)="submitTicket()">
       <div class="input-group">
-        <label for="ticket-subject">Subject</label>
+        <label for="ticket-subject">{{ 'settings.tickets.subject' | translate }}</label>
         <input
           id="ticket-subject"
           type="text"
-          placeholder="Brief summary of the issue"
+          [placeholder]="'settings.tickets.subjectPlaceholder' | translate"
           [(ngModel)]="newTicketSubject"
           name="ticketSubject"
           required />
       </div>
       <div class="input-group">
-        <label for="ticket-message">Message</label>
+        <label for="ticket-message">{{ 'settings.tickets.message' | translate }}</label>
         <textarea
           id="ticket-message"
           rows="4"
-          placeholder="Describe the problem or request"
+          [placeholder]="'settings.tickets.messagePlaceholder' | translate"
           [(ngModel)]="newTicketMessage"
           name="ticketMessage"
           required></textarea>
@@ -342,25 +283,25 @@
               d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
             />
           </svg>
-          <span>{{ createTicketAttachment ? 'Change attachment' : 'Attach image' }}</span>
+          <span>{{ createTicketAttachment ? ('settings.tickets.changeAttachment' | translate) : ('settings.tickets.attachImage' | translate) }}</span>
         </button>
         <div class="attachment-preview" *ngIf="createTicketAttachment">
           <span>{{ createTicketAttachment.name }}</span>
-          <button type="button" class="link-btn" (click)="clearCreateAttachment()">Remove</button>
+          <button type="button" class="link-btn" (click)="clearCreateAttachment()">{{ 'settings.buttons.remove' | translate }}</button>
         </div>
       </div>
       <p class="err" *ngIf="createTicketError">{{ createTicketError }}</p>
       <div class="ticket-form-actions">
-        <button type="button" class="btn btn-outline" (click)="startTicket()">Cancel</button>
+        <button type="button" class="btn btn-outline" (click)="startTicket()">{{ 'settings.buttons.cancel' | translate }}</button>
         <button type="submit" class="btn btn-primary" [disabled]="creatingTicket">
-          {{ creatingTicket ? 'Sending...' : 'Submit Ticket' }}
+          {{ creatingTicket ? ('settings.tickets.sending' | translate) : ('settings.tickets.submit' | translate) }}
         </button>
       </div>
     </form>
 
     <div *ngIf="ticketsLoading" class="ticket-loading">
       <div class="spinner"></div>
-      <span>Loading your tickets...</span>
+      <span>{{ 'settings.tickets.loading' | translate }}</span>
     </div>
 
     <div *ngIf="ticketsError && !ticketsLoading" class="tickets-error">
@@ -368,9 +309,9 @@
     </div>
 
     <div *ngIf="!ticketsLoading && !ticketsError && !myTickets.length" class="tickets-empty">
-      <h3>No tickets yet</h3>
-      <p>Need help with courses, payments, or your account? Start a support ticket and our team will reply quickly.</p>
-      <button class="btn btn-primary" (click)="startTicket()">Start a Ticket</button>
+      <h3>{{ 'settings.tickets.emptyTitle' | translate }}</h3>
+      <p>{{ 'settings.tickets.emptyDesc' | translate }}</p>
+      <button class="btn btn-primary" (click)="startTicket()">{{ 'settings.tickets.start' | translate }}</button>
     </div>
 
     <div *ngIf="myTickets.length" class="tickets-hub">
@@ -385,14 +326,14 @@
             <small>{{ lastUpdateLabel(ticket) }}</small>
           </div>
           <h3>{{ ticket.subject }}</h3>
-          <p class="ticket-id">Ticket #{{ ticket.id }}</p>
+          <p class="ticket-id">{{ 'settings.tickets.ticketId' | translate }} {{ ticket.id }}</p>
         </article>
       </div>
 
       <div class="ticket-conversation-panel">
         <div *ngIf="threadLoading" class="ticket-conversation-placeholder">
           <div class="spinner"></div>
-          <p>Loading conversation...</p>
+          <p>{{ 'settings.tickets.conversationLoading' | translate }}</p>
         </div>
 
         <div *ngIf="threadError && !threadLoading" class="tickets-error">
@@ -403,7 +344,7 @@
           <ng-container *ngIf="selectedThread as thread; else noSelection">
             <div class="conversation-header">
               <div>
-                <p class="ticket-id">Ticket #{{ thread.ticket.id }}</p>
+                <p class="ticket-id">{{ 'settings.tickets.ticketId' | translate }} {{ thread.ticket.id }}</p>
                 <h3>{{ thread.ticket.subject }}</h3>
                 <small>{{ thread.ticket.createdAt | date:'mediumDate' }}</small>
               </div>
@@ -447,7 +388,7 @@
                 </div>
               </div>
               <div class="ticket-conversation-placeholder" *ngIf="!threadMessages.length">
-                <p>No replies yet. We're on it!</p>
+                <p>{{ 'settings.tickets.noReplies' | translate }}</p>
               </div>
             </div>
 
@@ -465,30 +406,30 @@
                       d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
                     />
                   </svg>
-                  <span>Attach image</span>
+                  <span>{{ 'settings.tickets.attachImage' | translate }}</span>
                 </button>
                 <div class="attachment-preview" *ngIf="replyAttachment">
                   <span>{{ replyAttachment.name }}</span>
-                  <button type="button" class="link-btn" (click)="clearReplyAttachment()">Remove</button>
+                  <button type="button" class="link-btn" (click)="clearReplyAttachment()">{{ 'settings.buttons.remove' | translate }}</button>
                 </div>
               </div>
               <textarea
                 rows="3"
-                placeholder="Share more details or ask a follow-up question"
+                [placeholder]="'settings.tickets.replyPlaceholder' | translate"
                 [(ngModel)]="replyMessage"></textarea>
               <div class="reply-actions">
                 <button class="btn btn-primary" type="button" (click)="sendReply()" [disabled]="sendingReply || !replyMessage.trim()">
-                  {{ sendingReply ? 'Sending...' : 'Send Reply' }}
+                  {{ sendingReply ? ('settings.tickets.sending' | translate) : ('settings.tickets.sendReply' | translate) }}
                 </button>
               </div>
             </div>
             <ng-template #closedTicket>
-              <p class="conversation-closed">This ticket is closed. Start a new ticket if you need more help.</p>
+              <p class="conversation-closed">{{ 'settings.tickets.closed' | translate }}</p>
             </ng-template>
           </ng-container>
           <ng-template #noSelection>
             <div class="ticket-conversation-placeholder">
-              <p>Select a ticket to view the conversation.</p>
+              <p>{{ 'settings.tickets.select' | translate }}</p>
             </div>
           </ng-template>
         </ng-container>
@@ -502,20 +443,20 @@
       <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
       </svg>
-      Privacy & Data
+      {{ 'settings.privacy.title' | translate }}
     </h2>
 
     <div class="setting-item">
       <div class="setting-info">
-        <div class="setting-label">Profile Visibility</div>
-        <div class="setting-description">Control who can see your profile</div>
+        <div class="setting-label">{{ 'settings.privacy.profile' | translate }}</div>
+        <div class="setting-description">{{ 'settings.privacy.profileDesc' | translate }}</div>
       </div>
       <div class="setting-action">
         <div class="select-wrapper">
           <select>
-            <option>Public</option>
-            <option>Friends Only</option>
-            <option>Private</option>
+            <option>{{ 'settings.privacy.public' | translate }}</option>
+            <option>{{ 'settings.privacy.friends' | translate }}</option>
+            <option>{{ 'settings.privacy.private' | translate }}</option>
           </select>
         </div>
       </div>
@@ -523,21 +464,21 @@
 
     <div class="setting-item">
       <div class="setting-info">
-        <div class="setting-label">Data Download</div>
-        <div class="setting-description">Download a copy of your data</div>
+        <div class="setting-label">{{ 'settings.privacy.download' | translate }}</div>
+        <div class="setting-description">{{ 'settings.privacy.downloadDesc' | translate }}</div>
       </div>
       <div class="setting-action">
-        <button class="btn btn-outline" disabled>Request Download</button>
+        <button class="btn btn-outline" disabled>{{ 'settings.buttons.request' | translate }}</button>
       </div>
     </div>
 
     <div class="setting-item">
       <div class="setting-info">
-        <div class="setting-label">Activity History</div>
-        <div class="setting-description">View and manage your activity</div>
+        <div class="setting-label">{{ 'settings.privacy.activity' | translate }}</div>
+        <div class="setting-description">{{ 'settings.privacy.activityDesc' | translate }}</div>
       </div>
       <div class="setting-action">
-        <button class="btn btn-outline" disabled>View</button>
+        <button class="btn btn-outline" disabled>{{ 'settings.buttons.view' | translate }}</button>
       </div>
     </div>
   </div>
@@ -548,26 +489,26 @@
       <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
       </svg>
-      Danger Zone
+      {{ 'settings.danger.title' | translate }}
     </h2>
 
     <div class="setting-item">
       <div class="setting-info">
-        <div class="setting-label">Deactivate Account</div>
-        <div class="setting-description">Temporarily disable your account</div>
+        <div class="setting-label">{{ 'settings.danger.deactivate' | translate }}</div>
+        <div class="setting-description">{{ 'settings.danger.deactivateDesc' | translate }}</div>
       </div>
       <div class="setting-action">
-        <button class="btn btn-outline" style="color: var(--danger); border-color: var(--danger);" disabled>Deactivate</button>
+        <button class="btn btn-outline" style="color: var(--danger); border-color: var(--danger);" disabled>{{ 'settings.buttons.deactivate' | translate }}</button>
       </div>
     </div>
 
     <div class="setting-item">
       <div class="setting-info">
-        <div class="setting-label">Delete Account</div>
-        <div class="setting-description">Permanently delete your account and all data</div>
+        <div class="setting-label">{{ 'settings.danger.delete' | translate }}</div>
+        <div class="setting-description">{{ 'settings.danger.deleteDesc' | translate }}</div>
       </div>
       <div class="setting-action">
-        <button class="btn btn-danger" (click)="openModal('delete')">Delete Account</button>
+        <button class="btn btn-danger" (click)="openModal('delete')">{{ 'settings.buttons.delete' | translate }}</button>
       </div>
     </div>
   </div>
@@ -579,65 +520,65 @@
 <!-- Modals -->
 <div class="modal" [class.active]="showEmailModal" (click)="overlayClick($event)">
   <div class="modal-content">
-    <h3 class="modal-header">Change Email Address</h3>
+    <h3 class="modal-header">{{ 'settings.modals.emailTitle' | translate }}</h3>
     <div class="modal-body">
       <div class="input-group">
-        <label>New Email Address</label>
-        <input type="email" placeholder="Enter new email" [(ngModel)]="newEmail" name="modal_new_email" />
+        <label>{{ 'settings.modals.newEmail' | translate }}</label>
+        <input type="email" [placeholder]="'settings.modals.newEmailPlaceholder' | translate" [(ngModel)]="newEmail" name="modal_new_email" />
       </div>
       <div class="input-group">
-        <label>Current Password</label>
-        <input type="password" placeholder="Enter your password" [(ngModel)]="emailPassword" name="modal_email_password" />
+        <label>{{ 'settings.modals.currentPassword' | translate }}</label>
+        <input type="password" [placeholder]="'settings.modals.passwordPlaceholder' | translate" [(ngModel)]="emailPassword" name="modal_email_password" />
       </div>
       <p class="ok" *ngIf="emailMessage">{{ emailMessage }}</p>
       <p class="err" *ngIf="emailError">{{ emailError }}</p>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-outline" (click)="closeModal()">Cancel</button>
-      <button class="btn btn-primary" (click)="changeEmail()">Save Changes</button>
+      <button class="btn btn-outline" (click)="closeModal()">{{ 'settings.buttons.cancel' | translate }}</button>
+      <button class="btn btn-primary" (click)="changeEmail()">{{ 'settings.buttons.saveChanges' | translate }}</button>
     </div>
   </div>
  </div>
 
 <div class="modal" [class.active]="showPasswordModal" (click)="overlayClick($event)">
   <div class="modal-content">
-    <h3 class="modal-header">Change Password</h3>
+    <h3 class="modal-header">{{ 'settings.modals.passwordTitle' | translate }}</h3>
     <div class="modal-body">
       <div class="input-group">
-        <label>Current Password</label>
-        <input type="password" placeholder="Enter current password" [(ngModel)]="currentPassword" name="modal_current_password" />
+        <label>{{ 'settings.modals.currentPassword' | translate }}</label>
+        <input type="password" [placeholder]="'settings.modals.passwordPlaceholder' | translate" [(ngModel)]="currentPassword" name="modal_current_password" />
       </div>
       <div class="input-group">
-        <label>New Password</label>
-        <input type="password" placeholder="Enter new password" [(ngModel)]="newPassword" name="modal_new_password" />
+        <label>{{ 'settings.modals.newPassword' | translate }}</label>
+        <input type="password" [placeholder]="'settings.modals.newPasswordPlaceholder' | translate" [(ngModel)]="newPassword" name="modal_new_password" />
       </div>
       <div class="input-group">
-        <label>Confirm New Password</label>
-        <input type="password" placeholder="Confirm new password" [(ngModel)]="confirmPassword" name="modal_confirm_password" />
+        <label>{{ 'settings.modals.confirmNewPassword' | translate }}</label>
+        <input type="password" [placeholder]="'settings.modals.confirmPasswordPlaceholder' | translate" [(ngModel)]="confirmPassword" name="modal_confirm_password" />
       </div>
       <p class="ok" *ngIf="pwMessage">{{ pwMessage }}</p>
       <p class="err" *ngIf="pwError">{{ pwError }}</p>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-outline" (click)="closeModal()">Cancel</button>
-      <button class="btn btn-primary" (click)="changePassword()">Update Password</button>
+      <button class="btn btn-outline" (click)="closeModal()">{{ 'settings.buttons.cancel' | translate }}</button>
+      <button class="btn btn-primary" (click)="changePassword()">{{ 'settings.buttons.updatePassword' | translate }}</button>
     </div>
   </div>
 </div>
 
 <div class="modal" [class.active]="showDeleteModal" (click)="overlayClick($event)">
   <div class="modal-content">
-    <h3 class="modal-header">Delete Account</h3>
+    <h3 class="modal-header">{{ 'settings.modals.deleteTitle' | translate }}</h3>
     <div class="modal-body">
-      <p>Are you sure you want to delete your account? This action cannot be undone and will permanently delete all your data.</p>
+      <p>{{ 'settings.modals.deleteBody' | translate }}</p>
       <div class="input-group" style="margin-top: 20px;">
-        <label>Type "DELETE" to confirm</label>
-        <input type="text" placeholder="DELETE" />
+        <label>{{ 'settings.modals.deleteConfirmLabel' | translate }}</label>
+        <input type="text" [placeholder]="'settings.modals.deletePlaceholder' | translate" />
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-outline" (click)="closeModal()">Cancel</button>
-      <button class="btn btn-danger" disabled>Delete Account</button>
+      <button class="btn btn-outline" (click)="closeModal()">{{ 'settings.buttons.cancel' | translate }}</button>
+      <button class="btn btn-danger" disabled>{{ 'settings.buttons.delete' | translate }}</button>
     </div>
   </div>
 </div>

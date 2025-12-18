@@ -167,7 +167,10 @@
   background: var(--hover-bg);
   border-bottom: 1px solid var(--hover-bg);
   font-weight: 600; color: var(--text-color);
+  white-space: nowrap;
 }
+.notif-header span { white-space: nowrap; }
+.notif-header .actions { flex-wrap: nowrap; }
 .notif-header .actions { display: inline-flex; gap: 8px; }
 .notif-header .mark-read {
   background: none; border: none; color: #2563eb; cursor: pointer;
@@ -179,16 +182,43 @@
   max-height: calc(4 * 64px); /* show 4 items then scroll */
   overflow-y: auto;
 }
+.notif-list::-webkit-scrollbar { width: 8px; }
+.notif-list::-webkit-scrollbar-track { background: transparent; }
+.notif-list::-webkit-scrollbar-thumb {
+  background: rgba(46, 125, 50, 0.25);
+  border-radius: 999px;
+  border: 2px solid transparent;
+}
+.notif-list:hover::-webkit-scrollbar-thumb { background: rgba(46, 125, 50, 0.45); }
+:host-context([data-theme="dark"]) .notif-list::-webkit-scrollbar-thumb {
+  background: rgba(134, 239, 172, 0.35);
+}
+:host-context([data-theme="dark"]) .notif-list:hover::-webkit-scrollbar-thumb {
+  background: rgba(134, 239, 172, 0.55);
+}
 .notif-empty { padding: 24px; text-align: center; color: var(--text-color); opacity: .7; font-size: 0.95rem; }
 .notif-item {
-  display: flex; gap: 10px; padding: 10px 12px; cursor: pointer;
-  border-bottom: 1px solid var(--hover-bg); align-items: flex-start;
+  position: relative;
+  display: flex;
+  gap: 0;
+  padding: 10px 12px 10px 28px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--hover-bg);
+  align-items: flex-start;
   min-height: 64px; /* consistent item height for scroll calc */
 }
 .notif-item:last-child { border-bottom: none; }
 .notif-item:hover { background: var(--hover-bg); }
 .notif-item.unread { background: rgba(34,197,94,0.08); }
-.notif-dot { width: 8px; height: 8px; border-radius: 999px; background: var(--accent-color); margin-top: 7px; flex: 0 0 auto; }
+.notif-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent-color);
+  position: absolute;
+  left: 12px;
+  top: 16px;
+}
 .notif-content { flex: 1; min-width: 0; }
 .notif-title { font-weight: 600; color: var(--text-color); }
 .notif-message { color: var(--text-color); opacity:.85; margin-top: 2px; white-space: normal; }

@@ -1,6 +1,7 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { ProfileService } from 'src/app/core/services/profile/profile.service';
+import { LanguageService } from 'src/app/core/services/language.service';
 import { Ticket, TicketMessage, TicketStatus, TicketThreadResponse } from 'src/app/core/models/ticket.model';
 import { TicketService } from 'src/app/core/services/ticket.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
@@ -80,15 +81,6 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
   showPasswordModal = false;
   showDeleteModal = false;
 
-  // Password reset via phone
-  phoneResetPhone = '';
-  phoneResetCode = '';
-  phoneResetNewPassword = '';
-  phoneResetConfirmPassword = '';
-  phoneResetCodeSent = false;
-  phoneResetLoading = false;
-  phoneResetMessage = '';
-  phoneResetError = '';
 
   private conversationBody?: ElementRef<HTMLDivElement>;
   @ViewChild('userConversationBody') set conversationBodySetter(el: ElementRef<HTMLDivElement> | undefined) {
@@ -105,7 +97,8 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
     private ticketService: TicketService,
     private notificationService: NotificationService,
     private toastr: ToastrService,
-    private ticketSocket: TicketSocketService
+    private ticketSocket: TicketSocketService,
+    private languageService: LanguageService
   ) {
     this.currentUserId = this.auth.currentUserValue?.user?.id || null;
     this.isCurrentAdminUser = (this.auth.currentUserValue?.user?.role || '').toUpperCase() === 'ADMIN';
@@ -140,22 +133,26 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
   saveTheme(): void {
     localStorage.setItem('pref_theme', this.theme);
     this.applyTheme(this.theme, true);
-    // Persist to backend profile as themePreference
-    this.profileService.updateUserProfile({ themePreference: this.theme }).subscribe({
-      next: () => {
-        const current = this.auth.currentUserValue?.user;
-        if (current) {
-          this.auth.updateCurrentUser({ ...current, themePreference: this.theme } as any);
-        }
-      },
-      error: () => {
-        // Keep UI applied locally even if backend fails
-      }
-    });
   }
 
   saveLanguage(): void {
     localStorage.setItem('pref_lang', this.language);
+    this.languageService.setLanguage(this.language);
+  }
+
+  saveDisplayPrefs(): void {
+    this.saveTheme();
+    this.saveLanguage();
+    // Persist both to backend profile
+    this.profileService.updateUserProfile({ themePreference: this.theme, language: this.language }).subscribe({
+      next: () => {
+        const current = this.auth.currentUserValue?.user;
+        if (current) {
+          this.auth.updateCurrentUser({ ...current, themePreference: this.theme, language: this.language } as any);
+        }
+      },
+      error: () => {}
+    });
   }
 
   fetchTickets(): void {
@@ -296,55 +293,6 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showEmailModal = kind === 'email';
     this.showPasswordModal = kind === 'password';
     this.showDeleteModal = kind === 'delete';
-  }
-
-  sendPhoneResetCode(): void {
-    this.phoneResetError = '';
-    this.phoneResetMessage = '';
-    const phone = this.phoneResetPhone.trim();
-    if (!phone || phone.length < 8) {
-      this.phoneResetError = 'Please enter a valid phone number.';
-      return;
-    }
-    this.phoneResetLoading = true;
-    // TODO: replace with real API call to request SMS code
-    setTimeout(() => {
-      this.phoneResetLoading = false;
-      this.phoneResetCodeSent = true;
-      this.phoneResetMessage = `Verification code sent to ${phone}.`;
-      try { this.toastr.success('SMS code sent'); } catch {}
-    }, 400);
-  }
-
-  resetPasswordWithPhone(): void {
-    this.phoneResetError = '';
-    this.phoneResetMessage = '';
-    if (!this.phoneResetCodeSent) {
-      this.phoneResetError = 'Request a verification code first.';
-      return;
-    }
-    if (!this.phoneResetCode.trim()) {
-      this.phoneResetError = 'Enter the verification code you received.';
-      return;
-    }
-    if (!this.phoneResetNewPassword || !this.phoneResetConfirmPassword) {
-      this.phoneResetError = 'Enter and confirm your new password.';
-      return;
-    }
-    if (this.phoneResetNewPassword !== this.phoneResetConfirmPassword) {
-      this.phoneResetError = 'Passwords do not match.';
-      return;
-    }
-    this.phoneResetLoading = true;
-    // TODO: replace with real API call to verify code and set new password
-    setTimeout(() => {
-      this.phoneResetLoading = false;
-      this.phoneResetMessage = 'Your password was reset via phone verification.';
-      this.phoneResetCode = '';
-      this.phoneResetNewPassword = '';
-      this.phoneResetConfirmPassword = '';
-      try { this.toastr.success('Password reset'); } catch {}
-    }, 450);
   }
 
   closeModal(): void {

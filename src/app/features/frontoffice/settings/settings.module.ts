@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SettingsComponent } from './settings.component';
 import { SettingsRoutingModule } from './settings-routing.module';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   declarations: [SettingsComponent],
@@ -11,7 +12,8 @@ import { SettingsRoutingModule } from './settings-routing.module';
     CommonModule,
     FormsModule,
     SharedModule,
-    SettingsRoutingModule
+    SettingsRoutingModule,
+    TranslateModule
   ],
   exports: [SettingsComponent]
 })

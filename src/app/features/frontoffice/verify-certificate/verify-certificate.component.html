@@ -1,0 +1,213 @@
+<app-navigation></app-navigation>
+
+<div class="verify-shell">
+  <div class="verify-hero card">
+    <div class="hero-text">
+      <div class="eyebrow">
+        <span class="pulse-dot"></span>
+        Certificate authenticity check
+      </div>
+      <h1>Verify a certificate in seconds</h1>
+      <p>
+        Paste a verification link or certificate ID to confirm validity and see who it was issued to.
+        The experience adapts to your current theme.
+      </p>
+    </div>
+    <div class="hero-visual">
+      <div class="ring ring-outer"></div>
+      <div class="ring ring-inner"></div>
+      <div class="badge">
+        <lucide-icon name="Award" class="icon"></lucide-icon>
+        <span>Authenticity</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card card">
+    <div class="form-header">
+      <div class="title-group">
+        <div class="icon-circle">
+          <lucide-icon name="CheckCircle2" class="icon"></lucide-icon>
+        </div>
+        <div>
+          <h2>Verification details</h2>
+          <p>Enter the certificate ID or paste the public verification URL.</p>
+        </div>
+      </div>
+      <button class="ghost-btn" type="button" (click)="clearState()" [disabled]="status === 'idle'">
+        <lucide-icon name="X" class="icon"></lucide-icon>
+        Reset
+      </button>
+    </div>
+
+    <div class="input-row">
+      <div class="input-wrapper" [class.invalid]="status === 'error' && !certificateData">
+        <label for="certificateCode">Certificate code or link</label>
+        <input
+          id="certificateCode"
+          type="text"
+          placeholder="e.g. CERT-2024-XYZ or https://.../verifyCertificate/CERT-2024-XYZ"
+          [(ngModel)]="codeInput"
+          (keyup.enter)="verifyCertificate()"
+          autocomplete="off"
+        />
+        <div class="hint">We accept both certificate IDs and direct verification URLs.</div>
+      </div>
+      <button
+        type="button"
+        class="primary-btn"
+        [disabled]="isChecking"
+        (click)="verifyCertificate()">
+        <span *ngIf="!isChecking">Verify now</span>
+        <span *ngIf="isChecking" class="spinner"></span>
+      </button>
+    </div>
+
+    <div class="status-strip">
+      <div class="status-pill" [class.active]="status !== 'idle'" [class.success]="status === 'success'" [class.error]="status === 'error'" [class.revoked]="status === 'revoked'">
+        <span class="dot"></span>
+        <span class="label">
+          {{ status === 'success' ? 'Certificate is valid' :
+             status === 'revoked' ? 'Certificate revoked' :
+             status === 'error' ? 'Not verified yet' :
+             status === 'loading' ? 'Checking authenticity' :
+             'Awaiting input' }}
+        </span>
+      </div>
+      <div class="meta">
+        <div class="meta-item">
+          <span class="meta-label">Last checked</span>
+          <span class="meta-value">{{ lastCheckedAt ? (lastCheckedAt | date:'medium') : 'Not yet' }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Secure channel</span>
+          <span class="meta-value">HTTPS & signed IDs</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="status === 'loading'" class="card result-card loading">
+    <div class="skeleton header"></div>
+    <div class="skeleton row"></div>
+    <div class="skeleton row"></div>
+  </div>
+
+  <div *ngIf="status === 'error' && errorMessage" class="card result-card error-card">
+    <div class="error-icon">
+      <lucide-icon name="AlertTriangle" class="icon"></lucide-icon>
+    </div>
+    <div>
+      <h3>We could not verify this certificate</h3>
+      <p class="muted">{{ errorMessage }}</p>
+      <ul class="tips">
+        <li>Double-check the spelling of the certificate code.</li>
+        <li>Ensure the link has not expired or been revoked.</li>
+        <li>Contact the issuer if you believe this is an error.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div *ngIf="status === 'revoked'" class="card result-card error-card">
+    <div class="error-icon revoked">
+      <lucide-icon name="AlertTriangle" class="icon"></lucide-icon>
+    </div>
+    <div>
+      <h3>Certificate revoked</h3>
+      <p class="muted">{{ errorMessage || 'This certificate is no longer valid.' }}</p>
+      <ul class="tips">
+        <li>Ask the issuer for details or a replacement certificate.</li>
+        <li>Ensure you are using the latest verification link.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div *ngIf="status === 'success' && certificateData" class="card result-card success-card">
+    <div class="result-header">
+      <div class="status-icon success">
+        <lucide-icon name="Shield" class="icon"></lucide-icon>
+      </div>
+      <div>
+        <p class="eyebrow">Certificate is valid</p>
+        <h3>{{ certificateData.studentName }}</h3>
+        <p class="muted">Issued by {{ certificateData.organizationName }} · Instructor {{ certificateData.instructorName }}</p>
+      </div>
+      <div class="pill success">Verified</div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail">
+        <span class="label">Certificate ID</span>
+        <span class="value">{{ certificateData.certificateId }}</span>
+      </div>
+      <div class="detail">
+        <span class="label">Learner email</span>
+        <span class="value">{{ certificateData.studentEmail || 'Not provided' }}</span>
+      </div>
+      <div class="detail">
+        <span class="label">Birthdate</span>
+        <span class="value">{{ certificateData.studentBirthdate ? (formatDate(certificateData.studentBirthdate) || certificateData.studentBirthdate) : 'Not provided' }}</span>
+      </div>
+      <div class="detail">
+        <span class="label">Course</span>
+        <span class="value">{{ certificateData.courseTitle }}</span>
+      </div>
+      <div class="detail">
+        <span class="label">Domain</span>
+        <span class="value">{{ certificateData.courseDomain }}</span>
+      </div>
+      <div class="detail">
+        <span class="label">Country focus</span>
+        <span class="value">{{ certificateData.courseCountry }}</span>
+      </div>
+      <div class="detail">
+        <span class="label">Completion date</span>
+        <span class="value">{{ formatDate(certificateData.completionDate) }}</span>
+      </div>
+      <div class="detail">
+        <span class="label">Issue date</span>
+        <span class="value">{{ formatDate(certificateData.issueDate) }}</span>
+      </div>
+      <div class="detail">
+        <span class="label">Learning time</span>
+        <span class="value">{{ formatTime(certificateData.totalTimeSpent) }}</span>
+      </div>
+      <div class="detail">
+        <span class="label">Lessons completed</span>
+        <span class="value">{{ certificateData.totalLessons }}</span>
+      </div>
+      <div class="detail full">
+        <span class="label">Verification link</span>
+        <a class="value link" [href]="certificateData.verificationUrl" target="_blank" rel="noopener">
+          {{ certificateData.verificationUrl }}
+        </a>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="dot success"></div>
+        <div>
+          <p class="label">Issued</p>
+          <p class="muted">{{ formatDate(certificateData.issueDate) }}</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="dot success"></div>
+        <div>
+          <p class="label">Latest verification</p>
+          <p class="muted">{{ lastCheckedAt ? (lastCheckedAt | date:'medium') : 'Now' }}</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="dot pending"></div>
+        <div>
+          <p class="label">Next manual check</p>
+          <p class="muted">Save this URL to re-check instantly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

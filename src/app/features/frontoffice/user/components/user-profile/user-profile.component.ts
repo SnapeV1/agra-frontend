@@ -254,12 +254,15 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             // Now recalculate progress using the correct total lessons count from course data
             const totalLessons = course.textContent?.length || 0;
             const completedLessons = this.enrolledCourses[index].progress.completedSessionIds?.length || 0;
-            const recalculatedPercentage = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+            const recalculatedPercentage = totalLessons > 0
+              ? this.clampPercentage(Math.round((completedLessons / totalLessons) * 100))
+              : this.clampPercentage(this.enrolledCourses[index].progress.completionPercentage || 0);
             
             // Update the progress object with the correct percentage
             this.enrolledCourses[index].progress = {
               ...this.enrolledCourses[index].progress,
-              completionPercentage: recalculatedPercentage
+              completionPercentage: recalculatedPercentage,
+              totalSessions: totalLessons || this.enrolledCourses[index].progress.totalSessions || 0
             };
             
             // Update the status based on the recalculated percentage
@@ -308,14 +311,15 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   }
 
   private getStatusFromProgress(percentage: number): 'not-started' | 'in-progress' | 'completed' {
-    if (percentage === 0) return 'not-started';
-    if (percentage === 100) return 'completed';
+    const clamped = this.clampPercentage(percentage);
+    if (clamped === 0) return 'not-started';
+    if (clamped === 100) return 'completed';
     return 'in-progress';
   }
 
   private updateStats(): void {
     const completedCourses = this.enrolledCourses.filter(course => course.status === 'completed').length;
-    const totalProgress = this.enrolledCourses.reduce((sum, course) => sum + (course.progress?.completionPercentage || 0), 0);
+    const totalProgress = this.enrolledCourses.reduce((sum, course) => sum + this.clampPercentage(course.progress?.completionPercentage || 0), 0);
     const averageScore = this.enrolledCourses.length > 0 ? Math.round(totalProgress / this.enrolledCourses.length) : 0;
     const totalHours = this.enrolledCourses.reduce((sum, course) => sum + (course.progress?.totalTimeSpent || 0), 0);
     
@@ -345,7 +349,10 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.isEditing = !this.isEditing;
     if (this.isEditing) {
       this.originalProfile = JSON.parse(JSON.stringify(this.userProfile));
-      this.editForm = { ...this.userProfile };
+      this.editForm = {
+        ...this.userProfile,
+        birthdate: this.normalizeDateToInput(this.userProfile.birthdate)
+      };
       // Initialize phone code and local part from existing phone
       const phone = this.userProfile.phone || '';
       const match = phone.match(/^(\+\d+)\s+(.*)$/);
@@ -397,6 +404,10 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     }
     if (this.editForm.domain && this.editForm.domain !== this.originalProfile?.domain) {
       updateData.domain = this.editForm.domain;
+    }
+    const normalizedBirthdate = this.normalizeDateToInput(this.editForm.birthdate || this.originalProfile?.birthdate);
+    if (normalizedBirthdate) {
+      updateData.birthdate = normalizedBirthdate;
     }
     if (currentThemePref && !updateData.themePreference) {
       updateData.themePreference = currentThemePref;
@@ -594,7 +605,8 @@ getMemberSince(): string {
       composedPhone !== (this.originalProfile.phone || '').trim() ||
       this.editForm.country !== this.originalProfile.country ||
       this.editForm.language !== this.originalProfile.language ||
-      this.editForm.domain !== this.originalProfile.domain
+      this.editForm.domain !== this.originalProfile.domain ||
+      this.normalizeDateToInput(this.editForm.birthdate) !== this.normalizeDateToInput(this.originalProfile.birthdate)
     );
   }
 
@@ -608,7 +620,7 @@ getMemberSince(): string {
     const total = enrolledCourse.progress.totalSessions || 0;
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
     
-    return { completed, total, percentage };
+    return { completed, total, percentage: this.clampPercentage(percentage) };
   }
 
   getProgressMilestone(percentage: number): { label: string; color: string; icon: string } {
@@ -676,6 +688,21 @@ getMemberSince(): string {
     } else {
       return `Session ${sessionNumber}: Not Started`;
     }
+  }
+
+  getBirthdateDisplay(): string {
+    const dateStr = this.userProfile?.birthdate;
+    const normalized = this.normalizeDateToInput(dateStr);
+    if (!normalized) return 'Add your birthdate';
+    const parsed = new Date(normalized);
+    return parsed.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  private normalizeDateToInput(dateVal: any): string {
+    if (!dateVal) return '';
+    const parsed = new Date(dateVal);
+    if (isNaN(parsed.getTime())) return '';
+    return parsed.toISOString().slice(0, 10);
   }
 
   toggleCountryDropdown() {
@@ -768,9 +795,9 @@ getMemberSince(): string {
     }
   }
 
+  private clampPercentage(value: number): number {
+    return Math.min(100, Math.max(0, Math.round(value)));
+  }
 
 
 }
-
-
-

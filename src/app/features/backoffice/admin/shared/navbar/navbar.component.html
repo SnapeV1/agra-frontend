@@ -10,11 +10,11 @@
         <div class="hamburger-bar"></div>
       </div>
     </button>
-    <h1 class="page-title">{{ pageTitle }}</h1>
+    <h1 class="page-title">{{ pageTitleKey ? (pageTitleKey | translate) : pageTitle }}</h1>
     <div class="breadcrumbs" *ngIf="breadcrumbs.length > 0">
       <ng-container *ngFor="let crumb of breadcrumbs; let last = last">
-        <a *ngIf="crumb.route && !last" [routerLink]="crumb.route">{{ crumb.label }}</a>
-        <span *ngIf="!crumb.route || last">{{ crumb.label }}</span>
+        <a *ngIf="crumb.route && !last" [routerLink]="crumb.route">{{ crumb.label | translate }}</a>
+        <span *ngIf="!crumb.route || last">{{ crumb.label | translate }}</span>
         <span *ngIf="!last">/</span>
       </ng-container>
     </div>
@@ -23,7 +23,7 @@
   <div class="navbar-search">
     <input
       class="search-input"
-      placeholder="Search..."
+      [placeholder]="'nav.admin.search' | translate"
       [(ngModel)]="searchQuery"
       (keyup)="onSearchKeyup($event)"
       (focus)="onSearchFocus()"
@@ -60,13 +60,13 @@
       </button>
       <div class="notif-dropdown" [class.show]="isNotifOpen">
         <div class="notif-header">
-          <span>Notifications</span>
+          <span>{{ 'nav.notifications.title' | translate }}</span>
           <div class="actions">
-            <button class="mark-read" (click)="markAllNotificationsAsRead()" [disabled]="notificationCount === 0">Mark all as read</button>
-            <button class="mark-read" (click)="deleteAllNotifications()" [disabled]="notifications.length === 0">Clear all</button>
+            <button class="mark-read" (click)="markAllNotificationsAsRead()" [disabled]="notificationCount === 0">{{ 'nav.notifications.markAll' | translate }}</button>
+            <button class="mark-read" (click)="deleteAllNotifications()" [disabled]="notifications.length === 0">{{ 'nav.notifications.clearAll' | translate }}</button>
           </div>
         </div>
-        <div class="notif-list" *ngIf="notifications?.length; else noAdminNotif">
+        <div class="notif-list" *ngIf="notifications.length; else noAdminNotif">
           <div class="notif-item" *ngFor="let n of notifications" [class.unread]="!n.seen" (click)="openNotification(n)">
             <div class="notif-dot" *ngIf="!n.seen"></div>
             <div class="notif-content">
@@ -79,7 +79,7 @@
           </div>
         </div>
         <ng-template #noAdminNotif>
-          <div class="notif-empty">You're all caught up!</div>
+          <div class="notif-empty">{{ 'nav.notifications.empty' | translate }}</div>
         </ng-template>
       </div>
     </div>
@@ -88,7 +88,7 @@
     <button 
       class="action-btn" 
       (click)="navigateToHome()" 
-      title="View as User"
+      [title]="'nav.admin.viewUser' | translate"
       type="button"
     >
       <span class="material-symbols-outlined"></span>
@@ -108,13 +108,13 @@
 
     <div class="dropdown-menu" [class.show]="isDropdownOpen">
       <button class="dropdown-item" (click)="onProfileClick()" type="button">
-        Profile
+        {{ 'nav.profile' | translate }}
       </button>
       <button class="dropdown-item" (click)="navigateToSettings()" type="button">
-        Settings
+        {{ 'nav.settings' | translate }}
       </button>
       <button class="dropdown-item danger" (click)="logout()" type="button">
-        Logout
+        {{ 'nav.logout' | translate }}
       </button>
     </div>
   </div>

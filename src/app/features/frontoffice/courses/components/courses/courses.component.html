@@ -5,8 +5,8 @@
   <header class="header">
     <div class="container">
       <div class="header-content">
-        <h1 class="header-title">Discover Your Next Skill</h1>
-        <p class="header-subtitle">Choose from over 1,200 courses taught by industry experts</p>
+        <h1 class="header-title">{{ 'coursesPage.heroTitle' | translate }}</h1>
+        <p class="header-subtitle">{{ 'coursesPage.heroSubtitle' | translate }}</p>
         
         <!-- Search Bar -->
         <div class="search-container">
@@ -16,7 +16,7 @@
             </svg>
             <input 
               type="text" 
-              placeholder="Search courses..." 
+              [placeholder]="'coursesPage.searchPlaceholder' | translate" 
               class="search-input"
               [(ngModel)]="searchTerm"
               (input)="onSearch()"
@@ -35,7 +35,7 @@
                [(ngModel)]="selectedLanguage"
                (change)="onLanguageChange($event)"
              >
-               <option value="">Language</option>
+               <option value="">{{ 'coursesPage.language' | translate }}</option>
                <option 
                  *ngFor="let lang of languageListWithCounts" 
                  [value]="lang.value"
@@ -54,15 +54,15 @@
     <div class="container">
       <!-- Results Header -->
       <div class="results-header">
-        <h2 class="results-title">Featured Courses</h2>
+        <h2 class="results-title">{{ 'coursesPage.sectionTitle' | translate }}</h2>
         <div class="sort-container">
-          <label for="sort-select">Sort by:</label>
+          <label for="sort-select">{{ 'coursesPage.sortLabel' | translate }}</label>
           <select id="sort-select" class="sort-select">
-            <option value="popular">Most Popular</option>
-            <option value="newest">Newest</option>
-            <option value="rating">Highest Rated</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
+            <option value="popular">{{ 'coursesPage.sort.popular' | translate }}</option>
+            <option value="newest">{{ 'coursesPage.sort.newest' | translate }}</option>
+            <option value="rating">{{ 'coursesPage.sort.rating' | translate }}</option>
+            <option value="price-low">{{ 'coursesPage.sort.priceLow' | translate }}</option>
+            <option value="price-high">{{ 'coursesPage.sort.priceHigh' | translate }}</option>
           </select>
         </div>
       </div>
@@ -82,9 +82,9 @@
 
       <!-- No Results -->
       <div *ngIf="!loading && filteredCourses.length === 0" class="text-center mt-12">
-        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #374151;">No courses found</h3>
-        <p style="color: #64748b; margin-bottom: 2rem;">Try adjusting your search terms or filters.</p>
-        <button class="btn-load-more" (click)="clearFilters()">Reset Filters</button>
+        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: #374151;">{{ 'coursesPage.noResultsTitle' | translate }}</h3>
+        <p style="color: #64748b; margin-bottom: 2rem;">{{ 'coursesPage.noResultsBody' | translate }}</p>
+        <button class="btn-load-more" (click)="clearFilters()">{{ 'coursesPage.resetFilters' | translate }}</button>
       </div>
 
       <!-- Course Grid -->
@@ -99,12 +99,12 @@
               [src]="course.imageUrl" 
               [alt]="course.title"
             />
-            <div class="course-badge">Popular</div>
+            <div class="course-badge">{{ 'coursesPage.badgePopular' | translate }}</div>
           </div>
           
           <div class="course-content">
             <div class="course-meta">
-              <span class="course-category">{{ course.domain || 'Programming' }}</span>
+              <span class="course-category">{{ course.domain || ('coursesPage.categoryFallback' | translate) }}</span>
               <div class="course-rating" *ngIf="getCourseRating(course) !== null">
                 <ng-container *ngFor="let filled of generateStarArray(getCourseRating(course)!)">
                   <svg class="star" [class.empty]="!filled" viewBox="0 0 24 24">
@@ -124,7 +124,7 @@
                 alt="Instructor" 
                 class="instructor-avatar"
               />
-              <span class="instructor-name">{{ course.trainerId || 'Expert Instructor' }}</span>
+              <span class="instructor-name">{{ course.trainerId || ('coursesPage.instructorFallback' | translate) }}</span>
             </div>
             
             <div class="course-stats">
@@ -132,19 +132,19 @@
                 <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <span>8 hours</span>
+                <span>{{ 'coursesPage.duration' | translate }}</span>
               </div>
               <div class="stat-item">
                 <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                 </svg>
-                <span>{{ course.textContent.length || 12 }} lessons</span>
+                <span>{{ course.textContent.length || 12 }} {{ 'coursesPage.lessons' | translate }}</span>
               </div>
               <div class="stat-item">
                 <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                 </svg>
-                <span>1,234 students</span>
+                <span>{{ 'coursesPage.students' | translate }}</span>
               </div>
             </div>
 
@@ -162,7 +162,7 @@
             
             <div class="course-footer">
               <div class="course-price">
-                <span class="current-price">Free</span>
+                <span class="current-price">{{ 'coursesPage.priceFree' | translate }}</span>
                 <span class="original-price" *ngIf="false">$99</span>
               </div>
               <div class="course-actions">
@@ -170,13 +170,13 @@
                   class="btn-secondary"
                   (click)="onCourseSelect(course); $event.stopPropagation()"
                 >
-                  Preview
+                  {{ 'coursesPage.preview' | translate }}
                 </button>
                 <button 
                   class="btn-primary"
                   (click)="enrollInCourse(course, $event)"
                 >
-                  Enroll Now
+                  {{ 'coursesPage.enroll' | translate }}
                 </button>
               </div>
             </div>
@@ -187,13 +187,13 @@
       <!-- Pagination -->
       <div class="pagination-container" *ngIf="!loading && filteredCourses.length > 0">
         <div class="pagination-info">
-          <span>Showing {{ getShownCount() }} of {{ getTotalCourses() }} courses</span>
+          <span>{{ 'coursesPage.showing' | translate:{ shown: getShownCount(), total: getTotalCourses() } }}</span>
         </div>
         <div class="pagination" style="justify-content: center;">
           <button class="btn-primary" 
                   *ngIf="currentPage < totalPages" 
                   (click)="goToPage(currentPage + 1)">
-            Show more
+            {{ 'coursesPage.showMore' | translate }}
           </button>
         </div>
       </div>
