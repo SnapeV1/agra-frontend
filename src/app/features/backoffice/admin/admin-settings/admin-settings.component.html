@@ -2,9 +2,9 @@
   <div class="settings-container">
     <div class="mgmt-header">
       <div>
-        <p class="eyebrow">Administration</p>
-        <h1>Settings</h1>
-        <span>Control admin appearance and notifications</span>
+        <p class="eyebrow">{{ 'adminSettings.header.eyebrow' | translate }}</p>
+        <h1>{{ 'adminSettings.header.title' | translate }}</h1>
+        <span>{{ 'adminSettings.header.subtitle' | translate }}</span>
       </div>
     </div>
 
@@ -12,56 +12,57 @@
       <section class="settings-card">
         <div class="card-header">
           <div>
-            <p class="eyebrow">Appearance</p>
-            <h3>Theme</h3>
-            <small>Applies to the admin workspace</small>
+            <p class="eyebrow">{{ 'adminSettings.appearance.eyebrow' | translate }}</p>
+            <h3>{{ 'adminSettings.appearance.title' | translate }}</h3>
+            <small>{{ 'adminSettings.appearance.subtitle' | translate }}</small>
           </div>
         </div>
         <div class="setting-row">
           <div>
-            <div class="setting-label">Display mode</div>
-            <div class="setting-hint">Choose light or dark theme</div>
+            <div class="setting-label">{{ 'adminSettings.appearance.displayLabel' | translate }}</div>
+            <div class="setting-hint">{{ 'adminSettings.appearance.displayHint' | translate }}</div>
           </div>
           <div class="select-wrapper">
             <select [(ngModel)]="theme">
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
+              <option value="light">{{ 'adminSettings.appearance.light' | translate }}</option>
+              <option value="dark">{{ 'adminSettings.appearance.dark' | translate }}</option>
             </select>
           </div>
         </div>
         <div class="setting-row">
           <div>
-            <div class="setting-label">Language</div>
-            <div class="setting-hint">Select your preferred language</div>
+            <div class="setting-label">{{ 'adminSettings.appearance.languageLabel' | translate }}</div>
+            <div class="setting-hint">{{ 'adminSettings.appearance.languageHint' | translate }}</div>
           </div>
           <div class="select-wrapper">
             <select [(ngModel)]="language">
-              <option value="en">English</option>
-              <option value="fr">French</option>
+              <option value="en">{{ 'lang.en' | translate }}</option>
+              <option value="fr">{{ 'lang.fr' | translate }}</option>
+              <option value="ar">{{ 'lang.ar' | translate }}</option>
             </select>
           </div>
         </div>
         <div class="settings-actions">
-          <button class="btn btn-primary" (click)="saveDisplayPrefs()">Save display</button>
+          <button class="btn btn-primary" (click)="saveDisplayPrefs()">{{ 'adminSettings.appearance.save' | translate }}</button>
         </div>
       </section>
 
       <section class="settings-card">
         <div class="card-header">
           <div>
-            <p class="eyebrow">Notifications</p>
-            <h3>Admin Alerts</h3>
-            <small>Quick toggles for platform alerts</small>
+            <p class="eyebrow">{{ 'adminSettings.notifications.eyebrow' | translate }}</p>
+            <h3>{{ 'adminSettings.notifications.title' | translate }}</h3>
+            <small>{{ 'adminSettings.notifications.subtitle' | translate }}</small>
           </div>
           <button class="btn btn-secondary inline" type="button" (click)="toggleNotifications()">
-            {{ notificationsCollapsed ? 'Expand' : 'Collapse' }}
+            {{ notificationsCollapsed ? ('adminSettings.common.expand' | translate) : ('adminSettings.common.collapse' | translate) }}
           </button>
         </div>
         <ng-container *ngIf="!notificationsCollapsed">
           <div class="setting-row" *ngFor="let pref of notificationToggles">
             <div>
-              <div class="setting-label">{{ pref.label }}</div>
-              <div class="setting-hint">{{ pref.hint }}</div>
+              <div class="setting-label">{{ pref.label | translate }}</div>
+              <div class="setting-hint">{{ pref.hint | translate }}</div>
             </div>
             <label class="switch">
               <input type="checkbox" [(ngModel)]="pref.enabled" (change)="saveNotificationPrefs()">
@@ -70,10 +71,10 @@
           </div>
           <div class="settings-actions">
             <button class="btn btn-primary" (click)="saveNotificationPrefs()" [disabled]="savingPrefs">
-              {{ savingPrefs ? 'Saving...' : 'Save preferences' }}
+              {{ savingPrefs ? ('adminSettings.common.saving' | translate) : ('adminSettings.notifications.save' | translate) }}
             </button>
-            <span class="status" *ngIf="prefsMessage">{{ prefsMessage }}</span>
-            <span class="status error" *ngIf="prefsError">{{ prefsError }}</span>
+            <span class="status" *ngIf="prefsMessage">{{ prefsMessage | translate }}</span>
+            <span class="status error" *ngIf="prefsError">{{ prefsError | translate }}</span>
           </div>
         </ng-container>
       </section>
@@ -81,15 +82,15 @@
       <section class="settings-card">
         <div class="card-header">
           <div>
-            <p class="eyebrow">Operations</p>
-            <h3>Platform Controls</h3>
-            <small>Maintenance mode and news ingestion</small>
+            <p class="eyebrow">{{ 'adminSettings.operations.eyebrow' | translate }}</p>
+            <h3>{{ 'adminSettings.operations.title' | translate }}</h3>
+            <small>{{ 'adminSettings.operations.subtitle' | translate }}</small>
           </div>
         </div>
         <div class="setting-row">
           <div>
-            <div class="setting-label">System maintenance</div>
-            <div class="setting-hint">Toggle system-wide maintenance mode</div>
+            <div class="setting-label">{{ 'adminSettings.operations.maintenanceLabel' | translate }}</div>
+            <div class="setting-hint">{{ 'adminSettings.operations.maintenanceHint' | translate }}</div>
           </div>
           <label class="switch">
             <input type="checkbox" [(ngModel)]="maintenanceEnabled">
@@ -98,88 +99,88 @@
         </div>
         <div class="setting-row">
           <div>
-            <div class="setting-label">GNews fetch cadence</div>
-            <div class="setting-hint">Manage news-fetch schedule</div>
+            <div class="setting-label">{{ 'adminSettings.operations.newsCadenceLabel' | translate }}</div>
+            <div class="setting-hint">{{ 'adminSettings.operations.newsCadenceHint' | translate }}</div>
           </div>
           <div class="select-wrapper">
             <select [(ngModel)]="newsSchedule">
-              <option value="15m">Every 15 minutes</option>
-              <option value="30m">Every 30 minutes</option>
-              <option value="60m">Every 60 minutes</option>
-              <option value="120m">Every 2 hours</option>
+              <option value="15m">{{ 'adminSettings.operations.cadence15' | translate }}</option>
+              <option value="30m">{{ 'adminSettings.operations.cadence30' | translate }}</option>
+              <option value="60m">{{ 'adminSettings.operations.cadence60' | translate }}</option>
+              <option value="120m">{{ 'adminSettings.operations.cadence120' | translate }}</option>
             </select>
           </div>
         </div>
         <div class="settings-actions spaced">
-          <button class="btn btn-primary" (click)="saveControlSettings()">Save changes</button>
-          <button class="btn btn-secondary" (click)="fetchNewsNow()" type="button">Fetch now</button>
-          <span class="status" *ngIf="fetchNowMessage">{{ fetchNowMessage }}</span>
+          <button class="btn btn-primary" (click)="saveControlSettings()">{{ 'adminSettings.common.saveChanges' | translate }}</button>
+          <button class="btn btn-secondary" (click)="fetchNewsNow()" type="button">{{ 'adminSettings.operations.fetchNow' | translate }}</button>
+          <span class="status" *ngIf="fetchNowMessage">{{ fetchNowMessage | translate }}</span>
         </div>
 
         <div class="card-header">
           <div>
-            <p class="eyebrow">Security</p>
-            <h3>Account Protection</h3>
-            <small>Two-factor and account credentials</small>
+            <p class="eyebrow">{{ 'adminSettings.security.eyebrow' | translate }}</p>
+            <h3>{{ 'adminSettings.security.title' | translate }}</h3>
+            <small>{{ 'adminSettings.security.subtitle' | translate }}</small>
           </div>
         </div>
         <div class="setting-row column">
           <div>
-            <div class="setting-label">Two-factor authentication</div>
-            <div class="setting-hint">Require 2FA for admin sign-in</div>
+            <div class="setting-label">{{ 'adminSettings.security.twoFactorLabel' | translate }}</div>
+            <div class="setting-hint">{{ 'adminSettings.security.twoFactorHint' | translate }}</div>
           </div>
           <button class="btn btn-secondary inline" type="button" (click)="toggleTwoFactor()">
-            {{ twoFactorCollapsed ? 'Expand' : 'Collapse' }}
+            {{ twoFactorCollapsed ? ('adminSettings.common.expand' | translate) : ('adminSettings.common.collapse' | translate) }}
           </button>
           <div class="stack" *ngIf="!twoFactorCollapsed">
             <label class="switch">
               <input type="checkbox" [(ngModel)]="twoFactorEnabled">
               <span class="slider"></span>
             </label>
-            <input type="password" [(ngModel)]="twoFactorPassword" placeholder="Confirm with password" class="text-input">
-            <div class="status" *ngIf="twoFactorMessage">{{ twoFactorMessage }}</div>
-            <div class="status error" *ngIf="twoFactorError">{{ twoFactorError }}</div>
-            <button class="btn btn-primary inline" type="button" (click)="updateTwoFactor()">Update 2FA</button>
+            <input type="password" [(ngModel)]="twoFactorPassword" [placeholder]="'adminSettings.security.twoFactorPassword' | translate" class="text-input">
+            <div class="status" *ngIf="twoFactorMessage">{{ twoFactorMessage | translate }}</div>
+            <div class="status error" *ngIf="twoFactorError">{{ twoFactorError | translate }}</div>
+            <button class="btn btn-primary inline" type="button" (click)="updateTwoFactor()">{{ 'adminSettings.security.updateTwoFactor' | translate }}</button>
           </div>
         </div>
         <div class="setting-row column">
           <div>
-            <div class="setting-label">Email</div>
-            <div class="setting-hint">Change the admin contact email</div>
+            <div class="setting-label">{{ 'adminSettings.security.emailLabel' | translate }}</div>
+            <div class="setting-hint">{{ 'adminSettings.security.emailHint' | translate }}</div>
           </div>
           <button class="btn btn-secondary inline" type="button" (click)="toggleEmailForm()">
-            {{ showEmailForm ? 'Cancel' : 'Edit email' }}
+            {{ showEmailForm ? ('adminSettings.common.cancel' | translate) : ('adminSettings.security.editEmail' | translate) }}
           </button>
           <div *ngIf="showEmailForm" class="stack nested">
-            <input type="email" [(ngModel)]="newEmail" placeholder="name@domain.com" class="text-input">
-            <input type="email" [(ngModel)]="confirmEmail" placeholder="Confirm new email" class="text-input">
-            <input type="password" [(ngModel)]="emailPassword" placeholder="Current password" class="text-input">
-            <div class="status" *ngIf="emailMessage">{{ emailMessage }}</div>
-            <div class="status error" *ngIf="emailError">{{ emailError }}</div>
-            <button class="btn btn-primary inline" type="button" (click)="changeEmail()">Update email</button>
+            <input type="email" [(ngModel)]="newEmail" [placeholder]="'adminSettings.security.newEmail' | translate" class="text-input">
+            <input type="email" [(ngModel)]="confirmEmail" [placeholder]="'adminSettings.security.confirmEmail' | translate" class="text-input">
+            <input type="password" [(ngModel)]="emailPassword" [placeholder]="'adminSettings.security.currentPassword' | translate" class="text-input">
+            <div class="status" *ngIf="emailMessage">{{ emailMessage | translate }}</div>
+            <div class="status error" *ngIf="emailError">{{ emailError | translate }}</div>
+            <button class="btn btn-primary inline" type="button" (click)="changeEmail()">{{ 'adminSettings.security.updateEmail' | translate }}</button>
           </div>
         </div>
         <div class="setting-row column">
           <div>
-            <div class="setting-label">Password</div>
-            <div class="setting-hint">Set a new password</div>
+            <div class="setting-label">{{ 'adminSettings.security.passwordLabel' | translate }}</div>
+            <div class="setting-hint">{{ 'adminSettings.security.passwordHint' | translate }}</div>
           </div>
           <button class="btn btn-secondary inline" type="button" (click)="togglePasswordForm()">
-            {{ showPasswordForm ? 'Cancel' : 'Edit password' }}
+            {{ showPasswordForm ? ('adminSettings.common.cancel' | translate) : ('adminSettings.security.editPassword' | translate) }}
           </button>
           <div *ngIf="showPasswordForm" class="stack nested">
-            <input type="password" [(ngModel)]="currentPassword" placeholder="Current password" class="text-input">
-            <input type="password" [(ngModel)]="newPassword" placeholder="New password" class="text-input">
-            <input type="password" [(ngModel)]="confirmPassword" placeholder="Confirm new password" class="text-input">
-            <div class="status" *ngIf="pwMessage">{{ pwMessage }}</div>
-            <div class="status error" *ngIf="pwError">{{ pwError }}</div>
-            <button class="btn btn-primary inline" type="button" (click)="changePassword()">Update password</button>
+            <input type="password" [(ngModel)]="currentPassword" [placeholder]="'adminSettings.security.currentPassword' | translate" class="text-input">
+            <input type="password" [(ngModel)]="newPassword" [placeholder]="'adminSettings.security.newPassword' | translate" class="text-input">
+            <input type="password" [(ngModel)]="confirmPassword" [placeholder]="'adminSettings.security.confirmPassword' | translate" class="text-input">
+            <div class="status" *ngIf="pwMessage">{{ pwMessage | translate }}</div>
+            <div class="status error" *ngIf="pwError">{{ pwError | translate }}</div>
+            <button class="btn btn-primary inline" type="button" (click)="changePassword()">{{ 'adminSettings.security.updatePassword' | translate }}</button>
           </div>
         </div>
         <div class="settings-actions">
-          <button class="btn btn-primary" (click)="saveControlSettings()">Save changes</button>
-          <span class="status" *ngIf="settingsMessage">{{ settingsMessage }}</span>
-          <span class="status error" *ngIf="settingsError">{{ settingsError }}</span>
+          <button class="btn btn-primary" (click)="saveControlSettings()">{{ 'adminSettings.common.saveChanges' | translate }}</button>
+          <span class="status" *ngIf="settingsMessage">{{ settingsMessage | translate }}</span>
+          <span class="status error" *ngIf="settingsError">{{ settingsError | translate }}</span>
         </div>
       </section>
     </div>

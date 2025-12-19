@@ -4,6 +4,7 @@ import { Ticket, TicketMessage, TicketStatus, TicketThreadResponse } from 'src/a
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { TicketSocketService } from 'src/app/core/services/ticket-socket.service';
 import { Subscription, filter } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-ticket-management',
@@ -19,8 +20,8 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
   error = '';
 
   statusFilter: TicketStatus | 'ALL' = 'ALL';
-  statusOptions: (TicketStatus | 'ALL')[] = ['ALL', TicketStatus.OPEN, TicketStatus.PENDING, TicketStatus.RESOLVED, TicketStatus.CLOSED];
-  ticketStatuses: TicketStatus[] = [TicketStatus.OPEN, TicketStatus.PENDING, TicketStatus.RESOLVED, TicketStatus.CLOSED];
+  statusOptions: (TicketStatus | 'ALL')[] = ['ALL', TicketStatus.OPEN, TicketStatus.PENDING, TicketStatus.RESOLVED];
+  ticketStatuses: TicketStatus[] = [TicketStatus.OPEN, TicketStatus.PENDING, TicketStatus.RESOLVED];
   search = '';
   sortOption: 'recent' | 'status' = 'recent';
   filterHighPriority = false;
@@ -46,7 +47,12 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
   }
   @ViewChild('adminAttachmentInput') adminAttachmentInput?: ElementRef<HTMLInputElement>;
 
-  constructor(private ticketService: TicketService, private auth: AuthService, private ticketSocket: TicketSocketService) {
+  constructor(
+    private ticketService: TicketService,
+    private auth: AuthService,
+    private ticketSocket: TicketSocketService,
+    private translate: TranslateService
+  ) {
     this.currentAdminId = this.auth.currentUserValue?.user?.id || null;
     this.isCurrentAdminUser = (this.auth.currentUserValue?.user?.role || '').toUpperCase() === 'ADMIN';
   }
@@ -81,7 +87,7 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
         }
       },
       error: err => {
-        this.error = err?.message || 'Unable to load tickets.';
+        this.error = err?.message || 'ticketManagement.errors.load';
         this.loading = false;
       }
     });
@@ -90,7 +96,10 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
   filteredTickets(): Ticket[] {
     const term = this.search.trim().toLowerCase();
     const filtered = this.tickets.filter(ticket => {
-      const matchesStatus = this.statusFilter === 'ALL' || ticket.status === this.statusFilter;
+      const matchesStatus =
+        this.statusFilter === 'ALL' ||
+        ticket.status === this.statusFilter ||
+        (this.statusFilter === TicketStatus.RESOLVED && ticket.status === TicketStatus.CLOSED);
       const matchesSearch =
         !term ||
         ticket.subject.toLowerCase().includes(term) ||
@@ -127,14 +136,14 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
         this.logMessageOrigins(thread);
       },
       error: err => {
-        this.error = err?.message || 'Unable to load ticket thread.';
+        this.error = err?.message || 'ticketManagement.errors.loadThread';
       }
     });
   }
 
   sendMessage(): void {
     if (!this.selectedThread || !this.reply.trim() || this.sending) return;
-    if (this.selectedThread.ticket.status === TicketStatus.CLOSED) return;
+    if (this.isResolvedStatus(this.selectedThread.ticket.status)) return;
     const ticketId = this.selectedThread.ticket.id;
     this.sending = true;
     this.ticketService.sendMessage(ticketId, { content: this.reply.trim() }, this.replyAttachment || undefined).subscribe({
@@ -151,15 +160,15 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
         });
       },
       error: err => {
-        this.error = err?.message || 'Unable to send message.';
+        this.error = err?.message || 'ticketManagement.errors.send';
         this.sending = false;
       }
     });
   }
 
   closeTicket(): void {
-    if (!this.selectedThread || this.selectedThread.ticket.status === TicketStatus.CLOSED || this.closing) return;
-    const confirmed = confirm('Close this ticket? This action cannot be undone.');
+    if (!this.selectedThread || this.isResolvedStatus(this.selectedThread.ticket.status) || this.closing) return;
+    const confirmed = confirm(this.translate.instant('ticketManagement.confirm.close'));
     if (!confirmed) return;
     const ticketId = this.selectedThread.ticket.id;
     this.closing = true;
@@ -170,7 +179,7 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
         this.loadTickets();
       },
       error: err => {
-        this.error = err?.message || 'Unable to close ticket.';
+        this.error = err?.message || 'ticketManagement.errors.close';
         this.closing = false;
       }
     });
@@ -190,7 +199,7 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
         this.scrollConversationToBottom();
       },
       error: err => {
-        this.error = err?.message || 'Unable to update ticket status.';
+        this.error = err?.message || 'ticketManagement.errors.status';
         this.statusUpdating = false;
       }
     });
@@ -201,8 +210,19 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
       case TicketStatus.OPEN: return 'badge badge-open';
       case TicketStatus.PENDING: return 'badge badge-progress';
       case TicketStatus.RESOLVED: return 'badge badge-resolved';
-      case TicketStatus.CLOSED: return 'badge badge-closed';
+      case TicketStatus.CLOSED: return 'badge badge-resolved';
       default: return 'badge';
+    }
+  }
+
+  statusLabel(status?: TicketStatus | 'ALL'): string {
+    switch (status) {
+      case 'ALL': return 'ticketManagement.status.all';
+      case TicketStatus.OPEN: return 'ticketManagement.status.open';
+      case TicketStatus.PENDING: return 'ticketManagement.status.pending';
+      case TicketStatus.RESOLVED: return 'ticketManagement.status.resolved';
+      case TicketStatus.CLOSED: return 'ticketManagement.status.resolved';
+      default: return 'ticketManagement.status.unknown';
     }
   }
 
@@ -211,6 +231,9 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   countByStatus(target: TicketStatus): number {
+    if (target === TicketStatus.RESOLVED) {
+      return this.tickets.filter(t => t.status === TicketStatus.RESOLVED || t.status === TicketStatus.CLOSED).length;
+    }
     return this.tickets.filter(t => t.status === target).length;
   }
 
@@ -226,7 +249,7 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   ticketUserDisplay(ticket: Ticket): string {
-    return ticket.userInfo?.name || ticket.userInfo?.email || ticket.userId || 'User';
+    return ticket.userInfo?.name || ticket.userInfo?.email || ticket.userId || this.translate.instant('ticketManagement.common.user');
   }
 
   ticketUserInitial(ticket: Ticket): string {
@@ -239,9 +262,9 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
 
   senderDisplayName(message: TicketMessage, ticket: Ticket): string {
     if (this.isAdminMessage(message, ticket)) {
-      return message.sender?.name || 'Support Agent';
+      return message.sender?.name || this.translate.instant('ticketManagement.common.supportAgent');
     }
-    return message.sender?.name || message.sender?.email || ticket.userInfo?.name || ticket.userInfo?.email || 'User';
+    return message.sender?.name || message.sender?.email || ticket.userInfo?.name || ticket.userInfo?.email || this.translate.instant('ticketManagement.common.user');
   }
 
   senderAvatar(message: TicketMessage, ticket: Ticket): string | undefined {
@@ -264,11 +287,11 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
 
   ticketPriorityLabel(ticket: Ticket): string {
     switch (ticket.status) {
-      case TicketStatus.OPEN: return 'High Priority';
-      case TicketStatus.PENDING: return 'In Progress';
-      case TicketStatus.RESOLVED: return 'Medium Priority';
-      case TicketStatus.CLOSED: return 'Low Priority';
-      default: return 'General';
+      case TicketStatus.OPEN: return 'ticketManagement.priority.high';
+      case TicketStatus.PENDING: return 'ticketManagement.priority.inProgress';
+      case TicketStatus.RESOLVED: return 'ticketManagement.priority.medium';
+      case TicketStatus.CLOSED: return 'ticketManagement.priority.medium';
+      default: return 'ticketManagement.priority.general';
     }
   }
 
@@ -286,6 +309,14 @@ export class TicketManagementComponent implements OnInit, AfterViewInit, OnDestr
         }))
       }
     );
+  }
+
+  private isResolvedStatus(status?: TicketStatus): boolean {
+    return status === TicketStatus.RESOLVED || status === TicketStatus.CLOSED;
+  }
+
+  normalizedStatus(status?: TicketStatus): TicketStatus {
+    return status === TicketStatus.CLOSED ? TicketStatus.RESOLVED : (status as TicketStatus);
   }
 
   private scrollConversationToBottom(): void {

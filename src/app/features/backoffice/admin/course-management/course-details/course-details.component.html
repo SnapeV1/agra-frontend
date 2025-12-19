@@ -1,3 +1,4 @@
+
 <app-base-layout>
 <div class="course-management-container">
   <!-- Header -->
@@ -10,9 +11,9 @@
           </div>
           <div class="header-text">
             <h1 class="header-title">
-              {{ courseId === 'new' ? 'Create New Course' : 'Edit Course' }}
+              {{ courseId === 'new' ? ('adminCourseDetails.header.createTitle' | translate) : ('adminCourseDetails.header.editTitle' | translate) }}
             </h1>
-            <p class="header-subtitle">Manage course content, media, and settings</p>
+            <p class="header-subtitle">{{ 'adminCourseDetails.header.subtitle' | translate }}</p>
           </div>
         </div>
         <div class="header-actions">
@@ -31,7 +32,7 @@
             type="button" 
             class="btn btn-icon collapse-all-btn" 
             (click)="areAllCollapsed() ? expandAll() : collapseAll()"
-            [title]="areAllCollapsed() ? 'Expand All Sections' : 'Collapse All Sections'">
+            [title]="areAllCollapsed() ? ('adminCourseDetails.controls.expandAllTitle' | translate) : ('adminCourseDetails.controls.collapseAllTitle' | translate)">
             <div class="hamburger-icon">
               <span></span>
               <span></span>
@@ -39,7 +40,7 @@
             </div>
           </button>
           <span class="collapse-label">
-            {{ areAllCollapsed() ? 'Expand All' : 'Collapse All' }}
+            {{ areAllCollapsed() ? ('adminCourseDetails.controls.expandAll' | translate) : ('adminCourseDetails.controls.collapseAll' | translate) }}
           </span>
         </div>
 
@@ -47,11 +48,11 @@
         <div class="card">
           <div class="card-header clickable-header" 
                (click)="toggleSection('basicInfo')"
-               [title]="sectionCollapsed['basicInfo'] ? 'Expand Section' : 'Collapse Section'">
+               [title]="sectionCollapsed['basicInfo'] ? ('adminCourseDetails.controls.expandSection' | translate) : ('adminCourseDetails.controls.collapseSection' | translate)">
             <div class="card-header-content">
               <div>
-                <h2 class="card-title">Basic Information</h2>
-                <p class="card-description">Enter the basic details for your course</p>
+                <h2 class="card-title">{{ 'adminCourseDetails.basicInfo.title' | translate }}</h2>
+                <p class="card-description">{{ 'adminCourseDetails.basicInfo.description' | translate }}</p>
               </div>
               <lucide-icon class="header-chevron" [name]="sectionCollapsed['basicInfo'] ? 'chevron-down' : 'chevron-up'"></lucide-icon>
             </div>
@@ -59,7 +60,7 @@
           <div class="card-content" [class.collapsed]="sectionCollapsed['basicInfo']">
             <div class="form-grid">
               <div class="form-group">
-                <label class="form-label" for="title">Course Title *</label>
+                <label class="form-label" for="title">{{ 'adminCourseDetails.basicInfo.courseTitleLabel' | translate }} *</label>
                 <input
                   id="title"
                   type="text"
@@ -67,11 +68,11 @@
                   [class.error]="formErrors['title']"
                   [(ngModel)]="formData['title']"
                   (input)="updateField('title', $event)"
-                  placeholder="Enter course title">
-                <div *ngIf="formErrors['title']" class="error-message">{{ formErrors['title'] }}</div>
+                  [placeholder]="'adminCourseDetails.basicInfo.courseTitlePlaceholder' | translate">
+                <div *ngIf="formErrors['title']" class="error-message">{{ formErrors['title'] | translate }}</div>
               </div>
               <div class="form-group">
-                <label class="form-label" for="trainerId">Instructor</label>
+                <label class="form-label" for="trainerId">{{ 'adminCourseDetails.basicInfo.instructorLabel' | translate }}</label>
                 <input
                   id="trainerId"
                   type="text"
@@ -79,69 +80,68 @@
                   [class.error]="formErrors['trainerId']"
                   [(ngModel)]="formData['trainerId']"
                   (input)="updateField('trainerId', $event)"
-                  placeholder="Enter trainer ID">
-                <div *ngIf="formErrors['trainerId']" class="error-message">{{ formErrors['trainerId'] }}</div>
+                  [placeholder]="'adminCourseDetails.basicInfo.instructorPlaceholder' | translate">
+                <div *ngIf="formErrors['trainerId']" class="error-message">{{ formErrors['trainerId'] | translate }}</div>
               </div>
             </div>
 
             <div class="form-grid">
               <div class="form-group">
-                <label class="form-label" for="domain">Domain *</label>
+                <label class="form-label" for="domain">{{ 'adminCourseDetails.basicInfo.domainLabel' | translate }} *</label>
                 <select
                   id="domain"
                   class="form-select"
                   [class.error]="formErrors['domain']"
                   [(ngModel)]="formData['domain']"
                   (change)="updateField('domain', $event)">
-                  <option value="">Select domain</option>
+                  <option value="">{{ 'adminCourseDetails.basicInfo.domainPlaceholder' | translate }}</option>
                   <option *ngFor="let domain of domains" [value]="domain">{{ domain }}</option>
                 </select>
-                <div *ngIf="formErrors['domain']" class="error-message">{{ formErrors['domain'] }}</div>
+                <div *ngIf="formErrors['domain']" class="error-message">{{ formErrors['domain'] | translate }}</div>
               </div>
               <div class="form-group">
-                <label class="form-label" for="country">Country *</label>
+                <label class="form-label" for="country">{{ 'adminCourseDetails.basicInfo.countryLabel' | translate }} *</label>
                 <select
                   id="country"
                   class="form-select"
                   [class.error]="formErrors['country']"
                   [(ngModel)]="formData['country']"
                   (change)="updateField('country', $event)">
-                  <option value="" selected>Select country</option>
+                  <option value="" selected>{{ 'adminCourseDetails.basicInfo.countryPlaceholder' | translate }}</option>
                   <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
                 </select>
-                <div *ngIf="formErrors['country']" class="error-message">{{ formErrors['country'] }}</div>
+                <div *ngIf="formErrors['country']" class="error-message">{{ formErrors['country'] | translate }}</div>
               </div>
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="description">Description *</label>
+              <label class="form-label" for="description">{{ 'adminCourseDetails.basicInfo.descriptionLabel' | translate }} *</label>
               <textarea
                 id="description"
                 class="form-textarea"
                 [class.error]="formErrors['description']"
                 [(ngModel)]="formData['description']"
                 (input)="updateField('description', $event)"
-                placeholder="Provide a detailed description of the course"
+                [placeholder]="'adminCourseDetails.basicInfo.descriptionPlaceholder' | translate"
                 rows="4"></textarea>
-              <div *ngIf="formErrors['description']" class="error-message">{{ formErrors['description'] }}</div>
+              <div *ngIf="formErrors['description']" class="error-message">{{ formErrors['description'] | translate }}</div>
             </div>
           </div>
         </div>
-
         <!-- Course Goals -->
         <div class="card">
           <div class="card-header clickable-header" 
                (click)="toggleSection('goals')"
-               [title]="sectionCollapsed['goals'] ? 'Expand Section' : 'Collapse Section'">
+               [title]="sectionCollapsed['goals'] ? ('adminCourseDetails.controls.expandSection' | translate) : ('adminCourseDetails.controls.collapseSection' | translate)">
             <div class="card-header-content">
               <div>
-                <h2 class="card-title">Course Goals</h2>
-                <p class="card-description">Define what students will achieve</p>
+                <h2 class="card-title">{{ 'adminCourseDetails.goals.title' | translate }}</h2>
+                <p class="card-description">{{ 'adminCourseDetails.goals.description' | translate }}</p>
               </div>
               <div class="header-actions">
                 <button type="button" class="btn btn-primary btn-sm" (click)="addGoal(); $event.stopPropagation()">
                   <lucide-icon name="plus"></lucide-icon>
-                  Add Goal
+                  {{ 'adminCourseDetails.goals.add' | translate }}
                 </button>
                 <lucide-icon class="header-chevron" [name]="sectionCollapsed['goals'] ? 'chevron-down' : 'chevron-up'"></lucide-icon>
               </div>
@@ -149,16 +149,16 @@
           </div>
           <div class="card-content" [class.collapsed]="sectionCollapsed['goals']">
             <div *ngIf="formData['goals'].length === 0" class="empty-state">
-              <p>No goals added yet. Click "Add Goal" to define what students will learn.</p>
+              <p>{{ 'adminCourseDetails.goals.empty' | translate }}</p>
             </div>
             <div *ngIf="formData['goals'].length > 0" class="goals-list">
               <div *ngFor="let goal of formData['goals']; let i = index; trackBy: trackByIndex" class="goal-item">
-                <div class="goal-bullet">•</div>
+                <div class="goal-bullet">&bull;</div>
                 <input
                   type="text"
                   class="form-input goal-input"
                   [(ngModel)]="formData['goals'][i]"
-                  placeholder="Enter a course goal (e.g., Master advanced JavaScript concepts)">
+                  [placeholder]="'adminCourseDetails.goals.placeholder' | translate">
                 <button type="button" class="btn btn-danger btn-sm" (click)="removeGoal(i)">
                   <i class="icon-trash"></i>
                 </button>
@@ -171,11 +171,11 @@
         <div class="card">
           <div class="card-header clickable-header" 
                (click)="toggleSection('media')"
-               [title]="sectionCollapsed['media'] ? 'Expand Section' : 'Collapse Section'">
+               [title]="sectionCollapsed['media'] ? ('adminCourseDetails.controls.expandSection' | translate) : ('adminCourseDetails.controls.collapseSection' | translate)">
             <div class="card-header-content">
               <div>
-                <h2 class="card-title">Course Media</h2>
-                <p class="card-description">Upload course image and video</p>
+                <h2 class="card-title">{{ 'adminCourseDetails.media.title' | translate }}</h2>
+                <p class="card-description">{{ 'adminCourseDetails.media.description' | translate }}</p>
               </div>
               <lucide-icon class="header-chevron" [name]="sectionCollapsed['media'] ? 'chevron-down' : 'chevron-up'"></lucide-icon>
             </div>
@@ -184,31 +184,31 @@
             <div class="media-grid">
               <!-- Image Upload -->
               <div class="media-group">
-                <label class="form-label">Course Image</label>
+                <label class="form-label">{{ 'adminCourseDetails.media.imageLabel' | translate }}</label>
                 <div *ngIf="!formData['imageUrl']" class="upload-area">
                   <input type="file" accept="image/*" (change)="handleImageUpload($event)" class="file-input" id="image-upload">
                   <label for="image-upload" class="upload-label">
                     <div *ngIf="uploadingImage" class="upload-loading">
                       <div class="spinner"></div>
-                      <p>Uploading...</p>
+                      <p>{{ 'adminCourseDetails.media.uploading' | translate }}</p>
                     </div>
                     <div *ngIf="!uploadingImage" class="upload-content">
                       <i class="icon-image"></i>
-                      <p class="upload-title">Upload Image</p>
-                      <p class="upload-subtitle">PNG, JPG up to 10MB</p>
+                      <p class="upload-title">{{ 'adminCourseDetails.media.uploadImageTitle' | translate }}</p>
+                      <p class="upload-subtitle">{{ 'adminCourseDetails.media.uploadImageSubtitle' | translate }}</p>
                     </div>
                   </label>
                 </div>
                 <div *ngIf="formData['imageUrl']" class="media-preview">
                   <input type="file" accept="image/*" (change)="handleImageUpload($event)" class="file-input" id="image-change">
                   <div class="image-container" (click)="triggerImageUpload()">
-                    <img [src]="formData['imageUrl']" alt="Course" class="preview-image">
+                    <img [src]="formData['imageUrl']" [alt]="'adminCourseDetails.media.imageAlt' | translate" class="preview-image">
                     <div class="image-overlay">
                       <i class="icon-camera"></i>
-                      <span>Change Image</span>
+                      <span>{{ 'adminCourseDetails.media.changeImage' | translate }}</span>
                     </div>
                   </div>
-                  <button type="button" class="remove-btn-small" (click)="removeImage()" title="Remove Image">
+                  <button type="button" class="remove-btn-small" (click)="removeImage()" [title]="'adminCourseDetails.media.removeImage' | translate">
                     <i class="icon-x"></i>
                   </button>
                 </div>
@@ -216,18 +216,18 @@
 
               <!-- Video Upload -->
               <div class="media-group">
-                <label class="form-label">Course Video</label>
+                <label class="form-label">{{ 'adminCourseDetails.media.videoLabel' | translate }}</label>
                 <div *ngIf="!formData['videoUrl']" class="upload-area">
                   <input type="file" accept="video/*" (change)="handleVideoUpload($event)" class="file-input" id="video-upload">
                   <label for="video-upload" class="upload-label">
                     <div *ngIf="uploadingVideo" class="upload-loading">
                       <div class="spinner"></div>
-                      <p>Uploading...</p>
+                      <p>{{ 'adminCourseDetails.media.uploading' | translate }}</p>
                     </div>
                     <div *ngIf="!uploadingVideo" class="upload-content">
                       <i class="icon-video"></i>
-                      <p class="upload-title">Upload Video</p>
-                      <p class="upload-subtitle">MP4, MOV up to 100MB</p>
+                      <p class="upload-title">{{ 'adminCourseDetails.media.uploadVideoTitle' | translate }}</p>
+                      <p class="upload-subtitle">{{ 'adminCourseDetails.media.uploadVideoSubtitle' | translate }}</p>
                     </div>
                   </label>
                 </div>
@@ -237,10 +237,10 @@
                     <video [src]="formData['videoUrl']" class="preview-video" controls></video>
                     <div class="video-overlay">
                       <i class="icon-video"></i>
-                      <span>Change Video</span>
+                      <span>{{ 'adminCourseDetails.media.changeVideo' | translate }}</span>
                     </div>
                   </div>
-                  <button type="button" class="remove-btn-small" (click)="removeVideo()" title="Remove Video">
+                  <button type="button" class="remove-btn-small" (click)="removeVideo()" [title]="'adminCourseDetails.media.removeVideo' | translate">
                     <i class="icon-x"></i>
                   </button>
                 </div>
@@ -248,18 +248,15 @@
             </div>
           </div>
         </div>
-
-        
-
         <!-- Languages -->
         <div class="card">
           <div class="card-header clickable-header" 
                (click)="toggleSection('languages')"
-               [title]="sectionCollapsed['languages'] ? 'Expand Section' : 'Collapse Section'">
+               [title]="sectionCollapsed['languages'] ? ('adminCourseDetails.controls.expandSection' | translate) : ('adminCourseDetails.controls.collapseSection' | translate)">
             <div class="card-header-content">
               <div>
-                <h2 class="card-title">Available Languages</h2>
-                <p class="card-description">Select the languages this course is available in</p>
+                <h2 class="card-title">{{ 'adminCourseDetails.languages.title' | translate }}</h2>
+                <p class="card-description">{{ 'adminCourseDetails.languages.description' | translate }}</p>
               </div>
               <lucide-icon class="header-chevron" [name]="sectionCollapsed['languages'] ? 'chevron-down' : 'chevron-up'"></lucide-icon>
             </div>
@@ -274,12 +271,12 @@
                     (change)="handleLanguageToggle(language)">
                   <span class="slider"></span>
                 </label>
-                <span class="language-label">{{ language }}</span>
+                <span class="language-label">{{ languageLabel(language) | translate }}</span>
               </div>
             </div>
             <div *ngIf="formData.languagesAvailable.length > 0" class="selected-languages">
               <span *ngFor="let language of formData['languagesAvailable']" class="language-badge">
-                {{ language }}
+                {{ languageLabel(language) | translate }}
               </span>
             </div>
           </div>
@@ -289,16 +286,16 @@
         <div class="card">
           <div class="card-header clickable-header" 
                (click)="toggleSection('sessions')"
-               [title]="sectionCollapsed['sessions'] ? 'Expand Section' : 'Collapse Section'">
+               [title]="sectionCollapsed['sessions'] ? ('adminCourseDetails.controls.expandSection' | translate) : ('adminCourseDetails.controls.collapseSection' | translate)">
             <div class="card-header-content">
                 <div>
-                  <h2 class="card-title">Sessions</h2>
-                  <p class="card-description">Manage live sessions for this course</p>
+                  <h2 class="card-title">{{ 'adminCourseDetails.sessions.title' | translate }}</h2>
+                  <p class="card-description">{{ 'adminCourseDetails.sessions.description' | translate }}</p>
                 </div>
                 <div class="header-actions">
                   <button type="button" class="btn btn-primary btn-sm" (click)="sectionCollapsed['sessions']=false; $event.stopPropagation()">
                     <lucide-icon name="plus"></lucide-icon>
-                    Add Session
+                    {{ 'adminCourseDetails.sessions.add' | translate }}
                   </button>
                 <lucide-icon class="header-chevron" [name]="sectionCollapsed['sessions'] ? 'chevron-down' : 'chevron-up'"></lucide-icon>
               </div>
@@ -308,55 +305,55 @@
             <!-- Create Session Form -->
             <div class="session-create-grid">
               <div class="form-group">
-                <label class="form-label">Title</label>
-                <input type="text" class="form-input" [(ngModel)]="newSession.title" placeholder="Live session title (defaults to course name)">
+                <label class="form-label">{{ 'adminCourseDetails.sessions.titleLabel' | translate }}</label>
+                <input type="text" class="form-input" [(ngModel)]="newSession.title" [placeholder]="'adminCourseDetails.sessions.titlePlaceholder' | translate">
               </div>
               <div class="form-group">
-                <label class="form-label">Start</label>
+                <label class="form-label">{{ 'adminCourseDetails.sessions.startLabel' | translate }}</label>
                 <input type="datetime-local" class="form-input" [ngModel]="newSession.startTime | date:'yyyy-MM-ddTHH:mm'" (ngModelChange)="onStartChange($event)">
               </div>
               <div class="form-group">
-                <label class="form-label">End</label>
+                <label class="form-label">{{ 'adminCourseDetails.sessions.endLabel' | translate }}</label>
                 <input type="datetime-local" class="form-input" [ngModel]="newSession.endTime | date:'yyyy-MM-ddTHH:mm'" (ngModelChange)="onEndChange($event)">
               </div>
             </div>
             <div class="session-create-desc">
               <div class="form-group">
-                <label class="form-label">Description</label>
-                <textarea class="form-input" rows="2" [(ngModel)]="newSession.description" placeholder="Optional description"></textarea>
+                <label class="form-label">{{ 'adminCourseDetails.sessions.descriptionLabel' | translate }}</label>
+                <textarea class="form-input" rows="2" [(ngModel)]="newSession.description" [placeholder]="'adminCourseDetails.sessions.descriptionPlaceholder' | translate"></textarea>
               </div>
             </div>
             <div class="session-create-flags">
               <label class="form-checkbox">
-                <input type="checkbox" [(ngModel)]="newSession.lobbyEnabled"> Lobby enabled
+                <input type="checkbox" [(ngModel)]="newSession.lobbyEnabled"> {{ 'adminCourseDetails.sessions.lobbyEnabled' | translate }}
               </label>
               <label class="form-checkbox">
-                <input type="checkbox" [(ngModel)]="newSession.recordingEnabled"> Recording enabled
+                <input type="checkbox" [(ngModel)]="newSession.recordingEnabled"> {{ 'adminCourseDetails.sessions.recordingEnabled' | translate }}
               </label>
               <div class="session-create-actions" style="justify-self:end;">
                 <button type="button" class="btn btn-primary btn-sm" (click)="createSession()" [disabled]="creatingSession || !newSession.title">
-                  {{ creatingSession ? 'Creating…' : 'Create Session' }}
+                  {{ creatingSession ? ('adminCourseDetails.sessions.creating' | translate) : ('adminCourseDetails.sessions.create' | translate) }}
                 </button>
               </div>
             </div>
-            <div *ngIf="sessionsLoading" class="loading">Loading sessions...</div>
-            <div *ngIf="sessionsError" class="error">{{ sessionsError }}</div>
+            <div *ngIf="sessionsLoading" class="loading">{{ 'adminCourseDetails.sessions.loading' | translate }}</div>
+            <div *ngIf="sessionsError" class="error">{{ sessionsError | translate }}</div>
             <div *ngIf="!sessionsLoading && !sessionsError && sessions.length === 0" class="empty-state">
-              <p>No sessions added yet. Use "Create Session" to get started.</p>
+              <p>{{ 'adminCourseDetails.sessions.empty' | translate }}</p>
             </div>
             <div *ngIf="!sessionsLoading && sessions.length > 0" class="session-list">
               <div *ngFor="let session of sessions; let i = index" class="session-item">
                 <div class="session-meta">
-                  <div class="session-title">{{ session.title || ('Session ' + (i + 1)) }}</div>
+                  <div class="session-title">{{ session.title || ('adminCourseDetails.sessions.sessionTitleFallback' | translate:{ index: (i + 1) }) }}</div>
                   <div class="session-desc">{{ session.description }}</div>
                   <div class="session-times">
-                    <span>Start: {{ session.startTime | date:'medium' }}</span>
-                    <span *ngIf="session.endTime">End: {{ session.endTime | date:'medium' }}</span>
+                    <span>{{ 'adminCourseDetails.sessions.startLabel' | translate }}: {{ session.startTime | date:'medium' }}</span>
+                    <span *ngIf="session.endTime">{{ 'adminCourseDetails.sessions.endLabel' | translate }}: {{ session.endTime | date:'medium' }}</span>
                   </div>
                 </div>
                 <div class="session-actions" style="display:flex; gap:8px;">
                   <button type="button" class="btn btn-secondary btn-sm" (click)="startSession(session.id)">
-                    Start/Join
+                    {{ 'adminCourseDetails.sessions.startJoin' | translate }}
                   </button>
                   <button type="button" class="btn btn-danger btn-sm" (click)="removeSession(session.id || '', i)">
                     <i class="icon-trash"></i>
@@ -366,23 +363,22 @@
             </div>
           </div>
         </div>
-
         <!-- Files -->
         <div class="card">
           <div class="card-header clickable-header" 
                (click)="toggleSection('files')"
-               [title]="sectionCollapsed['files'] ? 'Expand Section' : 'Collapse Section'">
+               [title]="sectionCollapsed['files'] ? ('adminCourseDetails.controls.expandSection' | translate) : ('adminCourseDetails.controls.collapseSection' | translate)">
             <div class="card-header-content">
               <div>
-                <h2 class="card-title">Course Files</h2>
-                <p class="card-description">Upload supporting materials and resources</p>
+                <h2 class="card-title">{{ 'adminCourseDetails.files.title' | translate }}</h2>
+                <p class="card-description">{{ 'adminCourseDetails.files.description' | translate }}</p>
               </div>
               <div class="header-actions" (click)="$event.stopPropagation()">
                 <input type="file" multiple (click)="$event.stopPropagation()" (change)="handleFileUpload($event)" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt" class="file-input" id="file-upload" [disabled]="courseId === 'new'">
-                <label for="file-upload" class="btn btn-primary btn-sm" [class.loading]="uploadingFiles" (click)="$event.stopPropagation()" [attr.title]="courseId === 'new' ? 'Save course before uploading files' : null">
+                <label for="file-upload" class="btn btn-primary btn-sm" [class.loading]="uploadingFiles" (click)="$event.stopPropagation()" [attr.title]="courseId === 'new' ? ('adminCourseDetails.files.saveBeforeUpload' | translate) : null">
                   <i *ngIf="!uploadingFiles" class="icon-upload"></i>
                   <div *ngIf="uploadingFiles" class="spinner"></div>
-                  {{ uploadingFiles ? 'Uploading...' : 'Upload Files' }}
+                  {{ uploadingFiles ? ('adminCourseDetails.files.uploading' | translate) : ('adminCourseDetails.files.upload' | translate) }}
                 </label>
                 <lucide-icon class="header-chevron" [name]="sectionCollapsed['files'] ? 'chevron-down' : 'chevron-up'"></lucide-icon>
               </div>
@@ -390,7 +386,7 @@
           </div>
           <div class="card-content" [class.collapsed]="sectionCollapsed['files']">
             <div *ngIf="formData['files'].length === 0" class="empty-state">
-              <p>No files uploaded yet. Click "Upload Files" to add course materials.</p>
+              <p>{{ 'adminCourseDetails.files.empty' | translate }}</p>
             </div>
             <div *ngIf="formData['files'].length > 0" class="file-list">
               <div *ngFor="let file of formData['files']; let i = index" class="file-item">
@@ -416,16 +412,16 @@
         <div class="card">
           <div class="card-header clickable-header" 
                (click)="toggleSection('textContent')"
-               [title]="sectionCollapsed['textContent'] ? 'Expand Section' : 'Collapse Section'">
+               [title]="sectionCollapsed['textContent'] ? ('adminCourseDetails.controls.expandSection' | translate) : ('adminCourseDetails.controls.collapseSection' | translate)">
             <div class="card-header-content">
               <div>
-                <h2 class="card-title">Text Content</h2>
-                <p class="card-description">Create lessons, assignments, and other text-based content</p>
+                <h2 class="card-title">{{ 'adminCourseDetails.textContent.title' | translate }}</h2>
+                <p class="card-description">{{ 'adminCourseDetails.textContent.description' | translate }}</p>
               </div>
               <div class="header-actions">
                 <button type="button" class="btn btn-primary btn-sm" (click)="addTextContent(); $event.stopPropagation()">
                   <lucide-icon name="plus"></lucide-icon>
-                  Add Content
+                  {{ 'adminCourseDetails.textContent.add' | translate }}
                 </button>
                 <lucide-icon class="header-chevron" [name]="sectionCollapsed['textContent'] ? 'chevron-down' : 'chevron-up'"></lucide-icon>
               </div>
@@ -433,22 +429,22 @@
           </div>
           <div class="card-content" [class.collapsed]="sectionCollapsed['textContent']">
             <div *ngIf="formData['textContent'].length === 0" class="empty-state">
-              <p>No text content added yet. Click "Add Content" to create lessons, assignments, or readings.</p>
+              <p>{{ 'adminCourseDetails.textContent.empty' | translate }}</p>
             </div>
             <div *ngIf="formData['textContent'].length > 0" class="content-list">
               <div *ngFor="let content of formData['textContent']; let i = index; trackBy: trackByIndex" class="content-item">
                 <div class="content-header clickable-header" 
                      (click)="toggleTextContent(i)"
-                     [title]="isTextContentCollapsed(i) ? 'Expand Content' : 'Collapse Content'">
+                     [title]="isTextContentCollapsed(i) ? ('adminCourseDetails.controls.expandContent' | translate) : ('adminCourseDetails.controls.collapseContent' | translate)">
                   <div class="content-header-left">
                     <div class="content-badges">
                       <span class="content-number">#{{ i + 1 }}</span>
-                      <span class="content-type">{{ content.type | titlecase }}</span>
+                      <span class="content-type">{{ contentTypeLabel(content.type) | translate }}</span>
                     </div>
                     <div class="content-title-preview">
                       <span *ngIf="content.title; else untitledContent">{{ content.title }}</span>
                       <ng-template #untitledContent>
-                        <span class="untitled-text">Untitled {{ content.type | titlecase }}</span>
+                        <span class="untitled-text">{{ untitledContentLabel(content.type) }}</span>
                       </ng-template>
                     </div>
                   </div>
@@ -458,7 +454,7 @@
                       class="btn btn-icon"
                       (click)="moveTextContent(i, 'up'); $event.stopPropagation()"
                       [disabled]="i === 0"
-                      title="Move Up">
+                      [title]="'adminCourseDetails.textContent.moveUp' | translate">
                       <lucide-icon name="arrow-up"></lucide-icon>
                     </button>
                     <button
@@ -466,13 +462,13 @@
                       class="btn btn-icon"
                       (click)="moveTextContent(i, 'down'); $event.stopPropagation()"
                       [disabled]="i === formData['textContent'].length - 1"
-                      title="Move Down">
+                      [title]="'adminCourseDetails.textContent.moveDown' | translate">
                       <lucide-icon name="arrow-down"></lucide-icon>
                     </button>
                     <button type="button" 
                             class="btn btn-icon btn-danger" 
                             (click)="removeTextContent(i); $event.stopPropagation()"
-                            title="Delete Content">
+                            [title]="'adminCourseDetails.textContent.delete' | translate">
                       <lucide-icon name="trash-2"></lucide-icon>
                     </button>
                     <lucide-icon class="header-chevron" [name]="isTextContentCollapsed(i) ? 'chevron-down' : 'chevron-up'"></lucide-icon>
@@ -481,39 +477,39 @@
                 <div class="content-form" [class.collapsed]="isTextContentCollapsed(i)">
                   <div class="content-form-row">
                     <div class="form-group flex-2">
-                      <label class="form-label">Title</label>
+                      <label class="form-label">{{ 'adminCourseDetails.textContent.titleLabel' | translate }}</label>
                       <input
                         type="text"
                         class="form-input"
                         [(ngModel)]="formData['textContent'][i].title"
-                        placeholder="Content title">
+                        [placeholder]="'adminCourseDetails.textContent.titlePlaceholder' | translate">
                     </div>
                     <div class="form-group flex-1">
-                      <label class="form-label">Type</label>
+                      <label class="form-label">{{ 'adminCourseDetails.textContent.typeLabel' | translate }}</label>
                       <select
                         class="form-select"
                         [(ngModel)]="formData['textContent'][i].type"
                         (ngModelChange)="onContentTypeChange(i, $event)">
                         <option *ngFor="let type of textContentTypes" [value]="type">
-                          {{ type | titlecase }}
+                          {{ contentTypeLabel(type) | translate }}
                         </option>
                       </select>
                     </div>
                   </div>
                   <div *ngIf="formData['textContent'][i].type !== 'quiz'" class="form-group">
-                    <label class="form-label">Content</label>
+                    <label class="form-label">{{ 'adminCourseDetails.textContent.contentLabel' | translate }}</label>
                     <textarea
                       class="form-textarea"
                       [(ngModel)]="formData['textContent'][i].content"
-                      placeholder="Enter content"
+                      [placeholder]="'adminCourseDetails.textContent.contentPlaceholder' | translate"
                       rows="4"></textarea>
                   </div>
 
                   <div *ngIf="formData['textContent'][i].type === 'quiz'" class="quiz-editor">
                     <div class="quiz-header">
-                      <h4>Quiz Questions</h4>
+                      <h4>{{ 'adminCourseDetails.quiz.title' | translate }}</h4>
                       <button type="button" class="btn btn-secondary btn-sm" (click)="addQuizQuestion(i)">
-                        <lucide-icon name="plus"></lucide-icon> Add question
+                        <lucide-icon name="plus"></lucide-icon> {{ 'adminCourseDetails.quiz.addQuestion' | translate }}
                       </button>
                     </div>
 
@@ -522,7 +518,7 @@
                         <div class="quiz-question-header" (click)="toggleQuizQuestion(i, qi)">
                           <div class="quiz-question-title">
                             <lucide-icon [name]="q.uiCollapsed ? 'ChevronRight' : 'ChevronDown'"></lucide-icon>
-                            <span>Question {{ qi + 1 }}</span>
+                            <span>{{ 'adminCourseDetails.quiz.questionLabel' | translate:{ index: (qi + 1) } }}</span>
                           </div>
                           <div class="quiz-question-actions">
                             <button type="button" class="btn btn-icon btn-danger" (click)="removeQuizQuestion(i, qi); $event.stopPropagation()">
@@ -533,7 +529,7 @@
 
                         <div class="quiz-question-body" *ngIf="!q.uiCollapsed">
                           <div class="form-group">
-                            <label class="form-label">Question {{ qi + 1 }}</label>
+                            <label class="form-label">{{ 'adminCourseDetails.quiz.questionField' | translate:{ index: (qi + 1) } }}</label>
                             <input
                               type="text"
                               class="form-input"
@@ -541,11 +537,11 @@
                               [attr.name]="'quiz-question-'+i+'-'+qi"
                               autocomplete="off"
                               [(ngModel)]="q.question"
-                              placeholder="Enter question text">
+                              [placeholder]="'adminCourseDetails.quiz.questionPlaceholder' | translate">
                           </div>
 
                           <div class="quiz-options">
-                            <label class="form-label">Options</label>
+                            <label class="form-label">{{ 'adminCourseDetails.quiz.optionsLabel' | translate }}</label>
                             <div class="quiz-option" *ngFor="let opt of q.options; let oi = index; trackBy: trackByOption">
                               <label class="radio">
                                 <input
@@ -553,7 +549,7 @@
                                   [attr.name]="'correct-'+i+'-'+qi"
                                   [value]="opt"
                                   [(ngModel)]="q.correctAnswer">
-                                <span>Correct</span>
+                                <span>{{ 'adminCourseDetails.quiz.correct' | translate }}</span>
                               </label>
                               <input
                                 type="text"
@@ -562,13 +558,13 @@
                                 [attr.name]="'quiz-option-'+i+'-'+qi+'-'+oi"
                                 autocomplete="off"
                                 [(ngModel)]="q.options[oi]"
-                                placeholder="Option text">
+                                [placeholder]="'adminCourseDetails.quiz.optionPlaceholder' | translate">
                               <button type="button" class="btn btn-icon btn-danger" (click)="removeQuizOption(i, qi, oi)" [disabled]="q.options.length <= 2">
                                 <lucide-icon name="trash-2"></lucide-icon>
                               </button>
                             </div>
                             <button type="button" class="btn btn-link" (click)="addQuizOption(i, qi)">
-                              <lucide-icon name="plus"></lucide-icon> Add option
+                              <lucide-icon name="plus"></lucide-icon> {{ 'adminCourseDetails.quiz.addOption' | translate }}
                             </button>
                           </div>
                         </div>
@@ -587,7 +583,7 @@
         <!-- Status Card -->
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title">Course Status</h3>
+            <h3 class="card-title">{{ 'adminCourseDetails.sidebar.statusTitle' | translate }}</h3>
           </div>
           <div class="card-content">
             <div class="status-item">
@@ -595,7 +591,7 @@
                 <input type="checkbox" [(ngModel)]="formData['archived']" (change)="toggleArchived()">
                 <span class="slider"></span>
               </label>
-              <span class="status-label">Archived</span>
+              <span class="status-label">{{ 'adminCourseDetails.sidebar.archived' | translate }}</span>
             </div>
           </div>
         </div>
@@ -603,7 +599,7 @@
         <!-- Actions Card -->
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title">Actions</h3>
+            <h3 class="card-title">{{ 'adminCourseDetails.sidebar.actionsTitle' | translate }}</h3>
           </div>
           <div class="card-content">
             <div class="action-buttons">
@@ -614,7 +610,7 @@
                 [disabled]="!isFormValid() || loading">
                 <div *ngIf="loading" class="spinner"></div>
                 <i *ngIf="!loading" class="icon-save"></i>
-                Save Course
+                {{ loading ? ('adminCourseDetails.sidebar.saving' | translate) : ('adminCourseDetails.sidebar.save' | translate) }}
               </button>
 
               <div *ngIf="courseId !== 'new'" class="separator"></div>
@@ -624,7 +620,7 @@
                 class="btn btn-danger btn-block"
                 (click)="handleDelete()">
                 <i class="icon-trash"></i>
-                Delete Course
+                {{ 'adminCourseDetails.sidebar.delete' | translate }}
               </button>
               <button
                 *ngIf="courseId !== 'new' && formData.archived"
@@ -632,7 +628,7 @@
                 class="btn btn-success btn-block"
                 (click)="handleRetrieve()">
                 <i class="icon-refresh-cw"></i>
-                Retrieve Course
+                {{ 'adminCourseDetails.sidebar.retrieve' | translate }}
               </button>
             </div>
           </div>
@@ -643,14 +639,14 @@
           <div class="card-header">
             <h3 class="card-title error-title">
               <i class="icon-alert-circle"></i>
-              Validation Errors
+              {{ 'adminCourseDetails.validation.title' | translate }}
             </h3>
           </div>
           <div class="card-content">
             <div class="validation-list">
               <div *ngFor="let error of getValidationErrors()" class="validation-item">
                 <i class="icon-alert-circle"></i>
-                {{ error }}
+                {{ error | translate }}
               </div>
             </div>
           </div>

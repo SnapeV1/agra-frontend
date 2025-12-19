@@ -37,7 +37,7 @@
           </div>
           <div class="action-stack">
             <button class="btn btn-light" (click)="onAddCourse()"><i class="fas fa-plus"></i> {{ 'dashboard.welcome.addCourse' | translate }}</button>
-            <button class="btn btn-primary" (click)="onViewReports()"><i class="fas fa-chart-bar"></i> {{ 'dashboard.welcome.viewReports' | translate }}</button>
+            <button class="btn btn-primary" (click)="onViewTickets()"><i class="fas fa-ticket-alt"></i> {{ 'dashboard.welcome.viewTickets' | translate }}</button>
           </div>
         </div>
       </section>
@@ -84,6 +84,7 @@
             <p class="metric-note">{{ 'dashboard.overview.wsConnections' | translate }}</p>
           </div>
         </div>
+        
       </section>
 
       <!-- Activity & Distribution -->
@@ -137,8 +138,77 @@
                   <span class="completion">{{ formatValue(course.completion) }}% {{ 'dashboard.activity.completion' | translate }}</span>
                 </div>
               </div>
-              <p class="empty" *ngIf="!topCourses?.length">{{ 'common.noData' | translate }}</p>
+              <p class="empty" *ngIf="!topCourses.length">{{ 'common.noData' | translate }}</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Courses insights -->
+      <section class="section-block" *ngIf="activeSection === 'courses'">
+        <div class="section-header">
+          <div>
+            <h3 class="section-title">Courses insights</h3>
+            <p class="section-subtitle">Modern performance signals across your catalog.</p>
+          </div>
+        </div>
+        <div class="two-col-grid courses-grid">
+          <div class="card">
+            <div class="card-header compact">
+              <h4 class="card-title">Courses completed</h4>
+              <span class="muted">Monthly trend</span>
+            </div>
+            <div class="chart-area short">
+              <canvas baseChart [type]="enrollmentsChartType" [data]="enrollmentsChartData" [options]="enrollmentsChartOptions"></canvas>
+            </div>
+            <div class="stat-grid compact stats-inline" *ngIf="coursePulseStats.length; else noCoursePulse">
+              <div class="stat-tile" *ngFor="let stat of coursePulseStats">
+                <div class="stat-label">{{ stat.label | translate }}</div>
+                <div class="stat-value">{{ stat.value }}</div>
+                <div class="stat-sub" *ngIf="stat.sub">{{ stat.sub }}</div>
+              </div>
+            </div>
+            <ng-template #noCoursePulse>
+              <p class="empty">{{ 'common.noData' | translate }}</p>
+            </ng-template>
+          </div>
+          <div class="card">
+            <div class="card-header compact">
+              <h4 class="card-title">Top courses performance</h4>
+              <span class="muted">Enrollments vs completion</span>
+            </div>
+            <div class="course-performance-simple" *ngIf="topCourses.length; else noCourseHighlights">
+              <div class="course-simple-list">
+                <div class="course-simple-row" *ngFor="let course of topCourses.slice(0, 3)">
+                  <div class="course-simple-main">
+                    <span class="course-simple-name">{{ course.name }}</span>
+                    <span class="course-simple-badge">{{ formatValue(course.students) }} enrollments</span>
+                  </div>
+                  <div class="course-simple-meter">
+                    <div class="course-simple-track">
+                      <span class="course-simple-fill" [style.width.%]="topCoursesMaxEnrollments ? (course.students / topCoursesMaxEnrollments) * 100 : 0"></span>
+                    </div>
+                    <span class="course-simple-value">{{ formatValue(course.students) }}</span>
+                  </div>
+                  <div class="course-simple-meter completion">
+                    <div class="course-simple-track completion">
+                      <span class="course-simple-fill completion" [style.width.%]="course.completion"></span>
+                    </div>
+                    <span class="course-simple-value">{{ formatValue(course.completion) }}%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="course-summary-chips">
+                <div class="course-summary-chip" *ngFor="let stat of courseHighlightStats">
+                  <span class="chip-label">{{ stat.label }}</span>
+                  <span class="chip-value">{{ stat.value }}</span>
+                  <span class="chip-sub" *ngIf="stat.sub">{{ stat.sub }}</span>
+                </div>
+              </div>
+            </div>
+            <ng-template #noCourseHighlights>
+              <p class="empty">{{ 'common.noData' | translate }}</p>
+            </ng-template>
           </div>
         </div>
       </section>
@@ -151,35 +221,95 @@
             <p class="section-subtitle">{{ 'dashboard.users.subtitle' | translate }}</p>
           </div>
         </div>
-        <div class="triple-grid">
-          <div class="card">
-            <h4 class="card-title">{{ 'dashboard.users.summary' | translate }}</h4>
-            <ul class="stat-list">
-              <li><span>{{ 'dashboard.users.totalUsers' | translate }}</span><strong>{{ formatValue(usersTotal) }}</strong></li>
-              <li><span>{{ 'dashboard.overview.activeLast30' | translate }}</span><strong>{{ formatValue(usersActive30) }}</strong></li>
-              <li><span>{{ 'dashboard.overview.liveUsers' | translate }}</span><strong>{{ formatValue(liveUsersOnline) }}</strong></li>
-            </ul>
+        <div class="users-grid">
+          <div class="card users-summary-card">
+            <div class="card-header">
+              <h4 class="card-title">{{ 'dashboard.users.summary' | translate }}</h4>
+              <span class="pill pill-blue">{{ 'dashboard.users.totalUsers' | translate }}: {{ formatValue(usersTotal) }}</span>
+            </div>
+            <div class="kpi-grid">
+              <div class="kpi-tile">
+                <div class="kpi-icon bg-blue"><i class="fas fa-users"></i></div>
+                <div class="kpi-body">
+                  <div class="kpi-label">{{ 'dashboard.users.totalUsers' | translate }}</div>
+                  <div class="kpi-value">{{ formatValue(usersTotal) }}</div>
+                  <div class="kpi-meter"><span [style.width.%]="100"></span></div>
+                </div>
+              </div>
+              <div class="kpi-tile">
+                <div class="kpi-icon bg-emerald"><i class="fas fa-user-check"></i></div>
+                <div class="kpi-body">
+                  <div class="kpi-label">{{ 'dashboard.overview.activeLast30' | translate }}</div>
+                  <div class="kpi-value">{{ formatValue(usersActive30) }}</div>
+                  <div class="kpi-meter"><span [style.width.%]="usersTotal ? (usersActive30 / usersTotal) * 100 : 0"></span></div>
+                </div>
+              </div>
+              <div class="kpi-tile">
+                <div class="kpi-icon bg-rose"><i class="fas fa-bolt"></i></div>
+                <div class="kpi-body">
+                  <div class="kpi-label">{{ 'dashboard.overview.liveUsers' | translate }}</div>
+                  <div class="kpi-value">{{ formatValue(liveUsersOnline) }}</div>
+                  <div class="kpi-meter"><span [style.width.%]="usersTotal ? (liveUsersOnline / usersTotal) * 100 : 0"></span></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="card">
-            <h4 class="card-title">{{ 'dashboard.users.roles' | translate }}</h4>
-            <ul class="stat-list">
-              <li *ngFor="let r of rolesList; let i = index">
-                <span class="role-label">
-                  <span class="dot" [ngStyle]="{ background: roleColors[i % roleColors.length] }"></span>
-                  {{ r.role }}
-                </span>
-                <strong>{{ formatValue(r.count) }}</strong>
-              </li>
-              <li class="empty" *ngIf="rolesList.length === 0">{{ 'common.noData' | translate }}</li>
-            </ul>
+
+          <div class="card roles-card">
+            <div class="card-header">
+              <h4 class="card-title">{{ 'dashboard.users.roles' | translate }}</h4>
+              <span class="muted">{{ 'dashboard.users.totalUsers' | translate }}: {{ formatValue(usersTotal) }}</span>
+            </div>
+            <div class="role-bars">
+              <div class="role-row" *ngFor="let r of rolesList; let i = index">
+                <div class="role-meta">
+                  <span class="role-label">
+                    <span class="dot" [ngStyle]="{ background: roleColors[i % roleColors.length] }"></span>
+                    {{ r.role }}
+                  </span>
+                  <strong>{{ formatValue(r.count) }}</strong>
+                </div>
+                <div class="role-track">
+                  <span class="role-fill" [ngStyle]="{ background: roleColors[i % roleColors.length], width: (usersTotal ? (r.count / usersTotal) * 100 : 0) + '%' }"></span>
+                </div>
+              </div>
+              <p class="empty" *ngIf="rolesList.length === 0">{{ 'common.noData' | translate }}</p>
+            </div>
           </div>
-          <div class="card">
+
+          <div class="card quick-stats-card">
             <h4 class="card-title">{{ 'dashboard.users.quickStats' | translate }}</h4>
-            <ul class="stat-list">
-              <li><span>{{ 'dashboard.users.latestRegistrations' | translate }}</span><strong>{{ formatValue(latestRegistrationCount) }}</strong></li>
-              <li><span>{{ 'dashboard.users.activeCourses' | translate }}</span><strong>{{ formatValue(coursesSummary.published) }}</strong></li>
-              <li><span>{{ 'dashboard.users.completionRate' | translate }}</span><strong>{{ formatValue(averageCompletion) }}%</strong></li>
-            </ul>
+            <div class="quick-grid">
+              <div class="quick-tile">
+                <div class="quick-icon bg-indigo"><i class="fas fa-user-plus"></i></div>
+                <div>
+                  <div class="quick-label">{{ 'dashboard.users.latestRegistrations' | translate }}</div>
+                  <div class="quick-value">{{ formatValue(latestRegistrationCount) }}</div>
+                  <div class="quick-sub" *ngIf="latestRegistrationUser; else noLatestUser">
+                    <span class="quick-name">{{ latestRegistrationUser.name }}</span>
+                    <span class="quick-email" *ngIf="latestRegistrationUser.email">{{ latestRegistrationUser.email }}</span>
+                    <span class="quick-date" *ngIf="latestRegistrationUser.createdAt">{{ formatDate(latestRegistrationUser.createdAt) }}</span>
+                  </div>
+                  <ng-template #noLatestUser>
+                    <div class="quick-sub muted">{{ 'common.noData' | translate }}</div>
+                  </ng-template>
+                </div>
+              </div>
+              <div class="quick-tile">
+                <div class="quick-icon bg-sky"><i class="fas fa-book"></i></div>
+                <div>
+                  <div class="quick-label">{{ 'dashboard.users.activeCourses' | translate }}</div>
+                  <div class="quick-value">{{ formatValue(coursesSummary.published) }}</div>
+                </div>
+              </div>
+              <div class="quick-tile">
+                <div class="quick-icon bg-amber"><i class="fas fa-chart-line"></i></div>
+                <div>
+                  <div class="quick-label">{{ 'dashboard.users.completionRate' | translate }}</div>
+                  <div class="quick-value">{{ formatValue(averageCompletion) }}%</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="card chart-card">
@@ -191,8 +321,61 @@
             <canvas baseChart [type]="growthChartType" [data]="growthChartData" [options]="growthChartOptions"></canvas>
           </div>
           <ng-template #noGrowth>
-            <p class="empty">{{ 'common.noData' | translate }}</p>
+            <div class="empty-state">
+              <p class="empty-title">No user growth data yet.</p>
+              <p class="empty-copy">Invite users or publish your first course to start tracking growth.</p>
+            </div>
           </ng-template>
+        </div>
+              <app-north-africa *ngIf="activeSection === 'overview' || activeSection === 'users'" [countries]="northAfricaCountries" [totalUsers]="northAfricaUsersTotal"></app-north-africa>
+
+      </section>
+
+      <!-- Support -->
+      <section class="section-block" *ngIf="activeSection === 'overview' || activeSection === 'users'">
+        <div class="section-header">
+          <div>
+            <h3 class="section-title">{{ 'dashboard.tickets.title' | translate }}</h3>
+            <p class="section-subtitle">{{ 'dashboard.tickets.subtitle' | translate }}</p>
+          </div>
+        </div>
+        <div class="two-col-grid tickets-grid">
+          <div class="card">
+            <div class="card-header compact">
+              <h4 class="card-title">{{ 'dashboard.tickets.snapshotTitle' | translate }}</h4>
+              <span class="muted">{{ 'dashboard.tickets.allTickets' | translate }}</span>
+            </div>
+            <div class="stat-grid compact" *ngIf="ticketStats.length; else noTickets">
+              <div class="stat-tile" *ngFor="let stat of ticketStats">
+                <div class="stat-label">{{ stat.label | translate }}</div>
+                <div class="stat-value">{{ stat.value }}</div>
+                <div class="stat-sub" *ngIf="stat.sub">{{ stat.sub }}</div>
+              </div>
+            </div>
+            <ng-template #noTickets>
+              <p class="empty">{{ 'common.noData' | translate }}</p>
+            </ng-template>
+          </div>
+          <div class="card">
+            <div class="card-header compact">
+              <h4 class="card-title">{{ 'dashboard.tickets.recentTitle' | translate }}</h4>
+              <span class="muted">{{ recentTickets.length }} {{ 'dashboard.tickets.items' | translate }}</span>
+            </div>
+            <div class="ticket-list" *ngIf="recentTickets.length; else noRecentTickets">
+              <div class="ticket-row" *ngFor="let ticket of recentTickets">
+                <div class="ticket-meta">
+                  <span class="ticket-subject">{{ ticket.subject }}</span>
+                  <span class="ticket-date" *ngIf="ticket.updatedAt || ticket.createdAt">
+                    {{ formatDate(ticket.updatedAt || ticket.createdAt) }}
+                  </span>
+                </div>
+                <span [ngClass]="statusPillClass(ticket.status)">{{ ticket.status }}</span>
+              </div>
+            </div>
+            <ng-template #noRecentTickets>
+              <p class="empty">{{ 'common.noData' | translate }}</p>
+            </ng-template>
+          </div>
         </div>
       </section>
 
@@ -227,22 +410,53 @@
               <p class="empty">{{ 'common.noPosts' | translate }}</p>
             </ng-template>
           </div>
-          <div class="card side-stack">
-            <div>
-              <h4 class="card-title">{{ 'dashboard.social.engagementAvg' | translate }}</h4>
-              <ul class="stat-list">
-                <li *ngFor="let kv of engagementAverageEntries"><span>{{ kv.label }}</span><strong>{{ kv.value }}</strong></li>
-                <li class="empty" *ngIf="!engagementAverageEntries.length">{{ 'common.noData' | translate }}</li>
-              </ul>
+          <div class="card posts-stats-card">
+            <div class="card-header compact">
+              <h4 class="card-title">{{ 'dashboard.social.statsTitle' | translate }}</h4>
+              <span class="muted">{{ 'dashboard.social.statsSubtitle' | translate }}</span>
             </div>
-            <div>
-              <h4 class="card-title">{{ 'dashboard.social.featuredPerformance' | translate }}</h4>
-              <ul class="stat-list">
-                <li *ngFor="let kv of featuredPerformanceEntries"><span>{{ kv.label }}</span><strong>{{ kv.value }}</strong></li>
-                <li class="empty" *ngIf="!featuredPerformanceEntries.length">{{ 'common.noData' | translate }}</li>
-              </ul>
+            <div class="stats-group">
+              <div class="stats-title">{{ 'dashboard.social.engagementAvg' | translate }}</div>
+              <div class="stat-grid compact" *ngIf="engagementAverageEntries.length; else noEngagementAvg">
+                <div class="stat-tile" *ngFor="let kv of engagementAverageEntries">
+                  <div class="stat-label">{{ kv.label }}</div>
+                  <div class="stat-value">{{ kv.value }}</div>
+                </div>
+              </div>
+              <ng-template #noEngagementAvg>
+                <p class="empty">{{ 'common.noData' | translate }}</p>
+              </ng-template>
+            </div>
+            <div class="stats-group">
+              <div class="stats-title">{{ 'dashboard.social.featuredPerformance' | translate }}</div>
+              <div class="stat-grid compact" *ngIf="featuredPerformanceEntries.length; else noFeaturedPerf">
+                <div class="stat-tile" *ngFor="let kv of featuredPerformanceEntries">
+                  <div class="stat-label">{{ kv.label }}</div>
+                  <div class="stat-value">{{ kv.value }}</div>
+                </div>
+              </div>
+              <ng-template #noFeaturedPerf>
+                <p class="empty">{{ 'common.noData' | translate }}</p>
+              </ng-template>
             </div>
           </div>
+        </div>
+        <div class="card posts-pulse-card">
+          <div class="card-header compact">
+            <h4 class="card-title">{{ 'dashboard.social.pulse.title' | translate }}</h4>
+            <span class="muted">{{ postsPulseLabelKey | translate }}</span>
+          </div>
+          <div class="stat-grid" *ngIf="postPulseStats.length; else noPostPulse">
+            <div class="stat-tile" *ngFor="let stat of postPulseStats">
+              <div class="stat-label">{{ stat.label | translate }}</div>
+              <div class="stat-value">{{ stat.value }}</div>
+              <div class="stat-sub" *ngIf="stat.subKey">{{ stat.subKey | translate:{ value: stat.subValue } }}</div>
+              <div class="stat-sub" *ngIf="stat.sub && !stat.subKey">{{ stat.sub }}</div>
+            </div>
+          </div>
+          <ng-template #noPostPulse>
+            <p class="empty">{{ 'common.noData' | translate }}</p>
+          </ng-template>
         </div>
       </section>
 
@@ -276,14 +490,6 @@
               <li *ngFor="let t of notificationTopTypes"><span>{{ t.type }}</span><strong>{{ formatValue(t.count) }}</strong></li>
               <li class="empty" *ngIf="!notificationTopTypes || notificationTopTypes.length === 0">{{ 'common.noData' | translate }}</li>
             </ul>
-          </div>
-          <div class="card center-card">
-            <div class="live-now">
-              <span class="live-dot"></span>
-              <span class="live-label">{{ 'common.liveNow' | translate }}</span>
-            </div>
-            <p class="live-count">{{ formatValue(liveUsersOnline) }}</p>
-            <p class="muted">{{ 'common.usersOnline' | translate }}</p>
           </div>
         </div>
       </section>

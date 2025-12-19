@@ -2,52 +2,52 @@
   <div class="cert-mgmt">
     <header class="cm-header">
       <div>
-        <p class="eyebrow">Credentials</p>
+        <p class="eyebrow">{{ 'certificatesManagement.header.eyebrow' | translate }}</p>
         <h1>{{ 'adminPages.certificatesManagement.title' | translate }}</h1>
-        <span>{{ filteredCertificates.length }} certificate(s) match your filters</span>
+        <span>{{ 'certificatesManagement.header.matches' | translate:{ count: filteredCertificates.length } }}</span>
       </div>
       <div class="header-actions">
         <button class="ghost-btn" (click)="fetchCertificates()" [disabled]="loading">
           <i class="fas fa-sync-alt" [class.spin]="loading"></i>
-          {{ loading ? 'Refreshing...' : 'Refresh' }}
+          {{ loading ? ('certificatesManagement.header.refreshing' | translate) : ('certificatesManagement.header.refresh' | translate) }}
         </button>
       </div>
     </header>
 
     <section class="stats-grid">
       <article class="stat-card">
-        <p>Total issued</p>
+        <p>{{ 'certificatesManagement.stats.totalIssued' | translate }}</p>
         <h2>{{ totalCertificates }}</h2>
-        <small>All time</small>
+        <small>{{ 'certificatesManagement.stats.allTime' | translate }}</small>
       </article>
       <article class="stat-card positive">
-        <p>Active</p>
+        <p>{{ 'certificatesManagement.stats.active' | translate }}</p>
         <h2>{{ activeCertificates }}</h2>
-        <small>{{ revokedCertificates }} revoked</small>
+        <small>{{ 'certificatesManagement.stats.revokedCount' | translate:{ count: revokedCertificates } }}</small>
       </article>
       <article class="stat-card neutral">
-        <p>Revoked</p>
+        <p>{{ 'certificatesManagement.stats.revoked' | translate }}</p>
         <h2>{{ revokedCertificates }}</h2>
-        <small>{{ (revokedCertificates / (totalCertificates || 1) * 100) | number : '1.0-0' }}% of total</small>
+        <small>{{ 'certificatesManagement.stats.revokedPercent' | translate:{ percent: ((revokedCertificates / (totalCertificates || 1) * 100) | number : '1.0-0') } }}</small>
       </article>
       <article class="stat-card accent">
-        <p>Selected</p>
-        <h2>{{ selectedCertificate ? selectedCertificate.studentName : '—' }}</h2>
-        <small>{{ selectedCertificate?.courseTitle || 'No certificate selected' }}</small>
+        <p>{{ 'certificatesManagement.stats.selected' | translate }}</p>
+        <h2>{{ selectedCertificate ? selectedCertificate.studentName : ('certificatesManagement.common.none' | translate) }}</h2>
+        <small>{{ selectedCertificate?.courseTitle || ('certificatesManagement.stats.noneSelected' | translate) }}</small>
       </article>
     </section>
 
-    <div class="error-banner" *ngIf="error">{{ error }}</div>
+    <div class="error-banner" *ngIf="error">{{ error | translate }}</div>
 
     <section class="filters-panel">
       <div class="filter-card search-card">
-        <label for="certificate-search">Search certificates</label>
+        <label for="certificate-search">{{ 'certificatesManagement.filters.searchLabel' | translate }}</label>
         <div class="search-input">
           <i class="fas fa-search"></i>
           <input
             id="certificate-search"
             type="search"
-            placeholder="Student, course, code..."
+            [placeholder]="'certificatesManagement.filters.searchPlaceholder' | translate"
             [(ngModel)]="searchTerm"
             (ngModelChange)="onSearchChange()" />
         </div>
@@ -55,28 +55,28 @@
 
       <div class="filter-card status-card">
         <div class="card-header">
-          <span>Status</span>
+          <span>{{ 'certificatesManagement.filters.status' | translate }}</span>
         </div>
         <div class="chip-group">
           <button class="filter-chip" [class.active]="statusFilter === 'all'" (click)="setStatusFilter('all')">
-            All
+            {{ 'certificatesManagement.filters.all' | translate }}
           </button>
           <button class="filter-chip" [class.active]="statusFilter === 'valid'" (click)="setStatusFilter('valid')">
-            Active
+            {{ 'certificatesManagement.filters.active' | translate }}
           </button>
           <button class="filter-chip" [class.active]="statusFilter === 'revoked'" (click)="setStatusFilter('revoked')">
-            Revoked
+            {{ 'certificatesManagement.filters.revoked' | translate }}
           </button>
         </div>
       </div>
 
       <div class="filter-card sort-card">
-        <label for="sort-option">Sort by</label>
+        <label for="sort-option">{{ 'certificatesManagement.filters.sortLabel' | translate }}</label>
         <select id="sort-option" class="sort-select" [(ngModel)]="sortOption" (change)="onSortChange()">
-          <option value="latest">Latest issued</option>
-          <option value="oldest">Oldest first</option>
-          <option value="name">Student name</option>
-          <option value="course">Course title</option>
+          <option value="latest">{{ 'certificatesManagement.filters.sort.latest' | translate }}</option>
+          <option value="oldest">{{ 'certificatesManagement.filters.sort.oldest' | translate }}</option>
+          <option value="name">{{ 'certificatesManagement.filters.sort.name' | translate }}</option>
+          <option value="course">{{ 'certificatesManagement.filters.sort.course' | translate }}</option>
         </select>
       </div>
     </section>
@@ -84,8 +84,8 @@
     <div class="cm-layout">
       <section class="cert-table">
         <div class="table-heading">
-          <h3>Issued certificates</h3>
-          <span *ngIf="!loading">{{ filteredCertificates.length }} result(s)</span>
+          <h3>{{ 'certificatesManagement.table.title' | translate }}</h3>
+          <span *ngIf="!loading">{{ 'certificatesManagement.table.results' | translate:{ count: filteredCertificates.length } }}</span>
         </div>
 
         <div class="skeleton-table" *ngIf="loading">
@@ -93,18 +93,18 @@
         </div>
 
         <div class="empty-state" *ngIf="!loading && !filteredCertificates.length">
-          <p>No certificates match your filters yet.</p>
+          <p>{{ 'certificatesManagement.table.empty' | translate }}</p>
         </div>
 
         <div class="table-wrapper" *ngIf="!loading && filteredCertificates.length">
           <table>
             <thead>
               <tr>
-                <th>Student</th>
-                <th>Course</th>
-                <th>Issued</th>
-                <th>Status</th>
-                <th>Code</th>
+                <th>{{ 'certificatesManagement.table.student' | translate }}</th>
+                <th>{{ 'certificatesManagement.table.course' | translate }}</th>
+                <th>{{ 'certificatesManagement.table.issued' | translate }}</th>
+                <th>{{ 'certificatesManagement.table.status' | translate }}</th>
+                <th>{{ 'certificatesManagement.table.code' | translate }}</th>
                 <th></th>
               </tr>
             </thead>
@@ -116,7 +116,7 @@
                   <div class="student-cell">
                     <div class="avatar">{{ (certificate.studentName || certificate.studentId || '?').charAt(0) }}</div>
                     <div>
-                      <p>{{ certificate.studentName || '—' }}</p>
+                      <p>{{ certificate.studentName || ('certificatesManagement.common.none' | translate) }}</p>
                       <small>{{ certificate.studentId }}</small>
                     </div>
                   </div>
@@ -128,14 +128,14 @@
                 <td>{{ certificate.issueDate | date : 'mediumDate' }}</td>
                 <td>
                   <span [class]="statusBadge(certificate)">
-                    {{ certificate.isValid ? 'Active' : 'Revoked' }}
+                    {{ certificate.isValid ? ('certificatesManagement.status.active' | translate) : ('certificatesManagement.status.revoked' | translate) }}
                   </span>
                 </td>
                 <td>
                   <code class="code-pill">{{ certificate.certificateId }}</code>
                 </td>
                 <td class="actions-cell">
-                  <button class="ghost-btn" (click)="selectCertificate(certificate)">Review</button>
+                  <button class="ghost-btn" (click)="selectCertificate(certificate)">{{ 'certificatesManagement.actions.review' | translate }}</button>
                 </td>
               </tr>
             </tbody>
@@ -146,92 +146,92 @@
       <section class="cert-detail" *ngIf="selectedCertificate; else detailPlaceholder">
         <div class="detail-header">
           <div>
-            <p class="eyebrow">Certificate detail</p>
+            <p class="eyebrow">{{ 'certificatesManagement.detail.eyebrow' | translate }}</p>
             <h2>{{ selectedCertificate!.studentName }}</h2>
             <span>{{ selectedCertificate!.courseTitle }}</span>
           </div>
           <button class="ghost-btn" (click)="clearSelection()">
             <i class="fas fa-times"></i>
-            Close
+            {{ 'certificatesManagement.actions.close' | translate }}
           </button>
         </div>
 
         <div class="detail-meta">
           <div>
-            <span>Certificate code</span>
+            <span>{{ 'certificatesManagement.detail.code' | translate }}</span>
             <strong>{{ selectedCertificate!.certificateId }}</strong>
           </div>
           <div>
-            <span>Status</span>
-            <strong [class]="statusBadge(selectedCertificate!)">{{ selectedCertificate!.isValid ? 'Active' : 'Revoked' }}</strong>
+            <span>{{ 'certificatesManagement.detail.status' | translate }}</span>
+            <strong [class]="statusBadge(selectedCertificate!)">{{ selectedCertificate!.isValid ? ('certificatesManagement.status.active' | translate) : ('certificatesManagement.status.revoked' | translate) }}</strong>
           </div>
           <div>
-            <span>Issued on</span>
+            <span>{{ 'certificatesManagement.detail.issuedOn' | translate }}</span>
             <strong>{{ selectedCertificate!.issueDate | date : 'mediumDate' }}</strong>
           </div>
           <div>
-            <span>Total time</span>
+            <span>{{ 'certificatesManagement.detail.totalTime' | translate }}</span>
             <strong>{{ formatDuration(selectedCertificate!.totalTimeSpent) }}</strong>
           </div>
         </div>
 
         <form class="edit-form" (ngSubmit)="saveCertificateEdits()">
-          <h3>Edit certificate metadata</h3>
-          <label for="edit-instructor">Instructor name</label>
+          <h3>{{ 'certificatesManagement.edit.title' | translate }}</h3>
+          <label for="edit-instructor">{{ 'certificatesManagement.edit.instructor' | translate }}</label>
           <input
             id="edit-instructor"
             type="text"
             name="instructorName"
             [(ngModel)]="editForm.instructorName" />
 
-          <label for="edit-organization">Organization</label>
+          <label for="edit-organization">{{ 'certificatesManagement.edit.organization' | translate }}</label>
           <input
             id="edit-organization"
             type="text"
             name="organizationName"
             [(ngModel)]="editForm.organizationName" />
 
-          <label for="edit-date">Issue date</label>
+          <label for="edit-date">{{ 'certificatesManagement.edit.issueDate' | translate }}</label>
           <input
             id="edit-date"
             type="date"
             name="issueDate"
             [(ngModel)]="editForm.issueDate" />
 
-          <label for="edit-notes">Notes (internal)</label>
+          <label for="edit-notes">{{ 'certificatesManagement.edit.notesLabel' | translate }}</label>
           <textarea
             id="edit-notes"
             name="notes"
             rows="3"
-            placeholder="Add a short note or context for admins..."
+            [placeholder]="'certificatesManagement.edit.notesPlaceholder' | translate"
             [(ngModel)]="editForm.notes"></textarea>
 
           <button class="primary-btn" type="submit" [disabled]="saving">
-            <span *ngIf="saving"><i class="fas fa-spinner spin"></i> Saving...</span>
-            <span *ngIf="!saving">Save changes</span>
+            <span *ngIf="saving"><i class="fas fa-spinner spin"></i> {{ 'certificatesManagement.edit.saving' | translate }}</span>
+            <span *ngIf="!saving">{{ 'certificatesManagement.edit.save' | translate }}</span>
           </button>
         </form>
 
         <section class="danger-zone">
           <div>
-            <h3>Revoke certificate</h3>
-            <p>Revoking will immediately invalidate the certificate and notify the user.</p>
+            <h3>{{ 'certificatesManagement.revoke.title' | translate }}</h3>
+            <p>{{ 'certificatesManagement.revoke.body' | translate }}</p>
           </div>
           <textarea
             rows="2"
-            placeholder="Reason for revocation"
+            [placeholder]="'certificatesManagement.revoke.placeholder' | translate"
             [(ngModel)]="revokeReason"></textarea>
           <button class="danger-btn" (click)="revokeSelectedCertificate()" [disabled]="revoking || !revokeReason.trim()">
-            <span *ngIf="revoking"><i class="fas fa-spinner spin"></i> Revoking...</span>
-            <span *ngIf="!revoking">Revoke certificate</span>
+            <span *ngIf="revoking"><i class="fas fa-spinner spin"></i> {{ 'certificatesManagement.revoke.revoking' | translate }}</span>
+            <span *ngIf="!revoking">{{ 'certificatesManagement.revoke.action' | translate }}</span>
           </button>
         </section>
       </section>
 
       <ng-template #detailPlaceholder>
         <section class="cert-detail placeholder">
-          <h3>No certificate selected</h3>
-          <p>Select a certificate from the list to inspect and edit its metadata.</p>
+          <h3>{{ 'certificatesManagement.empty.title' | translate }}</h3>
+          <p>{{ 'certificatesManagement.empty.body' | translate }}</p>
         </section>
       </ng-template>
     </div>

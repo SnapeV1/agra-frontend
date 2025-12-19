@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { CertificateData, CertificateService } from 'src/app/core/services/certificate.service';
+import { TranslateService } from '@ngx-translate/core';
 
 type CertificateStatusFilter = 'all' | 'valid' | 'revoked';
 
@@ -34,7 +35,10 @@ export class CertificatesManagementComponent implements OnInit, OnDestroy {
     notes: ''
   };
 
-  constructor(private certificateService: CertificateService) {}
+  constructor(
+    private certificateService: CertificateService,
+    private translate: TranslateService
+  ) {}
 
   ngOnInit(): void {
     this.fetchCertificates();
@@ -73,7 +77,7 @@ export class CertificatesManagementComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Failed to load certificates', err);
-          this.error = 'Unable to load certificates right now.';
+          this.error = err?.message || 'certificatesManagement.errors.load';
           this.loading = false;
         }
       });
@@ -199,14 +203,17 @@ export class CertificatesManagementComponent implements OnInit, OnDestroy {
 
   formatDuration(totalMinutes?: number): string {
     if (!totalMinutes && totalMinutes !== 0) {
-      return '—';
+      return this.translate.instant('certificatesManagement.common.none');
     }
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-    if (hours === 0) {
-      return `${minutes}m`;
+    if (hours == 0) {
+      return this.translate.instant('certificatesManagement.duration.minutes', { count: minutes });
     }
-    return minutes === 0 ? `${hours}h` : `${hours}h ${minutes}m`;
+    if (minutes == 0) {
+      return this.translate.instant('certificatesManagement.duration.hours', { count: hours });
+    }
+    return this.translate.instant('certificatesManagement.duration.hoursMinutes', { hours, minutes });
   }
 
   statusBadge(cert: CertificateData): string {

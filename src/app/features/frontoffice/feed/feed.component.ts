@@ -9,6 +9,7 @@ import { PostComment } from 'src/app/core/models/post-comment.module';
 import { User } from 'src/app/core/models/user.model';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { NotificationType } from 'src/app/core/models/notification.model';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-feed',
@@ -41,7 +42,8 @@ export class FeedComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private postsService: PostsService,
     private newsService: NewsService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -113,7 +115,7 @@ export class FeedComponent implements OnInit, OnDestroy {
           this.loading = false;
         },
         error: error => {
-          this.errorMessage = 'Failed to load posts. Please try again later.';
+          this.errorMessage = 'feed.errors.posts';
           this.loading = false;
         }
       })
@@ -152,7 +154,7 @@ export class FeedComponent implements OnInit, OnDestroy {
         this.newsLoading = false;
       },
       error: () => {
-        this.newsError = 'Failed to load news.';
+        this.newsError = 'feed.errors.news';
         this.newsLoading = false;
       }
     });
@@ -206,7 +208,7 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   toggleCommentLike(comment: any): void {
     if (!this.isAuthenticated) {
-      alert('Please log in to like comments');
+      alert(this.translate.instant('feed.alerts.loginToLikeComment'));
       return;
     }
 
@@ -239,7 +241,7 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   addComment(post: any): void {
     if (!this.isAuthenticated || !this.currentUser) {
-      alert('Please log in to comment');
+      alert(this.translate.instant('feed.alerts.loginToComment'));
       return;
     }
 
@@ -271,17 +273,17 @@ export class FeedComponent implements OnInit, OnDestroy {
 
 
   getTimeAgo(dateInput: string | Date | null | undefined): string {
-    if (!dateInput) return 'Unknown time';
+    if (!dateInput) return this.translate.instant('common.time.unknown');
 
     let date: Date;
     if (typeof dateInput === 'string') {
       date = new Date(dateInput);
-      if (isNaN(date.getTime())) return 'Invalid date';
+      if (isNaN(date.getTime())) return this.translate.instant('common.time.invalid');
     } else if (dateInput instanceof Date) {
       date = dateInput;
-      if (isNaN(date.getTime())) return 'Invalid date';
+      if (isNaN(date.getTime())) return this.translate.instant('common.time.invalid');
     } else {
-      return 'Unknown time';
+      return this.translate.instant('common.time.unknown');
     }
 
     // Compute difference without hardcoded timezone offsets
@@ -294,10 +296,10 @@ export class FeedComponent implements OnInit, OnDestroy {
     const diffInHours = Math.floor(diffInMinutes / 60);
     const diffInDays = Math.floor(diffInHours / 24);
 
-    if (diffInSeconds < 60) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'} ago`;
-    if (diffInHours < 24) return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
-    if (diffInDays < 2) return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
+    if (diffInSeconds < 60) return this.translate.instant('common.time.justNow');
+    if (diffInMinutes < 60) return this.translate.instant('common.time.minutesAgo', { count: diffInMinutes });
+    if (diffInHours < 24) return this.translate.instant('common.time.hoursAgo', { count: diffInHours });
+    if (diffInDays < 2) return this.translate.instant('common.time.daysAgo', { count: diffInDays });
 
     return date.toLocaleDateString();
   }

@@ -3,7 +3,7 @@
     <button class="mobile-sidebar-toggle" 
             [class.active]="sidebarService.getMobileState()"
             (click)="toggleMobileSidebar()"
-            aria-label="Toggle sidebar">
+            [attr.aria-label]="'nav.admin.toggleSidebar' | translate">
       <div class="hamburger-container">
         <div class="hamburger-bar"></div>
         <div class="hamburger-bar"></div>
@@ -51,8 +51,8 @@
       <button 
         class="action-btn" 
         (click)="toggleNotif()" 
-        aria-label="Notifications"
-        title="Notifications"
+        [attr.aria-label]="'nav.admin.notifications' | translate"
+        [title]="'nav.admin.notifications' | translate"
         type="button"
       >
         <span class="material-symbols-outlined"></span>

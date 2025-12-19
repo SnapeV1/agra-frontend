@@ -8,6 +8,7 @@ import { CreateSessionDto, SessionModule } from "src/app/core/models/session.mod
 import { forkJoin, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { LiveSessionLauncherService } from "src/app/core/services/live-session-launcher.service";
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: "app-course-details",
@@ -124,7 +125,7 @@ export class AdminCourseDetailsComponent implements OnInit {
     "Zambia",
     "Zimbabwe"
   ];
-  languages: string[] = ["Arabic", "English", "French"];
+  languages: string[] = ["en", "fr", "ar"];
   textContentTypes: string[] = ["lesson", "assignment", "reading", "quiz", "project"];
 
   // Create session form
@@ -181,7 +182,8 @@ export class AdminCourseDetailsComponent implements OnInit {
     private router: Router,
     private progressService: ProgressService,
     private sessionService: SessionService,
-    private liveSessionLauncher: LiveSessionLauncherService
+    private liveSessionLauncher: LiveSessionLauncherService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -202,7 +204,7 @@ export class AdminCourseDetailsComponent implements OnInit {
         }
       },
       error: () => {
-        alert('Failed to open live session. Please try again.');
+        alert(this.translate.instant('adminCourseDetails.errors.liveSession'));
       }
     });
   }
@@ -259,7 +261,7 @@ export class AdminCourseDetailsComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        this.error = "Failed to load course details.";
+        this.error = 'adminCourseDetails.errors.loadCourse';
         this.loading = false;
       },
     });
@@ -275,7 +277,7 @@ export class AdminCourseDetailsComponent implements OnInit {
         this.sessionsLoading = false;
       },
       error: () => {
-        this.sessionsError = 'Failed to load sessions';
+        this.sessionsError = 'adminCourseDetails.errors.loadSessions';
         this.sessionsLoading = false;
       }
     });
@@ -297,12 +299,51 @@ export class AdminCourseDetailsComponent implements OnInit {
     this.setDefaultSessionTitle();
   }
 
+  languageLabel(language: string): string {
+    const normalized = (language || '').toLowerCase();
+    switch (normalized) {
+      case 'ar':
+      case 'arabic':
+        return 'lang.ar';
+      case 'fr':
+      case 'french':
+        return 'lang.fr';
+      case 'en':
+      case 'english':
+      default:
+        return 'lang.en';
+    }
+  }
+
+  contentTypeLabel(type: string): string {
+    const normalized = (type || '').toLowerCase();
+    switch (normalized) {
+      case 'lesson':
+        return 'adminCourseDetails.textContent.types.lesson';
+      case 'assignment':
+        return 'adminCourseDetails.textContent.types.assignment';
+      case 'reading':
+        return 'adminCourseDetails.textContent.types.reading';
+      case 'quiz':
+        return 'adminCourseDetails.textContent.types.quiz';
+      case 'project':
+        return 'adminCourseDetails.textContent.types.project';
+      default:
+        return 'adminCourseDetails.textContent.types.unknown';
+    }
+  }
+
+  untitledContentLabel(type: string): string {
+    const typeLabel = this.translate.instant(this.contentTypeLabel(type));
+    return this.translate.instant('adminCourseDetails.textContent.untitled', { type: typeLabel });
+  }
+
   validateField(field: keyof Course, value: any): string {
     switch (field) {
       case "title":
-        return !value || value.length < 3 ? "Title is required (min 3 characters)" : "";
+        return !value || value.length < 3 ? 'adminCourseDetails.validation.titleRequired' : "";
       case "description":
-        return !value || value.length < 10 ? "Description is required (min 10 characters)" : "";
+        return !value || value.length < 10 ? 'adminCourseDetails.validation.descriptionRequired' : "";
       default:
         return "";
     }
@@ -585,13 +626,13 @@ export class AdminCourseDetailsComponent implements OnInit {
     this.uploadingImage = true;
 
     if (!file.type.startsWith('image/')) {
-      alert('Please select a valid image file');
+      alert(this.translate.instant('adminCourseDetails.errors.invalidImage'));
       this.uploadingImage = false;
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) { 
-      alert('Image file must be less than 10MB');
+      alert(this.translate.instant('adminCourseDetails.errors.imageTooLarge'));
       this.uploadingImage = false;
       return;
     }
@@ -612,13 +653,13 @@ export class AdminCourseDetailsComponent implements OnInit {
     this.uploadingVideo = true;
 
     if (!file.type.startsWith('video/')) {
-      alert('Please select a valid video file');
+      alert(this.translate.instant('adminCourseDetails.errors.invalidVideo'));
       this.uploadingVideo = false;
       return;
     }
 
     if (file.size > 100 * 1024 * 1024) { 
-      alert('Video file must be less than 100MB');
+      alert(this.translate.instant('adminCourseDetails.errors.videoTooLarge'));
       this.uploadingVideo = false;
       return;
     }
@@ -643,7 +684,8 @@ export class AdminCourseDetailsComponent implements OnInit {
     if (!target) return;
 
     if (target.id) {
-      if (!confirm(`Delete file "${target.name}"? Changes will persist on Save.`)) return;
+      const confirmed = confirm(this.translate.instant('adminCourseDetails.confirm.deleteFileStaged', { name: target.name }));
+      if (!confirmed) return;
       this.pendingDeleteFileIds = [...this.pendingDeleteFileIds, target.id];
     } else {
       const toRemoveIdx = this.selectedFiles.findIndex(f => f.name === target.name && f.size === target.size);
@@ -670,7 +712,7 @@ export class AdminCourseDetailsComponent implements OnInit {
     const invalid = files.filter(f => !isAllowed(f));
     if (invalid.length > 0) {
       const names = invalid.map(f => f.name).join(', ');
-      alert(`These files are not allowed and will be skipped: ${names}.\nAllowed: images, PDF, DOC/DOCX, XLS/XLSX/CSV, PPT/PPTX, TXT.`);
+      alert(this.translate.instant('adminCourseDetails.errors.invalidFiles', { names }));
     }
 
     const validFiles = files.filter(isAllowed);
@@ -705,7 +747,8 @@ export class AdminCourseDetailsComponent implements OnInit {
 
     // If file has an id and course is saved, delete from backend
     if (this.formData.id && target.id) {
-      if (!confirm(`Delete file "${target.name}"?`)) return;
+      const confirmed = confirm(this.translate.instant('adminCourseDetails.confirm.deleteFile', { name: target.name }));
+      if (!confirmed) return;
       this.uploadingFiles = true;
       this.courseService.deleteCourseFile(this.formData.id, target.id)
         .pipe(finalize(() => this.uploadingFiles = false))
@@ -715,7 +758,7 @@ export class AdminCourseDetailsComponent implements OnInit {
           },
           error: (err) => {
             
-            alert('Failed to delete file.');
+            alert(this.translate.instant('adminCourseDetails.errors.deleteFile'));
           }
         });
     } else {
@@ -765,26 +808,30 @@ export class AdminCourseDetailsComponent implements OnInit {
       const type = (tc.type || '').toString().toLowerCase();
       if (type !== 'quiz') return;
 
+      const lessonTitle = tc.title || this.translate.instant('adminCourseDetails.textContent.lessonFallback', { index: lessonIdx + 1 });
+
       (tc.questions || []).forEach((q: QuizQuestion, qi: number) => {
-        const title = tc.title || `Lesson ${lessonIdx + 1}`;
-        const questionLabel = `Quiz "${title}" question ${qi + 1}`;
+        const questionLabel = this.translate.instant('adminCourseDetails.quiz.questionLabelDetailed', {
+          title: lessonTitle,
+          index: qi + 1
+        });
         const questionText = (q.question || '').trim();
         if (!questionText) {
-          errors.push(`${questionLabel} is empty.`);
+          errors.push(this.translate.instant('adminCourseDetails.quiz.errors.emptyQuestion', { label: questionLabel }));
         }
 
         const options = (q.options || []).map(opt => (opt || '').trim()).filter(opt => opt !== '');
         if (options.length < 2) {
-          errors.push(`${questionLabel} needs at least two answers.`);
+          errors.push(this.translate.instant('adminCourseDetails.quiz.errors.minOptions', { label: questionLabel }));
         }
         const hasEmptyOption = (q.options || []).some(opt => !(opt || '').trim());
         if (hasEmptyOption) {
-          errors.push(`${questionLabel} has blank answers.`);
+          errors.push(this.translate.instant('adminCourseDetails.quiz.errors.blankOptions', { label: questionLabel }));
         }
 
         const correct = (q.correctAnswer || '').trim();
         if (!correct || !options.includes(correct)) {
-          errors.push(`${questionLabel} must have a correct answer selected.`);
+          errors.push(this.translate.instant('adminCourseDetails.quiz.errors.correctRequired', { label: questionLabel }));
         }
       });
     });
@@ -801,7 +848,7 @@ export class AdminCourseDetailsComponent implements OnInit {
 
   handleSave(): void {
     if (!this.isFormValid() || this.hasValidationErrors()) {
-      alert("Please fix validation errors before saving.");
+      alert(this.translate.instant('adminCourseDetails.errors.fixValidation'));
       return;
     }
 
@@ -932,7 +979,7 @@ console.log("📤 Sending course to backend:", courseDataToSave);
       },
       error: (err) => {
         
-        alert("Failed to save course.");  
+        alert(this.translate.instant('adminCourseDetails.errors.saveCourse'));  
         this.loading = false;
       },
     });
@@ -940,7 +987,7 @@ console.log("📤 Sending course to backend:", courseDataToSave);
 
   private finishSaveCleanup(): void {
     this.loading = false;
-    alert("Course saved successfully!");
+    alert(this.translate.instant('adminCourseDetails.messages.saveSuccess'));
     // Clear staged files and pending deletes
     this.selectedImageFile = null;
     this.selectedVideoFile = null;
@@ -959,11 +1006,11 @@ console.log("📤 Sending course to backend:", courseDataToSave);
 
   handleDelete(): void {
     if (!this.courseId || this.courseId === "new") {
-      alert("Cannot delete a new course.");
+      alert(this.translate.instant('adminCourseDetails.errors.deleteNew'));
       return;
     }
     
-    if (confirm("Are you sure you want to delete this course? This action cannot be undone.")) {
+    if (confirm(this.translate.instant('adminCourseDetails.confirm.deleteCourse'))) {
       this.loading = true;
       this.courseService.deleteCourse(this.courseId).subscribe({
         next: () => {
@@ -971,7 +1018,7 @@ console.log("📤 Sending course to backend:", courseDataToSave);
           this.router.navigate(['/admin/courses']);
         },
         error: (err) => {
-          alert("Failed to delete course.");
+          alert(this.translate.instant('adminCourseDetails.errors.deleteCourse'));
           this.loading = false;
         }
       });
@@ -980,11 +1027,11 @@ console.log("📤 Sending course to backend:", courseDataToSave);
 
   handleRetrieve(): void {
     if (!this.courseId || this.courseId === "new") {
-      alert("Cannot retrieve a new course.");
+      alert(this.translate.instant('adminCourseDetails.errors.retrieveNew'));
       return;
     }
     
-    if (confirm("Are you sure you want to retrieve this course? It will be unarchived and made available again.")) {
+    if (confirm(this.translate.instant('adminCourseDetails.confirm.retrieveCourse'))) {
       this.loading = true;
       this.courseService.unarchiveCourse(this.courseId).subscribe({
         next: () => {
@@ -992,7 +1039,7 @@ console.log("📤 Sending course to backend:", courseDataToSave);
           this.loading = false;
         },
         error: (err) => {
-          alert("Failed to retrieve course.");
+          alert(this.translate.instant('adminCourseDetails.errors.retrieveCourse'));
           this.loading = false;
         }
       });

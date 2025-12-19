@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
 const LANGUAGE_STORAGE_KEY = 'preferredLanguage';
-const SUPPORTED_LANGS = ['en', 'fr'];
+const SUPPORTED_LANGS = ['en', 'fr', 'ar'];
 
 @Injectable({
   providedIn: 'root'

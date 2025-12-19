@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Course } from 'src/app/core/models/course';
 import { CourseService } from 'src/app/core/services/course/course.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-course-management',
@@ -106,7 +107,11 @@ export class CourseManagementComponent {
 
   };
 
-  constructor(private courseService: CourseService, private router: Router) {}
+  constructor(
+    private courseService: CourseService,
+    private router: Router,
+    private translate: TranslateService
+  ) {}
 
   ngOnInit(): void {
     this.loadCourses();
@@ -120,7 +125,7 @@ export class CourseManagementComponent {
         this.loading = false;
       },
       error: (error) => {
-        alert('Failed to load courses.');
+        alert(this.translate.instant('courseManagement.errors.load'));
         this.courses = [];
         this.loading = false;
       }
@@ -231,7 +236,7 @@ export class CourseManagementComponent {
           this.loading = false;
         },
         error: (error) => {
-          alert('Error saving course. Please try again.');
+          alert(this.translate.instant('courseManagement.errors.save'));
           this.loading = false;
         }
       });
@@ -240,7 +245,7 @@ export class CourseManagementComponent {
 
   private validateForm(): boolean {
     if (!this.courseForm.title.trim()) {
-      alert('Course title is required');
+      alert(this.translate.instant('courseManagement.errors.titleRequired'));
       return false;
     }
     return true;
@@ -273,7 +278,7 @@ export class CourseManagementComponent {
       const file = input.files[0];
       
       if (!file.type.startsWith('video/')) {
-        this.videoUploadError = 'Please select a valid video file';
+        this.videoUploadError = 'courseManagement.errors.invalidVideo';
         return;
       }
       
@@ -285,7 +290,7 @@ export class CourseManagementComponent {
 
   uploadCourseVideo(courseId: string, videoName?: string): void {
     if (!this.selectedVideoFile) {
-      this.videoUploadError = 'Please select a video file first';
+      this.videoUploadError = 'courseManagement.errors.noVideo';
       return;
     }
 
@@ -313,14 +318,14 @@ export class CourseManagementComponent {
           this.videoUploadProgress = 100;
           this.selectedVideoFile = null;
           
-          alert('Video uploaded successfully!');
+          alert(this.translate.instant('courseManagement.messages.videoUploaded'));
         },
         error: (error: HttpErrorResponse) => {
           this.videoUploading = false;
           this.videoUploadProgress = 0;
           
           // Extract error message from response if available
-          let errorMessage = 'Failed to upload video';
+          let errorMessage = 'courseManagement.errors.uploadFailed';
           if (error.error && error.error.error) {
             errorMessage = error.error.error;
           } else if (error.message) {

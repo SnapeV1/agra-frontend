@@ -122,7 +122,7 @@
             <lucide-icon [name]="stat.icon" class="w-8 h-8 text-green-500"></lucide-icon>
           </div>
           <div class="text-2xl font-bold text-gray-900 mb-1">{{ stat.value }}</div>
-          <div class="text-sm font-medium text-gray-600">{{ stat.label }}</div>
+          <div class="text-sm font-medium text-gray-600">{{ stat.label | translate }}</div>
         </div>
       </div>
     </div>
@@ -150,7 +150,7 @@
                    [(ngModel)]="editForm.name" 
                    type="text" 
                    [placeholder]="'userProfile.personal.fullNamePlaceholder' | translate" 
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                   class="profile-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                    required>
             <p *ngIf="!isEditing" class="px-3 py-2 bg-gray-50 rounded-lg">{{ getUserDisplayName() }}</p>
           </div>
@@ -192,7 +192,7 @@
                   (input)="onPhoneInput($event)"
                   (keydown)="onPhoneKeydown($event)"
                   [placeholder]="'userProfile.personal.phonePlaceholder' | translate"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                  class="profile-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
               </div>
             </div>
             <p *ngIf="!isEditing" class="px-3 py-2 bg-gray-50 rounded-lg">{{ getUserPhone() }}</p>
@@ -206,11 +206,11 @@
             </label>
             <ng-container *ngIf="isEditing; else displayLanguage">
               <select [(ngModel)]="editForm.language"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                      class="profile-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
                 <option value="">{{ 'userProfile.personal.languageSelect' | translate }}</option>
                 <option value="en">{{ 'lang.en' | translate }}</option>
                 <option value="fr">{{ 'lang.fr' | translate }}</option>
-                <option value="ar">Arabic</option>
+                <option value="ar">{{ 'lang.ar' | translate }}</option>
               </select>
             </ng-container>
             <ng-template #displayLanguage>
@@ -232,7 +232,7 @@
                    [(ngModel)]="editForm.email" 
                    type="email" 
                    [placeholder]="'userProfile.personal.emailPlaceholder' | translate"
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                   class="profile-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                    required>
             <p *ngIf="!isEditing" class="px-3 py-2 bg-gray-50 rounded-lg truncate">{{ userProfile.email }}</p>
           </div>
@@ -247,7 +247,7 @@
             <input *ngIf="isEditing"
                    [(ngModel)]="editForm.birthdate"
                    type="date"
-                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                   class="profile-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                    required>
             <p *ngIf="!isEditing" class="px-3 py-2 bg-gray-50 rounded-lg">
               {{ getBirthdateDisplay() }}
@@ -260,7 +260,14 @@
               <lucide-icon name="MapPin" class="w-4 h-4"></lucide-icon>
               {{ 'userProfile.personal.country' | translate }}
             </label>
-            <p class="px-3 py-2 bg-gray-50 rounded-lg">{{ 'userProfile.personal.countryValue' | translate }}</p>
+            <input *ngIf="isEditing"
+                   [(ngModel)]="editForm.country"
+                   type="text"
+                   [placeholder]="'userProfile.personal.countryValue' | translate"
+                   class="profile-input w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+            <p *ngIf="!isEditing" class="px-3 py-2 bg-gray-50 rounded-lg">
+              {{ userProfile.country || ('userProfile.personal.countryValue' | translate) }}
+            </p>
           </div>
 
           <!-- Role -->
@@ -304,7 +311,7 @@
           <lucide-icon name="AlertTriangle" class="w-8 h-8 text-red-600"></lucide-icon>
         </div>
         <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ 'userProfile.enrolled.errorTitle' | translate }}</h3>
-        <p class="text-gray-600 mb-4">{{ coursesError }}</p>
+        <p class="text-gray-600 mb-4">{{ coursesError | translate }}</p>
         <button (click)="loadEnrolledCourses()" 
                 class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
           {{ 'userProfile.enrolled.tryAgain' | translate }}
@@ -510,4 +517,3 @@
   </div>
 </div>
 <app-footer></app-footer>
-

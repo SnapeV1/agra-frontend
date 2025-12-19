@@ -1,16 +1,42 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { LanguageService } from 'src/app/core/services/language.service';
 
 @Component({
   selector: 'app-footer',
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.css']
 })
-export class FooterComponent implements OnInit {
+export class FooterComponent implements OnInit, OnDestroy {
   year = new Date().getFullYear();
   showScrollTop = false;
+  currentLang = 'en';
+  readonly languages = ['en', 'fr', 'ar'];
+  isGuest = true;
+
+  private authSub?: Subscription;
+
+  constructor(
+    private authService: AuthService,
+    private languageService: LanguageService
+  ) {}
 
   ngOnInit(): void {
+    this.currentLang = this.languageService.current;
+    this.authSub = this.authService.isAuthenticated$.subscribe(isAuth => {
+      this.isGuest = !isAuth;
+    });
     this.updateScrollTopVisibility();
+  }
+
+  ngOnDestroy(): void {
+    this.authSub?.unsubscribe();
+  }
+
+  setLanguage(lang: string): void {
+    this.currentLang = lang;
+    this.languageService.setLanguage(lang);
   }
 
   @HostListener('window:scroll')

@@ -1,9 +1,23 @@
 import { Component, type OnInit, type OnDestroy } from "@angular/core"
+import { ActivatedRoute, Router } from "@angular/router"
 import { AnalyticsService } from "src/app/core/services/analytics.service";
 import { LanguageService } from "src/app/core/services/language.service";
-import { forkJoin, of } from "rxjs";
-import { catchError, map } from "rxjs/operators";
+import { PresenceService } from "src/app/core/services/presence.service";
+import { TicketService } from "src/app/core/services/ticket.service";
+import { Ticket, TicketStatus } from "src/app/core/models/ticket.model";
+import { forkJoin, of, Subject } from "rxjs";
+import { catchError, map, takeUntil } from "rxjs/operators";
 import { ChartData, ChartOptions, Chart, LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip, Legend } from 'chart.js';
+interface LiveCountry {
+  name: string;
+  code: string;
+  users: number;
+  lat: number;
+  lng: number;
+  x?: number;
+  y?: number;
+}
+
 
 interface Metric {
   title: string
@@ -37,6 +51,14 @@ interface GrowthPoint {
   date: Date
 }
 
+interface StatTile {
+  label: string
+  value: string
+  sub?: string
+  subKey?: string
+  subValue?: string
+}
+
 @Component({
   selector: 'app-dashboard-admin',
   templateUrl: './dashboard-admin.component.html',
@@ -67,6 +89,7 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
   ]
 
   topCourses: Course[] = []
+  topCoursesMaxEnrollments = 1
   userGrowth: GrowthPoint[] = []
   userGrowthMax = 0
   totalUsersDisplay = '0'
@@ -102,8 +125,15 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
   featuredPerformance: Record<string, any> | null = null
   featuredPerformanceEntries: { label: string; value: string }[] = []
   registrationsSeries: { label: string; count: number }[] = []
+  latestRegistrationUser: { name: string; email: string; createdAt?: string } | null = null
   notificationRead: Record<string, any> | null = null
   notificationTopTypes: { type: string; count: number }[] = []
+  ticketStats: StatTile[] = []
+  recentTickets: Ticket[] = []
+  postPulseStats: StatTile[] = []
+  coursePulseStats: StatTile[] = []
+  courseHighlightStats: StatTile[] = []
+  postsPulseLabelKey = 'dashboard.social.pulse.mostRecentPeriod'
 
   // Chart.js setup for user growth (line chart)
   public growthChartType: 'line' = 'line'
@@ -140,13 +170,58 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
       y: { beginAtZero: true, grid: { color: 'rgba(148,163,184,0.2)' }, ticks: { color: '#64748b', precision: 0 } }
     }
   }
+  public enrollmentsChartType: 'line' = 'line'
+  public enrollmentsChartData: ChartData<'line'> = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        label: 'Courses completed',
+        borderColor: '#0ea5e9',
+        backgroundColor: 'rgba(14,165,233,0.15)',
+        fill: true,
+        tension: 0.35,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        pointBackgroundColor: '#0ea5e9',
+        pointBorderColor: '#ffffff'
+      }
+    ]
+  }
+  public enrollmentsChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => ` ${ctx.parsed.y} courses`
+        }
+      }
+    },
+    scales: {
+      x: { grid: { color: 'rgba(148,163,184,0.2)' }, ticks: { color: '#64748b' } },
+      y: { beginAtZero: true, grid: { color: 'rgba(148,163,184,0.2)' }, ticks: { color: '#64748b', precision: 0 } }
+    }
+  }
   private themeObserver?: MutationObserver
   // Additional charts (social/notifications)
   public postsChartData: ChartData<'line'> = { labels: [], datasets: [{ data: [], label: 'Posts', borderColor: '#4f46e5', backgroundColor: 'rgba(79,70,229,0.15)', fill: true, tension: 0.35 }] }
   public commentsChartData: ChartData<'line'> = { labels: [], datasets: [{ data: [], label: 'Comments', borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.15)', fill: true, tension: 0.35 }] }
   public notificationsChartData: ChartData<'line'> = { labels: [], datasets: [{ data: [], label: 'Notifications', borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.15)', fill: true, tension: 0.35 }] }
 
-  constructor(private analytics: AnalyticsService, private languageService: LanguageService) {}
+  private destroy$ = new Subject<void>()
+  northAfricaCountries: LiveCountry[] = [];
+  northAfricaUsersTotal = 0;
+
+  constructor(
+    private analytics: AnalyticsService,
+    private languageService: LanguageService,
+    private presenceService: PresenceService,
+    private ticketService: TicketService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     Chart.register(LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip, Legend)
@@ -162,10 +237,27 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
       this.themeObserver.observe(root, { attributes: true, attributeFilter: ['data-theme'] })
     } catch {}
     this.loadDashboard()
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        const tab = (params['tab'] || '').toString().toLowerCase()
+        const allowed = new Set(['overview', 'users', 'courses', 'social', 'notifications', 'activity'])
+        if (tab && allowed.has(tab) && tab !== this.activeSection) {
+          this.activeSection = tab as DashboardAdminComponent['activeSection']
+        }
+      })
+    // Re-fetch live presence whenever we get an ACK (ensures self is counted)
+    this.presenceService.heartbeatAck$()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.refreshLiveUsersOnline())
+    // Kick off an early refresh in case the dashboard rendered before the first ACK
+    setTimeout(() => this.refreshLiveUsersOnline(), 600)
   }
 
   ngOnDestroy(): void {
     try { this.themeObserver?.disconnect() } catch {}
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   private loadDashboard(): void {
@@ -202,7 +294,11 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
     const registrations$ = this.analytics.getNewRegistrations('weekly').pipe(
       catchError(() => of([]))
     )
-    const postsTrend$ = this.analytics.getPostsTrend('weekly').pipe(
+    const latestUser$ = this.analytics.getLatestUser().pipe(
+      catchError(() => of(null))
+    )
+    const postsTrendGranularity: 'daily' | 'weekly' | 'monthly' = 'weekly'
+    const postsTrend$ = this.analytics.getPostsTrend(postsTrendGranularity).pipe(
       catchError(() => of([]))
     )
     const topPosts$ = this.analytics.getTopPosts(5).pipe(
@@ -226,8 +322,12 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
     const notifTypes$ = this.analytics.getTopNotificationTypes().pipe(
       catchError(() => of({}))
     )
+    const tickets$ = this.ticketService.getAllTickets().pipe(
+      catchError(() => of([]))
+    )
 
-    forkJoin({ enrollments$, courseSummary$, completion$, certificates$, roles$, geo$, topCourses$, userGrowth$, wsActive$, activeUsers$, registrations$, postsTrend$, topPosts$, commentsTrend$, engagementAvg$, featuredPerf$, notifTrend$, notifRead$, notifTypes$ })
+    this.postsPulseLabelKey = this.formatPeriodLabel(postsTrendGranularity)
+    forkJoin({ enrollments$, courseSummary$, completion$, certificates$, roles$, geo$, topCourses$, userGrowth$, wsActive$, activeUsers$, registrations$, latestUser$, postsTrend$, topPosts$, commentsTrend$, engagementAvg$, featuredPerf$, notifTrend$, notifRead$, notifTypes$, tickets$ })
       .pipe(
         map((data) => {
           
@@ -269,6 +369,28 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
             students: Number(count) || 0,
             percentage: totalGeo ? Math.round(((Number(count) || 0) / totalGeo) * 10000) / 100 : 0,
           }))
+
+          const geoCounts = this.normalizeGeoCounts(data.geo$ || {});
+          const northAfricaSeeds = [
+            { code: 'MA', name: 'Morocco', lat: 31.7917, lng: -7.0926, aliases: ['morocco', 'kingdom of morocco'] },
+            { code: 'DZ', name: 'Algeria', lat: 28.0339, lng: 1.6596, aliases: ['algeria', "people's democratic republic of algeria"] },
+            { code: 'TN', name: 'Tunisia', lat: 33.8869, lng: 9.5375, aliases: ['tunisia', 'republic of tunisia'] },
+            { code: 'LY', name: 'Libya', lat: 26.3351, lng: 17.2283, aliases: ['libya', 'libyan arab jamahiriya', 'libya arab jamahiriya'] },
+            { code: 'EG', name: 'Egypt', lat: 26.8206, lng: 30.8025, aliases: ['egypt', 'arab republic of egypt'] },
+            { code: 'MR', name: 'Mauritania', lat: 21.0079, lng: -10.9408, aliases: ['mauritania', 'islamic republic of mauritania'] },
+            { code: 'EH', name: 'Western Sahara', lat: 24.2155, lng: -12.8858, aliases: ['western sahara'] }
+          ];
+
+          this.northAfricaCountries = northAfricaSeeds
+            .map(item => ({
+              code: item.code,
+              name: item.name,
+              users: this.pickGeoCount(geoCounts, item.aliases),
+              lat: item.lat,
+              lng: item.lng
+            }))
+            .sort((a, b) => b.users - a.users);
+          this.northAfricaUsersTotal = this.northAfricaCountries.reduce((sum, c) => sum + (c.users || 0), 0);
           
 
           // Build a lookup for completion rate by course id/title
@@ -284,6 +406,7 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
             } else {
               
             }
+
           }
           
 
@@ -302,6 +425,24 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
             icon: 'fas fa-book',
             iconClass: 'course'
           }))
+          this.topCoursesMaxEnrollments = Math.max(1, ...this.topCourses.map(c => c.students || 0))
+
+          const topByEnrollments = this.topCourses.length ? this.topCourses[0] : null
+          const topByCompletion = [...this.topCourses].sort((a, b) => b.completion - a.completion)[0]
+          this.courseHighlightStats = [
+            topByEnrollments ? {
+              label: 'Top course',
+              value: topByEnrollments.name,
+              sub: `${this.formatValue(topByEnrollments.students)} enrollments · ${this.formatValue(topByEnrollments.completion)}% completion`
+            } : null,
+            topByCompletion ? {
+              label: 'Best completion',
+              value: topByCompletion.name,
+              sub: `${this.formatValue(topByCompletion.completion)}% completion`
+            } : null,
+            { label: 'Archived courses', value: this.formatValue(this.coursesSummary.archived) },
+            { label: 'Total courses', value: this.formatValue(this.coursesSummary.total) },
+          ].filter(Boolean) as StatTile[]
           
 
           // User growth series (monthly)
@@ -334,12 +475,47 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
           this.liveUsersOnline = Number(ws.active || ws.connections || ws.connected || ws.users ||  ws.connectedUsers || 0)
           const au = (data.activeUsers$ as any) || {}
           this.usersActive30 = Number(au.active || au.count || au.users || 0)
+          // Courses completed pulse (monthly)
+          const lessonsArr = (data.certificates$ as any[])
+            .map((e: any) => ({ d: new Date(e.periodStart || e.date || e.period || 0), c: Number(e.count || e.value || 0) }))
+            .filter(x => !isNaN(x.d.getTime()))
+            .sort((a, b) => a.d.getTime() - b.d.getTime())
+          const lessonsTotal = lessonsArr.reduce((sum, item) => sum + item.c, 0)
+          const lessonsLatest = lessonsArr.length ? lessonsArr[lessonsArr.length - 1].c : 0
+          const lessonsAvg = lessonsArr.length ? Math.round((lessonsTotal / lessonsArr.length) * 100) / 100 : 0
+          this.coursePulseStats = [
+            { label: 'Latest courses completed', value: this.formatValue(lessonsLatest), sub: `Total ${this.formatValue(lessonsTotal)}` },
+            { label: 'Avg per period', value: this.formatValue(lessonsAvg) },
+            { label: 'Active courses', value: this.formatValue(this.coursesSummary.published) },
+            { label: 'Avg completion', value: `${this.formatValue(this.averageCompletion)}%` },
+          ].filter(item => item.value !== '0' || lessonsTotal || this.coursesSummary.published || this.averageCompletion)
+          const lessonsSlice = lessonsArr.slice(-8)
+          const lessonsLabels = lessonsSlice.map(item =>
+            item.d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+          )
+          this.enrollmentsChartData = {
+            labels: lessonsLabels,
+            datasets: [
+              { ...(this.enrollmentsChartData.datasets[0] as any), data: lessonsSlice.map(item => item.c) }
+            ]
+          }
           // Registrations series (weekly)
           this.registrationsSeries = (data.registrations$ as any[]).map((r: any) => {
             const d = new Date(r.periodStart || r.date || r.period || 0)
             const label = isNaN(d.getTime()) ? '' : `${months[d.getMonth()]} ${String(d.getFullYear()).slice(-2)}`
             return { label, count: Number(r.count || r.value || 0) }
           }).filter(x => x.label)
+          const latestPayload = (data.latestUser$ as any) || {}
+          const latestUser = latestPayload.latestUser || latestPayload.user || latestPayload
+          if (latestUser?.name || latestUser?.email) {
+            this.latestRegistrationUser = {
+              name: latestUser.name || '-',
+              email: latestUser.email || '',
+              createdAt: latestUser.createdAt || latestUser.created_at || latestUser.registeredAt || latestUser.date || latestUser.timestamp
+            }
+          } else {
+            this.latestRegistrationUser = this.extractLatestRegistration(data.registrations$)
+          }
 
           // Posts/comments/notifications trend charts
           const mapTrend = (arr: any[]) => arr.map((t: any) => ({ d: new Date(t.periodStart || t.date || t.period || 0), c: Number(t.count || t.value || 0) }))
@@ -373,6 +549,50 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
           // Notifications status + types
           this.notificationRead = (data.notifRead$ as any) || null
           this.notificationTopTypes = Object.entries((data.notifTypes$ as any) || {}).map(([type, count]) => ({ type, count: Number(count) || 0 }))
+
+          const postsTotal = postsT.reduce((sum, item) => sum + item.c, 0)
+          const commentsTotal = commentsT.reduce((sum, item) => sum + item.c, 0)
+          const latestPosts = postsT.length ? postsT[postsT.length - 1].c : 0
+          const latestComments = commentsT.length ? commentsT[commentsT.length - 1].c : 0
+          const topLike = Math.max(0, ...this.allTopPosts.map(p => p.likes || 0))
+          const topComment = Math.max(0, ...this.allTopPosts.map(p => p.comments || 0))
+          const avgEngagement = this.allTopPosts.length
+            ? (this.allTopPosts.reduce((sum, p) => sum + (p.engagement || 0), 0) / this.allTopPosts.length)
+            : 0
+          this.postPulseStats = [
+            { label: 'dashboard.social.pulse.postsThisPeriod', value: this.formatValue(latestPosts), subKey: 'dashboard.social.pulse.totalWithValue', subValue: this.formatValue(postsTotal) },
+            { label: 'dashboard.social.pulse.commentsThisPeriod', value: this.formatValue(latestComments), subKey: 'dashboard.social.pulse.totalWithValue', subValue: this.formatValue(commentsTotal) },
+            { label: 'dashboard.social.pulse.avgEngagement', value: this.formatValue(Math.round(avgEngagement * 100) / 100) },
+            { label: 'dashboard.social.pulse.topLikes', value: this.formatValue(topLike) },
+            { label: 'dashboard.social.pulse.topComments', value: this.formatValue(topComment) },
+          ].filter(item => item.value !== '0' || postsTotal || commentsTotal || this.allTopPosts.length)
+
+          const tickets = (data.tickets$ as Ticket[]) || []
+          const ticketCounts = {
+            [TicketStatus.OPEN]: tickets.filter(t => t.status === TicketStatus.OPEN).length,
+            [TicketStatus.PENDING]: tickets.filter(t => t.status === TicketStatus.PENDING).length,
+            [TicketStatus.RESOLVED]: tickets.filter(t => t.status === TicketStatus.RESOLVED).length,
+            [TicketStatus.CLOSED]: tickets.filter(t => t.status === TicketStatus.CLOSED).length,
+          }
+          const resolvedCombined = ticketCounts[TicketStatus.RESOLVED] + ticketCounts[TicketStatus.CLOSED]
+          const staleCutoff = Date.now() - (7 * 24 * 60 * 60 * 1000)
+          const stale = tickets.filter(t => {
+            const stamp = t.updatedAt || t.createdAt
+            if (!stamp) return false
+            const time = new Date(stamp).getTime()
+            return !isNaN(time) && time < staleCutoff
+          }).length
+          const totalTickets = tickets.length
+          this.ticketStats = totalTickets ? [
+            { label: 'dashboard.tickets.labels.open', value: this.formatValue(ticketCounts[TicketStatus.OPEN]), sub: `${this.formatValue(totalTickets ? Math.round((ticketCounts[TicketStatus.OPEN] / totalTickets) * 100) : 0)}% of total` },
+            { label: 'dashboard.tickets.labels.pending', value: this.formatValue(ticketCounts[TicketStatus.PENDING]) },
+            { label: 'dashboard.tickets.labels.resolved', value: this.formatValue(resolvedCombined) },
+            { label: 'dashboard.tickets.labels.stale', value: this.formatValue(stale) },
+          ] : []
+          this.recentTickets = tickets
+            .slice()
+            .sort((a, b) => this.ticketDateValue(b) - this.ticketDateValue(a))
+            .slice(0, 4)
         })
       )
       .subscribe({
@@ -457,6 +677,8 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
     const grid = 'rgba(148,163,184,0.2)'
     const stroke = dark ? '#10b981' : '#4f46e5'
     const fill = dark ? 'rgba(16,185,129,0.15)' : 'rgba(79,70,229,0.15)'
+    const lessonsStroke = dark ? '#38bdf8' : '#0ea5e9'
+    const lessonsFill = dark ? 'rgba(56,189,248,0.18)' : 'rgba(14,165,233,0.15)'
 
     // Update options
     this.growthChartOptions = {
@@ -478,6 +700,27 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
           borderColor: stroke,
           backgroundColor: fill,
           pointBackgroundColor: stroke,
+          pointBorderColor: '#ffffff'
+        }
+      ]
+    }
+
+    this.enrollmentsChartOptions = {
+      ...this.enrollmentsChartOptions,
+      scales: {
+        x: { grid: { color: grid }, ticks: { color: axis } },
+        y: { beginAtZero: true, grid: { color: grid }, ticks: { color: axis, precision: 0 } }
+      }
+    }
+    const enrollBase = (this.enrollmentsChartData.datasets?.[0] as any) || {}
+    this.enrollmentsChartData = {
+      labels: this.enrollmentsChartData.labels || [],
+      datasets: [
+        {
+          ...enrollBase,
+          backgroundColor: lessonsFill,
+          borderColor: lessonsStroke,
+          pointBackgroundColor: lessonsStroke,
           pointBorderColor: '#ffffff'
         }
       ]
@@ -507,6 +750,58 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
     return Array(Math.floor(rating)).fill(0)
   }
 
+  private formatPeriodLabel(granularity: 'daily' | 'weekly' | 'monthly'): string {
+    switch (granularity) {
+      case 'daily':
+        return 'dashboard.social.pulse.mostRecentDay'
+      case 'weekly':
+        return 'dashboard.social.pulse.mostRecentWeek'
+      case 'monthly':
+        return 'dashboard.social.pulse.mostRecentMonth'
+      default:
+        return 'dashboard.social.pulse.mostRecentPeriod'
+    }
+  }
+
+  private extractLatestRegistration(payload: any): { name: string; email: string; createdAt?: string } | null {
+    const candidates: { name?: string; email?: string; createdAt?: any }[] = []
+    const pushCandidate = (item: any) => {
+      if (!item) return
+      const name = item.name || item.fullName || item.userName || item.user?.name
+      const email = item.email || item.userEmail || item.user?.email
+      if (!name && !email) return
+      candidates.push({
+        name,
+        email,
+        createdAt: item.createdAt || item.registeredAt || item.date || item.timestamp
+      })
+    }
+    const scan = (item: any) => {
+      if (!item) return
+      pushCandidate(item.latestUser || item.latestRegistration)
+      pushCandidate(item.user)
+      if (Array.isArray(item.users)) item.users.forEach(pushCandidate)
+      if (Array.isArray(item.items)) item.items.forEach(pushCandidate)
+      if (Array.isArray(item.registrations)) item.registrations.forEach(pushCandidate)
+      if (Array.isArray(item.data)) item.data.forEach(pushCandidate)
+      if (item.name || item.email) pushCandidate(item)
+    }
+    if (Array.isArray(payload)) {
+      payload.forEach(scan)
+    } else {
+      scan(payload)
+    }
+    if (!candidates.length) return null
+    const dated = candidates.filter(c => c.createdAt)
+    if (dated.length) {
+      dated.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+      const latest = dated[dated.length - 1]
+      return { name: latest.name || '-', email: latest.email || '', createdAt: latest.createdAt }
+    }
+    const latest = candidates[candidates.length - 1]
+    return { name: latest.name || '-', email: latest.email || '', createdAt: latest.createdAt }
+  }
+
   formatDate(value: any): string {
     if (!value) return ''
     try {
@@ -524,16 +819,49 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
     return last?.count || 0
   }
 
-  onAddCourse(): void {
-    this.setSection('courses')
+  private refreshLiveUsersOnline(): void {
+    this.analytics.getWebsocketActive()
+      .pipe(catchError(() => of({})))
+      .subscribe(ws => {
+        const payload = ws as any
+        const preferredKeys = [
+          'uniqueUsers', // expected unique user count from presence store
+          'unique',
+          'onlineUsers',
+          'usersOnline',
+          'users', // older shape
+          'active', // fallback counts (may be connections)
+          'connections',
+          'connected',
+          'connectedUsers',
+        ]
+        let count: number | undefined
+        for (const key of preferredKeys) {
+          const v = payload?.[key]
+          if (typeof v === 'number' && !Number.isNaN(v)) {
+            count = v
+            break
+          }
+        }
+        this.liveUsersOnline = Number(count ?? 0)
+      })
   }
 
-  onViewReports(): void {
-    this.setSection('users')
+  onAddCourse(): void {
+    this.router.navigate(['/admin/courses'])
+  }
+
+  onViewTickets(): void {
+    this.router.navigate(['/admin/tickets'])
   }
 
   setSection(section: DashboardAdminComponent['activeSection']): void {
     this.activeSection = section
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: section },
+      queryParamsHandling: 'merge'
+    })
   }
 
   onShowAllPosts(): void {
@@ -553,4 +881,33 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
     this.displayPrefsSaved = true
     setTimeout(() => this.displayPrefsSaved = false, 1500)
   }
+  private normalizeGeoCounts(geo: Record<string, any>): Record<string, number> {
+    const normalized: Record<string, number> = {};
+    Object.entries(geo || {}).forEach(([key, value]) => {
+      const name = (key || '').toString().toLowerCase().trim();
+      normalized[name] = Number(value) || 0;
+    });
+    return normalized;
+  }
+
+  private ticketDateValue(ticket: Ticket): number {
+    const stamp = ticket.updatedAt || ticket.createdAt
+    if (!stamp) return 0
+    const time = new Date(stamp).getTime()
+    return isNaN(time) ? 0 : time
+  }
+
+  statusPillClass(status: TicketStatus | string): string {
+    const key = (status || '').toString().toLowerCase()
+    return `status-pill ${key}`
+  }
+
+  private pickGeoCount(map: Record<string, number>, aliases: string[]): number {
+    for (const alias of aliases) {
+      const val = map[alias];
+      if (typeof val === 'number') return val;
+    }
+    return 0;
+  }
+
 }

@@ -3,9 +3,9 @@
     <!-- Header -->
     <div class="mgmt-header">
       <div>
-        <p class="eyebrow">Administration</p>
-        <h1>Posts</h1>
-        <span>Manage your community posts</span>
+        <p class="eyebrow">{{ 'feedManagement.header.eyebrow' | translate }}</p>
+        <h1>{{ 'feedManagement.header.title' | translate }}</h1>
+        <span>{{ 'feedManagement.header.subtitle' | translate }}</span>
       </div>
     </div>
 
@@ -15,29 +15,29 @@
         <div class="admin-news">
           <div class="admin-news-header">
             <div>
-              <p class="eyebrow">Updates</p>
-              <h3>Platform News</h3>
-              <small *ngIf="leftNews.length">{{ leftNews.length }} headlines</small>
+              <p class="eyebrow">{{ 'feedManagement.news.eyebrow' | translate }}</p>
+              <h3>{{ 'feedManagement.news.title' | translate }}</h3>
+              <small *ngIf="leftNews.length">{{ 'feedManagement.news.headlines' | translate:{ count: leftNews.length } }}</small>
             </div>
-            <span class="news-status" *ngIf="newsLoading">Loading...</span>
-            <span class="news-status error" *ngIf="newsError">{{ newsError }}</span>
+            <span class="news-status" *ngIf="newsLoading">{{ 'feedManagement.news.loading' | translate }}</span>
+            <span class="news-status error" *ngIf="newsError">{{ newsError | translate }}</span>
           </div>
           <div class="admin-news-grid" *ngIf="leftNews.length">
             <article class="news-card" *ngFor="let item of leftNews | slice:0:leftNewsLimit">
-              <p class="news-source">{{ item.source || 'News' }}</p>
+              <p class="news-source">{{ item.source || ('feedManagement.news.sourceFallback' | translate) }}</p>
               <h4>{{ item.title }}</h4>
               <small>{{ item.publishedAt | date:'mediumDate' }}</small>
               <div class="news-actions">
-                <a class="news-btn ghost" *ngIf="item.url" [href]="item.url" target="_blank" rel="noopener noreferrer">Read</a>
-                <button class="news-btn danger" (click)="deleteNews(item)">Delete</button>
+                <a class="news-btn ghost" *ngIf="item.url" [href]="item.url" target="_blank" rel="noopener noreferrer">{{ 'feedManagement.news.read' | translate }}</a>
+                <button class="news-btn danger" (click)="deleteNews(item)">{{ 'feedManagement.news.delete' | translate }}</button>
               </div>
             </article>
           </div>
           <div class="news-empty" *ngIf="!leftNews.length && !newsLoading && !newsError">
-            <p>No news yet</p>
+            <p>{{ 'feedManagement.news.empty' | translate }}</p>
           </div>
           <div class="news-more" *ngIf="leftNews.length > leftNewsLimit">
-            <button class="news-btn ghost" (click)="loadMoreLeftNews()">More</button>
+            <button class="news-btn ghost" (click)="loadMoreLeftNews()">{{ 'feedManagement.news.more' | translate }}</button>
           </div>
         </div>
       </aside>
@@ -48,7 +48,7 @@
           <div class="creator-header" *ngIf="!showCreateForm">
             <ng-container *ngIf="currentUser?.picture; else nameInitialAvatar">
               <img [src]="currentUser?.picture"
-                   [alt]="currentUser?.name || 'User avatar'"
+                   [alt]="currentUser?.name || ('feedManagement.alt.userAvatar' | translate)"
                    class="post-avatar">
             </ng-container>
             <ng-template #nameInitialAvatar>
@@ -57,7 +57,7 @@
               </div>
             </ng-template>
             <div class="post-input" (click)="toggleCreateForm()" [class.disabled]="isCreatingPost">
-              What's on your mind?
+              {{ 'feedManagement.create.prompt' | translate }}
             </div>
           </div>
 
@@ -65,7 +65,7 @@
             <div class="form-header">
               <ng-container *ngIf="currentUser?.picture; else nameInitialAvatarForm">
                 <img [src]="currentUser?.picture"
-                     [alt]="currentUser?.name || 'User avatar'"
+                     [alt]="currentUser?.name || ('feedManagement.alt.userAvatar' | translate)"
                      class="post-avatar">
               </ng-container>
               <ng-template #nameInitialAvatarForm>
@@ -75,7 +75,7 @@
               </ng-template>
               <textarea 
                 class="post-textarea" 
-                placeholder="What's on your mind?"
+                [placeholder]="'feedManagement.create.placeholder' | translate"
                 [(ngModel)]="createForm.content"
                 [disabled]="isCreatingPost"
                 #contentTextarea></textarea>
@@ -85,7 +85,7 @@
             <div class="image-preview-container" 
                  *ngIf="createForm.imagePreview" 
                  [class.uploading]="isCreatingPost">
-              <img [src]="createForm.imagePreview" alt="Image preview" class="image-preview">
+              <img [src]="createForm.imagePreview" [alt]="'feedManagement.alt.imagePreview' | translate" class="image-preview">
               <div class="image-info">
                 <span class="file-name">{{ createForm.imageFile?.name }}</span>
                 <span class="file-size">{{ getFileSize(createForm.imageFile?.size || 0) }}</span>
@@ -93,7 +93,7 @@
               <button class="remove-image-btn" 
                       (click)="removeImage()" 
                       [disabled]="isCreatingPost">
-                <span aria-hidden="true">x</span> Remove
+                <span aria-hidden="true">x</span> {{ 'feedManagement.create.removeImage' | translate }}
               </button>
             </div>
 
@@ -118,8 +118,8 @@
                   </svg>
                 </div>
                 <div class="upload-text">
-                  <p>Click to select an image</p>
-                  <small>Supports JPG, PNG, GIF (max 5MB)</small>
+                  <p>{{ 'feedManagement.upload.title' | translate }}</p>
+                  <small>{{ 'feedManagement.upload.subtitle' | translate }}</small>
                 </div>
               </div>
             </div>
@@ -133,14 +133,14 @@
                     <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
                     <circle cx="12" cy="13" r="3" />
                   </svg>
-                  Photo
+                  {{ 'feedManagement.actions.photo' | translate }}
                 </button>
               </div>
               <div class="form-buttons">
                 <button class="cancel-btn" 
                         (click)="toggleCreateForm()" 
                         [disabled]="isCreatingPost">
-                  Cancel
+                  {{ 'feedManagement.actions.cancel' | translate }}
                 </button>
                 <button 
                   class="post-btn" 
@@ -150,11 +150,11 @@
                   <!-- Loading State -->
                   <span *ngIf="isCreatingPost" class="btn-loading">
                     <div class="btn-spinner"></div>
-                    <span>{{ createForm.imageFile ? 'Uploading...' : 'Posting...' }}</span>
+                    <span>{{ createForm.imageFile ? ('feedManagement.actions.uploading' | translate) : ('feedManagement.actions.posting' | translate) }}</span>
                   </span>
                   
                   <!-- Normal State -->
-                  <span *ngIf="!isCreatingPost">Post</span>
+                  <span *ngIf="!isCreatingPost">{{ 'feedManagement.actions.post' | translate }}</span>
                 </button>
               </div>
             </div>
@@ -164,10 +164,10 @@
               <div class="overlay-content">
                 <div class="upload-spinner"></div>
                 <p class="upload-text">
-                  {{ createForm.imageFile ? 'Uploading image and creating post...' : 'Creating your post...' }}
+                  {{ createForm.imageFile ? ('feedManagement.actions.uploadingOverlay' | translate) : ('feedManagement.actions.creatingOverlay' | translate) }}
                 </p>
                 <div class="upload-progress" *ngIf="createForm.imageFile">
-                  <small>This may take a moment for image uploads</small>
+                  <small>{{ 'feedManagement.actions.uploadNote' | translate }}</small>
                 </div>
               </div>
             </div>
@@ -177,12 +177,12 @@
         <!-- Loading State -->
         <div class="loading" *ngIf="loading">
           <div class="spinner"></div>
-          <p>Loading posts...</p>
+          <p>{{ 'feedManagement.loading' | translate }}</p>
         </div>
 
         <!-- Error State -->
         <div class="error" *ngIf="errorMessage">
-          {{ errorMessage }}
+          {{ errorMessage | translate }}
         </div>
 
         <!-- Posts List -->
@@ -201,8 +201,8 @@
           <div class="post-menu" *ngIf="!isEditing(post)">
             <button class="menu-btn" (click)="toggleDropdown($event, post)">⋮</button>
             <div class="dropdown" [class.show]="post.showDropdown">
-              <button class="dropdown-item" (click)="startEdit(post)">Edit</button>
-              <button class="dropdown-item danger" (click)="confirmDelete(post)">Delete</button>
+              <button class="dropdown-item" (click)="startEdit(post)">{{ 'feedManagement.actions.edit' | translate }}</button>
+              <button class="dropdown-item danger" (click)="confirmDelete(post)">{{ 'feedManagement.actions.delete' | translate }}</button>
             </div>
           </div>
         </div>
@@ -212,25 +212,25 @@
           <textarea 
             class="edit-textarea"
             [(ngModel)]="editingPost.content"
-            placeholder="Edit your post..."></textarea>
+            [placeholder]="'feedManagement.edit.placeholder' | translate"></textarea>
           
           <!-- Current Image Display -->
           <div class="current-image" *ngIf="editingPost.imageUrl && !editingImagePreview">
-            <img [src]="editingPost.imageUrl" alt="Current image" class="edit-current-image">
+            <img [src]="editingPost.imageUrl" [alt]="'feedManagement.alt.currentImage' | translate" class="edit-current-image">
             <button class="remove-current-image" (click)="editingPost.imageUrl = undefined">
-              <span aria-hidden="true">x</span> Remove current image
+              <span aria-hidden="true">x</span> {{ 'feedManagement.edit.removeCurrentImage' | translate }}
             </button>
           </div>
 
           <!-- New Image Preview -->
           <div class="image-preview-container" *ngIf="editingImagePreview">
-            <img [src]="editingImagePreview" alt="New image preview" class="image-preview">
+            <img [src]="editingImagePreview" [alt]="'feedManagement.alt.newImagePreview' | translate" class="image-preview">
             <div class="image-info">
               <span class="file-name">{{ editingImageFile?.name }}</span>
               <span class="file-size">{{ getFileSize(editingImageFile?.size || 0) }}</span>
             </div>
             <button class="remove-image-btn" (click)="removeEditImage()">
-              <span aria-hidden="true">x</span> Remove
+              <span aria-hidden="true">x</span> {{ 'feedManagement.create.removeImage' | translate }}
             </button>
           </div>
 
@@ -245,13 +245,13 @@
               style="display: none;">
             
             <button class="upload-btn" (click)="triggerEditFileInput()">
-              📷 {{ editingPost.imageUrl ? 'Change Image' : 'Add Image' }}
+              📷 {{ editingPost.imageUrl ? ('feedManagement.edit.changeImage' | translate) : ('feedManagement.edit.addImage' | translate) }}
             </button>
           </div>
           
           <div class="edit-actions">
-            <button class="cancel-btn" (click)="cancelEdit()">Cancel</button>
-            <button class="post-btn" (click)="saveEdit()" [disabled]="!editingPost.content.trim()">Save</button>
+            <button class="cancel-btn" (click)="cancelEdit()">{{ 'feedManagement.actions.cancel' | translate }}</button>
+            <button class="post-btn" (click)="saveEdit()" [disabled]="!editingPost.content.trim()">{{ 'feedManagement.actions.save' | translate }}</button>
           </div>
         </div>
 
@@ -262,7 +262,7 @@
                [src]="getPostImageSrc(post.imageUrl)" 
                [attr.srcset]="getPostImageSrcSet(post.imageUrl)" 
                sizes="(min-width: 1024px) 720px, 100vw"
-               alt="Post image" 
+               [alt]="'feedManagement.alt.postImage' | translate"
                class="post-image"
                (error)="onImageError(post)">
         </div>
@@ -277,7 +277,7 @@
             [class.disabled]="!canInteract()"
             (click)="toggleLike(post)"
             [attr.data-liked]="post.isLikedByCurrentUser"
-            [attr.aria-label]="post.isLikedByCurrentUser ? 'Unlike post' : 'Like post'">
+            [attr.aria-label]="post.isLikedByCurrentUser ? ('feedManagement.actions.unlikePost' | translate) : ('feedManagement.actions.likePost' | translate)">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
@@ -289,7 +289,7 @@
             type="button"
             class="action-btn comment-btn"
             (click)="toggleComments(post)"
-            [attr.aria-label]="'View comments'">
+            [attr.aria-label]="'feedManagement.actions.viewComments' | translate">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
@@ -317,7 +317,7 @@
                     [class.liked]="comment.isLikedByCurrentUser"
                     [class.disabled]="!canInteract()"
                     (click)="toggleCommentLike(comment)"
-                    aria-label="Like comment">
+                    [attr.aria-label]="'feedManagement.actions.likeComment' | translate">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                     </svg>
@@ -335,7 +335,7 @@
               <textarea
                 [(ngModel)]="post.newComment"
                 (keydown)="onCommentKeyPress($event, post)"
-                placeholder="Write a comment..."
+                [placeholder]="'feedManagement.actions.writeComment' | translate"
                 class="comment-input"
                 rows="1"></textarea>
               <button
@@ -343,7 +343,7 @@
                 class="send-comment-btn"
                 (click)="addComment(post)"
                 [disabled]="!post.newComment?.trim()"
-                aria-label="Post comment">
+                [attr.aria-label]="'feedManagement.actions.postComment' | translate">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <line x1="22" y1="2" x2="11" y2="13" />
                   <polygon points="22,2 15,22 11,13 2,9 22,2" />
@@ -356,8 +356,8 @@
     </div>
 
         <div class="empty-state" *ngIf="!loading && posts.length === 0">
-          <h3>No posts yet</h3>
-          <p>Create your first post to get started!</p>
+          <h3>{{ 'feedManagement.empty.title' | translate }}</h3>
+          <p>{{ 'feedManagement.empty.body' | translate }}</p>
         </div>
       </div>
 
@@ -366,29 +366,29 @@
         <div class="admin-news">
           <div class="admin-news-header">
             <div>
-              <p class="eyebrow">Updates</p>
-              <h3>Platform News</h3>
-              <small *ngIf="rightNews.length">{{ rightNews.length }} headlines</small>
+              <p class="eyebrow">{{ 'feedManagement.news.eyebrow' | translate }}</p>
+              <h3>{{ 'feedManagement.news.title' | translate }}</h3>
+              <small *ngIf="rightNews.length">{{ 'feedManagement.news.headlines' | translate:{ count: rightNews.length } }}</small>
             </div>
-            <span class="news-status" *ngIf="newsLoading">Loading...</span>
-            <span class="news-status error" *ngIf="newsError">{{ newsError }}</span>
+            <span class="news-status" *ngIf="newsLoading">{{ 'feedManagement.news.loading' | translate }}</span>
+            <span class="news-status error" *ngIf="newsError">{{ newsError | translate }}</span>
           </div>
           <div class="admin-news-grid" *ngIf="rightNews.length">
             <article class="news-card" *ngFor="let item of rightNews | slice:0:rightNewsLimit">
-              <p class="news-source">{{ item.source || 'News' }}</p>
+              <p class="news-source">{{ item.source || ('feedManagement.news.sourceFallback' | translate) }}</p>
               <h4>{{ item.title }}</h4>
               <small>{{ item.publishedAt | date:'mediumDate' }}</small>
               <div class="news-actions">
-                <a class="news-btn ghost" *ngIf="item.url" [href]="item.url" target="_blank" rel="noopener noreferrer">Read</a>
-                <button class="news-btn danger" (click)="deleteNews(item)">Delete</button>
+                <a class="news-btn ghost" *ngIf="item.url" [href]="item.url" target="_blank" rel="noopener noreferrer">{{ 'feedManagement.news.read' | translate }}</a>
+                <button class="news-btn danger" (click)="deleteNews(item)">{{ 'feedManagement.news.delete' | translate }}</button>
               </div>
             </article>
           </div>
           <div class="news-empty" *ngIf="!rightNews.length && !newsLoading && !newsError">
-            <p>No news yet</p>
+            <p>{{ 'feedManagement.news.empty' | translate }}</p>
           </div>
           <div class="news-more" *ngIf="rightNews.length > rightNewsLimit">
-            <button class="news-btn ghost" (click)="loadMoreRightNews()">More</button>
+            <button class="news-btn ghost" (click)="loadMoreRightNews()">{{ 'feedManagement.news.more' | translate }}</button>
           </div>
         </div>
       </aside>
@@ -399,8 +399,8 @@
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-icon" aria-hidden="true">!</div>
-        <h3>Delete Post?</h3>
-        <p class="modal-sub">This post will be permanently deleted. You can't undo this action.</p>
+        <h3>{{ 'feedManagement.deleteModal.title' | translate }}</h3>
+        <p class="modal-sub">{{ 'feedManagement.deleteModal.subtitle' | translate }}</p>
       </div>
       <div class="modal-body">
         <div class="preview-post" *ngIf="postToDelete">
@@ -408,8 +408,8 @@
         </div>
       </div>
       <div class="modal-actions">
-        <button class="cancel-btn" (click)="cancelDelete()">Cancel</button>
-        <button class="btn-danger" (click)="deletePost()">Delete</button>
+        <button class="cancel-btn" (click)="cancelDelete()">{{ 'feedManagement.actions.cancel' | translate }}</button>
+        <button class="btn-danger" (click)="deletePost()">{{ 'feedManagement.actions.delete' | translate }}</button>
       </div>
     </div>
   </div>

@@ -1,0 +1,107 @@
+:host {
+  display: block;
+}
+
+.section-block {
+  margin-top: 28px;
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.section-subtitle {
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.two-col-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+}
+
+.map-card {
+  padding: 12px;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 12px;
+}
+
+.stat-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stat-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #0f172a;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+}
+
+.stat-list li.empty {
+  cursor: default;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  padding: 6px 0;
+}
+
+.muted {
+  color: #94a3b8;
+}
+
+::ng-deep .section-block svg {
+  display: block;
+}
+
+::ng-deep .section-block svg path {
+  transition: fill 0.2s ease;
+}
+
+:host-context([data-theme="dark"]) .card {
+  background: #0f172a;
+  border-color: #1f2937;
+  box-shadow: none;
+}
+
+:host-context([data-theme="dark"]) .section-title,
+:host-context([data-theme="dark"]) .card-title,
+:host-context([data-theme="dark"]) .stat-list li {
+  color: #e5e7eb;
+}
+
+:host-context([data-theme="dark"]) .section-subtitle,
+:host-context([data-theme="dark"]) .muted {
+  color: #94a3b8;
+}

@@ -2,7 +2,7 @@
 <div class="user-management">
   <div class="mgmt-header">
     <div>
-      <p class="eyebrow">Administration</p>
+      <p class="eyebrow">{{ 'userManagement.eyebrow' | translate }}</p>
       <h1>{{ 'adminPages.userManagement.title' | translate }}</h1>
       <span>{{ 'adminPages.userManagement.subtitle' | translate }}</span>
     </div>
@@ -11,13 +11,12 @@
   <div class="search-container">
     <input 
       type="text" 
-      placeholder="Search users..." 
+      [placeholder]="'userManagement.searchPlaceholder' | translate" 
       [(ngModel)]="searchTerm"
       class="search-input"
     />
     <div class="user-count">
-      {{ filteredUsers.length }} users found 
-      ({{ activeUsersCount }} active, {{ archivedUsersCount }} archived)
+      {{ 'userManagement.usersFound' | translate:{ count: filteredUsers.length, active: activeUsersCount, archived: archivedUsersCount } }}
     </div>
   </div>
 
@@ -25,35 +24,35 @@
     <table class="user-table">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Country</th>
-          <th>Language</th>
-          <th>Domain</th>
-          <th>Role</th>
-          <th>Registered</th>
-          <th>Status</th>
-          <th>Actions</th>
+          <th>{{ 'userManagement.table.name' | translate }}</th>
+          <th>{{ 'userManagement.table.email' | translate }}</th>
+          <th>{{ 'userManagement.table.phone' | translate }}</th>
+          <th>{{ 'userManagement.table.country' | translate }}</th>
+          <th>{{ 'userManagement.table.language' | translate }}</th>
+          <th>{{ 'userManagement.table.domain' | translate }}</th>
+          <th>{{ 'userManagement.table.role' | translate }}</th>
+          <th>{{ 'userManagement.table.registered' | translate }}</th>
+          <th>{{ 'userManagement.table.status' | translate }}</th>
+          <th>{{ 'userManagement.table.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let user of filteredUsers" class="fade-in">
-          <td data-label="Name">
+          <td [attr.data-label]="'userManagement.table.name' | translate">
             <div class="user-name">{{ user.name }}</div>
           </td>
-          <td data-label="Email">
+          <td [attr.data-label]="'userManagement.table.email' | translate">
             <div class="user-email">{{ user.email }}</div>
           </td>
-          <td data-label="Phone">{{ user.phone || '-' }}</td>
-          <td data-label="Country">{{ user.country || '-' }}</td>
-          <td data-label="Language">{{ user.language || '-' }}</td>
-          <td data-label="Domain">{{ user.domain || '-' }}</td>
-          <td data-label="Role">
+          <td [attr.data-label]="'userManagement.table.phone' | translate">{{ user.phone || '-' }}</td>
+          <td [attr.data-label]="'userManagement.table.country' | translate">{{ user.country || '-' }}</td>
+          <td [attr.data-label]="'userManagement.table.language' | translate">{{ user.language || '-' }}</td>
+          <td [attr.data-label]="'userManagement.table.domain' | translate">{{ user.domain || '-' }}</td>
+          <td [attr.data-label]="'userManagement.table.role' | translate">
             <span class="role-badge">{{ user.role }}</span>
           </td>
-          <td data-label="Registered">{{ user.registeredAt | date:'mediumDate' }}</td>
-          <td data-label="Status">
+          <td [attr.data-label]="'userManagement.table.registered' | translate">{{ user.registeredAt | date:'mediumDate' }}</td>
+          <td [attr.data-label]="'userManagement.table.status' | translate">
             <span 
               class="status-badge" 
               [ngClass]="{
@@ -61,16 +60,16 @@
                 'status-archived': user.archived
               }"
             >
-              {{ user.archived ? 'Archived' : 'Active' }}
+              {{ user.archived ? ('userManagement.status.archived' | translate) : ('userManagement.status.active' | translate) }}
             </span>
           </td>
-          <td data-label="Actions">
+          <td [attr.data-label]="'userManagement.table.actions' | translate">
             <div class="actions">
               <button 
                 class="btn btn-edit"
                 (click)="openEditModal(user)"
               >
-                Edit
+                {{ 'userManagement.actions.edit' | translate }}
               </button>
             </div>
           </td>
@@ -80,8 +79,8 @@
   </div>
 
   <div class="empty-state" *ngIf="!loading && filteredUsers.length === 0">
-    <h3>No users found</h3>
-    <p>Try adjusting your search criteria</p>
+    <h3>{{ 'userManagement.empty.title' | translate }}</h3>
+    <p>{{ 'userManagement.empty.body' | translate }}</p>
   </div>
 
   <!-- Modal Backdrop -->
@@ -91,7 +90,7 @@
   <div class="modal" *ngIf="showEditModal && selectedUser">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>Edit User</h3>
+        <h3>{{ 'userManagement.modal.title' | translate }}</h3>
         <button class="close-btn" (click)="closeEditModal()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -103,18 +102,18 @@
       <div class="modal-body">
         <div class="form-row">
           <div class="form-group">
-            <label>Name</label>
+            <label>{{ 'userManagement.form.name' | translate }}</label>
             <input type="text" [(ngModel)]="selectedUser.name" class="form-input">
           </div>
           <div class="form-group">
-            <label>Email</label>
+            <label>{{ 'userManagement.form.email' | translate }}</label>
             <input type="email" [(ngModel)]="selectedUser.email" class="form-input">
           </div>
         </div>
         
         <div class="form-row">
           <div class="form-group">
-            <label>Phone</label>
+            <label>{{ 'userManagement.form.phone' | translate }}</label>
             <div class="phone-control">
               <div class="country-select" [class.open]="isCountryDropdownOpen">
                 <div class="select-trigger" (click)="toggleCountryDropdown()">
@@ -138,31 +137,31 @@
                   </div>
                 </div>
               </div>
-              <input type="tel" [(ngModel)]="selectedUser.phone" class="form-input phone-number" placeholder="123 456 789">
+              <input type="tel" [(ngModel)]="selectedUser.phone" class="form-input phone-number" [placeholder]="'userManagement.form.phonePlaceholder' | translate">
             </div>
           </div>
           <div class="form-group">
-            <label>Country</label>
+            <label>{{ 'userManagement.form.country' | translate }}</label>
             <input type="text" [(ngModel)]="selectedUser.country" class="form-input">
           </div>
         </div>
         
         <div class="form-row">
           <div class="form-group">
-            <label>Language</label>
+            <label>{{ 'userManagement.form.language' | translate }}</label>
             <input type="text" [(ngModel)]="selectedUser.language" class="form-input">
           </div>
           <div class="form-group">
-            <label>Domain</label>
+            <label>{{ 'userManagement.form.domain' | translate }}</label>
             <input type="text" [(ngModel)]="selectedUser.domain" class="form-input">
           </div>
         </div>
         
         <div class="form-group">
-          <label>Role</label>
+          <label>{{ 'userManagement.form.role' | translate }}</label>
           <select [(ngModel)]="selectedUser.role" class="form-input">
-            <option value="ADMIN">Admin</option>
-            <option value="USER">User</option>
+            <option value="ADMIN">{{ 'userManagement.roles.admin' | translate }}</option>
+            <option value="USER">{{ 'userManagement.roles.user' | translate }}</option>
           </select>
         </div>
         
@@ -173,13 +172,13 @@
     [ngClass]="{ 'archived': selectedUser.archived }"
     (click)="toggleArchiveUser()"
   >
-    {{ selectedUser.archived ? 'Unarchive User' : 'Archive User' }}
+    {{ selectedUser.archived ? ('userManagement.actions.unarchive' | translate) : ('userManagement.actions.archive' | translate) }}
   </button>
   
   <div class="help-icon">
     ?
     <div class="help-tooltip">
-      Archived users are not visible for the users
+      {{ 'userManagement.archiveHelp' | translate }}
     </div>
   </div>
 </div>
@@ -187,8 +186,8 @@
       </div>
       
       <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
-        <button class="btn btn-primary" (click)="saveUser()">Save Changes</button>
+        <button class="btn btn-secondary" (click)="closeEditModal()">{{ 'userManagement.actions.cancel' | translate }}</button>
+        <button class="btn btn-primary" (click)="saveUser()">{{ 'userManagement.actions.saveChanges' | translate }}</button>
       </div>
     </div>
   </div>

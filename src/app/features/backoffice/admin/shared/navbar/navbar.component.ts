@@ -297,7 +297,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   /** Update breadcrumbs dynamically */
   private updatePageInfo(url: string) {
-    const parts = url.split('/').filter(Boolean);
+    const cleanUrl = url.split('?')[0].split('#')[0];
+    const parts = cleanUrl.split('/').filter(Boolean);
 
     // Default title
     this.pageTitleKey = parts.length > 0 ? null : 'admin.menu.dashboard';

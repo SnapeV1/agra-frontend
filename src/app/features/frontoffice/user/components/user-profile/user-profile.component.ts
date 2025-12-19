@@ -7,6 +7,7 @@ import { ProfileService } from 'src/app/core/services/profile/profile.service';
 import { CourseService } from 'src/app/core/services/course/course.service';
 import { ProgressService } from 'src/app/core/services/progress.service';
 import { Course, CourseProgress } from 'src/app/core/models/course';
+import { TranslateService } from '@ngx-translate/core';
 
 interface ProfileStats {
   icon: string;
@@ -71,25 +72,25 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   stats: ProfileStats[] = [
     {
       icon: 'book',
-      label: 'Courses Completed',
+      label: 'userProfile.stats.coursesCompleted',
       value: 0,
       color: 'bg-green-50 text-green-700'
     },
     {
       icon: 'star',
-      label: 'Average Score',
+      label: 'userProfile.stats.averageScore',
       value: '0%',
       color: 'bg-blue-50 text-blue-700'
     },
     {
       icon: 'clock',
-      label: 'Hours Studied',
+      label: 'userProfile.stats.hoursStudied',
       value: 0,
       color: 'bg-purple-50 text-purple-700'
     },
     {
       icon: 'trophy',
-      label: 'Certificates Earned',
+      label: 'userProfile.stats.certificatesEarned',
       value: 0,
       color: 'bg-amber-50 text-amber-700'
     }
@@ -100,8 +101,40 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     private profileService: ProfileService,
     private courseService: CourseService,
     private progressService: ProgressService,
-    private router: Router
+    private router: Router,
+    private translate: TranslateService
   ) {}
+
+  private t(key: string, params?: Record<string, any>): string {
+    return this.translate.instant(key, params);
+  }
+
+  private getLocale(): string {
+    const lang = (this.translate.currentLang || this.translate.getDefaultLang() || 'en').toLowerCase();
+    if (lang.startsWith('fr')) return 'fr-FR';
+    if (lang.startsWith('ar')) return 'ar-EG';
+    return 'en-US';
+  }
+
+  toggleCountryDropdown(): void {
+    this.isCountryDropdownOpen = !this.isCountryDropdownOpen;
+    if (!this.isCountryDropdownOpen) {
+      this.highlightedCountry = null;
+      this.searchTerm = '';
+    } else {
+      this.highlightedCountry = this.countryCodes.find(c => c.code === this.editSelectedCountryCode) || this.countryCodes[0];
+      setTimeout(() => {
+        try { (document.querySelector('.custom-select') as HTMLElement)?.focus(); } catch {}
+      }, 0);
+    }
+  }
+
+  private normalizeDateToInput(dateVal: any): string {
+    if (!dateVal) return '';
+    const parsed = new Date(dateVal);
+    if (isNaN(parsed.getTime())) return '';
+    return parsed.toISOString().slice(0, 10);
+  }
 
   ngOnInit(): void {
     this.loadUserProfile();
@@ -216,7 +249,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
     
-          this.coursesError = 'Failed to load enrolled courses';
+          this.coursesError = 'userProfile.enrolled.errorDescription';
           this.coursesLoading = false;
           if (this.coursesLoadingTimer) clearTimeout(this.coursesLoadingTimer);
         }
@@ -281,11 +314,11 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             // Set fallback course data
             this.enrolledCourses[index].course = {
               id: enrolledCourse.courseId,
-              title: `Course ${enrolledCourse.courseId}`,
+              title: this.t('userProfile.enrolled.titleFallback'),
               imageUrl: 'https://res.cloudinary.com/dmumvupow/image/upload/v1758218323/defaultCourse_qqgiil.png',
-              description: 'Course details unavailable',
-              domain: 'N/A',
-              country: 'N/A',
+              description: this.t('userProfile.enrolled.descriptionFallback'),
+              domain: this.t('userProfile.enrolled.domainFallback'),
+              country: this.t('userProfile.enrolled.countryFallback'),
               trainerId: '',
               sessionIds: [],
               languagesAvailable: [],
@@ -539,8 +572,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     if (this.isEditing && this.editForm.name) {
       return this.editForm.name;
     }
-    if (!this.userProfile) return 'User';
-    return this.userProfile.name || this.userProfile.email.split('@')[0] || 'User';
+    if (!this.userProfile) return this.t('userProfile.fallbacks.user');
+    return this.userProfile.name || this.userProfile.email.split('@')[0] || this.t('userProfile.fallbacks.user');
   }
 
   onAvatarError(evt: Event): void {
@@ -554,23 +587,20 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   }
 
   getUserRole(): string {
-    if (!this.userProfile) return 'Member';
-    return this.userProfile.role === 'ADMIN' ? 'Administrator' : 'Member';
+    if (!this.userProfile) return this.t('userProfile.roles.member');
+    return this.userProfile.role === 'ADMIN'
+      ? this.t('userProfile.roles.admin')
+      : this.t('userProfile.roles.member');
+  }
+  getMemberSince(): string {
+    const date = this.userProfile?.registeredAt ? new Date(this.userProfile.registeredAt) : null;
+    if (!date) return '';
+
+    return date.toLocaleString(this.getLocale(), { month: 'long', year: 'numeric' });
   }
 
-
-getMemberSince(): string {
-  const date = this.userProfile?.registeredAt ? new Date(this.userProfile.registeredAt) : null;
-  if (!date) return '';
-
-  const formatted = date.toLocaleString('default', { month: 'long', year: 'numeric' });
-  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
-}
-
-
-
   getLocation(): string {
-    return 'Agriculture';
+    return this.userProfile?.country || this.t('userProfile.personal.countryValue');
   }
 
   getUserEmail(): string {
@@ -588,11 +618,8 @@ getMemberSince(): string {
   }
 
   getLanguageLabel(): string {
-    const code = (this.userProfile?.language || '').toLowerCase();
-    if (code === 'en') return 'English';
-    if (code === 'fr') return 'French';
-    if (code === 'ar') return 'Arabic';
-    return code || 'English';
+    const code = (this.userProfile?.language || '').toLowerCase() || 'en';
+    return this.t(`lang.${code}`);
   }
 
   hasFormChanges(): boolean {
@@ -625,31 +652,31 @@ getMemberSince(): string {
 
   getProgressMilestone(percentage: number): { label: string; color: string; icon: string } {
     if (percentage === 0) {
-      return { label: 'Not Started', color: 'text-gray-500', icon: '🎯' };
+      return { label: this.t('userProfile.progress.milestones.notStarted'), color: 'text-gray-500', icon: '🎯' };
     } else if (percentage < 25) {
-      return { label: 'Getting Started', color: 'text-blue-500', icon: '🚀' };
+      return { label: this.t('userProfile.progress.milestones.gettingStarted'), color: 'text-blue-500', icon: '🚀' };
     } else if (percentage < 50) {
-      return { label: 'Making Progress', color: 'text-yellow-500', icon: '⚡' };
+      return { label: this.t('userProfile.progress.milestones.makingProgress'), color: 'text-yellow-500', icon: '⚡' };
     } else if (percentage < 75) {
-      return { label: 'Halfway There', color: 'text-orange-500', icon: '🔥' };
+      return { label: this.t('userProfile.progress.milestones.halfway'), color: 'text-orange-500', icon: '🔥' };
     } else if (percentage < 100) {
-      return { label: 'Almost Done', color: 'text-purple-500', icon: '🎉' };
+      return { label: this.t('userProfile.progress.milestones.almost'), color: 'text-purple-500', icon: '🏁' };
     } else {
-      return { label: 'Completed', color: 'text-green-500', icon: '✅' };
+      return { label: this.t('userProfile.progress.milestones.completed'), color: 'text-green-500', icon: '✅' };
     }
   }
 
   getEstimatedTimeToComplete(enrolledCourse: EnrolledCourse): string {
     const progress = enrolledCourse.progress;
     if (!progress || progress.completionPercentage >= 100) {
-      return 'Completed';
+      return this.t('userProfile.progress.time.completed');
     }
 
     const timeSpent = progress.totalTimeSpent || 0;
     const completionPercentage = progress.completionPercentage || 0;
     
     if (completionPercentage === 0 || timeSpent === 0) {
-      return 'Time estimate unavailable';
+      return this.t('userProfile.progress.time.unavailable');
     }
 
     const estimatedTotalTime = (timeSpent / completionPercentage) * 100;
@@ -657,11 +684,11 @@ getMemberSince(): string {
     const remainingHours = Math.ceil(remainingTime / 60);
 
     if (remainingHours <= 0) {
-      return 'Almost done!';
+      return this.t('userProfile.progress.time.almostDone');
     } else if (remainingHours === 1) {
-      return '~1 hour remaining';
+      return this.t('userProfile.progress.time.oneHour');
     } else {
-      return `~${remainingHours} hours remaining`;
+      return this.t('userProfile.progress.time.hours', { count: remainingHours });
     }
   }
 
@@ -682,40 +709,20 @@ getMemberSince(): string {
 
   getSessionTooltip(enrolledCourse: EnrolledCourse, sessionNumber: number): string {
     if (this.isSessionCompleted(enrolledCourse, sessionNumber)) {
-      return `Session ${sessionNumber}: Completed`;
+      return this.t('userProfile.progress.session.completed', { index: sessionNumber });
     } else if (this.isCurrentSession(enrolledCourse, sessionNumber)) {
-      return `Session ${sessionNumber}: In Progress`;
+      return this.t('userProfile.progress.session.current', { index: sessionNumber });
     } else {
-      return `Session ${sessionNumber}: Not Started`;
+      return this.t('userProfile.progress.session.notStarted', { index: sessionNumber });
     }
   }
 
   getBirthdateDisplay(): string {
     const dateStr = this.userProfile?.birthdate;
     const normalized = this.normalizeDateToInput(dateStr);
-    if (!normalized) return 'Add your birthdate';
+    if (!normalized) return this.t('userProfile.personal.birthdateFallback');
     const parsed = new Date(normalized);
-    return parsed.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
-  }
-
-  private normalizeDateToInput(dateVal: any): string {
-    if (!dateVal) return '';
-    const parsed = new Date(dateVal);
-    if (isNaN(parsed.getTime())) return '';
-    return parsed.toISOString().slice(0, 10);
-  }
-
-  toggleCountryDropdown() {
-    this.isCountryDropdownOpen = !this.isCountryDropdownOpen;
-    if (!this.isCountryDropdownOpen) {
-      this.highlightedCountry = null;
-      this.searchTerm = '';
-    } else {
-      this.highlightedCountry = this.countryCodes.find(c=>c.code===this.editSelectedCountryCode) || this.countryCodes[0];
-      setTimeout(()=>{
-        try { (document.querySelector('.custom-select') as HTMLElement)?.focus(); } catch {}
-      },0);
-    }
+    return parsed.toLocaleDateString(this.getLocale(), { year: 'numeric', month: 'long', day: 'numeric' });
   }
   selectCountry(country:any){ this.editSelectedCountryCode = country.code; this.isCountryDropdownOpen = false; }
   getSelectedCountry(){ return this.countryCodes.find(c=>c.code===this.editSelectedCountryCode) || { country:'US', code:'+1', name:'United States'}; }

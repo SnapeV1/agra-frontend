@@ -1,7 +1,8 @@
 {
   "lang": {
     "en": "English",
-    "fr": "French"
+    "fr": "French",
+    "ar": "Arabic"
   },
   "nav": {
     "home": "Home",
@@ -23,7 +24,11 @@
     },
     "admin": {
       "search": "Search...",
-      "viewUser": "View as User"
+      "viewUser": "View as User",
+      "toggleSidebar": "Toggle sidebar",
+      "collapseSidebar": "Collapse sidebar",
+      "expandSidebar": "Expand sidebar",
+      "notifications": "Notifications"
     }
   },
   "admin": {
@@ -96,6 +101,10 @@
       "privacy": "Privacy",
       "terms": "Terms",
       "legal": "Legal"
+    },
+    "language": {
+      "title": "Language",
+      "note": "Changes only for this device"
     }
   },
   "common": {
@@ -105,7 +114,17 @@
     "save": "Save",
     "saved": "Saved",
     "noData": "No data",
-    "noPosts": "No posts found"
+    "noPosts": "No posts found",
+    "time": {
+      "momentAgo": "A moment ago",
+      "justNow": "Just now",
+      "secondsAgo": "{{count}}s ago",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago",
+      "invalid": "Invalid date",
+      "unknown": "Unknown time"
+    }
   },
   "settings": {
     "title": "Settings",
@@ -251,7 +270,8 @@
       "title": "Welcome to your Educational Dashboard",
       "body": "Monitor student progress, track course performance, and analyze learning outcomes across your platform.",
       "addCourse": "Add Course",
-      "viewReports": "View Reports"
+      "viewReports": "View Reports",
+      "viewTickets": "View tickets"
     },
     "overview": {
       "title": "Overview",
@@ -290,7 +310,22 @@
       "subtitle": "Posts and comments activity",
       "topPosts": "Top Posts",
       "engagementAvg": "Engagement Averages",
-      "featuredPerformance": "Featured Performance"
+      "featuredPerformance": "Featured Performance",
+      "statsTitle": "Posts statistics",
+      "statsSubtitle": "Advanced insights",
+      "pulse": {
+        "title": "Posts pulse",
+        "mostRecentDay": "Most recent day",
+        "mostRecentWeek": "Most recent week",
+        "mostRecentMonth": "Most recent month",
+        "mostRecentPeriod": "Most recent period",
+        "postsThisPeriod": "Posts this period",
+        "commentsThisPeriod": "Comments this period",
+        "avgEngagement": "Avg engagement",
+        "topLikes": "Top likes",
+        "topComments": "Top comments",
+        "totalWithValue": "Total {{value}}"
+      }
     },
     "notifications": {
       "title": "Notifications",
@@ -298,6 +333,25 @@
       "trend": "Trend",
       "readStatus": "Read Status",
       "topTypes": "Top Types"
+    },
+    "tickets": {
+      "title": "Support & tickets",
+      "subtitle": "Live workload, backlog, and assignment health.",
+      "snapshotTitle": "Ticket snapshot",
+      "allTickets": "All tickets",
+      "recentTitle": "Recent tickets",
+      "items": "items",
+      "labels": {
+        "open": "Open",
+        "pending": "Pending",
+        "resolved": "Resolved",
+        "stale": "No recent activity (7d+)"
+      }
+    },
+    "northAfrica": {
+      "title": "Live Users Map",
+      "subtitle": "Real-time activity across North Africa",
+      "byCountry": "Live by Country"
     }
   },
   "contact": {
@@ -307,9 +361,18 @@
       "subtitle": "Ready to grow your agricultural knowledge? We're here to help you cultivate success."
     },
     "stats": {
-      "students": { "value": "5,000+", "label": "Students Educated" },
-      "experience": { "value": "25+", "label": "Years Experience" },
-      "response": { "value": "24hr", "label": "Response Time" }
+      "students": {
+        "value": "5,000+",
+        "label": "Students Educated"
+      },
+      "experience": {
+        "value": "25+",
+        "label": "Years Experience"
+      },
+      "response": {
+        "value": "24hr",
+        "label": "Response Time"
+      }
     },
     "form": {
       "title": "Send Message",
@@ -340,7 +403,9 @@
         "title": "Website",
         "link": "umnagri.net"
       },
-      "email": { "title": "Email Us" },
+      "email": {
+        "title": "Email Us"
+      },
       "follow": "Follow Us"
     },
     "map": {
@@ -399,7 +464,26 @@
     "preview": "Preview",
     "enroll": "Enroll Now",
     "showing": "Showing {{shown}} of {{total}} courses",
-    "showMore": "Show more"
+    "showMore": "Show more",
+    "reviews": {
+      "items": {
+        "one": {
+          "quote": "Clear structure and actionable tips.",
+          "author": "Amina B.",
+          "role": "Agri student"
+        },
+        "two": {
+          "quote": "Loved the real-world examples.",
+          "author": "Youssef K.",
+          "role": "Co-op trainer"
+        },
+        "three": {
+          "quote": "Concise lessons, easy to follow.",
+          "author": "Salma R.",
+          "role": "Farmer"
+        }
+      }
+    }
   },
   "feed": {
     "left": {
@@ -428,6 +512,14 @@
       "loginToComment": "to comment on this post",
       "likeComment": "Like comment",
       "unlikeComment": "Unlike comment"
+    },
+    "alerts": {
+      "loginToLikeComment": "Please log in to like comments",
+      "loginToComment": "Please log in to comment"
+    },
+    "errors": {
+      "posts": "Failed to load posts. Please try again later.",
+      "news": "Failed to load news."
     },
     "empty": "No posts available at the moment.",
     "right": {
@@ -542,7 +634,9 @@
       "country": "Country",
       "countryValue": "Tunisia",
       "role": "Role",
-      "required": "*"
+      "required": "*",
+      "locationFallback": "Agriculture",
+      "birthdateFallback": "Add your birthdate"
     },
     "enrolled": {
       "title": "My Enrolled Courses",
@@ -573,7 +667,43 @@
       "start": "Start Course",
       "continue": "Continue",
       "certificate": "Certificate",
-      "completedOn": "Completed on {{date}}"
+      "completedOn": "Completed on {{date}}",
+      "errorDescription": "Unable to load enrolled courses. Please try again."
+    },
+    "stats": {
+      "coursesCompleted": "Courses Completed",
+      "averageScore": "Average Score",
+      "hoursStudied": "Hours Studied",
+      "certificatesEarned": "Certificates Earned"
+    },
+    "roles": {
+      "admin": "Administrator",
+      "member": "Member"
+    },
+    "fallbacks": {
+      "user": "User"
+    },
+    "progress": {
+      "milestones": {
+        "notStarted": "Not Started",
+        "gettingStarted": "Getting Started",
+        "makingProgress": "Making Progress",
+        "halfway": "Halfway There",
+        "almost": "Almost Done",
+        "completed": "Completed"
+      },
+      "time": {
+        "completed": "Completed",
+        "unavailable": "Time estimate unavailable",
+        "almostDone": "Almost done!",
+        "oneHour": "~1 hour remaining",
+        "hours": "~{{count}} hours remaining"
+      },
+      "session": {
+        "completed": "Session {{index}}: Completed",
+        "current": "Session {{index}}: In Progress",
+        "notStarted": "Session {{index}}: Not Started"
+      }
     }
   },
   "home": {
@@ -747,6 +877,897 @@
           "name": "National Farmers Organization"
         }
       }
+    },
+    "errors": {
+      "courses": "Failed to load courses",
+      "posts": "Failed to load posts"
+    },
+    "contactSubject": "AGRA Project - Information request"
+  },
+  "courseEnrolled": {
+    "loading": "Loading course content...",
+    "errorTitle": "Error Loading Course",
+    "backToCourses": "Back to Courses",
+    "header": {
+      "backTitle": "Back to Courses",
+      "toggleSidebar": "Toggle Sidebar",
+      "toggleFullscreen": "Toggle Fullscreen",
+      "progressComplete": "{{percent}}% Complete"
+    },
+    "sidebar": {
+      "title": "Course Content",
+      "lessonCount": "{{count}} Lessons"
+    },
+    "lesson": {
+      "markComplete": "Mark Complete",
+      "completed": "Completed"
+    },
+    "quiz": {
+      "allCorrect": "All answers correct!",
+      "reviewTryAgain": "Review and try again.",
+      "previous": "Previous",
+      "next": "Next",
+      "submit": "Submit Quiz",
+      "tryAgain": "Try Again",
+      "selectAnswer": "Select an answer to continue.",
+      "noQuestions": "No questions found for this quiz.",
+      "answerAll": "Answer every question before submitting.",
+      "perfect": "Perfect! You can mark this lesson complete.",
+      "submitToComplete": "Submit the quiz to check your answers before completing.",
+      "allCorrectToComplete": "All answers must be correct to complete this lesson.",
+      "lockSubmitToUnlock": "Submit the quiz with answers for every question to unlock Mark Complete.",
+      "lockAllCorrectToUnlock": "All quiz answers must be correct to unlock Mark Complete."
+    },
+    "nav": {
+      "prev": "Prev",
+      "next": "Next"
+    },
+    "sessions": {
+      "title": "Live Sessions",
+      "liveBadge": "Live session",
+      "empty": "No upcoming sessions. Check back later.",
+      "defaultTitle": "Session",
+      "start": "Start:",
+      "end": "End:",
+      "joinNow": "Join Now",
+      "notLive": "Not live",
+      "prevAria": "Previous session",
+      "nextAria": "Next session"
+    },
+    "resources": {
+      "title": "Course Resources",
+      "empty": "No resources available yet"
+    },
+    "noLesson": {
+      "title": "Select a lesson to begin",
+      "body": "Choose a lesson from the sidebar to start learning"
+    },
+    "completion": {
+      "badge": "Completed",
+      "certificateUnlocked": "Certificate unlocked",
+      "wellDone": "Well done, {{percent}}% completed!",
+      "greatWork": "Great work finishing {{title}}. Keep the momentum going.",
+      "metaLessons": "{{count}} lessons",
+      "metaTracked": "{{time}} tracked",
+      "highlights": "Highlights",
+      "lessonsCompleted": "Lessons completed",
+      "timeInvested": "Time invested",
+      "progress": "Progress",
+      "share": "Share achievement",
+      "keepLearning": "Keep learning"
+    },
+    "certificate": {
+      "title": "Certificate",
+      "generating": "Generating your certificate...",
+      "ready": "Your certificate is ready!",
+      "view": "View",
+      "download": "Download",
+      "verificationCode": "Verification code",
+      "copy": "Copy",
+      "issued": "Issued",
+      "failed": "Certificate generation failed. Please try again later."
+    },
+    "errors": {
+      "courseIdMissing": "Course ID not found",
+      "liveSessionsFailed": "Failed to load live sessions",
+      "popupBlocked": "Popup was blocked. Please allow popups or use the button below to open the live session.",
+      "joinSessionFailed": "Failed to join session",
+      "accessDenied": "Access denied. You may not have permission to view this course.",
+      "authRequired": "Authentication required. Please log in to view this course.",
+      "courseNotFound": "Course not found. It may have been removed or the link is invalid.",
+      "courseLoadFailed": "Failed to load course data. Please try again later.",
+      "markCompleteFailed": "Failed to mark lesson as complete. Please try again.",
+      "courseDataMissing": "Course data not available",
+      "userNotAuthenticated": "User not authenticated",
+      "certificateGenerateFailed": "Failed to generate certificate. Please try again."
+    },
+    "share": {
+      "title": "I completed {{title}}!",
+      "text": "I just completed the course \"{{title}}\" and earned my certificate!",
+      "copied": "Achievement text copied to clipboard!",
+      "failed": "Unable to share. Please copy the URL manually."
+    }
+  },
+  "adminManagement": {
+    "common": {
+      "search": "بحث...",
+      "filter": "تصفية",
+      "actions": "الإجراءات",
+      "view": "عرض",
+      "edit": "تعديل",
+      "delete": "حذف",
+      "confirm": "تأكيد",
+      "cancel": "إلغاء",
+      "save": "حفظ",
+      "loading": "جارٍ التحميل...",
+      "noData": "لا توجد بيانات",
+      "refresh": "تحديث"
+    },
+    "users": {
+      "title": "إدارة المستخدمين",
+      "subtitle": "إدارة الحسابات، الأدوار، والصلاحيات",
+      "table": {
+        "name": "الاسم",
+        "email": "البريد الإلكتروني",
+        "role": "الدور",
+        "status": "الحالة",
+        "createdAt": "تاريخ الإنشاء",
+        "actions": "الإجراءات"
+      },
+      "roles": {
+        "admin": "مشرف",
+        "trainer": "مدرّب",
+        "member": "مستخدم"
+      },
+      "status": {
+        "active": "نشط",
+        "suspended": "موقوف",
+        "pending": "قيد المراجعة"
+      },
+      "actions": {
+        "viewProfile": "عرض الملف الشخصي",
+        "changeRole": "تغيير الدور",
+        "suspend": "إيقاف الحساب",
+        "activate": "تفعيل الحساب",
+        "delete": "حذف المستخدم"
+      },
+      "confirmDelete": {
+        "title": "حذف المستخدم",
+        "body": "هل أنت متأكد من حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء."
+      }
+    },
+    "feed": {
+      "title": "إدارة المنشورات",
+      "subtitle": "مراجعة وإدارة منشورات المجتمع",
+      "table": {
+        "author": "الناشر",
+        "content": "المحتوى",
+        "likes": "الإعجابات",
+        "comments": "التعليقات",
+        "createdAt": "تاريخ النشر",
+        "status": "الحالة"
+      },
+      "status": {
+        "published": "منشور",
+        "hidden": "مخفي",
+        "reported": "مُبلَّغ عنه"
+      },
+      "actions": {
+        "view": "عرض",
+        "hide": "إخفاء",
+        "publish": "نشر",
+        "delete": "حذف",
+        "viewReports": "عرض البلاغات"
+      },
+      "empty": "لا توجد منشورات حاليًا"
+    },
+    "courses": {
+      "title": "إدارة الدورات",
+      "subtitle": "إنشاء، تعديل، وإدارة الدورات التدريبية",
+      "table": {
+        "title": "عنوان الدورة",
+        "trainer": "المدرّب",
+        "domain": "المجال",
+        "language": "اللغة",
+        "students": "عدد المتعلمين",
+        "status": "الحالة"
+      },
+      "status": {
+        "draft": "مسودة",
+        "published": "منشورة",
+        "archived": "مؤرشفة"
+      },
+      "actions": {
+        "add": "إضافة دورة",
+        "edit": "تعديل الدورة",
+        "archive": "أرشفة",
+        "publish": "نشر",
+        "delete": "حذف"
+      },
+      "empty": "لا توجد دورات متاحة"
+    },
+    "certificates": {
+      "title": "إدارة الشهادات",
+      "subtitle": "التحقق وإدارة شهادات المتعلمين",
+      "table": {
+        "user": "المستخدم",
+        "course": "الدورة",
+        "issuedAt": "تاريخ الإصدار",
+        "verificationCode": "رمز التحقق",
+        "status": "الحالة"
+      },
+      "status": {
+        "valid": "صالحة",
+        "revoked": "ملغاة"
+      },
+      "actions": {
+        "view": "عرض الشهادة",
+        "download": "تحميل",
+        "revoke": "إلغاء الشهادة"
+      },
+      "empty": "لا توجد شهادات"
+    },
+    "tickets": {
+      "title": "إدارة تذاكر الدعم",
+      "subtitle": "متابعة طلبات الدعم والمشاكل",
+      "table": {
+        "ticketId": "رقم التذكرة",
+        "user": "المستخدم",
+        "subject": "الموضوع",
+        "status": "الحالة",
+        "createdAt": "تاريخ الإنشاء",
+        "updatedAt": "آخر تحديث"
+      },
+      "status": {
+        "open": "مفتوحة",
+        "inProgress": "قيد المعالجة",
+        "closed": "مغلقة"
+      },
+      "actions": {
+        "view": "عرض",
+        "reply": "الرد",
+        "close": "إغلاق التذكرة",
+        "reopen": "إعادة فتح"
+      },
+      "empty": "لا توجد تذاكر دعم"
+    }
+  },
+  "userManagement": {
+    "eyebrow": "Administration",
+    "searchPlaceholder": "Search users...",
+    "usersFound": "{{count}} users found ({{active}} active, {{archived}} archived)",
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "country": "Country",
+      "language": "Language",
+      "domain": "Domain",
+      "role": "Role",
+      "registered": "Registered",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "archived": "Archived"
+    },
+    "actions": {
+      "edit": "Edit",
+      "archive": "Archive User",
+      "unarchive": "Unarchive User",
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes"
+    },
+    "empty": {
+      "title": "No users found",
+      "body": "Try adjusting your search criteria"
+    },
+    "modal": {
+      "title": "Edit User"
+    },
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "phonePlaceholder": "123 456 789",
+      "country": "Country",
+      "language": "Language",
+      "domain": "Domain",
+      "role": "Role"
+    },
+    "roles": {
+      "admin": "Admin",
+      "user": "User"
+    },
+    "archiveHelp": "Archived users are not visible for the users"
+  },
+  "feedManagement": {
+    "header": {
+      "eyebrow": "Administration",
+      "title": "Posts",
+      "subtitle": "Manage your community posts"
+    },
+    "news": {
+      "eyebrow": "Updates",
+      "title": "Platform News",
+      "headlines": "{{count}} headlines",
+      "loading": "Loading...",
+      "sourceFallback": "News",
+      "read": "Read",
+      "delete": "Delete",
+      "empty": "No news yet",
+      "more": "More"
+    },
+    "create": {
+      "prompt": "What's on your mind?",
+      "placeholder": "What's on your mind?",
+      "removeImage": "Remove"
+    },
+    "upload": {
+      "title": "Click to select an image",
+      "subtitle": "Supports JPG, PNG, GIF (max 5MB)"
+    },
+    "actions": {
+      "photo": "Photo",
+      "cancel": "Cancel",
+      "post": "Post",
+      "uploading": "Uploading...",
+      "posting": "Posting...",
+      "uploadingOverlay": "Uploading image and creating post...",
+      "creatingOverlay": "Creating your post...",
+      "uploadNote": "This may take a moment for image uploads",
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save",
+      "likePost": "Like post",
+      "unlikePost": "Unlike post",
+      "viewComments": "View comments",
+      "likeComment": "Like comment",
+      "writeComment": "Write a comment...",
+      "postComment": "Post comment"
+    },
+    "edit": {
+      "placeholder": "Edit your post...",
+      "removeCurrentImage": "Remove current image",
+      "changeImage": "Change Image",
+      "addImage": "Add Image"
+    },
+    "loading": "Loading posts...",
+    "empty": {
+      "title": "No posts yet",
+      "body": "Create your first post to get started!"
+    },
+    "deleteModal": {
+      "title": "Delete Post?",
+      "subtitle": "This post will be permanently deleted. You can't undo this action."
+    },
+    "errors": {
+      "loadPosts": "Failed to load posts. Please try again later.",
+      "createPost": "Failed to create post. Please try again.",
+      "preparePost": "Failed to prepare post data. Please try again.",
+      "invalidImageType": "Please select an image file.",
+      "imageTooLarge": "File size must be less than 5MB.",
+      "authEdit": "You must be signed in to edit posts.",
+      "updatePost": "Failed to update post. Please try again.",
+      "authDelete": "You must be signed in to delete posts.",
+      "deletePost": "Failed to delete post. Please try again.",
+      "loadNews": "Failed to load news."
+    },
+    "alt": {
+      "userAvatar": "User avatar",
+      "imagePreview": "Image preview",
+      "currentImage": "Current image",
+      "newImagePreview": "New image preview",
+      "postImage": "Post image"
+    }
+  },
+  "adminSettings": {
+    "header": {
+      "eyebrow": "Administration",
+      "title": "Settings",
+      "subtitle": "Control admin appearance and notifications"
+    },
+    "common": {
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "cancel": "Cancel",
+      "saveChanges": "Save changes",
+      "saving": "Saving..."
+    },
+    "appearance": {
+      "eyebrow": "Appearance",
+      "title": "Theme",
+      "subtitle": "Applies to the admin workspace",
+      "displayLabel": "Display mode",
+      "displayHint": "Choose light or dark theme",
+      "light": "Light",
+      "dark": "Dark",
+      "languageLabel": "Language",
+      "languageHint": "Select your preferred language",
+      "save": "Save display"
+    },
+    "notifications": {
+      "eyebrow": "Notifications",
+      "title": "Admin Alerts",
+      "subtitle": "Quick toggles for platform alerts",
+      "save": "Save preferences",
+      "saved": "Preferences saved",
+      "saveError": "Could not save preferences locally",
+      "toggles": {
+        "system": {
+          "label": "System alerts",
+          "hint": "Platform health and uptime notices"
+        },
+        "posts": {
+          "label": "Post activity",
+          "hint": "New reports or flagged posts"
+        },
+        "courses": {
+          "label": "Course updates",
+          "hint": "Course publishing and approvals"
+        },
+        "users": {
+          "label": "User lifecycle",
+          "hint": "Invites, deactivations, and roles"
+        }
+      }
+    },
+    "operations": {
+      "eyebrow": "Operations",
+      "title": "Platform Controls",
+      "subtitle": "Maintenance mode and news ingestion",
+      "maintenanceLabel": "System maintenance",
+      "maintenanceHint": "Toggle system-wide maintenance mode",
+      "newsCadenceLabel": "GNews fetch cadence",
+      "newsCadenceHint": "Manage news-fetch schedule",
+      "cadence15": "Every 15 minutes",
+      "cadence30": "Every 30 minutes",
+      "cadence60": "Every 60 minutes",
+      "cadence120": "Every 2 hours",
+      "fetchNow": "Fetch now",
+      "fetchRequested": "Fetch requested (stub)",
+      "saved": "Settings updated locally",
+      "saveError": "Could not save settings"
+    },
+    "security": {
+      "eyebrow": "Security",
+      "title": "Account Protection",
+      "subtitle": "Two-factor and account credentials",
+      "twoFactorLabel": "Two-factor authentication",
+      "twoFactorHint": "Require 2FA for admin sign-in",
+      "twoFactorPassword": "Confirm with password",
+      "updateTwoFactor": "Update 2FA",
+      "twoFactor": {
+        "enabled": "2FA enabled (pending backend)",
+        "disabled": "2FA disabled (pending backend)",
+        "errors": {
+          "missingPassword": "Enter your password to update 2FA."
+        }
+      },
+      "emailLabel": "Email",
+      "emailHint": "Change the admin contact email",
+      "editEmail": "Edit email",
+      "newEmail": "name@domain.com",
+      "confirmEmail": "Confirm new email",
+      "currentPassword": "Current password",
+      "updateEmail": "Update email",
+      "email": {
+        "success": "Email change requested",
+        "errors": {
+          "missingFields": "Provide new email, confirmation, and current password.",
+          "mismatch": "Emails do not match.",
+          "failed": "Failed to change email"
+        }
+      },
+      "passwordLabel": "Password",
+      "passwordHint": "Set a new password",
+      "editPassword": "Edit password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "updatePassword": "Update password",
+      "password": {
+        "success": "Password updated successfully",
+        "errors": {
+          "missingFields": "Please fill current, new, and confirmation fields.",
+          "mismatch": "New passwords do not match.",
+          "failed": "Failed to change password"
+        }
+      }
+    }
+  },
+  "ticketManagement": {
+    "header": {
+      "eyebrow": "Support Center",
+      "stats": "{{total}} total - {{open}} open now"
+    },
+    "sidebar": {
+      "title": "Tickets"
+    },
+    "filters": {
+      "title": "Filters",
+      "highPriority": "High Priority",
+      "unassigned": "Unassigned",
+      "overdue": "Overdue"
+    },
+    "search": {
+      "placeholder": "Search tickets..."
+    },
+    "sort": {
+      "recent": "Sort by: Recent",
+      "status": "Sort by: Status"
+    },
+    "list": {
+      "ticketNumber": "Ticket #{{id}}",
+      "empty": "No tickets match the current filter."
+    },
+    "conversation": {
+      "ticketNumber": "Ticket #{{id}}",
+      "updating": "Updating...",
+      "attachmentAlt": "Ticket attachment",
+      "empty": "No conversation yet.",
+      "selectPrompt": "Select a ticket to see the conversation."
+    },
+    "status": {
+      "all": "All Tickets",
+      "open": "Open",
+      "pending": "Pending",
+      "resolved": "Resolved",
+      "closed": "Closed",
+      "unknown": "Unknown"
+    },
+    "priority": {
+      "high": "High Priority",
+      "inProgress": "In Progress",
+      "medium": "Medium Priority",
+      "low": "Low Priority",
+      "general": "General"
+    },
+    "actions": {
+      "attachImage": "Attach image",
+      "removeAttachment": "Remove",
+      "replyPlaceholder": "Type your reply...",
+      "sending": "Sending...",
+      "sendReply": "Send Reply"
+    },
+    "common": {
+      "user": "User",
+      "supportAgent": "Support Agent"
+    },
+    "errors": {
+      "load": "Unable to load tickets.",
+      "loadThread": "Unable to load ticket thread.",
+      "send": "Unable to send message.",
+      "close": "Unable to close ticket.",
+      "status": "Unable to update ticket status."
+    },
+    "confirm": {
+      "close": "Close this ticket? This action cannot be undone."
+    }
+  },
+  "courseManagement": {
+    "header": {
+      "eyebrow": "Administration"
+    },
+    "loading": "Loading courses...",
+    "card": {
+      "archived": "Archived",
+      "noDescription": "No description available",
+      "trainer": "Trainer: {{trainer}}",
+      "sessions": "Sessions: {{count}}",
+      "created": "Created: {{date}}"
+    },
+    "pagination": {
+      "showing": "Showing {{shown}} of {{total}}",
+      "showMore": "Show more"
+    },
+    "empty": {
+      "title": "No courses found",
+      "searchBody": "Try adjusting your search criteria",
+      "defaultBody": "Start by adding your first course",
+      "addFirst": "Add Your First Course"
+    },
+    "modal": {
+      "addTitle": "Add New Course",
+      "close": "Close modal"
+    },
+    "form": {
+      "courseTitle": "Course Title",
+      "courseTitlePlaceholder": "Enter course title",
+      "domain": "Domain",
+      "domainPlaceholder": "e.g. Programming, Design, Business",
+      "country": "Country",
+      "countryPlaceholder": "Select country",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter course description..."
+    },
+    "image": {
+      "label": "Course Image",
+      "upload": "Click to upload image",
+      "previewAlt": "Course image preview",
+      "change": "Change Image",
+      "remove": "Remove"
+    },
+    "video": {
+      "label": "Course Video",
+      "upload": "Click to upload video",
+      "change": "Change Video",
+      "remove": "Remove",
+      "uploadAction": "Upload Video",
+      "progress": "Uploading: {{percent}}%"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "addCourse": "Add Course"
+    },
+    "errors": {
+      "load": "Failed to load courses.",
+      "save": "Error saving course. Please try again.",
+      "titleRequired": "Course title is required",
+      "invalidVideo": "Please select a valid video file",
+      "noVideo": "Please select a video file first",
+      "uploadFailed": "Failed to upload video"
+    },
+    "messages": {
+      "videoUploaded": "Video uploaded successfully!"
+    }
+  },
+  "certificatesManagement": {
+    "header": {
+      "eyebrow": "Administration",
+      "matches": "{{count}} certificates",
+      "refresh": "Refresh",
+      "refreshing": "Refreshing..."
+    },
+    "stats": {
+      "totalIssued": "Total Issued",
+      "allTime": "All time",
+      "active": "Active",
+      "revokedCount": "{{count}} revoked",
+      "revoked": "Revoked",
+      "revokedPercent": "{{percent}}% revoked",
+      "selected": "Selected",
+      "noneSelected": "No selection"
+    },
+    "common": {
+      "none": "None"
+    },
+    "errors": {
+      "load": "Unable to load certificates right now."
+    },
+    "filters": {
+      "searchLabel": "Search",
+      "searchPlaceholder": "Search by student, course, or certificate ID",
+      "status": "Status",
+      "all": "All",
+      "active": "Active",
+      "revoked": "Revoked",
+      "sortLabel": "Sort",
+      "sort": {
+        "latest": "Latest",
+        "oldest": "Oldest",
+        "name": "Student",
+        "course": "Course"
+      }
+    },
+    "table": {
+      "title": "Certificates",
+      "results": "{{count}} results",
+      "empty": "No certificates found",
+      "student": "Student",
+      "course": "Course",
+      "issued": "Issued",
+      "status": "Status",
+      "code": "Code"
+    },
+    "status": {
+      "active": "Active",
+      "revoked": "Revoked"
+    },
+    "actions": {
+      "review": "Review",
+      "close": "Close"
+    },
+    "detail": {
+      "eyebrow": "Certificate Details",
+      "code": "Certificate code",
+      "status": "Status",
+      "issuedOn": "Issued on",
+      "totalTime": "Total time"
+    },
+    "edit": {
+      "title": "Edit certificate",
+      "instructor": "Instructor",
+      "organization": "Organization",
+      "issueDate": "Issue date",
+      "notesLabel": "Notes",
+      "notesPlaceholder": "Add internal notes...",
+      "saving": "Saving...",
+      "save": "Save Changes"
+    },
+    "revoke": {
+      "title": "Revoke certificate",
+      "body": "Revoking will immediately invalidate this certificate.",
+      "placeholder": "Reason for revocation",
+      "revoking": "Revoking...",
+      "action": "Revoke Certificate"
+    },
+    "empty": {
+      "title": "Select a certificate",
+      "body": "Choose a certificate from the list to review and edit details."
+    },
+    "duration": {
+      "minutes": "{{count}}m",
+      "hours": "{{count}}h",
+      "hoursMinutes": "{{hours}}h {{minutes}}m"
+    }
+  },
+  "adminCourseDetails": {
+    "header": {
+      "createTitle": "Create New Course",
+      "editTitle": "Edit Course",
+      "subtitle": "Manage course content, media, and settings"
+    },
+    "controls": {
+      "expandAllTitle": "Expand all sections",
+      "collapseAllTitle": "Collapse all sections",
+      "expandAll": "Expand all",
+      "collapseAll": "Collapse all",
+      "expandSection": "Expand section",
+      "collapseSection": "Collapse section",
+      "expandContent": "Expand content",
+      "collapseContent": "Collapse content"
+    },
+    "basicInfo": {
+      "title": "Basic information",
+      "description": "Enter the basic details for your course",
+      "courseTitleLabel": "Course title",
+      "courseTitlePlaceholder": "Enter course title",
+      "instructorLabel": "Instructor",
+      "instructorPlaceholder": "Enter trainer ID",
+      "domainLabel": "Domain",
+      "domainPlaceholder": "Select domain",
+      "countryLabel": "Country",
+      "countryPlaceholder": "Select country",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Provide a detailed description of the course"
+    },
+    "goals": {
+      "title": "Course goals",
+      "description": "Define what students will achieve",
+      "add": "Add goal",
+      "empty": "No goals added yet. Click \"Add goal\" to define what students will learn.",
+      "placeholder": "Enter a course goal (e.g., Master advanced JavaScript concepts)"
+    },
+    "media": {
+      "title": "Course media",
+      "description": "Upload course image and video",
+      "imageLabel": "Course image",
+      "uploading": "Uploading...",
+      "uploadImageTitle": "Upload image",
+      "uploadImageSubtitle": "PNG, JPG up to 10MB",
+      "changeImage": "Change image",
+      "removeImage": "Remove image",
+      "imageAlt": "Course image",
+      "videoLabel": "Course video",
+      "uploadVideoTitle": "Upload video",
+      "uploadVideoSubtitle": "MP4, MOV up to 100MB",
+      "changeVideo": "Change video",
+      "removeVideo": "Remove video"
+    },
+    "languages": {
+      "title": "Available languages",
+      "description": "Select the languages this course is available in"
+    },
+    "sessions": {
+      "title": "Sessions",
+      "description": "Manage live sessions for this course",
+      "add": "Add session",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Live session title (defaults to course name)",
+      "startLabel": "Start",
+      "endLabel": "End",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Optional description",
+      "lobbyEnabled": "Lobby enabled",
+      "recordingEnabled": "Recording enabled",
+      "creating": "Creating...",
+      "create": "Create session",
+      "loading": "Loading sessions...",
+      "empty": "No sessions added yet. Use \"Create session\" to get started.",
+      "startJoin": "Start/Join",
+      "sessionTitleFallback": "Session {{index}}"
+    },
+    "files": {
+      "title": "Course files",
+      "description": "Upload supporting materials and resources",
+      "saveBeforeUpload": "Save course before uploading files",
+      "upload": "Upload files",
+      "uploading": "Uploading...",
+      "empty": "No files uploaded yet. Click \"Upload files\" to add course materials."
+    },
+    "textContent": {
+      "title": "Text content",
+      "description": "Create lessons, assignments, and other text-based content",
+      "add": "Add content",
+      "empty": "No text content added yet. Click \"Add content\" to create lessons, assignments, or readings.",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "delete": "Delete content",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Content title",
+      "typeLabel": "Type",
+      "contentLabel": "Content",
+      "contentPlaceholder": "Enter content",
+      "untitled": "Untitled {{type}}",
+      "lessonFallback": "Lesson {{index}}",
+      "types": {
+        "lesson": "Lesson",
+        "assignment": "Assignment",
+        "reading": "Reading",
+        "quiz": "Quiz",
+        "project": "Project",
+        "unknown": "Content"
+      }
+    },
+    "quiz": {
+      "title": "Quiz questions",
+      "addQuestion": "Add question",
+      "questionLabel": "Question {{index}}",
+      "questionField": "Question {{index}}",
+      "questionPlaceholder": "Enter question text",
+      "optionsLabel": "Options",
+      "correct": "Correct",
+      "optionPlaceholder": "Option text",
+      "addOption": "Add option",
+      "questionLabelDetailed": "Quiz \"{{title}}\" question {{index}}",
+      "errors": {
+        "emptyQuestion": "{{label}} is empty.",
+        "minOptions": "{{label}} needs at least two answers.",
+        "blankOptions": "{{label}} has blank answers.",
+        "correctRequired": "{{label}} must have a correct answer selected."
+      }
+    },
+    "sidebar": {
+      "statusTitle": "Course status",
+      "archived": "Archived",
+      "actionsTitle": "Actions",
+      "saving": "Saving...",
+      "save": "Save course",
+      "delete": "Delete course",
+      "retrieve": "Retrieve course"
+    },
+    "validation": {
+      "title": "Validation errors",
+      "titleRequired": "Title is required (min 3 characters)",
+      "descriptionRequired": "Description is required (min 10 characters)"
+    },
+    "errors": {
+      "liveSession": "Failed to open live session. Please try again.",
+      "loadCourse": "Failed to load course details.",
+      "loadSessions": "Failed to load sessions.",
+      "invalidImage": "Please select a valid image file",
+      "imageTooLarge": "Image file must be less than 10MB",
+      "invalidVideo": "Please select a valid video file",
+      "videoTooLarge": "Video file must be less than 100MB",
+      "invalidFiles": "These files are not allowed and will be skipped: {{names}}. Allowed: images, PDF, DOC/DOCX, XLS/XLSX/CSV, PPT/PPTX, TXT.",
+      "deleteFile": "Failed to delete file.",
+      "fixValidation": "Please fix validation errors before saving.",
+      "saveCourse": "Failed to save course.",
+      "deleteNew": "Cannot delete a new course.",
+      "deleteCourse": "Failed to delete course.",
+      "retrieveNew": "Cannot retrieve a new course.",
+      "retrieveCourse": "Failed to retrieve course."
+    },
+    "messages": {
+      "saveSuccess": "Course saved successfully!"
+    },
+    "confirm": {
+      "deleteFileStaged": "Delete file \"{{name}}\"? Changes will persist on Save.",
+      "deleteFile": "Delete file \"{{name}}\"?",
+      "deleteCourse": "Are you sure you want to delete this course? This action cannot be undone.",
+      "retrieveCourse": "Are you sure you want to retrieve this course? It will be unarchived and made available again."
     }
   }
 }

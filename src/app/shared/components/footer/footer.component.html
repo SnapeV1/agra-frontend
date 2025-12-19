@@ -70,6 +70,20 @@
     <!-- Bottom bar -->
     <div class="bottom">
       <span>&copy; {{ year }} AGRA Platform</span>
+      <div class="language-switch" *ngIf="isGuest">
+        <span class="lang-label">{{ 'footer.language.title' | translate }}</span>
+        <div class="lang-options">
+          <button
+            type="button"
+            *ngFor="let lang of languages"
+            class="lang-btn"
+            [class.active]="lang === currentLang"
+            (click)="setLanguage(lang)">
+            {{ ('lang.' + lang) | translate }}
+          </button>
+        </div>
+        <small class="lang-note">{{ 'footer.language.note' | translate }}</small>
+      </div>
       <div class="legal" role="navigation" aria-label="Legal links">
         <a href="#" aria-label="Privacy policy">{{ 'footer.legal.privacy' | translate }}</a>
         <a href="#" aria-label="Terms of service">{{ 'footer.legal.terms' | translate }}</a>

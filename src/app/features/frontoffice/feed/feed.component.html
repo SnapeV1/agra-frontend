@@ -72,7 +72,7 @@
   </div>
 
   <div *ngIf="errorMessage" class="error-container">
-    <p class="error-message">{{ errorMessage }}</p>
+    <p class="error-message">{{ errorMessage | translate }}</p>
   </div>
 
   <div class="posts-container" *ngIf="!loading">

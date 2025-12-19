@@ -8,6 +8,7 @@ import { CourseService } from 'src/app/core/services/course/course.service';
 import { forkJoin, Subscription } from 'rxjs';
 import { PostsService } from 'src/app/features/backoffice/admin/services/posts.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
+import { TranslateService } from '@ngx-translate/core';
 // Google sign-in is handled in dedicated Auth components (Login/Register).
 declare const require: any;
 
@@ -62,7 +63,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private courseService: CourseService, 
     private postsService: PostsService,
     private notificationService: NotificationService,
-    private authService: AuthService
+    private authService: AuthService,
+    private translate: TranslateService
 
   ) {}
 
@@ -142,7 +144,7 @@ private loadSponsorLogos(): void {
         this.coursesLoading = false;
       },
       error: (err) => {
-        this.coursesError = 'Failed to load courses';
+        this.coursesError = 'home.errors.courses';
         this.coursesLoading = false;
       }
     });
@@ -313,7 +315,8 @@ private loadSponsorLogos(): void {
 
  
   onContactClick(): void {
-    window.location.href = 'mailto:contact@agra-platform.com?subject=Projet AGRA - Demande d\'information';
+    const subject = encodeURIComponent(this.translate.instant('home.contactSubject'));
+    window.location.href = `mailto:contact@agra-platform.com?subject=${subject}`;
   }
 
 
@@ -395,7 +398,7 @@ loadFeaturedPosts(): void {
         this.postsLoading = false;
       },
       error: () => {
-        this.postsError = 'Erreur lors du chargement des actualités. Veuillez réessayer plus tard.';
+        this.postsError = 'home.errors.posts';
         this.postsLoading = false;
       }
     });
@@ -443,33 +446,45 @@ loadFeaturedPosts(): void {
   viewAllPosts(): void {
     this.router.navigate(['/feed']);
   }
-  getTimeAgo(dateInput: string | Date | null | undefined): string {
-    if (!dateInput) return 'Il y a un moment';
 
-    let date: Date;
-    if (typeof dateInput === 'string') {
-      date = new Date(dateInput);
-      if (isNaN(date.getTime())) return 'Date invalide';
-    } else if (dateInput instanceof Date) {
-      date = dateInput;
-      if (isNaN(date.getTime())) return 'Date invalide';
-    } else {
-      return 'Il y a un moment';
+  private getLocale(): string {
+    const lang = (this.translate.currentLang || this.translate.getDefaultLang() || 'en').toLowerCase();
+    if (lang.startsWith('fr')) return 'fr-FR';
+    if (lang.startsWith('ar')) return 'ar-EG';
+    return 'en-US';
+  }
+  getTimeAgo(dateInput: string | Date | null | undefined): string {
+    const t = (key: string, params?: any) => this.translate.instant(key, params);
+    if (!dateInput) return t('common.time.momentAgo');
+
+    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput instanceof Date ? dateInput : null;
+    if (!date || isNaN(date.getTime())) {
+      return t('common.time.invalid');
     }
 
-    const now = new Date();
-    const diffInMilliseconds = now.getTime() - date.getTime();
-    const diffInSeconds = Math.floor(diffInMilliseconds / 1000);
+    const diffInSeconds = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (diffInSeconds < 60) {
+      return diffInSeconds <= 1
+        ? t('common.time.justNow')
+        : t('common.time.secondsAgo', { count: diffInSeconds });
+    }
+
     const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) {
+      return t('common.time.minutesAgo', { count: diffInMinutes });
+    }
+
     const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) {
+      return t('common.time.hoursAgo', { count: diffInHours });
+    }
+
     const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 30) {
+      return t('common.time.daysAgo', { count: diffInDays });
+    }
 
-    if (diffInSeconds < 60) return diffInSeconds <= 1 ? 'À l\'instant' : `Il y a ${diffInSeconds}s`;
-    if (diffInMinutes < 60) return `Il y a ${diffInMinutes}m`;
-    if (diffInHours < 24) return `Il y a ${diffInHours}h`;
-    if (diffInDays < 7) return `Il y a ${diffInDays}j`;
-
-    return date.toLocaleDateString('fr-FR');
+    return date.toLocaleDateString(this.getLocale());
   }
 
 

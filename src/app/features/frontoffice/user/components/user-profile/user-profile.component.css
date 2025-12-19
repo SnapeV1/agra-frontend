@@ -66,6 +66,15 @@
 .custom-select.open .select-trigger, .custom-select:focus .select-trigger { border-color: var(--accent); }
 .phone-input-wrapper input { border-color: var(--border); background: var(--card-bg); color: var(--text); }
 .phone-input-wrapper input::placeholder { color: var(--muted); }
+
+/* Shared edit inputs to respect theme colors */
+.profile-input {
+  background: var(--card-bg) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+.profile-input::placeholder { color: var(--muted) !important; }
 .btn-primary { background: linear-gradient(135deg, var(--primary-500), var(--primary-600)); color: var(--text-inverse); box-shadow: var(--shadow-md); }
 .btn-primary:hover { background: linear-gradient(135deg, var(--primary-600), var(--primary-700)); box-shadow: var(--shadow-lg); }
 

@@ -32,10 +32,10 @@ theme: 'light' | 'dark' = (() => {
     return resolved as 'light' | 'dark';
   })();
   notificationToggles: TogglePref[] = [
-    { key: 'system', label: 'System alerts', hint: 'Platform health and uptime notices', enabled: true },
-    { key: 'posts', label: 'Post activity', hint: 'New reports or flagged posts', enabled: true },
-    { key: 'courses', label: 'Course updates', hint: 'Course publishing and approvals', enabled: true },
-    { key: 'users', label: 'User lifecycle', hint: 'Invites, deactivations, and roles', enabled: true }
+    { key: 'system', label: 'adminSettings.notifications.toggles.system.label', hint: 'adminSettings.notifications.toggles.system.hint', enabled: true },
+    { key: 'posts', label: 'adminSettings.notifications.toggles.posts.label', hint: 'adminSettings.notifications.toggles.posts.hint', enabled: true },
+    { key: 'courses', label: 'adminSettings.notifications.toggles.courses.label', hint: 'adminSettings.notifications.toggles.courses.hint', enabled: true },
+    { key: 'users', label: 'adminSettings.notifications.toggles.users.label', hint: 'adminSettings.notifications.toggles.users.hint', enabled: true }
   ];
   savingPrefs = false;
   prefsMessage = '';
@@ -64,8 +64,8 @@ theme: 'light' | 'dark' = (() => {
   twoFactorError = '';
   showEmailForm = false;
   showPasswordForm = false;
-  notificationsCollapsed = false;
-  twoFactorCollapsed = false;
+  notificationsCollapsed = true;
+  twoFactorCollapsed = true;
   language = localStorage.getItem('pref_lang') || 'en';
 
   constructor(
@@ -126,9 +126,9 @@ theme: 'light' | 'dark' = (() => {
     this.prefsError = '';
     try {
       localStorage.setItem('admin_notification_prefs', JSON.stringify(this.notificationToggles));
-      this.prefsMessage = 'Preferences saved';
+      this.prefsMessage = 'adminSettings.notifications.saved';
     } catch {
-      this.prefsError = 'Could not save preferences locally';
+      this.prefsError = 'adminSettings.notifications.saveError';
     } finally {
       this.savingPrefs = false;
     }
@@ -149,14 +149,14 @@ theme: 'light' | 'dark' = (() => {
         // In a real app this would be sent to the backend; we only clear it here.
         this.password = '';
       }
-      this.settingsMessage = 'Settings updated locally';
+      this.settingsMessage = 'adminSettings.operations.saved';
     } catch {
-      this.settingsError = 'Could not save settings';
+      this.settingsError = 'adminSettings.operations.saveError';
     }
   }
 
   fetchNewsNow(): void {
-    this.fetchNowMessage = 'Fetch requested (stub)';
+    this.fetchNowMessage = 'adminSettings.operations.fetchRequested';
     setTimeout(() => this.fetchNowMessage = '', 2500);
   }
 
@@ -164,20 +164,20 @@ theme: 'light' | 'dark' = (() => {
     this.pwMessage = '';
     this.pwError = '';
     if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
-      this.pwError = 'Please fill current, new, and confirmation fields.';
+      this.pwError = 'adminSettings.security.password.errors.missingFields';
       return;
     }
     if (this.newPassword !== this.confirmPassword) {
-      this.pwError = 'New passwords do not match.';
+      this.pwError = 'adminSettings.security.password.errors.mismatch';
       return;
     }
     this.auth.changePassword(this.currentPassword, this.newPassword).subscribe({
       next: () => {
-        this.pwMessage = 'Password updated successfully';
+        this.pwMessage = 'adminSettings.security.password.success';
         this.currentPassword = this.newPassword = this.confirmPassword = '';
       },
       error: err => {
-        this.pwError = err?.message || 'Failed to change password';
+        this.pwError = err?.message || 'adminSettings.security.password.errors.failed';
       }
     });
   }
@@ -186,22 +186,22 @@ theme: 'light' | 'dark' = (() => {
     this.emailMessage = '';
     this.emailError = '';
     if (!this.newEmail || !this.confirmEmail || !this.emailPassword) {
-      this.emailError = 'Provide new email, confirmation, and current password.';
+      this.emailError = 'adminSettings.security.email.errors.missingFields';
       return;
     }
     if (this.newEmail !== this.confirmEmail) {
-      this.emailError = 'Emails do not match.';
+      this.emailError = 'adminSettings.security.email.errors.mismatch';
       return;
     }
     this.auth.changeEmail(this.newEmail, this.emailPassword).subscribe({
       next: () => {
-        this.emailMessage = 'Email change requested';
+        this.emailMessage = 'adminSettings.security.email.success';
         this.newEmail = '';
         this.confirmEmail = '';
         this.emailPassword = '';
       },
       error: err => {
-        this.emailError = err?.message || 'Failed to change email';
+        this.emailError = err?.message || 'adminSettings.security.email.errors.failed';
       }
     });
   }
@@ -210,11 +210,13 @@ theme: 'light' | 'dark' = (() => {
     this.twoFactorMessage = '';
     this.twoFactorError = '';
     if (!this.twoFactorPassword) {
-      this.twoFactorError = 'Enter your password to update 2FA.';
+      this.twoFactorError = 'adminSettings.security.twoFactor.errors.missingPassword';
       return;
     }
     // Stub: pending backend endpoint
-    this.twoFactorMessage = `2FA ${this.twoFactorEnabled ? 'enabled' : 'disabled'} (pending backend)`;
+    this.twoFactorMessage = this.twoFactorEnabled
+      ? 'adminSettings.security.twoFactor.enabled'
+      : 'adminSettings.security.twoFactor.disabled';
     this.twoFactorPassword = '';
   }
 

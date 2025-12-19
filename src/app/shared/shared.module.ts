@@ -39,11 +39,13 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ChatbotWidgetComponent } from './components/chatbot-widget/chatbot-widget.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { NorthAfricaComponent } from './north-africa/north-africa.component';
 @NgModule({
   declarations: [
     NavigationComponent,
     FooterComponent,
-    ChatbotWidgetComponent
+    ChatbotWidgetComponent,
+    NorthAfricaComponent
   ],
   imports: [
     CommonModule,
@@ -86,6 +88,7 @@ import { TranslateModule } from '@ngx-translate/core';
     NavigationComponent,
     FooterComponent,
     ChatbotWidgetComponent,
+    NorthAfricaComponent,
     LucideAngularModule,
     TranslateModule
   ]

@@ -2,7 +2,7 @@
 <div *ngIf="loading" class="loading-container">
   <div class="loading-spinner">
     <div class="spinner"></div>
-    <p>Loading course content...</p>
+    <p>{{ 'courseEnrolled.loading' | translate }}</p>
   </div>
 </div>
 
@@ -10,11 +10,11 @@
 <div *ngIf="error && !loading" class="error-container">
   <div class="error-content">
     <lucide-icon name="AlertTriangle" class="error-icon"></lucide-icon>
-    <h2>Error Loading Course</h2>
-    <p>{{ error }}</p>
+    <h2>{{ 'courseEnrolled.errorTitle' | translate }}</h2>
+    <p>{{ error | translate }}</p>
     <button class="btn-primary" (click)="goBack()">
       <lucide-icon name="ArrowLeft" class="btn-icon"></lucide-icon>
-      Back to Courses
+      {{ 'courseEnrolled.backToCourses' | translate }}
     </button>
   </div>
 </div>
@@ -29,16 +29,16 @@
   <!-- Header -->
   <header class="course-header">
     <div class="header-left">
-      <button class="btn-icon" (click)="goBack()" title="Back to Courses">
+      <button class="btn-icon" (click)="goBack()" [attr.title]="'courseEnrolled.header.backTitle' | translate">
         <lucide-icon name="ArrowLeft"></lucide-icon>
       </button>
-      <button class="btn-icon" (click)="toggleSidebar()" title="Toggle Sidebar">
+      <button class="btn-icon" (click)="toggleSidebar()" [attr.title]="'courseEnrolled.header.toggleSidebar' | translate">
         <lucide-icon name="Menu"></lucide-icon>
       </button>
       <div class="course-info">
         <h1 class="course-title">{{ course.title }}</h1>
         <div class="progress-info">
-          <span class="progress-text">{{ getOverallProgress() }}% Complete</span>
+          <span class="progress-text">{{ 'courseEnrolled.header.progressComplete' | translate:{ percent: getOverallProgress() } }}</span>
           <div class="progress-bar">
             <div class="progress-fill" [style.width.%]="getOverallProgress()"></div>
           </div>
@@ -51,7 +51,7 @@
         <lucide-icon name="Clock" class="time-icon"></lucide-icon>
         <span>{{ formatTime(getTotalTimeSpent()) }}</span>
       </div>
-      <button class="btn-icon" (click)="toggleFullscreen()" title="Toggle Fullscreen">
+      <button class="btn-icon" (click)="toggleFullscreen()" [attr.title]="'courseEnrolled.header.toggleFullscreen' | translate">
         <lucide-icon [name]="isFullscreen ? 'Minimize2' : 'Maximize2'"></lucide-icon>
       </button>
     </div>
@@ -63,9 +63,9 @@
     <!-- Sidebar -->
     <aside class="course-sidebar" [class.hidden]="!showSidebar">
       <div class="sidebar-header">
-        <h3>Course Content</h3>
+        <h3>{{ 'courseEnrolled.sidebar.title' | translate }}</h3>
         <div class="lesson-count">
-          {{ course.textContent.length }} Lessons
+          {{ 'courseEnrolled.sidebar.lessonCount' | translate:{ count: course.textContent.length } }}
         </div>
       </div>
       
@@ -120,12 +120,12 @@
                     [disabled]="currentLesson.type === 'quiz' ? !isQuizLessonPassable() : false"
                     [title]="currentLesson.type === 'quiz' && !isQuizLessonPassable() ? getQuizCompletionLockReason() : ''">
               <lucide-icon name="CheckCircle" class="btn-icon"></lucide-icon>
-              Mark Complete
+              {{ 'courseEnrolled.lesson.markComplete' | translate }}
             </button>
             <span *ngIf="getLessonProgress(currentLesson.id || '')?.completed" 
                   class="completed-badge">
               <lucide-icon name="CheckCircle" class="completed-icon"></lucide-icon>
-              Completed
+              {{ 'courseEnrolled.lesson.completed' | translate }}
             </span>
           </div>
         </div>
@@ -171,13 +171,13 @@
               </div>
 
               <div *ngIf="quizStatusMessage" class="quiz-inline-result">
-                {{ quizStatusMessage }}
+                {{ quizStatusMessage | translate }}
               </div>
 
               <div *ngIf="currentQuizState?.submitted" class="quiz-inline-result" [class.success]="currentQuizState?.allCorrect">
                 <lucide-icon [name]="currentQuizState?.allCorrect ? 'PartyPopper' : 'RefreshCw'"></lucide-icon>
                 <span>
-                  {{ currentQuizState?.allCorrect ? 'All answers correct!' : 'Review and try again.' }}
+                  {{ currentQuizState?.allCorrect ? ('courseEnrolled.quiz.allCorrect' | translate) : ('courseEnrolled.quiz.reviewTryAgain' | translate) }}
                 </span>
               </div>
 
@@ -188,23 +188,23 @@
                           (click)="previousQuizQuestion()"
                           [disabled]="(currentQuizState?.currentIndex || 0) === 0">
                     <lucide-icon name="ArrowLeft" class="btn-icon"></lucide-icon>
-                    Previous
+                    {{ 'courseEnrolled.quiz.previous' | translate }}
                   </button>
                   <button class="quiz-nav-btn ghost"
                           type="button"
                           (click)="nextQuizQuestion()"
                           [disabled]="isLastQuizQuestion()">
-                    Next
+                    {{ 'courseEnrolled.quiz.next' | translate }}
                     <lucide-icon name="ChevronRight" class="btn-icon"></lucide-icon>
                   </button>
                   <button class="quiz-nav-btn primary" type="button" (click)="submitQuiz()" [disabled]="!quizQuestionCount">
-                    Submit Quiz
+                    {{ 'courseEnrolled.quiz.submit' | translate }}
                   </button>
                   <button *ngIf="currentQuizState?.submitted && !currentQuizState?.allCorrect"
                           class="quiz-nav-btn subtle"
                           type="button"
                           (click)="resetQuizAttempt()">
-                    Try Again
+                    {{ 'courseEnrolled.quiz.tryAgain' | translate }}
                   </button>
                 </div>
               </div>
@@ -219,7 +219,7 @@
                   [disabled]="currentLessonIndex === 0"
                   (click)="previousLesson()">
             <lucide-icon name="ArrowLeft" class="btn-icon"></lucide-icon>
-            Prev
+            {{ 'courseEnrolled.nav.prev' | translate }}
           </button>
           
           <div class="nav-info">
@@ -229,7 +229,7 @@
           <button class="btn-nav" 
                   [disabled]="currentLessonIndex === course.textContent.length - 1"
                   (click)="nextLesson()">
-            Next
+            {{ 'courseEnrolled.nav.next' | translate }}
             <lucide-icon name="ChevronRight" class="btn-icon"></lucide-icon>
           </button>
         </div>
@@ -237,8 +237,8 @@
         <section class="course-global-panels">
           <div class="live-sessions inline-panel" [class.collapsed]="!showLiveSessions">
             <div class="sessions-header" (click)="toggleLiveSessions()">
-              <h3>Live Sessions</h3>
-              <span class="live-badge" *ngIf="hasLiveSession">Live session</span>
+              <h3>{{ 'courseEnrolled.sessions.title' | translate }}</h3>
+              <span class="live-badge" *ngIf="hasLiveSession">{{ 'courseEnrolled.sessions.liveBadge' | translate }}</span>
               <div class="header-actions">
                 <lucide-icon [name]="showLiveSessions ? 'X' : 'Plus'" class="toggle-icon"></lucide-icon>
               </div>
@@ -253,19 +253,19 @@
                   </div>
                 </div>
               </div>
-              <div *ngIf="sessionsError" class="error">{{ sessionsError }}</div>
+              <div *ngIf="sessionsError" class="error">{{ sessionsError | translate }}</div>
               <div *ngIf="!sessionsLoading && !sessionsError">
-                <div *ngIf="sessionJoinError" class="error">{{ sessionJoinError }}</div>
+                <div *ngIf="sessionJoinError" class="error">{{ sessionJoinError | translate }}</div>
                 <div *ngIf="sessions.length === 0" class="empty" role="status" aria-live="polite">
-                  No upcoming sessions. Check back later.
+                  {{ 'courseEnrolled.sessions.empty' | translate }}
                 </div>
                 <div class="session-cards single" *ngIf="sessions.length > 0">
-                  <button class="nav-arrow left" (click)="prevSession()" [disabled]="sessions.length <= 1" aria-label="Previous session"><</button>
+                  <button class="nav-arrow left" (click)="prevSession()" [disabled]="sessions.length <= 1" [attr.aria-label]="'courseEnrolled.sessions.prevAria' | translate"><</button>
                   <div class="session-card">
-                    <div class="title">{{ currentSession?.title || 'Session' }}</div>
+                    <div class="title">{{ currentSession?.title || ('courseEnrolled.sessions.defaultTitle' | translate) }}</div>
                     <div class="time">
-                      <span>Start: {{ currentSession?.startTime | date:'medium' }}</span>
-                      <span *ngIf="currentSession?.endTime"> - End: {{ currentSession?.endTime | date:'medium' }}</span>
+                      <span>{{ 'courseEnrolled.sessions.start' | translate }} {{ currentSession?.startTime | date:'medium' }}</span>
+                      <span *ngIf="currentSession?.endTime"> - {{ 'courseEnrolled.sessions.end' | translate }} {{ currentSession?.endTime | date:'medium' }}</span>
                     </div>
                     <div class="actions">
                       <button
@@ -273,13 +273,13 @@
                         *ngIf="currentSession && isLive(currentSession)"
                         (click)="joinSession(currentSession.id)"
                         [disabled]="joiningSessionId === currentSession.id">
-                        Join Now
+                        {{ 'courseEnrolled.sessions.joinNow' | translate }}
                       </button>
-                      <span class="badge" *ngIf="currentSession && !isLive(currentSession)">Not live</span>
+                      <span class="badge" *ngIf="currentSession && !isLive(currentSession)">{{ 'courseEnrolled.sessions.notLive' | translate }}</span>
                       <span class="index">{{ (sessionCarouselIndex + 1) }} / {{ sessions.length }}</span>
                     </div>
                   </div>
-                  <button class="nav-arrow right" (click)="nextSession()" [disabled]="sessions.length <= 1" aria-label="Next session">></button>
+                  <button class="nav-arrow right" (click)="nextSession()" [disabled]="sessions.length <= 1" [attr.aria-label]="'courseEnrolled.sessions.nextAria' | translate">></button>
                 </div>
               </div>
             </div>
@@ -287,7 +287,7 @@
 
           <div class="course-resources inline-panel" [class.collapsed]="!showResources">
             <div class="resources-header" (click)="toggleResources()">
-              <h3>Course Resources</h3>
+              <h3>{{ 'courseEnrolled.resources.title' | translate }}</h3>
               <lucide-icon [name]="showResources ? 'X' : 'Plus'" class="toggle-icon"></lucide-icon>
             </div>
             <div class="resources-content" [class.collapsed]="!showResources">
@@ -308,7 +308,7 @@
                   <div class="resource-list">
                     <div class="resource-item" style="opacity:.7;pointer-events:none;">
                       <lucide-icon name="File" class="resource-icon"></lucide-icon>
-                      <span class="resource-name">No resources available yet</span>
+                      <span class="resource-name">{{ 'courseEnrolled.resources.empty' | translate }}</span>
                       <span class="resource-type"></span>
                     </div>
                   </div>
@@ -322,8 +322,8 @@
       <!-- No Lesson Selected -->
       <div *ngIf="!currentLesson" class="no-lesson">
         <lucide-icon name="BookOpen" class="no-lesson-icon"></lucide-icon>
-        <h3>Select a lesson to begin</h3>
-        <p>Choose a lesson from the sidebar to start learning</p>
+        <h3>{{ 'courseEnrolled.noLesson.title' | translate }}</h3>
+        <p>{{ 'courseEnrolled.noLesson.body' | translate }}</p>
       </div>
     </main>
   </div>
@@ -333,7 +333,7 @@
 <div *ngIf="showCompletionModal" class="modal-overlay" (click)="closeCompletionModal()">
   <div class="completion-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <div class="badge-glow">Completed</div>
+      <div class="badge-glow">{{ 'courseEnrolled.completion.badge' | translate }}</div>
       <button class="close-btn" (click)="closeCompletionModal()">
         <lucide-icon name="X"></lucide-icon>
       </button>
@@ -346,36 +346,36 @@
           <lucide-icon name="Sparkles"></lucide-icon>
         </div>
         <div class="banner-text">
-          <p class="eyebrow">Certificate unlocked</p>
-          <h2>Well done, {{ courseEnrollment?.progress?.completionPercentage || 100 }}% completed!</h2>
-          <p>Great work finishing <strong>{{ course?.title }}</strong>. Keep the momentum going.</p>
+          <p class="eyebrow">{{ 'courseEnrolled.completion.certificateUnlocked' | translate }}</p>
+          <h2>{{ 'courseEnrolled.completion.wellDone' | translate:{ percent: (courseEnrollment?.progress?.completionPercentage || 100) } }}</h2>
+          <p>{{ 'courseEnrolled.completion.greatWork' | translate:{ title: (course?.title || '') } }}</p>
           <div class="banner-meta">
-            <span><lucide-icon name="CheckCircle"></lucide-icon>{{ courseEnrollment?.lessons?.length || 0 }} lessons</span>
-            <span><lucide-icon name="Clock"></lucide-icon>{{ formatTime(getTotalTimeSpent()) }} tracked</span>
+            <span><lucide-icon name="CheckCircle"></lucide-icon>{{ 'courseEnrolled.completion.metaLessons' | translate:{ count: (courseEnrollment?.lessons?.length || 0) } }}</span>
+            <span><lucide-icon name="Clock"></lucide-icon>{{ 'courseEnrolled.completion.metaTracked' | translate:{ time: formatTime(getTotalTimeSpent()) } }}</span>
           </div>
         </div>
       </div>
 
       <div class="modal-grid">
         <div class="stats-card">
-          <h3>Highlights</h3>
+          <h3>{{ 'courseEnrolled.completion.highlights' | translate }}</h3>
           <div class="stat-pill">
             <div>
-              <p class="label">Lessons completed</p>
+              <p class="label">{{ 'courseEnrolled.completion.lessonsCompleted' | translate }}</p>
               <p class="value">{{ courseEnrollment?.lessons?.length || 0 }}</p>
             </div>
             <lucide-icon name="BookOpen"></lucide-icon>
           </div>
           <div class="stat-pill">
             <div>
-              <p class="label">Time invested</p>
+              <p class="label">{{ 'courseEnrolled.completion.timeInvested' | translate }}</p>
               <p class="value">{{ formatTime(getTotalTimeSpent()) }}</p>
             </div>
             <lucide-icon name="Clock"></lucide-icon>
           </div>
           <div class="stat-pill">
             <div>
-              <p class="label">Progress</p>
+              <p class="label">{{ 'courseEnrolled.completion.progress' | translate }}</p>
               <p class="value">{{ courseEnrollment?.progress?.completionPercentage || 100 }}%</p>
             </div>
             <lucide-icon name="Target"></lucide-icon>
@@ -383,41 +383,41 @@
         </div>
 
         <div class="certificate-card modern">
-          <h3>Certificate</h3>
+          <h3>{{ 'courseEnrolled.certificate.title' | translate }}</h3>
           <div *ngIf="isGeneratingCertificate" class="cert-loading">
             <div class="spinner small"></div>
-            <p>Generating your certificate...</p>
+            <p>{{ 'courseEnrolled.certificate.generating' | translate }}</p>
           </div>
 
           <div *ngIf="!isGeneratingCertificate && certificateUrl" class="certificate-ready">
-            <p class="certificate-text">Your certificate is ready!</p>
+            <p class="certificate-text">{{ 'courseEnrolled.certificate.ready' | translate }}</p>
             <div class="certificate-actions">
               <button class="btn-certificate primary" (click)="viewCertificate()">
                 <lucide-icon name="ExternalLink" class="btn-icon"></lucide-icon>
-                View
+                {{ 'courseEnrolled.certificate.view' | translate }}
               </button>
               <button class="btn-certificate secondary" (click)="downloadCertificate()">
                 <lucide-icon name="Download" class="btn-icon"></lucide-icon>
-                Download
+                {{ 'courseEnrolled.certificate.download' | translate }}
               </button>
             </div>
             <div class="certificate-meta" *ngIf="certificateCode || certificateIssuedAt">
               <div class="meta-row" *ngIf="certificateCode">
-                <span class="meta-label">Verification code</span>
+                <span class="meta-label">{{ 'courseEnrolled.certificate.verificationCode' | translate }}</span>
                 <div class="meta-value">
                   <span>{{ certificateCode }}</span>
-                  <button type="button" class="copy-btn" (click)="copyCertificateCode()">Copy</button>
+                  <button type="button" class="copy-btn" (click)="copyCertificateCode()">{{ 'courseEnrolled.certificate.copy' | translate }}</button>
                 </div>
               </div>
               <div class="meta-row" *ngIf="certificateIssuedAt">
-                <span class="meta-label">Issued</span>
+                <span class="meta-label">{{ 'courseEnrolled.certificate.issued' | translate }}</span>
                 <span class="meta-value">{{ certificateIssuedAt | date:'mediumDate' }}</span>
               </div>
             </div>
           </div>
 
           <div *ngIf="!isGeneratingCertificate && !certificateUrl" class="certificate-error">
-            <p>Certificate generation failed. Please try again later.</p>
+            <p>{{ 'courseEnrolled.certificate.failed' | translate }}</p>
           </div>
         </div>
       </div>
@@ -425,10 +425,10 @@
       <div class="modal-actions modern">
         <button class="btn-share" (click)="shareAchievement()">
           <lucide-icon name="Share2" class="btn-icon"></lucide-icon>
-          Share achievement
+          {{ 'courseEnrolled.completion.share' | translate }}
         </button>
         <button class="btn-continue" (click)="closeCompletionModal()">
-          Keep learning
+          {{ 'courseEnrolled.completion.keepLearning' | translate }}
         </button>
       </div>
     </div>

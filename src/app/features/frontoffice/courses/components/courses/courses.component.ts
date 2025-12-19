@@ -5,6 +5,7 @@ import { CourseService } from 'src/app/core/services/course/course.service';
 import { Course } from 'src/app/core/models/course';
 
 type CountItem = { value: string; count: number };
+type ReviewItem = { quoteKey: string; authorKey: string; roleKey: string; rating: number };
 
 @Component({
   selector: 'app-courses',
@@ -40,10 +41,10 @@ export class CoursesComponent implements OnInit {
   totalPages = 1;
 
   skeletonArray = Array(6).fill(0);
-  private sampleReviews = [
-    { quote: 'Clear structure and actionable tips.', author: 'Amina B.', role: 'Agri student', rating: 5 },
-    { quote: 'Loved the real-world examples.', author: 'Youssef K.', role: 'Co-op trainer', rating: 4 },
-    { quote: 'Concise lessons, easy to follow.', author: 'Salma R.', role: 'Farmer', rating: 5 },
+  private sampleReviews: ReviewItem[] = [
+    { quoteKey: 'coursesPage.reviews.items.one.quote', authorKey: 'coursesPage.reviews.items.one.author', roleKey: 'coursesPage.reviews.items.one.role', rating: 5 },
+    { quoteKey: 'coursesPage.reviews.items.two.quote', authorKey: 'coursesPage.reviews.items.two.author', roleKey: 'coursesPage.reviews.items.two.role', rating: 4 },
+    { quoteKey: 'coursesPage.reviews.items.three.quote', authorKey: 'coursesPage.reviews.items.three.author', roleKey: 'coursesPage.reviews.items.three.role', rating: 5 },
   ];
 
   constructor(

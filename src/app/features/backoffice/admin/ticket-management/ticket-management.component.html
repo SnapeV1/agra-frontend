@@ -2,57 +2,53 @@
   <div class="ticket-board">
     <div class="ticket-board-header">
       <div>
-        <p class="eyebrow">Support Center</p>
+        <p class="eyebrow">{{ 'ticketManagement.header.eyebrow' | translate }}</p>
         <h1>{{ 'adminPages.ticketManagement.title' | translate }}</h1>
-        <span>{{ totalTickets }} total - {{ countByStatus(TicketStatus.OPEN) }} open now</span>
+        <span>{{ 'ticketManagement.header.stats' | translate:{ total: totalTickets, open: countByStatus(TicketStatus.OPEN) } }}</span>
       </div>
     </div>
 
-    <div class="error-banner" *ngIf="error">{{ error }}</div>
+    <div class="error-banner" *ngIf="error">{{ error | translate }}</div>
 
     <div class="ticket-board-layout">
       <aside class="sidebar">
         <div class="sidebar-header">
-          <h2>Tickets</h2>
+          <h2>{{ 'ticketManagement.sidebar.title' | translate }}</h2>
         </div>
 
         <div class="sidebar-stats">
           <div class="stat-item" [class.active]="statusFilter === 'ALL'" (click)="statusFilter = 'ALL'">
-            <span class="stat-label">All Tickets</span>
+            <span class="stat-label">{{ 'ticketManagement.status.all' | translate }}</span>
             <span class="stat-value">{{ totalTickets }}</span>
           </div>
           <div class="stat-item" [class.active]="statusFilter === TicketStatus.OPEN" (click)="statusFilter = TicketStatus.OPEN">
-            <span class="stat-label">Open</span>
+            <span class="stat-label">{{ 'ticketManagement.status.open' | translate }}</span>
             <span class="stat-value">{{ countByStatus(TicketStatus.OPEN) }}</span>
           </div>
           <div class="stat-item" [class.active]="statusFilter === TicketStatus.PENDING" (click)="statusFilter = TicketStatus.PENDING">
-            <span class="stat-label">Pending</span>
+            <span class="stat-label">{{ 'ticketManagement.status.pending' | translate }}</span>
             <span class="stat-value">{{ countByStatus(TicketStatus.PENDING) }}</span>
           </div>
           <div class="stat-item" [class.active]="statusFilter === TicketStatus.RESOLVED" (click)="statusFilter = TicketStatus.RESOLVED">
-            <span class="stat-label">Resolved</span>
+            <span class="stat-label">{{ 'ticketManagement.status.resolved' | translate }}</span>
             <span class="stat-value">{{ countByStatus(TicketStatus.RESOLVED) }}</span>
-          </div>
-          <div class="stat-item" [class.active]="statusFilter === TicketStatus.CLOSED" (click)="statusFilter = TicketStatus.CLOSED">
-            <span class="stat-label">Closed</span>
-            <span class="stat-value">{{ countByStatus(TicketStatus.CLOSED) }}</span>
           </div>
         </div>
 
         <div class="sidebar-filters">
-          <h3>Filters</h3>
+          <h3>{{ 'ticketManagement.filters.title' | translate }}</h3>
           <div class="filter-group">
             <label class="checkbox-label">
               <input type="checkbox" [checked]="filterHighPriority" (change)="toggleFilter('priority')" />
-              <span>High Priority</span>
+              <span>{{ 'ticketManagement.filters.highPriority' | translate }}</span>
             </label>
             <label class="checkbox-label">
               <input type="checkbox" [checked]="filterUnassigned" (change)="toggleFilter('unassigned')" />
-              <span>Unassigned</span>
+              <span>{{ 'ticketManagement.filters.unassigned' | translate }}</span>
             </label>
             <label class="checkbox-label">
               <input type="checkbox" [checked]="filterOverdue" (change)="toggleFilter('overdue')" />
-              <span>Overdue</span>
+              <span>{{ 'ticketManagement.filters.overdue' | translate }}</span>
             </label>
           </div>
         </div>
@@ -60,10 +56,10 @@
 
       <section class="ticket-list">
         <div class="ticket-list-header">
-          <input type="search" class="search-input" placeholder="Search tickets..." [(ngModel)]="search" />
+          <input type="search" class="search-input" [placeholder]="'ticketManagement.search.placeholder' | translate" [(ngModel)]="search" />
           <select class="sort-select" [(ngModel)]="sortOption">
-            <option value="recent">Sort by: Recent</option>
-            <option value="status">Sort by: Status</option>
+            <option value="recent">{{ 'ticketManagement.sort.recent' | translate }}</option>
+            <option value="status">{{ 'ticketManagement.sort.status' | translate }}</option>
           </select>
         </div>
 
@@ -85,14 +81,14 @@
                 <h4 class="ticket-title">{{ ticket.subject }}</h4>
                 <span class="ticket-time">{{ ticket.updatedAt | date:'short' }}</span>
               </div>
-              <p class="ticket-preview">Ticket #{{ ticket.id }}</p>
+              <p class="ticket-preview">{{ 'ticketManagement.list.ticketNumber' | translate:{ id: ticket.id } }}</p>
               <div class="ticket-meta">
-                <span [class]="statusClass(ticket.status)">{{ ticket.status }}</span>
-                <span class="badge badge-high">{{ ticketPriorityLabel(ticket) }}</span>
+                <span [class]="statusClass(ticket.status)">{{ statusLabel(ticket.status) | translate }}</span>
+                <span class="badge badge-high">{{ ticketPriorityLabel(ticket) | translate }}</span>
               </div>
             </div>
           </article>
-          <div class="empty" *ngIf="!filteredTickets().length && !loading">No tickets match the current filter.</div>
+          <div class="empty" *ngIf="!filteredTickets().length && !loading">{{ 'ticketManagement.list.empty' | translate }}</div>
         </div>
       </section>
 
@@ -107,18 +103,18 @@
             </div>
             <div class="user-info">
               <h3>{{ thread.ticket.subject }}</h3>
-              <p>{{ ticketUserDisplay(thread.ticket) }} • Ticket #{{ thread.ticket.id }}</p>
+              <p>{{ ticketUserDisplay(thread.ticket) }} &bull; {{ 'ticketManagement.conversation.ticketNumber' | translate:{ id: thread.ticket.id } }}</p>
             </div>
           </div>
           <div class="conversation-actions">
             <select
               class="status-select"
-              [ngModel]="thread.ticket.status"
+              [ngModel]="normalizedStatus(thread.ticket.status)"
               (ngModelChange)="changeTicketStatus($event)"
               [disabled]="statusUpdating">
-              <option *ngFor="let opt of ticketStatuses" [value]="opt">{{ opt }}</option>
+              <option *ngFor="let opt of ticketStatuses" [value]="opt">{{ statusLabel(opt) | translate }}</option>
             </select>
-            <span class="status-hint" *ngIf="statusUpdating">Updating...</span>
+            <span class="status-hint" *ngIf="statusUpdating">{{ 'ticketManagement.conversation.updating' | translate }}</span>
           </div>
         </div>
 
@@ -152,12 +148,12 @@
                 <img
                   class="attachment-preview-img"
                   [src]="msg.attachmentUrl"
-                  alt="Ticket attachment"
+                  [alt]="'ticketManagement.conversation.attachmentAlt' | translate"
                   (click)="openAttachmentPreview(msg.attachmentUrl)" />
               </div>
             </div>
           </div>
-          <div class="empty" *ngIf="!messages.length">No conversation yet.</div>
+          <div class="empty" *ngIf="!messages.length">{{ 'ticketManagement.conversation.empty' | translate }}</div>
         </div>
 
         <div class="conversation-footer">
@@ -174,28 +170,28 @@
                   d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
                 />
               </svg>
-              <span>Attach image</span>
+              <span>{{ 'ticketManagement.actions.attachImage' | translate }}</span>
             </button>
             <div class="attachment-preview" *ngIf="replyAttachment">
               <span>{{ replyAttachment.name }}</span>
-              <button type="button" class="link-btn" (click)="clearReplyAttachment()">Remove</button>
+              <button type="button" class="link-btn" (click)="clearReplyAttachment()">{{ 'ticketManagement.actions.removeAttachment' | translate }}</button>
             </div>
           </div>
           <textarea
             class="reply-input"
-            placeholder="Type your reply..."
+            [placeholder]="'ticketManagement.actions.replyPlaceholder' | translate"
             rows="3"
             [(ngModel)]="reply"
-            [disabled]="thread.ticket.status === 'CLOSED' || sending"
+            [disabled]="thread.ticket.status === 'CLOSED' || thread.ticket.status === 'RESOLVED' || sending"
           ></textarea>
           <div class="reply-actions">
             <button
               class="send-btn"
               type="button"
               (click)="sendMessage()"
-              [disabled]="!reply.trim() || sending || thread.ticket.status === 'CLOSED'"
+              [disabled]="!reply.trim() || sending || thread.ticket.status === 'CLOSED' || thread.ticket.status === 'RESOLVED'"
             >
-              {{ sending ? 'Sending...' : 'Send Reply' }}
+              {{ sending ? ('ticketManagement.actions.sending' | translate) : ('ticketManagement.actions.sendReply' | translate) }}
             </button>
           </div>
         </div>
@@ -205,13 +201,13 @@
 
   <ng-template #selectPrompt>
     <section class="conversation placeholder">
-      <p>Select a ticket to see the conversation.</p>
+      <p>{{ 'ticketManagement.conversation.selectPrompt' | translate }}</p>
     </section>
   </ng-template>
 </app-base-layout>
 
 <div class="attachment-modal" [class.active]="previewAttachmentUrl" (click)="closeAttachmentPreview()">
   <div class="attachment-modal-content" (click)="$event.stopPropagation()">
-    <img *ngIf="previewAttachmentUrl" [src]="previewAttachmentUrl" alt="Attachment preview" />
+    <img *ngIf="previewAttachmentUrl" [src]="previewAttachmentUrl" [alt]="'ticketManagement.conversation.attachmentAlt' | translate" />
   </div>
 </div>

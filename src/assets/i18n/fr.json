@@ -1,7 +1,8 @@
 {
   "lang": {
     "en": "Anglais",
-    "fr": "Français"
+    "fr": "Fran\u00e7ais",
+    "ar": "Arabe"
   },
   "nav": {
     "home": "Accueil",
@@ -12,18 +13,22 @@
     "adminDashboard": "Tableau admin",
     "dashboard": "Tableau de bord",
     "profile": "Profil",
-    "settings": "Paramètres",
+    "settings": "Param\u00e8tres",
     "administration": "Administration",
-    "logout": "Se déconnecter",
+    "logout": "Se d\u00e9connecter",
     "notifications": {
       "title": "Notifications",
       "markAll": "Marquer comme lu",
       "clearAll": "Effacer",
-      "empty": "Vous êtes à jour !"
+      "empty": "Vous \u00eates \u00e0 jour !"
     },
     "admin": {
       "search": "Rechercher...",
-      "viewUser": "Vue utilisateur"
+      "viewUser": "Vue utilisateur",
+      "toggleSidebar": "Basculer la barre laterale",
+      "collapseSidebar": "Replier la barre laterale",
+      "expandSidebar": "Deplier la barre laterale",
+      "notifications": "Notifications"
     }
   },
   "admin": {
@@ -47,17 +52,17 @@
   "adminPages": {
     "userManagement": {
       "title": "Gestion des utilisateurs",
-      "subtitle": "Gérez vos utilisateurs et leurs autorisations"
+      "subtitle": "G\u00e9rez vos utilisateurs et leurs autorisations"
     },
     "courseManagement": {
       "title": "Gestion des cours",
-      "subtitle": "Gérez tous les cours et leurs détails",
+      "subtitle": "G\u00e9rez tous les cours et leurs d\u00e9tails",
       "addCourse": "Ajouter un cours",
       "searchPlaceholder": "Rechercher des cours, ID formateur, domaine ou pays...",
       "filter": {
         "all": "Tous les cours",
         "active": "Actifs",
-        "archived": "Archivés"
+        "archived": "Archiv\u00e9s"
       }
     },
     "ticketManagement": {
@@ -68,13 +73,13 @@
     }
   },
   "footer": {
-    "tagline": "Cultiver le savoir pour la prochaine génération d'agriculteurs.",
+    "tagline": "Cultiver le savoir pour la prochaine g\u00e9n\u00e9ration d'agriculteurs.",
     "product": {
       "title": "Produit",
       "home": "Accueil",
       "courses": "Cours",
       "feed": "Fil",
-      "verify": "Vérifier un certificat",
+      "verify": "V\u00e9rifier un certificat",
       "contact": "Contact"
     },
     "resources": {
@@ -85,7 +90,7 @@
     },
     "contact": {
       "title": "Contact",
-      "address": "Centre Tunis, Rue Alain Savary, Cité El Khadra, Tunis, Tunisie"
+      "address": "Centre Tunis, Rue Alain Savary, Cit\u00e9 El Khadra, Tunis, Tunisie"
     },
     "news": {
       "title": "Rester en contact",
@@ -93,9 +98,13 @@
       "subscribe": "S'inscrire"
     },
     "legal": {
-      "privacy": "Confidentialité",
+      "privacy": "Confidentialit\u00e9",
       "terms": "Conditions",
-      "legal": "Mentions légales"
+      "legal": "Mentions l\u00e9gales"
+    },
+    "language": {
+      "title": "Langue",
+      "note": "S?applique uniquement sur cet appareil"
     }
   },
   "common": {
@@ -103,31 +112,41 @@
     "usersOnline": "Utilisateurs en ligne",
     "showMore": "Voir plus",
     "save": "Enregistrer",
-    "saved": "Enregistré",
-    "noData": "Pas de données",
-    "noPosts": "Aucun post"
+    "saved": "Enregistr\u00e9",
+    "noData": "Pas de donn\u00e9es",
+    "noPosts": "Aucun post",
+    "time": {
+      "momentAgo": "Il y a un moment",
+      "justNow": "? l'instant",
+      "secondsAgo": "Il y a {{count}} s",
+      "minutesAgo": "Il y a {{count}} min",
+      "hoursAgo": "Il y a {{count}} h",
+      "daysAgo": "Il y a {{count}} j",
+      "invalid": "Date invalide",
+      "unknown": "Heure inconnue"
+    }
   },
   "settings": {
-    "title": "Paramètres",
-    "subtitle": "Gérez vos préférences de compte et votre personnalisation",
+    "title": "Param\u00e8tres",
+    "subtitle": "G\u00e9rez vos pr\u00e9f\u00e9rences de compte et votre personnalisation",
     "account": {
-      "title": "Paramètres du compte",
+      "title": "Param\u00e8tres du compte",
       "email": "Adresse e-mail",
       "password": "Mot de passe",
-      "passwordDesc": "Sécurisez votre compte en le mettant à jour régulièrement",
-      "twoFactor": "Authentification à deux facteurs",
-      "twoFactorDesc": "Ajoutez une couche de sécurité supplémentaire"
+      "passwordDesc": "S\u00e9curisez votre compte en le mettant \u00e0 jour r\u00e9guli\u00e8rement",
+      "twoFactor": "Authentification \u00e0 deux facteurs",
+      "twoFactorDesc": "Ajoutez une couche de s\u00e9curit\u00e9 suppl\u00e9mentaire"
     },
     "appearance": {
       "title": "Apparence",
-      "theme": "Thème",
-      "themeDesc": "Choisissez votre thème préféré",
+      "theme": "Th\u00e8me",
+      "themeDesc": "Choisissez votre th\u00e8me pr\u00e9f\u00e9r\u00e9",
       "language": "Langue",
-      "languageDesc": "Sélectionnez votre langue",
+      "languageDesc": "S\u00e9lectionnez votre langue",
       "light": "Clair",
       "dark": "Sombre",
       "saveTitle": "Enregistrer l'apparence",
-      "saveDesc": "Conserver le thème et la langue"
+      "saveDesc": "Conserver le th\u00e8me et la langue"
     },
     "buttons": {
       "change": "Modifier",
@@ -136,88 +155,88 @@
       "remove": "Supprimer",
       "cancel": "Annuler",
       "saveChanges": "Enregistrer",
-      "updatePassword": "Mettre à jour le mot de passe",
+      "updatePassword": "Mettre \u00e0 jour le mot de passe",
       "request": "Demander",
       "view": "Voir",
-      "deactivate": "Désactiver",
+      "deactivate": "D\u00e9sactiver",
       "delete": "Supprimer le compte"
     },
     "notifications": {
-      "title": "Préférences de notification",
+      "title": "Pr\u00e9f\u00e9rences de notification",
       "subtitle": "Choisissez ce que vous recevez et comment.",
-      "loading": "Chargement de vos préférences...",
+      "loading": "Chargement de vos pr\u00e9f\u00e9rences...",
       "typesTitle": "Types de notification",
-      "typesSubtitle": "Activer ou désactiver les catégories.",
+      "typesSubtitle": "Activer ou d\u00e9sactiver les cat\u00e9gories.",
       "likes": "Mentions J'aime :",
-      "likesDesc": "Activité lorsque quelqu'un aime vos posts.",
+      "likesDesc": "Activit\u00e9 lorsque quelqu'un aime vos posts.",
       "comments": "Commentaires :",
       "commentsDesc": "Nouveaux commentaires sur vos contenus.",
-      "replies": "Réponses :",
-      "repliesDesc": "Réponses à vos commentaires.",
+      "replies": "R\u00e9ponses :",
+      "repliesDesc": "R\u00e9ponses \u00e0 vos commentaires.",
       "tickets": "Tickets :",
-      "ticketsDesc": "Mises à jour de vos tickets de support.",
-      "system": "Système :",
-      "systemDesc": "Sécurité, politique ou mises à jour de plateforme.",
+      "ticketsDesc": "Mises \u00e0 jour de vos tickets de support.",
+      "system": "Syst\u00e8me :",
+      "systemDesc": "S\u00e9curit\u00e9, politique ou mises \u00e0 jour de plateforme.",
       "courses": "Cours :",
       "coursesDesc": "Lancements, inscriptions et rappels de cours.",
       "posts": "Posts :",
       "postsDesc": "Nouveaux posts des personnes que vous suivez.",
       "quietHours": "Heures silencieuses",
-      "quietHoursDesc": "Coupez les notifications selon un horaire (nuit gérée).",
+      "quietHoursDesc": "Coupez les notifications selon un horaire (nuit g\u00e9r\u00e9e).",
       "quietHoursEnable": "Activer les heures silencieuses",
-      "quietHoursEnableDesc": "Plage où in-app/email/push sont coupés.",
-      "start": "Début",
+      "quietHoursEnableDesc": "Plage o\u00f9 in-app/email/push sont coup\u00e9s.",
+      "start": "D\u00e9but",
       "end": "Fin",
-      "helper": "Les plages de nuit sont prises en charge (ex. 22:00 à 07:00). Les deux horaires sont requis si activé.",
-      "reset": "Réinitialiser",
+      "helper": "Les plages de nuit sont prises en charge (ex. 22:00 \u00e0 07:00). Les deux horaires sont requis si activ\u00e9.",
+      "reset": "R\u00e9initialiser",
       "muteAll": "Tout couper",
-      "save": "Enregistrer les préférences",
+      "save": "Enregistrer les pr\u00e9f\u00e9rences",
       "saving": "Enregistrement..."
     },
     "tickets": {
       "title": "Tickets de support",
-      "subtitle": "Suivez vos conversations ou démarrez une nouvelle demande.",
-      "refresh": "Rafraîchir",
+      "subtitle": "Suivez vos conversations ou d\u00e9marrez une nouvelle demande.",
+      "refresh": "Rafra\u00eechir",
       "refreshing": "Actualisation...",
-      "start": "Créer un ticket",
+      "start": "Cr\u00e9er un ticket",
       "close": "Fermer",
       "subject": "Sujet",
-      "subjectPlaceholder": "Résumé bref du problème",
+      "subjectPlaceholder": "R\u00e9sum\u00e9 bref du probl\u00e8me",
       "message": "Message",
-      "messagePlaceholder": "Décrivez le problème ou la demande",
+      "messagePlaceholder": "D\u00e9crivez le probl\u00e8me ou la demande",
       "attachImage": "Joindre une image",
-      "changeAttachment": "Changer la pièce jointe",
+      "changeAttachment": "Changer la pi\u00e8ce jointe",
       "submit": "Envoyer le ticket",
       "sending": "Envoi...",
       "loading": "Chargement de vos tickets...",
       "emptyTitle": "Aucun ticket pour le moment",
-      "emptyDesc": "Besoin d'aide pour les cours, paiements ou votre compte ? Créez un ticket et notre équipe répondra rapidement.",
-      "ticketId": "Ticket n°",
+      "emptyDesc": "Besoin d'aide pour les cours, paiements ou votre compte ? Cr\u00e9ez un ticket et notre \u00e9quipe r\u00e9pondra rapidement.",
+      "ticketId": "Ticket n\u00b0",
       "conversationLoading": "Chargement de la conversation...",
-      "noReplies": "Pas encore de réponses. Nous y travaillons !",
-      "replyPlaceholder": "Ajoutez des détails ou une question",
-      "sendReply": "Envoyer la réponse",
-      "closed": "Ce ticket est fermé. Créez-en un nouveau si besoin.",
-      "select": "Sélectionnez un ticket pour voir la conversation."
+      "noReplies": "Pas encore de r\u00e9ponses. Nous y travaillons !",
+      "replyPlaceholder": "Ajoutez des d\u00e9tails ou une question",
+      "sendReply": "Envoyer la r\u00e9ponse",
+      "closed": "Ce ticket est ferm\u00e9. Cr\u00e9ez-en un nouveau si besoin.",
+      "select": "S\u00e9lectionnez un ticket pour voir la conversation."
     },
     "privacy": {
-      "title": "Confidentialité et données",
-      "profile": "Visibilité du profil",
-      "profileDesc": "Contrôlez qui peut voir votre profil",
+      "title": "Confidentialit\u00e9 et donn\u00e9es",
+      "profile": "Visibilit\u00e9 du profil",
+      "profileDesc": "Contr\u00f4lez qui peut voir votre profil",
       "public": "Public",
       "friends": "Amis uniquement",
-      "private": "Privé",
-      "download": "Téléchargement de données",
-      "downloadDesc": "Téléchargez une copie de vos données",
-      "activity": "Historique d'activités",
-      "activityDesc": "Voir et gérer votre activité"
+      "private": "Priv\u00e9",
+      "download": "T\u00e9l\u00e9chargement de donn\u00e9es",
+      "downloadDesc": "T\u00e9l\u00e9chargez une copie de vos donn\u00e9es",
+      "activity": "Historique d'activit\u00e9s",
+      "activityDesc": "Voir et g\u00e9rer votre activit\u00e9"
     },
     "danger": {
       "title": "Zone de danger",
-      "deactivate": "Désactiver le compte",
-      "deactivateDesc": "Désactivez temporairement votre compte",
+      "deactivate": "D\u00e9sactiver le compte",
+      "deactivateDesc": "D\u00e9sactivez temporairement votre compte",
       "delete": "Supprimer le compte",
-      "deleteDesc": "Supprime définitivement votre compte et vos données"
+      "deleteDesc": "Supprime d\u00e9finitivement votre compte et vos donn\u00e9es"
     },
     "modals": {
       "emailTitle": "Changer l'adresse e-mail",
@@ -231,14 +250,14 @@
       "confirmNewPassword": "Confirmer le nouveau mot de passe",
       "confirmPasswordPlaceholder": "Confirmez le nouveau mot de passe",
       "deleteTitle": "Supprimer le compte",
-      "deleteBody": "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est définitive et supprimera toutes vos données.",
+      "deleteBody": "\u00cates-vous s\u00fbr de vouloir supprimer votre compte ? Cette action est d\u00e9finitive et supprimera toutes vos donn\u00e9es.",
       "deleteConfirmLabel": "Tapez \"DELETE\" pour confirmer",
       "deletePlaceholder": "DELETE"
     }
   },
   "dashboard": {
-    "title": "Tableau de bord éducatif",
-    "subtitle": "Analytique complète pour votre plateforme d'apprentissage",
+    "title": "Tableau de bord \u00e9ducatif",
+    "subtitle": "Analytique compl\u00e8te pour votre plateforme d'apprentissage",
     "nav": {
       "overview": "Vue d'ensemble",
       "users": "Utilisateurs",
@@ -248,72 +267,116 @@
     },
     "welcome": {
       "eyebrow": "Bienvenue",
-      "title": "Bienvenue sur votre tableau de bord éducatif",
-      "body": "Suivez la progression des étudiants, la performance des cours et analysez les résultats d'apprentissage sur votre plateforme.",
+      "title": "Bienvenue sur votre tableau de bord \u00e9ducatif",
+      "body": "Suivez la progression des \u00e9tudiants, la performance des cours et analysez les r\u00e9sultats d'apprentissage sur votre plateforme.",
       "addCourse": "Ajouter un cours",
-      "viewReports": "Voir les rapports"
+      "viewReports": "Voir les rapports",
+      "viewTickets": "Voir les tickets"
     },
     "overview": {
       "title": "Vue d'ensemble",
-      "subtitle": "Indicateurs clés",
+      "subtitle": "Indicateurs cl\u00e9s",
       "totalUsers": "Utilisateurs totaux",
       "activeLast30": "Actifs sur 30 jours",
       "activeCourses": "Cours actifs",
       "totalCourses": "Cours totaux",
-      "completionRate": "Taux d'achèvement",
+      "completionRate": "Taux d'ach\u00e8vement",
       "acrossCourses": "Sur les cours suivis",
       "liveUsers": "Utilisateurs en direct",
       "wsConnections": "Connexions WebSocket"
     },
     "activity": {
-      "title": "Activité",
-      "subtitle": "Croissance et activité dans le temps",
-      "studentDistribution": "Répartition des étudiants par pays",
+      "title": "Activit\u00e9",
+      "subtitle": "Croissance et activit\u00e9 dans le temps",
+      "studentDistribution": "R\u00e9partition des \u00e9tudiants par pays",
       "topCourses": "Meilleurs cours",
-      "studentsEnrolled": "Étudiants inscrits",
-      "completion": "achèvement"
+      "studentsEnrolled": "\u00c9tudiants inscrits",
+      "completion": "ach\u00e8vement"
     },
     "users": {
       "title": "Utilisateurs",
       "subtitle": "Vue d'ensemble de votre base",
-      "summary": "Résumé utilisateurs",
-      "roles": "Répartition des rôles",
+      "summary": "R\u00e9sum\u00e9 utilisateurs",
+      "roles": "R\u00e9partition des r\u00f4les",
       "quickStats": "Statistiques rapides",
-      "latestRegistrations": "Dernières inscriptions",
+      "latestRegistrations": "Derni\u00e8res inscriptions",
       "activeCourses": "Cours actifs",
-      "completionRate": "Taux d'achèvement",
+      "completionRate": "Taux d'ach\u00e8vement",
       "growth": "Croissance utilisateurs (mensuelle)",
       "totalUsers": "Utilisateurs totaux"
     },
     "social": {
       "title": "Social",
-      "subtitle": "Activité des posts et commentaires",
+      "subtitle": "Activit\u00e9 des posts et commentaires",
       "topPosts": "Meilleurs posts",
       "engagementAvg": "Moyennes d'engagement",
-      "featuredPerformance": "Performance mise en avant"
+      "featuredPerformance": "Performance mise en avant",
+      "statsTitle": "Statistiques des posts",
+      "statsSubtitle": "Analyses avanc\u00e9es",
+      "pulse": {
+        "title": "Pulse des posts",
+        "mostRecentDay": "Jour le plus r\u00e9cent",
+        "mostRecentWeek": "Semaine la plus r\u00e9cente",
+        "mostRecentMonth": "Mois le plus r\u00e9cent",
+        "mostRecentPeriod": "P\u00e9riode la plus r\u00e9cente",
+        "postsThisPeriod": "Posts de cette p\u00e9riode",
+        "commentsThisPeriod": "Commentaires de cette p\u00e9riode",
+        "avgEngagement": "Engagement moyen",
+        "topLikes": "Meilleurs likes",
+        "topComments": "Meilleurs commentaires",
+        "totalWithValue": "Total {{value}}"
+      }
     },
     "notifications": {
       "title": "Notifications",
-      "subtitle": "Notifications utilisateurs et activité en temps réel",
+      "subtitle": "Notifications utilisateurs et activit\u00e9 en temps r\u00e9el",
       "trend": "Tendance",
       "readStatus": "Statut de lecture",
       "topTypes": "Types principaux"
+    },
+    "northAfrica": {
+      "title": "Carte des utilisateurs en direct",
+      "subtitle": "Activite en temps reel en Afrique du Nord",
+      "byCountry": "En direct par pays"
+    },
+    "tickets": {
+      "title": "Support et tickets",
+      "subtitle": "Charge en direct, arriere et sante des affectations.",
+      "snapshotTitle": "Instantane tickets",
+      "allTickets": "Tous les tickets",
+      "recentTitle": "Tickets recents",
+      "items": "elements",
+      "labels": {
+        "open": "Ouverts",
+        "pending": "En attente",
+        "resolved": "Resolus",
+        "stale": "Sans activite recente (7j+)"
+      }
     }
   },
   "contact": {
     "hero": {
-      "kicker": "Éducation agricole",
+      "kicker": "\u00c9ducation agricole",
       "title": "Entrons en contact",
-      "subtitle": "Prêts à développer vos connaissances agricoles ? Nous sommes là pour vous aider à cultiver votre réussite."
+      "subtitle": "Pr\u00eats \u00e0 d\u00e9velopper vos connaissances agricoles ? Nous sommes l\u00e0 pour vous aider \u00e0 cultiver votre r\u00e9ussite."
     },
     "stats": {
-      "students": { "value": "5 000+", "label": "Étudiants formés" },
-      "experience": { "value": "25+", "label": "Années d'expérience" },
-      "response": { "value": "24h", "label": "Délai de réponse" }
+      "students": {
+        "value": "5 000+",
+        "label": "\u00c9tudiants form\u00e9s"
+      },
+      "experience": {
+        "value": "25+",
+        "label": "Ann\u00e9es d'exp\u00e9rience"
+      },
+      "response": {
+        "value": "24h",
+        "label": "D\u00e9lai de r\u00e9ponse"
+      }
     },
     "form": {
       "title": "Envoyer un message",
-      "subtitle": "Contactez-nous et nous répondrons sous 24 h",
+      "subtitle": "Contactez-nous et nous r\u00e9pondrons sous 24 h",
       "fullName": "Nom complet",
       "fullNamePlaceholder": "Jean Dupont",
       "fullNameError": "Veuillez saisir votre nom complet.",
@@ -322,52 +385,54 @@
       "emailError": "Veuillez fournir un e-mail valide.",
       "subject": "Sujet",
       "subjectPlaceholder": "Comment pouvons-nous vous aider ?",
-      "subjectError": "Le sujet doit comporter au moins 5 caractères.",
+      "subjectError": "Le sujet doit comporter au moins 5 caract\u00e8res.",
       "message": "Message",
-      "messagePlaceholder": "Parlez-nous de vos objectifs en éducation agricole...",
-      "messageError": "Veuillez saisir au moins 10 caractères.",
+      "messagePlaceholder": "Parlez-nous de vos objectifs en \u00e9ducation agricole...",
+      "messageError": "Veuillez saisir au moins 10 caract\u00e8res.",
       "submit": "Envoyer le message",
       "submitting": "Envoi...",
-      "success": "Merci pour votre message ! Nous vous répondrons rapidement."
+      "success": "Merci pour votre message ! Nous vous r\u00e9pondrons rapidement."
     },
     "info": {
       "title": "Informations de contact",
       "visit": {
         "title": "Nous rendre visite",
-        "body": "UMNAGRI (Union Maghrébine et de l’Afrique du Nord des Agriculteurs) - Siège\nCentre Tunis, Rue Alain Savary, Cité El Khadra\nTunis, République tunisienne"
+        "body": "UMNAGRI (Union Maghr\u00e9bine et de l\u2019Afrique du Nord des Agriculteurs) - Si\u00e8ge\nCentre Tunis, Rue Alain Savary, Cit\u00e9 El Khadra\nTunis, R\u00e9publique tunisienne"
       },
       "website": {
         "title": "Site web",
         "link": "umnagri.net"
       },
-      "email": { "title": "Nous écrire" },
+      "email": {
+        "title": "Nous \u00e9crire"
+      },
       "follow": "Nous suivre"
     },
     "map": {
       "title": "Carte interactive",
-      "subtitle": "Centre d'éducation agricole"
+      "subtitle": "Centre d'\u00e9ducation agricole"
     },
     "resources": {
       "title": "Ressources rapides",
-      "subtitle": "Tout ce dont vous avez besoin pour commencer l'éducation agricole",
+      "subtitle": "Tout ce dont vous avez besoin pour commencer l'\u00e9ducation agricole",
       "enrollment": {
         "title": "Inscription aux programmes",
-        "desc": "Découvrez les conditions d'admission et le processus de candidature",
+        "desc": "D\u00e9couvrez les conditions d'admission et le processus de candidature",
         "cta": "En savoir plus"
       },
       "schedule": {
         "title": "Plannings des cours",
-        "desc": "Consultez les horaires du semestre et les ateliers à venir",
+        "desc": "Consultez les horaires du semestre et les ateliers \u00e0 venir",
         "cta": "Voir le planning"
       },
       "portal": {
-        "title": "Portail étudiant",
-        "desc": "Accédez à vos cours, notes et ressources académiques",
-        "cta": "Accéder au portail"
+        "title": "Portail \u00e9tudiant",
+        "desc": "Acc\u00e9dez \u00e0 vos cours, notes et ressources acad\u00e9miques",
+        "cta": "Acc\u00e9der au portail"
       },
       "catalog": {
         "title": "Catalogue des cours",
-        "desc": "Explorez nos programmes complets en éducation agricole",
+        "desc": "Explorez nos programmes complets en \u00e9ducation agricole",
         "cta": "Parcourir le catalogue"
       }
     }
@@ -399,7 +464,26 @@
     "preview": "Aper\u00e7u",
     "enroll": "S'inscrire",
     "showing": "Affichage de {{shown}} sur {{total}} cours",
-    "showMore": "Voir plus"
+    "showMore": "Voir plus",
+    "reviews": {
+      "items": {
+        "one": {
+          "quote": "Structure claire et conseils applicables.",
+          "author": "Amina B.",
+          "role": "Actudiante en agro"
+        },
+        "two": {
+          "quote": "J'ai adore les exemples du terrain.",
+          "author": "Youssef K.",
+          "role": "Formateur en coop"
+        },
+        "three": {
+          "quote": "Lecons concises, faciles a suivre.",
+          "author": "Salma R.",
+          "role": "Agricultrice"
+        }
+      }
+    }
   },
   "feed": {
     "left": {
@@ -429,6 +513,14 @@
       "likeComment": "Aimer le commentaire",
       "unlikeComment": "Ne plus aimer le commentaire"
     },
+    "alerts": {
+      "loginToLikeComment": "Veuillez vous connecter pour aimer les commentaires",
+      "loginToComment": "Veuillez vous connecter pour commenter"
+    },
+    "errors": {
+      "posts": "Echec du chargement des posts. Veuillez reessayer plus tard.",
+      "news": "Echec du chargement des actualites."
+    },
     "empty": "Aucun post disponible pour le moment.",
     "right": {
       "title": "M\u00e9t\u00e9o & Conseils",
@@ -440,32 +532,32 @@
     }
   },
   "courseDetails": {
-    "loading": "Chargement des détails du cours...",
+    "loading": "Chargement des d\u00e9tails du cours...",
     "errorTitle": "Erreur lors du chargement du cours",
-    "retry": "Réessayer",
+    "retry": "R\u00e9essayer",
     "back": "Retour",
-    "breadcrumb": "Détails du cours",
+    "breadcrumb": "D\u00e9tails du cours",
     "banner": {
       "enrolled": "Inscrit",
-      "resumeTitle": "Vous êtes inscrit — reprenez votre cours",
-      "jumpBack": "Vous êtes inscrit — revenez quand vous voulez",
-      "resumeSubtitle": "Actuellement à la leçon {{number}} · {{title}}",
-      "pickUp": "Reprenez le cours quand vous êtes prêt.",
+      "resumeTitle": "Vous \u00eates inscrit \u2014 reprenez votre cours",
+      "jumpBack": "Vous \u00eates inscrit \u2014 revenez quand vous voulez",
+      "resumeSubtitle": "Actuellement \u00e0 la le\u00e7on {{number}} \u00b7 {{title}}",
+      "pickUp": "Reprenez le cours quand vous \u00eates pr\u00eat.",
       "resumeCta": "Reprendre l'apprentissage",
       "openCta": "Ouvrir l'espace d'apprentissage"
     },
     "meta": {
       "instructor": "Formateur",
       "instructorFallback": "Formateur",
-      "lessons": "Leçons",
+      "lessons": "Le\u00e7ons",
       "languages": "Langues",
       "level": "Niveau"
     },
     "video": {
-      "lockedTitle": "Vidéo verrouillée",
-      "lockedBody": "Inscrivez-vous à ce cours pour voir l'aperçu",
+      "lockedTitle": "Vid\u00e9o verrouill\u00e9e",
+      "lockedBody": "Inscrivez-vous \u00e0 ce cours pour voir l'aper\u00e7u",
       "captionAuth": "Regardez l'introduction du cours (3:24)",
-      "captionGuest": "Inscrivez-vous pour voir l'aperçu"
+      "captionGuest": "Inscrivez-vous pour voir l'aper\u00e7u"
     },
     "enrollment": {
       "priceFree": "Gratuit",
@@ -473,9 +565,9 @@
       "enrolling": "Inscription...",
       "enrolled": "Inscrit",
       "enrollNow": "S'inscrire",
-      "resumeLesson": "Reprendre la leçon {{number}}",
+      "resumeLesson": "Reprendre la le\u00e7on {{number}}",
       "continueCourse": "Continuer le cours",
-      "wishlist": "Ajouter à la liste d'envie"
+      "wishlist": "Ajouter \u00e0 la liste d'envie"
     },
     "includes": {
       "title": "Ce cours comprend :",
@@ -483,10 +575,10 @@
     },
     "progress": {
       "label": "Progression du cours",
-      "subtitle": "Actuellement à la leçon {{number}} · {{title}}"
+      "subtitle": "Actuellement \u00e0 la le\u00e7on {{number}} \u00b7 {{title}}"
     },
     "tabs": {
-      "overview": "Aperçu",
+      "overview": "Aper\u00e7u",
       "curriculum": "Programme",
       "instructor": "Formateur",
       "reviews": "Avis"
@@ -498,10 +590,10 @@
     },
     "curriculum": {
       "title": "Programme du cours",
-      "empty": "Aucun élément de programme pour le moment."
+      "empty": "Aucun \u00e9l\u00e9ment de programme pour le moment."
     },
     "instructor": {
-      "title": "À propos du formateur",
+      "title": "\u00c0 propos du formateur",
       "role": "Formateur du cours",
       "languages": "Langues :"
     },
@@ -509,12 +601,12 @@
       "title": "Ce que disent les apprenants"
     },
     "related": {
-      "title": "Cours associés",
-      "meta": "Animé par {{instructor}}",
+      "title": "Cours associ\u00e9s",
+      "meta": "Anim\u00e9 par {{instructor}}",
       "price": "Gratuit",
-      "prev": "Cours associé précédent",
-      "next": "Cours associé suivant",
-      "empty": "Aucun cours associé pour le moment."
+      "prev": "Cours associ\u00e9 pr\u00e9c\u00e9dent",
+      "next": "Cours associ\u00e9 suivant",
+      "empty": "Aucun cours associ\u00e9 pour le moment."
     }
   },
   "userProfile": {
@@ -532,70 +624,108 @@
       "title": "Informations personnelles",
       "fullName": "Nom complet",
       "fullNamePlaceholder": "Saisissez votre nom complet",
-      "phone": "Numéro de téléphone",
+      "phone": "Num\u00e9ro de t\u00e9l\u00e9phone",
       "phonePlaceholder": "123-456-7890",
       "language": "Langue",
-      "languageSelect": "Sélectionnez une langue",
+      "languageSelect": "S\u00e9lectionnez une langue",
       "email": "Adresse e-mail",
       "emailPlaceholder": "Saisissez votre adresse e-mail",
       "birthdate": "Date de naissance",
       "country": "Pays",
       "countryValue": "Tunisie",
-      "role": "Rôle",
-      "required": "*"
+      "role": "R\u00f4le",
+      "required": "*",
+      "locationFallback": "Agriculture",
+      "birthdateFallback": "Ajoutez votre date de naissance"
     },
     "enrolled": {
       "title": "Mes cours inscrits",
       "courses": "Cours",
-      "errorTitle": "Échec du chargement des cours",
-      "tryAgain": "Réessayer",
+      "errorTitle": "\u00c9chec du chargement des cours",
+      "tryAgain": "R\u00e9essayer",
       "emptyTitle": "Aucun cours inscrit",
-      "emptyDesc": "Commencez votre parcours en vous inscrivant à des cours",
+      "emptyDesc": "Commencez votre parcours en vous inscrivant \u00e0 des cours",
       "browse": "Parcourir les cours",
       "status": {
-        "notStarted": "Non commencé",
+        "notStarted": "Non commenc\u00e9",
         "inProgress": "En cours",
-        "completed": "Terminé"
+        "completed": "Termin\u00e9"
       },
-      "hours": "h étudiées",
+      "hours": "h \u00e9tudi\u00e9es",
       "titleFallback": "Titre du cours",
       "descriptionFallback": "Description du cours",
       "countryFallback": "N/A",
       "domainFallback": "N/A",
       "overallProgress": "Progression globale",
       "sessions": "Sessions",
-      "sessionDetails": "Détail de progression des sessions",
+      "sessionDetails": "D\u00e9tail de progression des sessions",
       "legend": {
-        "completed": "Terminée",
+        "completed": "Termin\u00e9e",
         "current": "En cours",
-        "upcoming": "À venir"
+        "upcoming": "\u00c0 venir"
       },
       "start": "Commencer le cours",
       "continue": "Continuer",
       "certificate": "Certificat",
-      "completedOn": "Terminé le {{date}}"
+      "completedOn": "Termin\u00e9 le {{date}}",
+      "errorDescription": "Impossible de charger vos cours inscrits."
+    },
+    "stats": {
+      "coursesCompleted": "Cours termin\u00e9s",
+      "averageScore": "Score moyen",
+      "hoursStudied": "Heures \u00e9tudi\u00e9es",
+      "certificatesEarned": "Certificats obtenus"
+    },
+    "roles": {
+      "admin": "Administrateur",
+      "member": "Membre"
+    },
+    "fallbacks": {
+      "user": "Utilisateur"
+    },
+    "progress": {
+      "milestones": {
+        "notStarted": "Pas encore commenc\u00e9",
+        "gettingStarted": "D\u00e9but",
+        "makingProgress": "En progression",
+        "halfway": "\u00c0 mi-parcours",
+        "almost": "Presque termin\u00e9",
+        "completed": "Termin\u00e9"
+      },
+      "time": {
+        "completed": "Termin\u00e9",
+        "unavailable": "Estimation de dur\u00e9e indisponible",
+        "almostDone": "Presque fini !",
+        "oneHour": "~1 heure restante",
+        "hours": "~{{count}} heures restantes"
+      },
+      "session": {
+        "completed": "Session {{index}} : termin\u00e9e",
+        "current": "Session {{index}} : en cours",
+        "notStarted": "Session {{index}} : non commenc\u00e9e"
+      }
     }
   },
   "home": {
     "hero": {
-      "authPrompt": "Connectez-vous pour débloquer toutes les fonctionnalités",
+      "authPrompt": "Connectez-vous pour d\u00e9bloquer toutes les fonctionnalit\u00e9s",
       "title": "Plateforme d'apprentissage YEFFA",
-      "subtitle": "Une solution e-learning de nouvelle génération conçue pour autonomiser plus de <strong>30 millions de jeunes agriculteurs</strong> à travers l'Afrique du Nord.",
+      "subtitle": "Une solution e-learning de nouvelle g\u00e9n\u00e9ration con\u00e7ue pour autonomiser plus de <strong>30 millions de jeunes agriculteurs</strong> \u00e0 travers l'Afrique du Nord.",
       "stats": {
         "users": {
           "value": "30M+",
           "label": "Utilisateurs",
-          "desc": "Jeunes agriculteurs impactés"
+          "desc": "Jeunes agriculteurs impact\u00e9s"
         },
         "countries": {
           "value": "5+",
           "label": "Pays",
-          "desc": "Région Afrique du Nord"
+          "desc": "R\u00e9gion Afrique du Nord"
         },
         "launch": {
           "value": "2025",
           "label": "Lancement",
-          "desc": "Fin d'année"
+          "desc": "Fin d'ann\u00e9e"
         }
       },
       "cta": {
@@ -605,56 +735,56 @@
       },
       "cards": {
         "training": "Formation interactive",
-        "resources": "Ressources pédagogiques",
+        "resources": "Ressources p\u00e9dagogiques",
         "cert": "Certification"
       }
     },
     "overview": {
-      "title": "Présentation du projet",
-      "subtitle": "Une plateforme complète et scalable pour l'éducation agricole moderne.",
+      "title": "Pr\u00e9sentation du projet",
+      "subtitle": "Une plateforme compl\u00e8te et scalable pour l'\u00e9ducation agricole moderne.",
       "objectiveTitle": "Objectif",
-      "objectiveText": "Offrir une éducation agricole moderne et de qualité à des millions de jeunes agriculteurs en Afrique du Nord.",
-      "reachTitle": "Portée régionale",
-      "reachText": "Desservir 5+ pays avec support multilingue et contenus adaptés aux besoins locaux.",
+      "objectiveText": "Offrir une \u00e9ducation agricole moderne et de qualit\u00e9 \u00e0 des millions de jeunes agriculteurs en Afrique du Nord.",
+      "reachTitle": "Port\u00e9e r\u00e9gionale",
+      "reachText": "Desservir 5+ pays avec support multilingue et contenus adapt\u00e9s aux besoins locaux.",
       "innovationTitle": "Innovation",
-      "innovationText": "Personnalisation IA, modules AR, analytics modernes et outils pédagogiques engageants."
+      "innovationText": "Personnalisation IA, modules AR, analytics modernes et outils p\u00e9dagogiques engageants."
     },
     "features": {
-      "title": "Fonctionnalités clés",
-      "subtitle": "Tout ce qu’il faut pour un apprentissage agricole à fort impact",
+      "title": "Fonctionnalit\u00e9s cl\u00e9s",
+      "subtitle": "Tout ce qu\u2019il faut pour un apprentissage agricole \u00e0 fort impact",
       "userMgmt": {
         "title": "Gestion des utilisateurs",
         "items": [
           "Onboarding rapide pour des millions d'utilisateurs",
-          "Contrôle d'accès par rôle",
-          "Profils détaillés",
-          "Tableau de bord personnalisé"
+          "Contr\u00f4le d'acc\u00e8s par r\u00f4le",
+          "Profils d\u00e9taill\u00e9s",
+          "Tableau de bord personnalis\u00e9"
         ]
       },
       "training": {
         "title": "Formation en ligne",
         "items": [
-          "Streaming vidéo de haute qualité",
-          "Modules interactifs et gamifiés",
-          "Évaluations et notation automatique",
-          "Certificats d'achèvement"
+          "Streaming vid\u00e9o de haute qualit\u00e9",
+          "Modules interactifs et gamifi\u00e9s",
+          "\u00c9valuations et notation automatique",
+          "Certificats d'ach\u00e8vement"
         ]
       },
       "collab": {
         "title": "Collaboration",
         "items": [
-          "Chat en temps réel entre formateurs et apprenants",
-          "Forums de discussion thématiques",
-          "Système de mentorat",
+          "Chat en temps r\u00e9el entre formateurs et apprenants",
+          "Forums de discussion th\u00e9matiques",
+          "Syst\u00e8me de mentorat",
           "Partage de connaissances"
         ]
       }
     },
     "courses": {
       "title": "Cours populaires",
-      "subtitle": "Programmes de formation agricole les mieux notés",
+      "subtitle": "Programmes de formation agricole les mieux not\u00e9s",
       "duration": "4 semaines",
-      "lessons": "12 leçons",
+      "lessons": "12 le\u00e7ons",
       "domainFallback": "Agriculture",
       "countryFallback": "Maroc",
       "descFallback": "Description du cours indisponible.",
@@ -663,34 +793,34 @@
         "enroll": "S'inscrire"
       },
       "viewAll": "Voir tous les cours",
-      "retry": "Réessayer"
+      "retry": "R\u00e9essayer"
     },
     "posts": {
-      "title": "Actualités de la communauté",
-      "subtitle": "Dernières discussions et expériences partagées",
+      "title": "Actualit\u00e9s de la communaut\u00e9",
+      "subtitle": "Derni\u00e8res discussions et exp\u00e9riences partag\u00e9es",
       "anonymous": "Anonyme",
       "viewAll": "Voir tous les posts",
-      "retry": "Réessayer"
+      "retry": "R\u00e9essayer"
     },
     "about": {
       "badge": "Renforcer l'agriculture nord-africaine",
-      "title": "Cultiver l'avenir de l’<span>agriculture</span>",
-      "lead": "YEFFA connecte les agriculteurs à une formation moderne, à des experts de confiance et à une communauté de partage pour développer une croissance durable en Afrique du Nord.",
+      "title": "Cultiver l'avenir de l\u2019<span>agriculture</span>",
+      "lead": "YEFFA connecte les agriculteurs \u00e0 une formation moderne, \u00e0 des experts de confiance et \u00e0 une communaut\u00e9 de partage pour d\u00e9velopper une croissance durable en Afrique du Nord.",
       "missionTitle": "Notre mission",
-      "missionP1": "Chaque ferme mérite des outils modernes et des savoir-faire locaux. Nous combinons science agronomique, personnalisation assistée par IA et mentorat humain pour rester ancrés dans les réalités du terrain.",
-      "missionP2": "Du Maroc à l'Égypte, nous construisons un réseau connecté d'agriculteurs, d'agronomes et de coopératives pour que le savoir circule librement et que la résilience grandisse à chaque récolte.",
+      "missionP1": "Chaque ferme m\u00e9rite des outils modernes et des savoir-faire locaux. Nous combinons science agronomique, personnalisation assist\u00e9e par IA et mentorat humain pour rester ancr\u00e9s dans les r\u00e9alit\u00e9s du terrain.",
+      "missionP2": "Du Maroc \u00e0 l'\u00c9gypte, nous construisons un r\u00e9seau connect\u00e9 d'agriculteurs, d'agronomes et de coop\u00e9ratives pour que le savoir circule librement et que la r\u00e9silience grandisse \u00e0 chaque r\u00e9colte.",
       "valuesTitle": "Nos moteurs",
       "values": {
         "sustainability": {
-          "title": "Durabilité",
-          "text": "Pratiques éco-responsables et climato-intelligentes qui protègent terres et moyens de subsistance."
+          "title": "Durabilit\u00e9",
+          "text": "Pratiques \u00e9co-responsables et climato-intelligentes qui prot\u00e8gent terres et moyens de subsistance."
         },
         "unity": {
-          "title": "Unité régionale",
-          "text": "Connecter coopératives et unions pour partager ressources et bonnes pratiques à travers les frontières."
+          "title": "Unit\u00e9 r\u00e9gionale",
+          "text": "Connecter coop\u00e9ratives et unions pour partager ressources et bonnes pratiques \u00e0 travers les fronti\u00e8res."
         },
         "community": {
-          "title": "Communauté d'abord",
+          "title": "Communaut\u00e9 d'abord",
           "text": "Mettre les agriculteurs au centre via mentorat, forums et apprentissage collaboratif."
         },
         "innovation": {
@@ -699,36 +829,36 @@
         }
       },
       "stats": {
-        "learners": "Apprenants touchés",
+        "learners": "Apprenants touch\u00e9s",
         "countries": "Pays",
         "yield": "Gain moyen de rendement",
         "support": "Support mentor 24/7",
-        "uptime": "Disponibilité",
+        "uptime": "Disponibilit\u00e9",
         "loadTime": "Temps de chargement",
-        "concurrent": "Utilisateurs simultanés",
+        "concurrent": "Utilisateurs simultan\u00e9s",
         "techSupport": "Support technique"
       }
     },
     "sponsors": {
       "title": "Sponsors et partenaires",
       "subtitle": "Organisations soutenant la mission d'AGRA en Afrique du Nord",
-      "coming": "Les sponsors apparaîtront bientôt ici."
+      "coming": "Les sponsors appara\u00eetront bient\u00f4t ici."
     },
     "orgs": {
       "title": "Organisations membres",
-      "subtitle": "Réseau de partenaires nationaux.",
+      "subtitle": "R\u00e9seau de partenaires nationaux.",
       "list": {
         "dz": {
-          "country": "Algérie",
-          "name": "Union nationale des agriculteurs algériens"
+          "country": "Alg\u00e9rie",
+          "name": "Union nationale des agriculteurs alg\u00e9riens"
         },
         "eg": {
-          "country": "Égypte",
-          "name": "Union centrale des coopératives agricoles"
+          "country": "\u00c9gypte",
+          "name": "Union centrale des coop\u00e9ratives agricoles"
         },
         "ly": {
           "country": "Libye",
-          "name": "Union générale des agriculteurs et éleveurs"
+          "name": "Union g\u00e9n\u00e9rale des agriculteurs et \u00e9leveurs"
         },
         "ma": {
           "country": "Maroc",
@@ -736,17 +866,908 @@
         },
         "mr": {
           "country": "Mauritanie",
-          "name": "Fédération mauritanienne de l'agriculture"
+          "name": "F\u00e9d\u00e9ration mauritanienne de l'agriculture"
         },
         "tn": {
           "country": "Tunisie",
-          "name": "Union tunisienne de l'agriculture et de la pêche"
+          "name": "Union tunisienne de l'agriculture et de la p\u00eache"
         },
         "sd": {
           "country": "Soudan",
           "name": "Organisation nationale des agriculteurs"
         }
       }
+    },
+    "errors": {
+      "courses": "?chec du chargement des cours",
+      "posts": "?chec du chargement des actualit?s"
+    },
+    "contactSubject": "Projet AGRA - Demande d'information"
+  },
+  "courseEnrolled": {
+    "loading": "Loading course content...",
+    "errorTitle": "Error Loading Course",
+    "backToCourses": "Back to Courses",
+    "header": {
+      "backTitle": "Back to Courses",
+      "toggleSidebar": "Toggle Sidebar",
+      "toggleFullscreen": "Toggle Fullscreen",
+      "progressComplete": "{{percent}}% Complete"
+    },
+    "sidebar": {
+      "title": "Course Content",
+      "lessonCount": "{{count}} Lessons"
+    },
+    "lesson": {
+      "markComplete": "Mark Complete",
+      "completed": "Completed"
+    },
+    "quiz": {
+      "allCorrect": "All answers correct!",
+      "reviewTryAgain": "Review and try again.",
+      "previous": "Previous",
+      "next": "Next",
+      "submit": "Submit Quiz",
+      "tryAgain": "Try Again",
+      "selectAnswer": "Select an answer to continue.",
+      "noQuestions": "No questions found for this quiz.",
+      "answerAll": "Answer every question before submitting.",
+      "perfect": "Perfect! You can mark this lesson complete.",
+      "submitToComplete": "Submit the quiz to check your answers before completing.",
+      "allCorrectToComplete": "All answers must be correct to complete this lesson.",
+      "lockSubmitToUnlock": "Submit the quiz with answers for every question to unlock Mark Complete.",
+      "lockAllCorrectToUnlock": "All quiz answers must be correct to unlock Mark Complete."
+    },
+    "nav": {
+      "prev": "Prev",
+      "next": "Next"
+    },
+    "sessions": {
+      "title": "Live Sessions",
+      "liveBadge": "Live session",
+      "empty": "No upcoming sessions. Check back later.",
+      "defaultTitle": "Session",
+      "start": "Start:",
+      "end": "End:",
+      "joinNow": "Join Now",
+      "notLive": "Not live",
+      "prevAria": "Previous session",
+      "nextAria": "Next session"
+    },
+    "resources": {
+      "title": "Course Resources",
+      "empty": "No resources available yet"
+    },
+    "noLesson": {
+      "title": "Select a lesson to begin",
+      "body": "Choose a lesson from the sidebar to start learning"
+    },
+    "completion": {
+      "badge": "Completed",
+      "certificateUnlocked": "Certificate unlocked",
+      "wellDone": "Well done, {{percent}}% completed!",
+      "greatWork": "Great work finishing {{title}}. Keep the momentum going.",
+      "metaLessons": "{{count}} lessons",
+      "metaTracked": "{{time}} tracked",
+      "highlights": "Highlights",
+      "lessonsCompleted": "Lessons completed",
+      "timeInvested": "Time invested",
+      "progress": "Progress",
+      "share": "Share achievement",
+      "keepLearning": "Keep learning"
+    },
+    "certificate": {
+      "title": "Certificate",
+      "generating": "Generating your certificate...",
+      "ready": "Your certificate is ready!",
+      "view": "View",
+      "download": "Download",
+      "verificationCode": "Verification code",
+      "copy": "Copy",
+      "issued": "Issued",
+      "failed": "Certificate generation failed. Please try again later."
+    },
+    "errors": {
+      "courseIdMissing": "Course ID not found",
+      "liveSessionsFailed": "Failed to load live sessions",
+      "popupBlocked": "Popup was blocked. Please allow popups or use the button below to open the live session.",
+      "joinSessionFailed": "Failed to join session",
+      "accessDenied": "Access denied. You may not have permission to view this course.",
+      "authRequired": "Authentication required. Please log in to view this course.",
+      "courseNotFound": "Course not found. It may have been removed or the link is invalid.",
+      "courseLoadFailed": "Failed to load course data. Please try again later.",
+      "markCompleteFailed": "Failed to mark lesson as complete. Please try again.",
+      "courseDataMissing": "Course data not available",
+      "userNotAuthenticated": "User not authenticated",
+      "certificateGenerateFailed": "Failed to generate certificate. Please try again."
+    },
+    "share": {
+      "title": "I completed {{title}}!",
+      "text": "I just completed the course \"{{title}}\" and earned my certificate!",
+      "copied": "Achievement text copied to clipboard!",
+      "failed": "Unable to share. Please copy the URL manually."
+    }
+  },
+  "adminManagement": {
+    "common": {
+      "search": "\u0628\u062d\u062b...",
+      "filter": "\u062a\u0635\u0641\u064a\u0629",
+      "actions": "\u0627\u0644\u0625\u062c\u0631\u0627\u0621\u0627\u062a",
+      "view": "\u0639\u0631\u0636",
+      "edit": "\u062a\u0639\u062f\u064a\u0644",
+      "delete": "\u062d\u0630\u0641",
+      "confirm": "\u062a\u0623\u0643\u064a\u062f",
+      "cancel": "\u0625\u0644\u063a\u0627\u0621",
+      "save": "\u062d\u0641\u0638",
+      "loading": "\u062c\u0627\u0631\u064d \u0627\u0644\u062a\u062d\u0645\u064a\u0644...",
+      "noData": "\u0644\u0627 \u062a\u0648\u062c\u062f \u0628\u064a\u0627\u0646\u0627\u062a",
+      "refresh": "\u062a\u062d\u062f\u064a\u062b"
+    },
+    "users": {
+      "title": "\u0625\u062f\u0627\u0631\u0629 \u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645\u064a\u0646",
+      "subtitle": "\u0625\u062f\u0627\u0631\u0629 \u0627\u0644\u062d\u0633\u0627\u0628\u0627\u062a\u060c \u0627\u0644\u0623\u062f\u0648\u0627\u0631\u060c \u0648\u0627\u0644\u0635\u0644\u0627\u062d\u064a\u0627\u062a",
+      "table": {
+        "name": "\u0627\u0644\u0627\u0633\u0645",
+        "email": "\u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a",
+        "role": "\u0627\u0644\u062f\u0648\u0631",
+        "status": "\u0627\u0644\u062d\u0627\u0644\u0629",
+        "createdAt": "\u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0625\u0646\u0634\u0627\u0621",
+        "actions": "\u0627\u0644\u0625\u062c\u0631\u0627\u0621\u0627\u062a"
+      },
+      "roles": {
+        "admin": "\u0645\u0634\u0631\u0641",
+        "trainer": "\u0645\u062f\u0631\u0651\u0628",
+        "member": "\u0645\u0633\u062a\u062e\u062f\u0645"
+      },
+      "status": {
+        "active": "\u0646\u0634\u0637",
+        "suspended": "\u0645\u0648\u0642\u0648\u0641",
+        "pending": "\u0642\u064a\u062f \u0627\u0644\u0645\u0631\u0627\u062c\u0639\u0629"
+      },
+      "actions": {
+        "viewProfile": "\u0639\u0631\u0636 \u0627\u0644\u0645\u0644\u0641 \u0627\u0644\u0634\u062e\u0635\u064a",
+        "changeRole": "\u062a\u063a\u064a\u064a\u0631 \u0627\u0644\u062f\u0648\u0631",
+        "suspend": "\u0625\u064a\u0642\u0627\u0641 \u0627\u0644\u062d\u0633\u0627\u0628",
+        "activate": "\u062a\u0641\u0639\u064a\u0644 \u0627\u0644\u062d\u0633\u0627\u0628",
+        "delete": "\u062d\u0630\u0641 \u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645"
+      },
+      "confirmDelete": {
+        "title": "\u062d\u0630\u0641 \u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645",
+        "body": "\u0647\u0644 \u0623\u0646\u062a \u0645\u062a\u0623\u0643\u062f \u0645\u0646 \u062d\u0630\u0641 \u0647\u0630\u0627 \u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645\u061f \u0644\u0627 \u064a\u0645\u0643\u0646 \u0627\u0644\u062a\u0631\u0627\u062c\u0639 \u0639\u0646 \u0647\u0630\u0627 \u0627\u0644\u0625\u062c\u0631\u0627\u0621."
+      }
+    },
+    "feed": {
+      "title": "\u0625\u062f\u0627\u0631\u0629 \u0627\u0644\u0645\u0646\u0634\u0648\u0631\u0627\u062a",
+      "subtitle": "\u0645\u0631\u0627\u062c\u0639\u0629 \u0648\u0625\u062f\u0627\u0631\u0629 \u0645\u0646\u0634\u0648\u0631\u0627\u062a \u0627\u0644\u0645\u062c\u062a\u0645\u0639",
+      "table": {
+        "author": "\u0627\u0644\u0646\u0627\u0634\u0631",
+        "content": "\u0627\u0644\u0645\u062d\u062a\u0648\u0649",
+        "likes": "\u0627\u0644\u0625\u0639\u062c\u0627\u0628\u0627\u062a",
+        "comments": "\u0627\u0644\u062a\u0639\u0644\u064a\u0642\u0627\u062a",
+        "createdAt": "\u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0646\u0634\u0631",
+        "status": "\u0627\u0644\u062d\u0627\u0644\u0629"
+      },
+      "status": {
+        "published": "\u0645\u0646\u0634\u0648\u0631",
+        "hidden": "\u0645\u062e\u0641\u064a",
+        "reported": "\u0645\u064f\u0628\u0644\u0651\u064e\u063a \u0639\u0646\u0647"
+      },
+      "actions": {
+        "view": "\u0639\u0631\u0636",
+        "hide": "\u0625\u062e\u0641\u0627\u0621",
+        "publish": "\u0646\u0634\u0631",
+        "delete": "\u062d\u0630\u0641",
+        "viewReports": "\u0639\u0631\u0636 \u0627\u0644\u0628\u0644\u0627\u063a\u0627\u062a"
+      },
+      "empty": "\u0644\u0627 \u062a\u0648\u062c\u062f \u0645\u0646\u0634\u0648\u0631\u0627\u062a \u062d\u0627\u0644\u064a\u064b\u0627"
+    },
+    "courses": {
+      "title": "\u0625\u062f\u0627\u0631\u0629 \u0627\u0644\u062f\u0648\u0631\u0627\u062a",
+      "subtitle": "\u0625\u0646\u0634\u0627\u0621\u060c \u062a\u0639\u062f\u064a\u0644\u060c \u0648\u0625\u062f\u0627\u0631\u0629 \u0627\u0644\u062f\u0648\u0631\u0627\u062a \u0627\u0644\u062a\u062f\u0631\u064a\u0628\u064a\u0629",
+      "table": {
+        "title": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u062f\u0648\u0631\u0629",
+        "trainer": "\u0627\u0644\u0645\u062f\u0631\u0651\u0628",
+        "domain": "\u0627\u0644\u0645\u062c\u0627\u0644",
+        "language": "\u0627\u0644\u0644\u063a\u0629",
+        "students": "\u0639\u062f\u062f \u0627\u0644\u0645\u062a\u0639\u0644\u0645\u064a\u0646",
+        "status": "\u0627\u0644\u062d\u0627\u0644\u0629"
+      },
+      "status": {
+        "draft": "\u0645\u0633\u0648\u062f\u0629",
+        "published": "\u0645\u0646\u0634\u0648\u0631\u0629",
+        "archived": "\u0645\u0624\u0631\u0634\u0641\u0629"
+      },
+      "actions": {
+        "add": "\u0625\u0636\u0627\u0641\u0629 \u062f\u0648\u0631\u0629",
+        "edit": "\u062a\u0639\u062f\u064a\u0644 \u0627\u0644\u062f\u0648\u0631\u0629",
+        "archive": "\u0623\u0631\u0634\u0641\u0629",
+        "publish": "\u0646\u0634\u0631",
+        "delete": "\u062d\u0630\u0641"
+      },
+      "empty": "\u0644\u0627 \u062a\u0648\u062c\u062f \u062f\u0648\u0631\u0627\u062a \u0645\u062a\u0627\u062d\u0629"
+    },
+    "certificates": {
+      "title": "\u0625\u062f\u0627\u0631\u0629 \u0627\u0644\u0634\u0647\u0627\u062f\u0627\u062a",
+      "subtitle": "\u0627\u0644\u062a\u062d\u0642\u0642 \u0648\u0625\u062f\u0627\u0631\u0629 \u0634\u0647\u0627\u062f\u0627\u062a \u0627\u0644\u0645\u062a\u0639\u0644\u0645\u064a\u0646",
+      "table": {
+        "user": "\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645",
+        "course": "\u0627\u0644\u062f\u0648\u0631\u0629",
+        "issuedAt": "\u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0625\u0635\u062f\u0627\u0631",
+        "verificationCode": "\u0631\u0645\u0632 \u0627\u0644\u062a\u062d\u0642\u0642",
+        "status": "\u0627\u0644\u062d\u0627\u0644\u0629"
+      },
+      "status": {
+        "valid": "\u0635\u0627\u0644\u062d\u0629",
+        "revoked": "\u0645\u0644\u063a\u0627\u0629"
+      },
+      "actions": {
+        "view": "\u0639\u0631\u0636 \u0627\u0644\u0634\u0647\u0627\u062f\u0629",
+        "download": "\u062a\u062d\u0645\u064a\u0644",
+        "revoke": "\u0625\u0644\u063a\u0627\u0621 \u0627\u0644\u0634\u0647\u0627\u062f\u0629"
+      },
+      "empty": "\u0644\u0627 \u062a\u0648\u062c\u062f \u0634\u0647\u0627\u062f\u0627\u062a"
+    },
+    "tickets": {
+      "title": "\u0625\u062f\u0627\u0631\u0629 \u062a\u0630\u0627\u0643\u0631 \u0627\u0644\u062f\u0639\u0645",
+      "subtitle": "\u0645\u062a\u0627\u0628\u0639\u0629 \u0637\u0644\u0628\u0627\u062a \u0627\u0644\u062f\u0639\u0645 \u0648\u0627\u0644\u0645\u0634\u0627\u0643\u0644",
+      "table": {
+        "ticketId": "\u0631\u0642\u0645 \u0627\u0644\u062a\u0630\u0643\u0631\u0629",
+        "user": "\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645",
+        "subject": "\u0627\u0644\u0645\u0648\u0636\u0648\u0639",
+        "status": "\u0627\u0644\u062d\u0627\u0644\u0629",
+        "createdAt": "\u062a\u0627\u0631\u064a\u062e \u0627\u0644\u0625\u0646\u0634\u0627\u0621",
+        "updatedAt": "\u0622\u062e\u0631 \u062a\u062d\u062f\u064a\u062b"
+      },
+      "status": {
+        "open": "\u0645\u0641\u062a\u0648\u062d\u0629",
+        "inProgress": "\u0642\u064a\u062f \u0627\u0644\u0645\u0639\u0627\u0644\u062c\u0629",
+        "closed": "\u0645\u063a\u0644\u0642\u0629"
+      },
+      "actions": {
+        "view": "\u0639\u0631\u0636",
+        "reply": "\u0627\u0644\u0631\u062f",
+        "close": "\u0625\u063a\u0644\u0627\u0642 \u0627\u0644\u062a\u0630\u0643\u0631\u0629",
+        "reopen": "\u0625\u0639\u0627\u062f\u0629 \u0641\u062a\u062d"
+      },
+      "empty": "\u0644\u0627 \u062a\u0648\u062c\u062f \u062a\u0630\u0627\u0643\u0631 \u062f\u0639\u0645"
+    }
+  },
+  "userManagement": {
+    "eyebrow": "Administration",
+    "searchPlaceholder": "Rechercher des utilisateurs...",
+    "usersFound": "{{count}} utilisateurs trouves ({{active}} actifs, {{archived}} archives)",
+    "table": {
+      "name": "Nom",
+      "email": "Email",
+      "phone": "Telephone",
+      "country": "Pays",
+      "language": "Langue",
+      "domain": "Domaine",
+      "role": "Role",
+      "registered": "Inscription",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Actif",
+      "archived": "Archive"
+    },
+    "actions": {
+      "edit": "Modifier",
+      "archive": "Archiver l'utilisateur",
+      "unarchive": "Desarchiver l'utilisateur",
+      "cancel": "Annuler",
+      "saveChanges": "Enregistrer les modifications"
+    },
+    "empty": {
+      "title": "Aucun utilisateur trouve",
+      "body": "Essayez d'ajuster vos criteres de recherche"
+    },
+    "modal": {
+      "title": "Modifier l'utilisateur"
+    },
+    "form": {
+      "name": "Nom",
+      "email": "Email",
+      "phone": "Telephone",
+      "phonePlaceholder": "123 456 789",
+      "country": "Pays",
+      "language": "Langue",
+      "domain": "Domaine",
+      "role": "Role"
+    },
+    "roles": {
+      "admin": "Admin",
+      "user": "Utilisateur"
+    },
+    "archiveHelp": "Les utilisateurs archives ne sont pas visibles pour les utilisateurs"
+  },
+  "feedManagement": {
+    "header": {
+      "eyebrow": "Administration",
+      "title": "Posts",
+      "subtitle": "Gerez vos posts communautaires"
+    },
+    "news": {
+      "eyebrow": "Mises a jour",
+      "title": "Actualites de la plateforme",
+      "headlines": "{{count}} titres",
+      "loading": "Chargement...",
+      "sourceFallback": "Actualite",
+      "read": "Lire",
+      "delete": "Supprimer",
+      "empty": "Aucune actualite pour le moment",
+      "more": "Plus"
+    },
+    "create": {
+      "prompt": "Quoi de neuf ?",
+      "placeholder": "Quoi de neuf ?",
+      "removeImage": "Supprimer"
+    },
+    "upload": {
+      "title": "Cliquez pour selectionner une image",
+      "subtitle": "Prend en charge JPG, PNG, GIF (max 5 Mo)"
+    },
+    "actions": {
+      "photo": "Photo",
+      "cancel": "Annuler",
+      "post": "Publier",
+      "uploading": "Televersement...",
+      "posting": "Publication...",
+      "uploadingOverlay": "Televersement de l'image et creation du post...",
+      "creatingOverlay": "Creation de votre post...",
+      "uploadNote": "Le televersement peut prendre un moment",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "save": "Enregistrer",
+      "likePost": "Aimer le post",
+      "unlikePost": "Ne plus aimer le post",
+      "viewComments": "Voir les commentaires",
+      "likeComment": "Aimer le commentaire",
+      "writeComment": "Ecrire un commentaire...",
+      "postComment": "Publier le commentaire"
+    },
+    "edit": {
+      "placeholder": "Modifiez votre post...",
+      "removeCurrentImage": "Supprimer l'image actuelle",
+      "changeImage": "Changer l'image",
+      "addImage": "Ajouter une image"
+    },
+    "loading": "Chargement des posts...",
+    "empty": {
+      "title": "Aucun post pour le moment",
+      "body": "Creez votre premier post pour commencer !"
+    },
+    "deleteModal": {
+      "title": "Supprimer le post ?",
+      "subtitle": "Ce post sera supprime definitivement. Vous ne pouvez pas annuler."
+    },
+    "errors": {
+      "loadPosts": "Echec du chargement des posts. Veuillez reessayer plus tard.",
+      "createPost": "Echec de la creation du post. Veuillez reessayer.",
+      "preparePost": "Echec de la preparation des donnees du post. Veuillez reessayer.",
+      "invalidImageType": "Veuillez selectionner un fichier image.",
+      "imageTooLarge": "La taille du fichier doit etre inferieure a 5 Mo.",
+      "authEdit": "Vous devez etre connecte pour modifier les posts.",
+      "updatePost": "Echec de la mise a jour du post. Veuillez reessayer.",
+      "authDelete": "Vous devez etre connecte pour supprimer les posts.",
+      "deletePost": "Echec de la suppression du post. Veuillez reessayer.",
+      "loadNews": "Echec du chargement des actualites."
+    },
+    "alt": {
+      "userAvatar": "Avatar utilisateur",
+      "imagePreview": "Apercu de l'image",
+      "currentImage": "Image actuelle",
+      "newImagePreview": "Apercu de la nouvelle image",
+      "postImage": "Image du post"
+    }
+  },
+  "adminSettings": {
+    "header": {
+      "eyebrow": "Administration",
+      "title": "Parametres",
+      "subtitle": "Gerez l'apparence et les notifications admin"
+    },
+    "common": {
+      "expand": "Developper",
+      "collapse": "Reduire",
+      "cancel": "Annuler",
+      "saveChanges": "Enregistrer les modifications",
+      "saving": "Enregistrement..."
+    },
+    "appearance": {
+      "eyebrow": "Apparence",
+      "title": "Theme",
+      "subtitle": "S'applique a l'espace admin",
+      "displayLabel": "Mode d'affichage",
+      "displayHint": "Choisissez le theme clair ou sombre",
+      "light": "Clair",
+      "dark": "Sombre",
+      "languageLabel": "Langue",
+      "languageHint": "Selectionnez votre langue",
+      "save": "Enregistrer l'affichage"
+    },
+    "notifications": {
+      "eyebrow": "Notifications",
+      "title": "Alertes admin",
+      "subtitle": "Raccourcis pour les alertes de la plateforme",
+      "save": "Enregistrer les preferences",
+      "saved": "Preferences enregistrees",
+      "saveError": "Impossible d'enregistrer les preferences localement",
+      "toggles": {
+        "system": {
+          "label": "Alertes systeme",
+          "hint": "Sante de la plateforme et disponibilite"
+        },
+        "posts": {
+          "label": "Activite des posts",
+          "hint": "Nouveaux signalements ou posts signales"
+        },
+        "courses": {
+          "label": "Mises a jour des cours",
+          "hint": "Publication des cours et validations"
+        },
+        "users": {
+          "label": "Cycle de vie utilisateur",
+          "hint": "Invitations, desactivations et roles"
+        }
+      }
+    },
+    "operations": {
+      "eyebrow": "Operations",
+      "title": "Controles de la plateforme",
+      "subtitle": "Mode maintenance et collecte des actualites",
+      "maintenanceLabel": "Maintenance systeme",
+      "maintenanceHint": "Basculer le mode maintenance global",
+      "newsCadenceLabel": "Cadence de collecte GNews",
+      "newsCadenceHint": "Gerer le planning de collecte",
+      "cadence15": "Toutes les 15 minutes",
+      "cadence30": "Toutes les 30 minutes",
+      "cadence60": "Toutes les 60 minutes",
+      "cadence120": "Toutes les 2 heures",
+      "fetchNow": "Recuperer maintenant",
+      "fetchRequested": "Demande envoyee (stub)",
+      "saved": "Parametres mis a jour localement",
+      "saveError": "Impossible d'enregistrer les parametres"
+    },
+    "security": {
+      "eyebrow": "Securite",
+      "title": "Protection du compte",
+      "subtitle": "Double facteur et identifiants",
+      "twoFactorLabel": "Authentification a deux facteurs",
+      "twoFactorHint": "Exiger la 2FA pour l'admin",
+      "twoFactorPassword": "Confirmer avec le mot de passe",
+      "updateTwoFactor": "Mettre a jour la 2FA",
+      "twoFactor": {
+        "enabled": "2FA activee (en attente du backend)",
+        "disabled": "2FA desactivee (en attente du backend)",
+        "errors": {
+          "missingPassword": "Entrez votre mot de passe pour mettre a jour la 2FA."
+        }
+      },
+      "emailLabel": "Email",
+      "emailHint": "Changer l'email de contact admin",
+      "editEmail": "Modifier l'email",
+      "newEmail": "name@domain.com",
+      "confirmEmail": "Confirmer le nouvel email",
+      "currentPassword": "Mot de passe actuel",
+      "updateEmail": "Mettre a jour l'email",
+      "email": {
+        "success": "Demande de changement d'email envoyee",
+        "errors": {
+          "missingFields": "Saisissez le nouvel email, la confirmation et le mot de passe actuel.",
+          "mismatch": "Les emails ne correspondent pas.",
+          "failed": "Echec du changement d'email"
+        }
+      },
+      "passwordLabel": "Mot de passe",
+      "passwordHint": "Definir un nouveau mot de passe",
+      "editPassword": "Modifier le mot de passe",
+      "newPassword": "Nouveau mot de passe",
+      "confirmPassword": "Confirmer le nouveau mot de passe",
+      "updatePassword": "Mettre a jour le mot de passe",
+      "password": {
+        "success": "Mot de passe mis a jour",
+        "errors": {
+          "missingFields": "Veuillez remplir les champs actuel, nouveau et confirmation.",
+          "mismatch": "Les mots de passe ne correspondent pas.",
+          "failed": "Echec du changement de mot de passe"
+        }
+      }
+    }
+  },
+  "ticketManagement": {
+    "header": {
+      "eyebrow": "Centre de support",
+      "stats": "{{total}} au total - {{open}} ouverts"
+    },
+    "sidebar": {
+      "title": "Tickets"
+    },
+    "filters": {
+      "title": "Filtres",
+      "highPriority": "Haute priorite",
+      "unassigned": "Non assigne",
+      "overdue": "En retard"
+    },
+    "search": {
+      "placeholder": "Rechercher des tickets..."
+    },
+    "sort": {
+      "recent": "Trier : Recents",
+      "status": "Trier : Statut"
+    },
+    "list": {
+      "ticketNumber": "Ticket #{{id}}",
+      "empty": "Aucun ticket ne correspond au filtre actuel."
+    },
+    "conversation": {
+      "ticketNumber": "Ticket #{{id}}",
+      "updating": "Mise a jour...",
+      "attachmentAlt": "Piece jointe du ticket",
+      "empty": "Aucune conversation pour le moment.",
+      "selectPrompt": "Selectionnez un ticket pour voir la conversation."
+    },
+    "status": {
+      "all": "Tous les tickets",
+      "open": "Ouvert",
+      "pending": "En attente",
+      "resolved": "Resolue",
+      "closed": "Ferme",
+      "unknown": "Inconnu"
+    },
+    "priority": {
+      "high": "Priorite haute",
+      "inProgress": "En cours",
+      "medium": "Priorite moyenne",
+      "low": "Priorite basse",
+      "general": "General"
+    },
+    "actions": {
+      "attachImage": "Joindre une image",
+      "removeAttachment": "Retirer",
+      "replyPlaceholder": "Ecrivez votre reponse...",
+      "sending": "Envoi...",
+      "sendReply": "Envoyer la reponse"
+    },
+    "common": {
+      "user": "Utilisateur",
+      "supportAgent": "Agent support"
+    },
+    "errors": {
+      "load": "Impossible de charger les tickets.",
+      "loadThread": "Impossible de charger la conversation.",
+      "send": "Impossible d'envoyer le message.",
+      "close": "Impossible de fermer le ticket.",
+      "status": "Impossible de mettre a jour le statut."
+    },
+    "confirm": {
+      "close": "Fermer ce ticket ? Cette action est definitive."
+    }
+  },
+  "courseManagement": {
+    "header": {
+      "eyebrow": "Administration"
+    },
+    "loading": "Chargement des cours...",
+    "card": {
+      "archived": "Archive",
+      "noDescription": "Aucune description",
+      "trainer": "Formateur : {{trainer}}",
+      "sessions": "Sessions : {{count}}",
+      "created": "Cree le : {{date}}"
+    },
+    "pagination": {
+      "showing": "Affichage de {{shown}} sur {{total}}",
+      "showMore": "Voir plus"
+    },
+    "empty": {
+      "title": "Aucun cours trouve",
+      "searchBody": "Essayez d'ajuster votre recherche",
+      "defaultBody": "Commencez par ajouter votre premier cours",
+      "addFirst": "Ajouter votre premier cours"
+    },
+    "modal": {
+      "addTitle": "Ajouter un cours",
+      "close": "Fermer la fenetre"
+    },
+    "form": {
+      "courseTitle": "Titre du cours",
+      "courseTitlePlaceholder": "Entrez le titre du cours",
+      "domain": "Domaine",
+      "domainPlaceholder": "ex : Programmation, Design, Business",
+      "country": "Pays",
+      "countryPlaceholder": "Choisir un pays",
+      "description": "Description",
+      "descriptionPlaceholder": "Entrez la description du cours..."
+    },
+    "image": {
+      "label": "Image du cours",
+      "upload": "Cliquez pour televerser une image",
+      "previewAlt": "Apercu de l'image du cours",
+      "change": "Changer l'image",
+      "remove": "Supprimer"
+    },
+    "video": {
+      "label": "Video du cours",
+      "upload": "Cliquez pour televerser une video",
+      "change": "Changer la video",
+      "remove": "Supprimer",
+      "uploadAction": "Televerser la video",
+      "progress": "Televersement : {{percent}}%"
+    },
+    "actions": {
+      "cancel": "Annuler",
+      "saving": "Enregistrement...",
+      "addCourse": "Ajouter le cours"
+    },
+    "errors": {
+      "load": "Echec du chargement des cours.",
+      "save": "Erreur lors de l'enregistrement du cours.",
+      "titleRequired": "Le titre du cours est requis",
+      "invalidVideo": "Veuillez choisir un fichier video valide",
+      "noVideo": "Veuillez d'abord choisir une video",
+      "uploadFailed": "Echec du televersement de la video"
+    },
+    "messages": {
+      "videoUploaded": "Video televersee avec succes !"
+    }
+  },
+  "certificatesManagement": {
+    "header": {
+      "eyebrow": "Administration",
+      "matches": "{{count}} certificats",
+      "refresh": "Actualiser",
+      "refreshing": "Actualisation..."
+    },
+    "stats": {
+      "totalIssued": "Total emis",
+      "allTime": "Depuis toujours",
+      "active": "Actifs",
+      "revokedCount": "{{count}} revoques",
+      "revoked": "Revoques",
+      "revokedPercent": "{{percent}}% revoques",
+      "selected": "Selection",
+      "noneSelected": "Aucune selection"
+    },
+    "common": {
+      "none": "Aucun"
+    },
+    "errors": {
+      "load": "Impossible de charger les certificats."
+    },
+    "filters": {
+      "searchLabel": "Recherche",
+      "searchPlaceholder": "Rechercher par etudiant, cours ou ID",
+      "status": "Statut",
+      "all": "Tous",
+      "active": "Actifs",
+      "revoked": "Revoques",
+      "sortLabel": "Tri",
+      "sort": {
+        "latest": "Recents",
+        "oldest": "Anciens",
+        "name": "Etudiant",
+        "course": "Cours"
+      }
+    },
+    "table": {
+      "title": "Certificats",
+      "results": "{{count}} resultats",
+      "empty": "Aucun certificat trouve",
+      "student": "Etudiant",
+      "course": "Cours",
+      "issued": "Date d'emission",
+      "status": "Statut",
+      "code": "Code"
+    },
+    "status": {
+      "active": "Actif",
+      "revoked": "Revoque"
+    },
+    "actions": {
+      "review": "Verifier",
+      "close": "Fermer"
+    },
+    "detail": {
+      "eyebrow": "Details du certificat",
+      "code": "Code du certificat",
+      "status": "Statut",
+      "issuedOn": "Date d'emission",
+      "totalTime": "Temps total"
+    },
+    "edit": {
+      "title": "Modifier le certificat",
+      "instructor": "Formateur",
+      "organization": "Organisation",
+      "issueDate": "Date d'emission",
+      "notesLabel": "Notes",
+      "notesPlaceholder": "Ajouter des notes internes...",
+      "saving": "Enregistrement...",
+      "save": "Enregistrer"
+    },
+    "revoke": {
+      "title": "Revoquer le certificat",
+      "body": "La revocation invalide immediatement ce certificat.",
+      "placeholder": "Raison de la revocation",
+      "revoking": "Revocation...",
+      "action": "Revoquer"
+    },
+    "empty": {
+      "title": "Selectionnez un certificat",
+      "body": "Choisissez un certificat pour consulter et modifier les details."
+    },
+    "duration": {
+      "minutes": "{{count}} min",
+      "hours": "{{count}} h",
+      "hoursMinutes": "{{hours}} h {{minutes}} min"
+    }
+  },
+  "adminCourseDetails": {
+    "header": {
+      "createTitle": "Creer un nouveau cours",
+      "editTitle": "Modifier le cours",
+      "subtitle": "Gerer le contenu, les medias et les parametres"
+    },
+    "controls": {
+      "expandAllTitle": "Deplier toutes les sections",
+      "collapseAllTitle": "Replier toutes les sections",
+      "expandAll": "Tout deplier",
+      "collapseAll": "Tout replier",
+      "expandSection": "Deplier la section",
+      "collapseSection": "Replier la section",
+      "expandContent": "Deplier le contenu",
+      "collapseContent": "Replier le contenu"
+    },
+    "basicInfo": {
+      "title": "Informations de base",
+      "description": "Saisissez les details de base du cours",
+      "courseTitleLabel": "Titre du cours",
+      "courseTitlePlaceholder": "Entrez le titre du cours",
+      "instructorLabel": "Formateur",
+      "instructorPlaceholder": "Entrez l'ID du formateur",
+      "domainLabel": "Domaine",
+      "domainPlaceholder": "Selectionner le domaine",
+      "countryLabel": "Pays",
+      "countryPlaceholder": "Selectionner le pays",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Fournissez une description detaillee du cours"
+    },
+    "goals": {
+      "title": "Objectifs du cours",
+      "description": "Definir ce que les etudiants vont accomplir",
+      "add": "Ajouter un objectif",
+      "empty": "Aucun objectif pour l'instant. Cliquez sur \"Ajouter un objectif\".",
+      "placeholder": "Entrez un objectif du cours"
+    },
+    "media": {
+      "title": "Medias du cours",
+      "description": "Televerser l'image et la video du cours",
+      "imageLabel": "Image du cours",
+      "uploading": "Televersement...",
+      "uploadImageTitle": "Televerser une image",
+      "uploadImageSubtitle": "PNG, JPG jusqu'a 10MB",
+      "changeImage": "Changer l'image",
+      "removeImage": "Supprimer l'image",
+      "imageAlt": "Image du cours",
+      "videoLabel": "Video du cours",
+      "uploadVideoTitle": "Televerser une video",
+      "uploadVideoSubtitle": "MP4, MOV jusqu'a 100MB",
+      "changeVideo": "Changer la video",
+      "removeVideo": "Supprimer la video"
+    },
+    "languages": {
+      "title": "Langues disponibles",
+      "description": "Selectionnez les langues disponibles pour ce cours"
+    },
+    "sessions": {
+      "title": "Sessions",
+      "description": "Gerer les sessions en direct",
+      "add": "Ajouter une session",
+      "titleLabel": "Titre",
+      "titlePlaceholder": "Titre de session (par defaut le nom du cours)",
+      "startLabel": "Debut",
+      "endLabel": "Fin",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Description optionnelle",
+      "lobbyEnabled": "Salle d'attente activee",
+      "recordingEnabled": "Enregistrement active",
+      "creating": "Creation...",
+      "create": "Creer la session",
+      "loading": "Chargement des sessions...",
+      "empty": "Aucune session. Utilisez \"Creer la session\" pour commencer.",
+      "startJoin": "Demarrer/Rejoindre",
+      "sessionTitleFallback": "Session {{index}}"
+    },
+    "files": {
+      "title": "Fichiers du cours",
+      "description": "Televerser des ressources",
+      "saveBeforeUpload": "Enregistrer le cours avant de televerser des fichiers",
+      "upload": "Televerser des fichiers",
+      "uploading": "Televersement...",
+      "empty": "Aucun fichier. Cliquez sur \"Televerser des fichiers\"."
+    },
+    "textContent": {
+      "title": "Contenu texte",
+      "description": "Creer des lecons, devoirs et contenus textuels",
+      "add": "Ajouter du contenu",
+      "empty": "Aucun contenu texte. Cliquez sur \"Ajouter du contenu\".",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "delete": "Supprimer le contenu",
+      "titleLabel": "Titre",
+      "titlePlaceholder": "Titre du contenu",
+      "typeLabel": "Type",
+      "contentLabel": "Contenu",
+      "contentPlaceholder": "Saisir le contenu",
+      "untitled": "Sans titre {{type}}",
+      "lessonFallback": "Lecon {{index}}",
+      "types": {
+        "lesson": "Lecon",
+        "assignment": "Devoir",
+        "reading": "Lecture",
+        "quiz": "Quiz",
+        "project": "Projet",
+        "unknown": "Contenu"
+      }
+    },
+    "quiz": {
+      "title": "Questions du quiz",
+      "addQuestion": "Ajouter une question",
+      "questionLabel": "Question {{index}}",
+      "questionField": "Question {{index}}",
+      "questionPlaceholder": "Entrez le texte de la question",
+      "optionsLabel": "Options",
+      "correct": "Correct",
+      "optionPlaceholder": "Texte de l'option",
+      "addOption": "Ajouter une option",
+      "questionLabelDetailed": "Quiz \"{{title}}\" question {{index}}",
+      "errors": {
+        "emptyQuestion": "{{label}} est vide.",
+        "minOptions": "{{label}} doit avoir au moins deux reponses.",
+        "blankOptions": "{{label}} contient des reponses vides.",
+        "correctRequired": "{{label}} doit avoir une bonne reponse."
+      }
+    },
+    "sidebar": {
+      "statusTitle": "Statut du cours",
+      "archived": "Archive",
+      "actionsTitle": "Actions",
+      "saving": "Enregistrement...",
+      "save": "Enregistrer",
+      "delete": "Supprimer",
+      "retrieve": "Restaurer"
+    },
+    "validation": {
+      "title": "Erreurs de validation",
+      "titleRequired": "Le titre est requis (min 3 caracteres)",
+      "descriptionRequired": "La description est requise (min 10 caracteres)"
+    },
+    "errors": {
+      "liveSession": "Impossible d'ouvrir la session en direct.",
+      "loadCourse": "Impossible de charger les details du cours.",
+      "loadSessions": "Impossible de charger les sessions.",
+      "invalidImage": "Veuillez choisir un fichier image valide",
+      "imageTooLarge": "L'image doit faire moins de 10MB",
+      "invalidVideo": "Veuillez choisir un fichier video valide",
+      "videoTooLarge": "La video doit faire moins de 100MB",
+      "invalidFiles": "Fichiers non autorises et ignores : {{names}}. Autorises : images, PDF, DOC/DOCX, XLS/XLSX/CSV, PPT/PPTX, TXT.",
+      "deleteFile": "Echec de suppression du fichier.",
+      "fixValidation": "Veuillez corriger les erreurs avant d'enregistrer.",
+      "saveCourse": "Echec de l'enregistrement du cours.",
+      "deleteNew": "Impossible de supprimer un nouveau cours.",
+      "deleteCourse": "Echec de suppression du cours.",
+      "retrieveNew": "Impossible de restaurer un nouveau cours.",
+      "retrieveCourse": "Echec de restauration du cours."
+    },
+    "messages": {
+      "saveSuccess": "Cours enregistre avec succes !"
+    },
+    "confirm": {
+      "deleteFileStaged": "Supprimer le fichier \"{{name}}\" ? Les changements seront enregistres.",
+      "deleteFile": "Supprimer le fichier \"{{name}}\" ?",
+      "deleteCourse": "Supprimer ce cours ? Cette action est definitive.",
+      "retrieveCourse": "Restaurer ce cours ? Il sera de-archive."
     }
   }
 }

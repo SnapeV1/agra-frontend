@@ -7,6 +7,7 @@ import { PostsService } from '../services/posts.service';
 import { PostViewModel } from 'src/app/shared/models/post-view.model';
 import { PostComment } from 'src/app/core/models/post-comment.module';
 import { NewsArticle, NewsService } from 'src/app/core/services/news.service';
+import { TranslateService } from '@ngx-translate/core';
 
 interface CreatePostForm {
   content: string;
@@ -54,7 +55,8 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private postsService: PostsService,
-  private newsService: NewsService
+    private newsService: NewsService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -112,7 +114,7 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
           this.loading = false;
         },
         error: error => {
-          this.errorMessage = 'Failed to load posts. Please try again later.';
+          this.errorMessage = 'feedManagement.errors.loadPosts';
           this.loading = false;
         }
       })
@@ -163,7 +165,7 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
     if (file) {
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        alert('Please select an image file.');
+        alert(this.translate.instant('feedManagement.errors.invalidImageType'));
         input.value = '';
         return;
       }
@@ -171,7 +173,7 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
       // Validate file size (e.g., max 5MB)
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
-        alert('File size must be less than 5MB.');
+        alert(this.translate.instant('feedManagement.errors.imageTooLarge'));
         input.value = '';
         return;
       }
@@ -193,7 +195,7 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
     if (file) {
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        alert('Please select an image file.');
+        alert(this.translate.instant('feedManagement.errors.invalidImageType'));
         input.value = '';
         return;
       }
@@ -201,7 +203,7 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
       // Validate file size (e.g., max 5MB)
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
-        alert('File size must be less than 5MB.');
+        alert(this.translate.instant('feedManagement.errors.imageTooLarge'));
         input.value = '';
         return;
       }
@@ -275,13 +277,13 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
           this.isCreatingPost = false;
         },
         error: (error) => {
-          this.errorMessage = 'Failed to create post. Please try again.';
+          this.errorMessage = 'feedManagement.errors.createPost';
           this.isCreatingPost = false;
         }
       });
       
     } catch (error) {
-      this.errorMessage = 'Failed to prepare post data. Please try again.';
+      this.errorMessage = 'feedManagement.errors.preparePost';
       this.isCreatingPost = false;
     }
   }
@@ -343,7 +345,7 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
   async saveEdit(): Promise<void> {
     if (!this.editingPost || !this.editingPost.content.trim() || !this.currentUser) return;
     if (!this.isAuthenticated) {
-      this.errorMessage = 'You must be signed in to edit posts.';
+      this.errorMessage = 'feedManagement.errors.authEdit';
       return;
     }
 
@@ -363,7 +365,7 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
         this.cancelEdit();
       },
       error: () => {
-        this.errorMessage = 'Failed to update post. Please try again.';
+        this.errorMessage = 'feedManagement.errors.updatePost';
       }
     });
   }
@@ -383,7 +385,7 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
   deletePost(): void {
     if (!this.postToDelete) return;
     if (!this.isAuthenticated) {
-      this.errorMessage = 'You must be signed in to delete posts.';
+      this.errorMessage = 'feedManagement.errors.authDelete';
       return;
     }
     const toDelete = this.postToDelete;
@@ -394,7 +396,7 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
         this.refreshPosts();
       },
       error: () => {
-        this.errorMessage = 'Failed to delete post. Please try again.';
+        this.errorMessage = 'feedManagement.errors.deletePost';
       }
     });
   }
@@ -498,17 +500,17 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
   }
 
   getTimeAgo(dateInput: string | Date | null | undefined): string {
-  if (!dateInput) return 'Unknown time';
+  if (!dateInput) return this.translate.instant('common.time.unknown');
 
   let date: Date;
   if (typeof dateInput === 'string') {
     date = new Date(dateInput);
-    if (isNaN(date.getTime())) return 'Invalid date';
+    if (isNaN(date.getTime())) return this.translate.instant('common.time.invalid');
   } else if (dateInput instanceof Date) {
     date = dateInput;
-    if (isNaN(date.getTime())) return 'Invalid date';
+    if (isNaN(date.getTime())) return this.translate.instant('common.time.invalid');
   } else {
-    return 'Unknown time';
+    return this.translate.instant('common.time.unknown');
   }
 
   const nowUtc = Date.now();
@@ -524,10 +526,14 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
   const diffInHours = Math.floor(diffInMinutes / 60);
   const diffInDays = Math.floor(diffInHours / 24);
 
-  if (diffInSeconds < 60) return diffInSeconds <= 1 ? 'Just now' : `${diffInSeconds}s ago`;
-  if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-  if (diffInHours < 24) return `${diffInHours}h ago`;
-  if (diffInDays < 7) return `${diffInDays}d ago`;
+  if (diffInSeconds < 60) {
+    return diffInSeconds <= 1
+      ? this.translate.instant('common.time.justNow')
+      : this.translate.instant('common.time.secondsAgo', { count: diffInSeconds });
+  }
+  if (diffInMinutes < 60) return this.translate.instant('common.time.minutesAgo', { count: diffInMinutes });
+  if (diffInHours < 24) return this.translate.instant('common.time.hoursAgo', { count: diffInHours });
+  if (diffInDays < 7) return this.translate.instant('common.time.daysAgo', { count: diffInDays });
 
   return date.toLocaleDateString();
 }
@@ -569,7 +575,7 @@ export class AdminPostsComponent implements OnInit, OnDestroy {
         this.newsLoading = false;
       },
       error: () => {
-        this.newsError = 'Failed to load news.';
+        this.newsError = 'feedManagement.errors.loadNews';
         this.newsLoading = false;
       }
     });

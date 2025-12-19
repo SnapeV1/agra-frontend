@@ -9,6 +9,7 @@ import { CourseService } from 'src/app/core/services/course/course.service';
 import { LiveSessionLauncherService } from 'src/app/core/services/live-session-launcher.service';
 import { SessionService } from 'src/app/core/services/session.service';
 import { SessionModule } from 'src/app/core/models/session.model';
+import { TranslateService } from '@ngx-translate/core';
 
 interface QuizRunState {
   currentIndex: number;
@@ -65,7 +66,8 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     private certificateService: CertificateService,
     private authService: AuthService,
     private sessionService: SessionService,
-    private liveSessionLauncher: LiveSessionLauncherService
+    private liveSessionLauncher: LiveSessionLauncherService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -74,7 +76,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
       this.loadCourseData();
       this.loadSessions();
     } else {
-      this.error = 'Course ID not found';
+      this.error = 'courseEnrolled.errors.courseIdMissing';
       this.loading = false;
     }
   }
@@ -105,7 +107,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
           this.sessionsLoading = false;
         },
         error: () => {
-          this.sessionsError = 'Failed to load live sessions';
+          this.sessionsError = 'courseEnrolled.errors.liveSessionsFailed';
           this.sessionsLoading = false;
         }
       });
@@ -137,13 +139,13 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.joiningSessionId = null;
           if (res?.blocked) {
-            this.sessionJoinError = 'Popup was blocked. Please allow popups or use the button below to open the live session.';
+            this.sessionJoinError = 'courseEnrolled.errors.popupBlocked';
             this.joinPopupBlockedUrl = res.targetUrl;
           }
         },
         error: (err) => {
           console.error('[CourseEnrolled] join session failed', err);
-          this.sessionJoinError = err?.message || 'Failed to join session';
+          this.sessionJoinError = 'courseEnrolled.errors.joinSessionFailed';
           this.joiningSessionId = null;
         }
       });
@@ -195,13 +197,13 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
           
           // Handle different error types
           if (error.status === 403) {
-            this.error = 'Access denied. You may not have permission to view this course.';
+            this.error = 'courseEnrolled.errors.accessDenied';
           } else if (error.status === 401) {
-            this.error = 'Authentication required. Please log in to view this course.';
+            this.error = 'courseEnrolled.errors.authRequired';
           } else if (error.status === 404) {
-            this.error = 'Course not found. It may have been removed or the link is invalid.';
+            this.error = 'courseEnrolled.errors.courseNotFound';
           } else {
-            this.error = 'Failed to load course data. Please try again later.';
+            this.error = 'courseEnrolled.errors.courseLoadFailed';
           }
           
           this.loading = false;
@@ -473,7 +475,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     const state = this.currentQuizState;
     if (!state || this.quizQuestionCount === 0) return;
     if (!this.getSelectedAnswer(state.currentIndex)) {
-      this.quizStatusMessage = 'Select an answer to continue.';
+      this.quizStatusMessage = 'courseEnrolled.quiz.selectAnswer';
       return;
     }
     this.quizStatusMessage = null;
@@ -507,12 +509,12 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     const state = this.currentQuizState;
     const total = this.quizQuestionCount;
     if (!state || total === 0) {
-      this.quizStatusMessage = 'No questions found for this quiz.';
+      this.quizStatusMessage = 'courseEnrolled.quiz.noQuestions';
       return;
     }
     const answeredAll = this.quizAnsweredCount === total && Object.values(state.answers).every(ans => !!ans);
     if (!answeredAll) {
-      this.quizStatusMessage = 'Answer every question before submitting.';
+      this.quizStatusMessage = 'courseEnrolled.quiz.answerAll';
       return;
     }
 
@@ -528,8 +530,8 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     state.submitted = true;
     state.allCorrect = correct === total;
     this.quizStatusMessage = state.allCorrect
-      ? 'Perfect! You can mark this lesson complete.'
-      : 'Review the answers and try again.';
+      ? 'courseEnrolled.quiz.perfect'
+      : 'courseEnrolled.quiz.reviewTryAgain';
 
     // Auto-complete the lesson when all answers are correct
     if (state.allCorrect && !this.getLessonProgress(this.currentLesson.id || '')?.completed) {
@@ -592,10 +594,10 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     }
     const quizState = this.getLessonQuizState(this.currentLesson);
     if (!quizState?.submitted) {
-      return 'Submit the quiz with answers for every question to unlock Mark Complete.';
+      return this.translate.instant('courseEnrolled.quiz.lockSubmitToUnlock');
     }
     if (!quizState.allCorrect) {
-      return 'All quiz answers must be correct to unlock Mark Complete.';
+      return this.translate.instant('courseEnrolled.quiz.lockAllCorrectToUnlock');
     }
     return '';
   }
@@ -608,11 +610,11 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
     if (this.currentLesson.type === 'quiz') {
       const quizState = this.getLessonQuizState(this.currentLesson);
       if (!quizState?.submitted) {
-        this.quizStatusMessage = 'Submit the quiz to check your answers before completing.';
+        this.quizStatusMessage = 'courseEnrolled.quiz.submitToComplete';
         return;
       }
       if (!quizState.allCorrect) {
-        this.quizStatusMessage = 'All answers must be correct to complete this lesson.';
+        this.quizStatusMessage = 'courseEnrolled.quiz.allCorrectToComplete';
         return;
       }
     }
@@ -658,7 +660,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
         lessonProgress.completedAt = originalCompletedAt;
         
         // Show user-friendly error message
-        alert('Failed to mark lesson as complete. Please try again.');
+        alert(this.translate.instant('courseEnrolled.errors.markCompleteFailed'));
       }
     });
   }
@@ -897,14 +899,14 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
 
   generateEnhancedCertificate(): void {
     if (!this.course || !this.courseEnrollment) {
-      this.certificateError = 'Course data not available';
+      this.certificateError = 'courseEnrolled.errors.courseDataMissing';
       return;
     }
 
     const authUser = this.authService.currentUserValue;
     const user = authUser?.user;
     if (!authUser || !user) {
-      this.certificateError = 'User not authenticated';
+      this.certificateError = 'courseEnrolled.errors.userNotAuthenticated';
       return;
     }
 
@@ -941,7 +943,7 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
         this.syncCertificateMetadata();
       },
       error: () => {
-        this.certificateError = 'Failed to generate certificate. Please try again.';
+        this.certificateError = 'courseEnrolled.errors.certificateGenerateFailed';
         this.isGeneratingCertificate = false;
         
         // Fallback to basic certificate generation
@@ -983,17 +985,17 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
   shareAchievement(): void {
     if (navigator.share && this.course) {
       navigator.share({
-        title: `I completed ${this.course.title}!`,
-        text: `I just completed the course "${this.course.title}" and earned my certificate!`,
+        title: this.translate.instant('courseEnrolled.share.title', { title: this.course.title }),
+        text: this.translate.instant('courseEnrolled.share.text', { title: this.course.title }),
         url: window.location.href
       }).catch(() => {});
     } else {
       // Fallback for browsers that don't support Web Share API
-      const text = `I just completed the course "${this.course?.title}" and earned my certificate!`;
+      const text = this.translate.instant('courseEnrolled.share.text', { title: this.course?.title || '' });
       navigator.clipboard.writeText(text).then(() => {
-        alert('Achievement text copied to clipboard!');
+        alert(this.translate.instant('courseEnrolled.share.copied'));
       }).catch(() => {
-        alert('Unable to share. Please copy the URL manually.');
+        alert(this.translate.instant('courseEnrolled.share.failed'));
       });
     }
   }

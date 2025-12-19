@@ -81,6 +81,10 @@ export class AnalyticsService {
     return this.http.get<Record<string, any>[]>(`${this.apiUrl}/users/registrations`, { headers: this.authHeaders(), params });
   }
 
+  getLatestUser(): Observable<Record<string, any>> {
+    return this.http.get<Record<string, any>>(`${this.apiUrl}/users/latest`, { headers: this.authHeaders() });
+  }
+
   // ===== Social / Feed =====
   getPostsTrend(granularity: 'daily' | 'weekly' | 'monthly' = 'weekly', start?: Date, end?: Date): Observable<Record<string, any>[]> {
     let params = new HttpParams().set('granularity', granularity);

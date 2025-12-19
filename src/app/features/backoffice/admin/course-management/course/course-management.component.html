@@ -3,7 +3,7 @@
   <!-- Header -->
   <div class="header mgmt-header">
     <div class="title-section">
-      <p class="eyebrow">Administration</p>
+      <p class="eyebrow">{{ 'courseManagement.header.eyebrow' | translate }}</p>
       <h1>{{ 'adminPages.courseManagement.title' | translate }}</h1>
       <p class="subtitle">{{ 'adminPages.courseManagement.subtitle' | translate }}</p>
     </div>
@@ -39,7 +39,7 @@
   <!-- Loading -->
   <div *ngIf="loading" class="loading">
     <div class="spinner"></div>
-    <p>Loading courses...</p>
+    <p>{{ 'courseManagement.loading' | translate }}</p>
   </div>
 
   <!-- Courses Grid -->
@@ -52,7 +52,7 @@
     >
       <div class="course-image">
         <img [src]="course.imageUrl" [alt]="course.title" />
-        <div *ngIf="course.archived" class="archived-badge">Archived</div>
+        <div *ngIf="course.archived" class="archived-badge">{{ 'courseManagement.card.archived' | translate }}</div>
       </div>
       
       <div class="course-content">
@@ -64,12 +64,12 @@
           </div>
         </div>
         
-        <p class="description">{{ course.description || 'No description available' }}</p>
+        <p class="description">{{ course.description || ('courseManagement.card.noDescription' | translate) }}</p>
         
         <div class="course-details">
           <div class="detail-item">
             <i class="icon-user"></i>
-            <span>Trainer: {{ course.trainerId }}</span>
+            <span>{{ 'courseManagement.card.trainer' | translate:{ trainer: course.trainerId } }}</span>
           </div>
           <div class="detail-item" *ngIf="course.languagesAvailable?.length">
             <i class="icon-languages"></i>
@@ -77,11 +77,11 @@
           </div>
           <div class="detail-item">
             <i class="icon-clock"></i>
-            <span>Sessions: {{ course.sessionIds.length || 0 }}</span>
+            <span>{{ 'courseManagement.card.sessions' | translate:{ count: (course.sessionIds.length || 0) } }}</span>
           </div>
           <div class="detail-item">
             <i class="icon-calendar"></i>
-            <span>Created: {{ course.createdAt | date:'MMM dd, yyyy' }}</span>
+            <span>{{ 'courseManagement.card.created' | translate:{ date: (course.createdAt | date:'MMM dd, yyyy') } }}</span>
           </div>
         </div>
       </div>
@@ -90,17 +90,17 @@
 
   <!-- Pagination / Show More -->
   <div *ngIf="!loading && filteredCourses.length > 0" class="pagination-container" style="margin-top: 1rem; display:flex; justify-content:center; align-items:center; gap:1rem;">
-    <span class="pagination-info">Showing {{ getShownCount() }} of {{ filteredCourses.length }}</span>
-    <button class="btn-primary" *ngIf="currentPage < totalPages" (click)="goToNextPage()">Show more</button>
+    <span class="pagination-info">{{ 'courseManagement.pagination.showing' | translate:{ shown: getShownCount(), total: filteredCourses.length } }}</span>
+    <button class="btn-primary" *ngIf="currentPage < totalPages" (click)="goToNextPage()">{{ 'courseManagement.pagination.showMore' | translate }}</button>
   </div>
 
   <!-- Empty State -->
   <div *ngIf="!loading && filteredCourses.length === 0" class="empty-state">
-    <div class="empty-icon">📚</div>
-    <h3>No courses found</h3>
-    <p>{{ searchTerm ? 'Try adjusting your search criteria' : 'Start by adding your first course' }}</p>
+    <div class="empty-icon">+</div>
+    <h3>{{ 'courseManagement.empty.title' | translate }}</h3>
+    <p>{{ searchTerm ? ('courseManagement.empty.searchBody' | translate) : ('courseManagement.empty.defaultBody' | translate) }}</p>
     <button *ngIf="!searchTerm" class="btn-primary" (click)="openAddModal()">
-      Add Your First Course
+      {{ 'courseManagement.empty.addFirst' | translate }}
     </button>
   </div>
 </div>
@@ -109,8 +109,8 @@
 <div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>Add New Course</h2>
-      <button class="modal-close" (click)="closeModal()">×</button>
+      <h2>{{ 'courseManagement.modal.addTitle' | translate }}</h2>
+      <button class="modal-close" (click)="closeModal()" [attr.aria-label]="'courseManagement.modal.close' | translate">&times;</button>
     </div>
     
     <form class="modal-content" (ngSubmit)="saveCourse()" #courseFormRef="ngForm">
@@ -118,7 +118,7 @@
       <div class="form-section">
         <div class="form-grid">
           <div class="form-group">
-            <label for="title">Course Title *</label>
+            <label for="title">{{ 'courseManagement.form.courseTitle' | translate }} *</label>
             <input 
               type="text" 
               id="title" 
@@ -126,12 +126,12 @@
               [(ngModel)]="courseForm.title" 
               required
               class="form-input"
-              placeholder="Enter course title"
+              [placeholder]="'courseManagement.form.courseTitlePlaceholder' | translate"
             >
           </div>
 
           <div class="form-group">
-            <label for="domain">Domain *</label>
+            <label for="domain">{{ 'courseManagement.form.domain' | translate }} *</label>
             <input 
               type="text" 
               id="domain" 
@@ -139,19 +139,19 @@
               [(ngModel)]="courseForm.domain" 
               required
               class="form-input"
-              placeholder="e.g. Programming, Design, Business"
+              [placeholder]="'courseManagement.form.domainPlaceholder' | translate"
             >
           </div>
 
           <div class="form-group">
-            <label for="country">Country</label>
+            <label for="country">{{ 'courseManagement.form.country' | translate }}</label>
             <select 
               id="country" 
               name="country" 
               [(ngModel)]="courseForm.country" 
               class="form-input"
             >
-              <option value="" selected>Select country</option>
+              <option value="" selected>{{ 'courseManagement.form.countryPlaceholder' | translate }}</option>
               <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
             </select>
           </div>
@@ -160,19 +160,19 @@
 
       <!-- Course Description -->
       <div class="form-group">
-        <label for="description">Description</label>
+        <label for="description">{{ 'courseManagement.form.description' | translate }}</label>
         <textarea 
           id="description" 
           name="description" 
           [(ngModel)]="courseForm.description"
           class="form-textarea"
-          placeholder="Enter course description..."
+          [placeholder]="'courseManagement.form.descriptionPlaceholder' | translate"
         ></textarea>
       </div>
 
       <!-- Custom Image Upload -->
       <div class="form-group image-upload-section">
-        <label>Course Image</label>
+        <label>{{ 'courseManagement.image.label' | translate }}</label>
         
         <div class="image-upload-container">
           <!-- Show upload area when no image is selected -->
@@ -187,28 +187,28 @@
               </svg>
             </div>
             <div class="text">
-              <span>Click to upload image</span>
+              <span>{{ 'courseManagement.image.upload' | translate }}</span>
             </div>
             <input type="file" id="file" (change)="onFileSelect($event)" accept="image/*">
           </label>
 
           <!-- Show image preview when an image is selected -->
           <div *ngIf="selectedImagePreview" class="image-preview">
-            <img [src]="selectedImagePreview" alt="Course image preview" />
+            <img [src]="selectedImagePreview" [alt]="'courseManagement.image.previewAlt' | translate" />
             <div class="image-overlay">
               <button 
                 type="button" 
                 class="overlay-btn btn-change-image" 
                 (click)="fileInput.click()"
               >
-                Change Image
+                {{ 'courseManagement.image.change' | translate }}
               </button>
               <button 
                 type="button" 
                 class="overlay-btn btn-remove-image" 
                 (click)="removeImage()"
               >
-                Remove
+                {{ 'courseManagement.image.remove' | translate }}
               </button>
             </div>
           </div>
@@ -226,7 +226,7 @@
 
       <!-- Video Upload Section -->
       <div class="form-group video-upload-section">
-        <label>Course Video</label>
+        <label>{{ 'courseManagement.video.label' | translate }}</label>
         
         <div class="video-upload-container">
           <!-- Show upload area when no video is selected -->
@@ -238,7 +238,7 @@
               </svg>
             </div>
             <div class="text">
-              <span>Click to upload video</span>
+              <span>{{ 'courseManagement.video.upload' | translate }}</span>
             </div>
             <input type="file" id="videoFile" (change)="onVideoSelect($event)" accept="video/*">
           </label>
@@ -255,14 +255,14 @@
                 class="btn-secondary btn-sm" 
                 (click)="videoInput.click()"
               >
-                Change Video
+                {{ 'courseManagement.video.change' | translate }}
               </button>
               <button 
                 type="button" 
                 class="btn-danger btn-sm" 
                 (click)="removeVideo()"
               >
-                Remove
+                {{ 'courseManagement.video.remove' | translate }}
               </button>
               <button 
                 *ngIf="courseForm.id" 
@@ -271,14 +271,14 @@
                 (click)="uploadCourseVideo(courseForm.id)"
                 [disabled]="videoUploading"
               >
-                Upload Video
+                {{ 'courseManagement.video.uploadAction' | translate }}
               </button>
             </div>
           </div>
           
           <!-- Error message -->
           <div *ngIf="videoUploadError" class="error-message">
-            {{ videoUploadError }}
+            {{ videoUploadError | translate }}
           </div>
 
           <!-- Upload progress -->
@@ -286,7 +286,7 @@
             <div class="progress-bar">
               <div class="progress-fill" [style.width.%]="videoUploadProgress"></div>
             </div>
-            <div class="progress-text">Uploading: {{ videoUploadProgress }}%</div>
+            <div class="progress-text">{{ 'courseManagement.video.progress' | translate:{ percent: videoUploadProgress } }}</div>
           </div>
           
           <!-- Hidden file input for changing video -->
@@ -302,12 +302,12 @@
       
       <div class="modal-actions">
         <button type="button" class="btn-secondary" (click)="closeModal()">
-          <i class="icon-close"></i> Cancel
+          <i class="icon-close"></i> {{ 'courseManagement.actions.cancel' | translate }}
         </button>
         <button type="submit" class="btn-primary" [disabled]="loading || !courseFormRef.form.valid">
           <span *ngIf="loading" class="spinner-small"></span>
           <i *ngIf="!loading" class="icon-check"></i>
-          {{ loading ? 'Saving...' : 'Add Course' }}
+          {{ loading ? ('courseManagement.actions.saving' | translate) : ('courseManagement.actions.addCourse' | translate) }}
         </button>
       </div>
     </form>

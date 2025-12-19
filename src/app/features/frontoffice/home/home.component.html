@@ -154,7 +154,7 @@
       </div>
 
       <div *ngIf="coursesError" class="courses-error">
-        <p>{{ coursesError }}</p>
+        <p>{{ coursesError | translate }}</p>
         <button class="retry-btn" (click)="loadFeaturedCourses()">{{ 'home.courses.retry' | translate }}</button>
       </div>
 
@@ -229,7 +229,7 @@
       </div>
 
       <div *ngIf="postsError" class="posts-error">
-        <p>{{ postsError }}</p>
+        <p>{{ postsError | translate }}</p>
         <button class="retry-btn" (click)="loadFeaturedPosts()">{{ 'home.posts.retry' | translate }}</button>
       </div>
 
