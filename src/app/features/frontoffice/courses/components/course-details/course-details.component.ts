@@ -195,7 +195,7 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
     const goals = this.course?.goals || [];
     if (goals.length > 0) return goals;
     const lessons = this.course?.textContent || [];
-    return lessons.slice(0, 6).map(l => l.title);
+    return lessons.slice(0, 6).map(l => this.resolveLessonTitle(l));
   }
 
   playVideo(event: Event): void {
@@ -310,10 +310,10 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
 
     const targetIndex = lessons.findIndex(lesson => lesson.id === targetLessonId);
     if (targetIndex >= 0) {
-      this.resumeLessonTitle = lessons[targetIndex].title;
+      this.resumeLessonTitle = this.resolveLessonTitle(lessons[targetIndex]);
       this.resumeLessonNumber = targetIndex + 1;
     } else {
-      this.resumeLessonTitle = lessons[0].title;
+      this.resumeLessonTitle = this.resolveLessonTitle(lessons[0]);
       this.resumeLessonNumber = 1;
     }
   }
@@ -321,6 +321,48 @@ export class CourseDetailsComponent implements OnInit, OnDestroy {
   private clearResumeState(): void {
     this.resumeLessonTitle = '';
     this.resumeLessonNumber = null;
+  }
+
+  resolveLessonTitle(lesson: any): string {
+    if (!lesson) return '';
+    const lang = this.getPreferredLanguage();
+    const direct = this.getMapValue(lesson.title, lang, this.course?.defaultLanguage);
+    if (direct) return direct;
+    const translations = lesson.translations || {};
+    const localized = this.pickTranslation(translations, lang, this.course?.defaultLanguage);
+    return localized?.['title'] || '';
+  }
+
+  private getPreferredLanguage(): string {
+    const userLang = (this.authService.currentUserValue?.user as any)?.language;
+    if (userLang) return userLang;
+    try {
+      const stored = localStorage.getItem('preferredLanguage');
+      if (stored) return stored;
+    } catch {}
+    return this.course?.defaultLanguage || 'en';
+  }
+
+  private pickTranslation<T extends Record<string, any>>(
+    translations: Record<string, T>,
+    lang: string,
+    fallbackLang?: string
+  ): T | undefined {
+    if (!translations) return undefined;
+    if (translations[lang]) return translations[lang];
+    if (fallbackLang && translations[fallbackLang]) return translations[fallbackLang];
+    if (translations['en']) return translations['en'];
+    const firstKey = Object.keys(translations)[0];
+    return firstKey ? translations[firstKey] : undefined;
+  }
+
+  private getMapValue(map: Record<string, string> | string | undefined, lang?: string, fallbackLang?: string): string {
+    if (!map) return '';
+    if (typeof map === 'string') return map;
+    if (lang && map[lang] !== undefined) return map[lang] ?? '';
+    if (fallbackLang && map[fallbackLang] !== undefined) return map[fallbackLang] ?? '';
+    const values = Object.values(map);
+    return values[0] ?? '';
   }
 
   switchTab(tab: string): void {

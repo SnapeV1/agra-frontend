@@ -8,6 +8,7 @@ import { AdminCourseDetailsComponent } from './course-management/course-details/
 import { TicketManagementComponent } from './ticket-management/ticket-management.component';
 import { CertificatesManagementComponent } from './certificates-management/certificates-management.component';
 import { AdminSettingsComponent } from './admin-settings/admin-settings.component';
+import { ActivityLogsComponent } from '../activity-logs/activity-logs.component';
 
 const routes: Routes = [
   {
@@ -15,6 +16,7 @@ const routes: Routes = [
     children: [
       { path: 'posts', component: AdminPostsComponent }, 
       { path: 'courses', component: CourseManagementComponent },
+      { path: 'activity-logs', component: ActivityLogsComponent },
       { path: 'dashboard', component: DashboardAdminComponent },
       { path: 'users', component: UserManagementComponent },
       { path: 'tickets', component: TicketManagementComponent },

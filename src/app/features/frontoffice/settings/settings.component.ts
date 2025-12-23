@@ -41,7 +41,7 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
     try { localStorage.setItem('pref_theme', resolved); } catch {}
     return resolved as 'light' | 'dark';
   })();
-  language = localStorage.getItem('pref_lang') || 'en';
+  language = 'en';
 
   // Notification preferences (remote)
   notificationPrefs: NotificationPreferences = { ...DEFAULT_NOTIFICATION_PREFERENCES };
@@ -113,6 +113,7 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
       const effective = userPref === 'dark' ? 'dark' : (userPref === 'light' ? 'light' : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
       this.theme = effective as 'light' | 'dark';
     }
+    this.language = this.languageService.current || 'en';
     this.applyTheme(this.theme, false);
     this.fetchTickets();
     this.loadNotificationPreferences();
@@ -136,7 +137,6 @@ export class SettingsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   saveLanguage(): void {
-    localStorage.setItem('pref_lang', this.language);
     this.languageService.setLanguage(this.language);
   }
 

@@ -17,19 +17,19 @@
         </div>
 
         <div class="sidebar-stats">
-          <div class="stat-item" [class.active]="statusFilter === 'ALL'" (click)="statusFilter = 'ALL'">
+          <div class="stat-item" [class.active]="statusFilter === 'ALL'" [attr.data-status]="'ALL'" (click)="statusFilter = 'ALL'">
             <span class="stat-label">{{ 'ticketManagement.status.all' | translate }}</span>
             <span class="stat-value">{{ totalTickets }}</span>
           </div>
-          <div class="stat-item" [class.active]="statusFilter === TicketStatus.OPEN" (click)="statusFilter = TicketStatus.OPEN">
+          <div class="stat-item" [class.active]="statusFilter === TicketStatus.OPEN" [attr.data-status]="'OPEN'" (click)="statusFilter = TicketStatus.OPEN">
             <span class="stat-label">{{ 'ticketManagement.status.open' | translate }}</span>
             <span class="stat-value">{{ countByStatus(TicketStatus.OPEN) }}</span>
           </div>
-          <div class="stat-item" [class.active]="statusFilter === TicketStatus.PENDING" (click)="statusFilter = TicketStatus.PENDING">
+          <div class="stat-item" [class.active]="statusFilter === TicketStatus.PENDING" [attr.data-status]="'PENDING'" (click)="statusFilter = TicketStatus.PENDING">
             <span class="stat-label">{{ 'ticketManagement.status.pending' | translate }}</span>
             <span class="stat-value">{{ countByStatus(TicketStatus.PENDING) }}</span>
           </div>
-          <div class="stat-item" [class.active]="statusFilter === TicketStatus.RESOLVED" (click)="statusFilter = TicketStatus.RESOLVED">
+          <div class="stat-item" [class.active]="statusFilter === TicketStatus.RESOLVED" [attr.data-status]="'RESOLVED'" (click)="statusFilter = TicketStatus.RESOLVED">
             <span class="stat-label">{{ 'ticketManagement.status.resolved' | translate }}</span>
             <span class="stat-value">{{ countByStatus(TicketStatus.RESOLVED) }}</span>
           </div>
@@ -68,6 +68,7 @@
             class="ticket-item"
             *ngFor="let ticket of filteredTickets()"
             [class.active]="selectedThread?.ticket?.id === ticket.id"
+            [attr.data-status]="ticket.status"
             (click)="openTicket(ticket.id)"
           >
             <div class="ticket-avatar">
@@ -102,7 +103,10 @@
               </ng-template>
             </div>
             <div class="user-info">
-              <h3>{{ thread.ticket.subject }}</h3>
+              <h3>
+                {{ thread.ticket.subject }}
+                <span class="status-pill" [ngClass]="statusClass(thread.ticket.status)">{{ statusLabel(thread.ticket.status) | translate }}</span>
+              </h3>
               <p>{{ ticketUserDisplay(thread.ticket) }} &bull; {{ 'ticketManagement.conversation.ticketNumber' | translate:{ id: thread.ticket.id } }}</p>
             </div>
           </div>

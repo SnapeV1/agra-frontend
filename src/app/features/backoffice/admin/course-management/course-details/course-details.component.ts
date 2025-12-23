@@ -33,6 +33,8 @@ export class AdminCourseDetailsComponent implements OnInit {
 
   formData: Course = {
     id: "",
+    defaultLanguage: "en",
+    translations: {},
     title: "",
     description: "",
     domain: "",
@@ -67,6 +69,10 @@ export class AdminCourseDetailsComponent implements OnInit {
 
   // Individual text content item collapsed state
   textContentCollapsed: Record<number, boolean> = {};
+  translationLang = 'en';
+  goalsTranslationLang = 'en';
+  contentTranslationLang: Record<number, string> = {};
+  translationPanelVisible: Record<number, boolean> = {};
 
   domains: string[] = ["Technology", "Business", "Design", "Marketing", "Healthcare", "Education"];
   countries: string[] = [
@@ -188,6 +194,12 @@ export class AdminCourseDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     this.courseId = this.route.snapshot.paramMap.get("id");
+    const initialTranslationLang = this.getInitialTranslationLanguage();
+    this.translationLang = initialTranslationLang;
+    this.goalsTranslationLang = initialTranslationLang;
+    if (!this.formData.languagesAvailable || this.formData.languagesAvailable.length === 0) {
+      this.formData.languagesAvailable = [this.formData.defaultLanguage || 'en'];
+    }
     if (this.courseId && this.courseId !== "new") {
       this.loadCourse(this.courseId);
       this.loadSessions(this.courseId);
@@ -213,48 +225,72 @@ export class AdminCourseDetailsComponent implements OnInit {
     this.loading = true;
     this.courseService.getCourseById(id).subscribe({
       next: (course) => {
+        const preferredLang = this.getPreferredLanguage(course);
+        const localizedCourse = this.resolveCourseTranslation(course, preferredLang);
+        const translationLang = this.getInitialTranslationLanguage();
         this.course = course;
         this.formData = {
           ...course,
+          defaultLanguage: course.defaultLanguage || preferredLang,
+          translations: course.translations || {},
+          title: localizedCourse.title,
+          description: localizedCourse.description,
           sessionIds: course.sessionIds || [],
           languagesAvailable: course.languagesAvailable || [],
           files: course.files || [],
           textContent: (course.textContent || []).map((tc, idx) => {
             const type = (tc.type || '').toString().toLowerCase();
+            const localized = this.resolveTextContentTranslation(tc, preferredLang, course.defaultLanguage);
             // Normalize quiz payload from backend into UI-friendly structure
             if (type === 'quiz') {
-              const questions = (tc.quizQuestions || []).map((q: QuizQuestionApi) => {
-                const options = (q.answers || []).map(a => a.text);
-                const correct = (q.answers || []).find(a => a.correct)?.text || '';
+          const questions = (tc.quizQuestions || []).map((q: QuizQuestionApi) => {
+                const options = (q.answers || [])
+                  .map(a => this.resolveQuizAnswerText(a, preferredLang, course.defaultLanguage))
+                  .filter(Boolean);
+                const correctAnswer = (q.answers || []).find(a => a.correct);
+                const correct = correctAnswer ? this.resolveQuizAnswerText(correctAnswer, preferredLang, course.defaultLanguage) : '';
                 return {
                   id: q.id,
-                  question: q.question || '',
+                  question: this.mergeLegacyTextMap(q.question, q.translations as any, 'question', preferredLang),
                   options: options.length ? options : ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
                   correctAnswer: correct
                 } as QuizQuestion;
               });
               return {
                 ...tc,
-                order: typeof tc.order === 'number' ? tc.order : idx + 1,
-                type: 'quiz',
-                questions
-              } as TextContent;
+            title: this.mergeLegacyTextMap(tc.title, tc.translations, 'title', preferredLang),
+            content: this.mergeLegacyTextMap(tc.content, tc.translations, 'content', preferredLang),
+            order: typeof tc.order === 'number' ? tc.order : idx + 1,
+            type: 'quiz',
+            questions
+          } as TextContent;
             }
               return {
                 ...tc,
+                title: this.mergeLegacyTextMap(tc.title, tc.translations, 'title', preferredLang),
+                content: this.mergeLegacyTextMap(tc.content, tc.translations, 'content', preferredLang),
                 order: typeof tc.order === 'number' ? tc.order : idx + 1,
                 type: type as any
               } as TextContent;
             }),
-            goals: course.goals || []
+            goals: localizedCourse.goals
           };
+        if (this.formData.defaultLanguage && !this.formData.languagesAvailable.includes(this.formData.defaultLanguage)) {
+          this.formData.languagesAvailable = [...(this.formData.languagesAvailable || []), this.formData.defaultLanguage];
+        }
 
       this.hydrateQuizContent();
+      this.translationLang = translationLang;
+      this.goalsTranslationLang = translationLang;
+      this.contentTranslationLang = {};
+      this.translationPanelVisible = {};
 
       // Initialize all text content items as collapsed
       this.textContentCollapsed = {};
       (this.formData.textContent || []).forEach((_, index) => {
         this.textContentCollapsed[index] = true;
+        this.contentTranslationLang[index] = translationLang;
+        this.translationPanelVisible[index] = false;
       });
       this.setDefaultSessionTitle();
       
@@ -363,11 +399,20 @@ export class AdminCourseDetailsComponent implements OnInit {
 
   handleLanguageToggle(language: string): void {
     const currentLanguages = this.formData.languagesAvailable || [];
-    
+    if (language === this.formData.defaultLanguage) return;
+
     if (currentLanguages.includes(language)) {
       this.formData.languagesAvailable = currentLanguages.filter((l) => l !== language);
     } else {
       this.formData.languagesAvailable = [...currentLanguages, language];
+    }
+  }
+
+  setDefaultLanguage(language: string): void {
+    if (!language) return;
+    this.formData.defaultLanguage = language;
+    if (!this.formData.languagesAvailable?.includes(language)) {
+      this.formData.languagesAvailable = [...(this.formData.languagesAvailable || []), language];
     }
   }
 
@@ -423,14 +468,17 @@ export class AdminCourseDetailsComponent implements OnInit {
   addTextContent(): void {
     const currentContent = this.formData.textContent || [];
     const newIndex = currentContent.length;
+    const lang = this.resolveDefaultLanguage();
     this.formData.textContent = [...currentContent, { 
-      title: "", 
+      title: { [lang]: "" }, 
       type: "lesson", 
-      content: "", 
+      content: { [lang]: "" }, 
       order: currentContent.length + 1 
     }];
     // Initialize new text content item as collapsed
     this.textContentCollapsed[newIndex] = true;
+    this.contentTranslationLang[newIndex] = this.resolveDefaultLanguage();
+    this.translationPanelVisible[newIndex] = false;
     // Expand the textContent section when adding new content
     this.sectionCollapsed['textContent'] = false;
   }
@@ -445,14 +493,16 @@ export class AdminCourseDetailsComponent implements OnInit {
 
   private initQuizContent(index: number): void {
     const item = this.formData.textContent[index];
+    const lang = this.resolveDefaultLanguage();
     if (!item.questions || !item.questions.length) {
       item.questions = [{
-        question: '',
+        question: { [lang]: '' },
         options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
         correctAnswer: '',
         uiCollapsed: false
       }];
     }
+    this.ensureQuizTranslationScaffold(item);
   }
   private ensureQuizDefaults(): void {
     (this.formData.textContent || []).forEach((item, idx) => {
@@ -474,14 +524,18 @@ export class AdminCourseDetailsComponent implements OnInit {
     (this.formData.textContent || []).forEach((item, idx) => {
       const type = (item.type || '').toString().toLowerCase();
       if (type === 'quiz') {
+        const lang = this.formData.defaultLanguage || this.translationLang || 'en';
         item.type = 'quiz' as any;
         // Prefer API quizQuestions if present
         if (item.quizQuestions && item.quizQuestions.length) {
           item.questions = item.quizQuestions.map((q: QuizQuestionApi) => {
-            const options = (q.answers || []).map(a => a.text);
-            const correct = (q.answers || []).find(a => a.correct)?.text || '';
+            const options = (q.answers || [])
+              .map(a => this.resolveQuizAnswerText(a, lang, this.formData.defaultLanguage))
+              .filter(Boolean);
+            const correctAnswer = (q.answers || []).find(a => a.correct);
+            const correct = correctAnswer ? this.resolveQuizAnswerText(correctAnswer, lang, this.formData.defaultLanguage) : '';
             return {
-              question: q.question || '',
+              question: this.mergeLegacyTextMap(q.question, q.translations as any, 'question', lang),
               options: options.length ? options : ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
               correctAnswer: correct,
               uiCollapsed: false
@@ -490,16 +544,21 @@ export class AdminCourseDetailsComponent implements OnInit {
         } else if (item.questions && item.questions.length) {
           item.questions = item.questions.map((q: any) => {
             const answers = (q.answers || []) as QuizAnswer[];
-            const optionsFromAnswers = answers.map(a => a.text).filter(Boolean);
+            const optionsFromAnswers = answers
+              .map(a => this.resolveQuizAnswerText(a, lang, this.formData.defaultLanguage))
+              .filter(Boolean);
             const mergedOptions = (q.options && q.options.length ? q.options : optionsFromAnswers);
             const normalizedOptions = mergedOptions && mergedOptions.length
               ? mergedOptions
               : ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
-            const correctFromAnswers = answers.find(a => a?.correct || (a as any)?.isCorrect || (a as any)?.isTrue)?.text || '';
+            const correctFromAnswers = (() => {
+              const candidate = answers.find(a => a?.correct || (a as any)?.isCorrect || (a as any)?.isTrue);
+              return candidate ? this.resolveQuizAnswerText(candidate, lang, this.formData.defaultLanguage) : '';
+            })();
             const resolvedCorrect = q.correctAnswer || correctFromAnswers;
 
             return {
-              question: q.question || '',
+              question: this.normalizeTextMap(q.question, lang, ''),
               options: normalizedOptions,
               correctAnswer: normalizedOptions.includes(resolvedCorrect) ? resolvedCorrect : '',
               uiCollapsed: q.uiCollapsed ?? false
@@ -521,17 +580,19 @@ export class AdminCourseDetailsComponent implements OnInit {
       item.questions = [];
     }
     item.questions.push({
-      question: '',
+      question: { [this.resolveDefaultLanguage()]: '' },
       options: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
       correctAnswer: '',
       uiCollapsed: false
     });
+    this.ensureQuizTranslationScaffold(item);
   }
 
   removeQuizQuestion(contentIndex: number, questionIndex: number): void {
     const item = this.formData.textContent[contentIndex];
     if (!item.questions) return;
     item.questions = item.questions.filter((_, idx) => idx !== questionIndex);
+    this.ensureQuizTranslationScaffold(item);
   }
 
   addQuizOption(contentIndex: number, questionIndex: number): void {
@@ -541,6 +602,7 @@ export class AdminCourseDetailsComponent implements OnInit {
     if (!question) return;
     question.options = question.options || [];
     question.options.push(`Option ${question.options.length + 1}`);
+    this.ensureQuizTranslationScaffold(item);
   }
 
   removeQuizOption(contentIndex: number, questionIndex: number, optionIndex: number): void {
@@ -553,6 +615,7 @@ export class AdminCourseDetailsComponent implements OnInit {
     if (removed === question.correctAnswer) {
       question.correctAnswer = '';
     }
+    this.ensureQuizTranslationScaffold(item);
   }
 
   setCorrectOption(contentIndex: number, questionIndex: number, option: string): void {
@@ -570,6 +633,21 @@ export class AdminCourseDetailsComponent implements OnInit {
     q.uiCollapsed = !q.uiCollapsed;
   }
 
+  collapseQuizQuestion(contentIndex: number, questionIndex: number): void {
+    const item = this.formData.textContent[contentIndex];
+    if (!item?.questions || !item.questions[questionIndex]) return;
+    const q: any = item.questions[questionIndex];
+    q.uiCollapsed = true;
+  }
+
+  revealTranslationPanel(contentIndex: number): void {
+    this.translationPanelVisible[contentIndex] = true;
+  }
+
+  toggleTranslationPanel(contentIndex: number): void {
+    this.translationPanelVisible[contentIndex] = !this.translationPanelVisible[contentIndex];
+  }
+
 
   removeTextContent(index: number): void {
     const currentContent = this.formData.textContent || [];
@@ -577,15 +655,31 @@ export class AdminCourseDetailsComponent implements OnInit {
     
     // Clean up collapsed state and reindex
     const newCollapsedState: Record<number, boolean> = {};
+    const newTranslationLang: Record<number, string> = {};
+    const newTranslationVisible: Record<number, boolean> = {};
     Object.keys(this.textContentCollapsed).forEach(key => {
       const keyIndex = parseInt(key);
       if (keyIndex < index) {
         newCollapsedState[keyIndex] = this.textContentCollapsed[keyIndex];
+        if (this.contentTranslationLang[keyIndex]) {
+          newTranslationLang[keyIndex] = this.contentTranslationLang[keyIndex];
+        }
+        if (this.translationPanelVisible[keyIndex]) {
+          newTranslationVisible[keyIndex] = this.translationPanelVisible[keyIndex];
+        }
       } else if (keyIndex > index) {
         newCollapsedState[keyIndex - 1] = this.textContentCollapsed[keyIndex];
+        if (this.contentTranslationLang[keyIndex]) {
+          newTranslationLang[keyIndex - 1] = this.contentTranslationLang[keyIndex];
+        }
+        if (this.translationPanelVisible[keyIndex]) {
+          newTranslationVisible[keyIndex - 1] = this.translationPanelVisible[keyIndex];
+        }
       }
     });
     this.textContentCollapsed = newCollapsedState;
+    this.contentTranslationLang = newTranslationLang;
+    this.translationPanelVisible = newTranslationVisible;
   }
 
   toggleTextContent(index: number): void {
@@ -617,6 +711,12 @@ export class AdminCourseDetailsComponent implements OnInit {
     const tempCollapsed = this.textContentCollapsed[index];
     this.textContentCollapsed[index] = this.textContentCollapsed[newIndex];
     this.textContentCollapsed[newIndex] = tempCollapsed;
+    const tempLang = this.contentTranslationLang[index];
+    this.contentTranslationLang[index] = this.contentTranslationLang[newIndex];
+    this.contentTranslationLang[newIndex] = tempLang;
+    const tempVisible = this.translationPanelVisible[index];
+    this.translationPanelVisible[index] = this.translationPanelVisible[newIndex];
+    this.translationPanelVisible[newIndex] = tempVisible;
   }
 
   handleImageUpload(event: any): void {
@@ -808,14 +908,14 @@ export class AdminCourseDetailsComponent implements OnInit {
       const type = (tc.type || '').toString().toLowerCase();
       if (type !== 'quiz') return;
 
-      const lessonTitle = tc.title || this.translate.instant('adminCourseDetails.textContent.lessonFallback', { index: lessonIdx + 1 });
+      const lessonTitle = this.getTextContentValue(tc, 'title') || this.translate.instant('adminCourseDetails.textContent.lessonFallback', { index: lessonIdx + 1 });
 
       (tc.questions || []).forEach((q: QuizQuestion, qi: number) => {
         const questionLabel = this.translate.instant('adminCourseDetails.quiz.questionLabelDetailed', {
           title: lessonTitle,
           index: qi + 1
         });
-        const questionText = (q.question || '').trim();
+        const questionText = this.getQuizQuestionValue(q).trim();
         if (!questionText) {
           errors.push(this.translate.instant('adminCourseDetails.quiz.errors.emptyQuestion', { label: questionLabel }));
         }
@@ -869,15 +969,22 @@ export class AdminCourseDetailsComponent implements OnInit {
     // Files are managed exclusively via upload/delete endpoints to avoid overwriting server state
     const filteredGoals = this.formData.goals.filter(goal => goal.trim() !== "");
     const { files: _omitFiles, ...rest } = this.formData as any;
+    const defaultLang = this.resolveDefaultLanguage();
+    const nextCourseTranslations = this.mergeCourseTranslations(rest.translations, defaultLang, {
+      title: rest.title,
+      description: rest.description,
+      goals: filteredGoals
+    });
+    const mergedLanguages = Array.from(new Set([...(rest.languagesAvailable || []), defaultLang]));
 
     const mappedTextContent = (rest.textContent || []).map((tc: TextContent, idx: number) => {
       const normalizedType = (tc.type || '').toString().toUpperCase();
       const base = {
         id: tc.id,
-        title: tc.title,
-        content: tc.content || '',
         order: typeof tc.order === 'number' ? tc.order : idx + 1,
-        type: normalizedType
+        type: normalizedType,
+        title: this.mergeLegacyTextMap(tc.title, tc.translations, 'title', defaultLang),
+        content: this.mergeLegacyTextMap(tc.content, tc.translations, 'content', defaultLang)
       } as any;
 
       if (normalizedType !== 'QUIZ') {
@@ -886,11 +993,21 @@ export class AdminCourseDetailsComponent implements OnInit {
 
       const quizQuestions = (tc.questions || []).map((q: QuizQuestion, qi: number) => ({
         id: (tc.quizQuestions && tc.quizQuestions[qi]?.id) || '',
-        question: q.question || '',
+        question: this.mergeLegacyTextMap(
+          { ...(tc.quizQuestions?.[qi]?.question || {}), ...(q.question || {}) },
+          tc.quizQuestions?.[qi]?.translations as Record<string, { question?: string }> | undefined,
+          'question',
+          defaultLang
+        ),
         answers: (q.options || []).map((opt: string, oi: number) => ({
           id: (tc.quizQuestions && tc.quizQuestions[qi]?.answers?.[oi]?.id) || '',
-          text: opt,
-          correct: q.correctAnswer === opt
+          correct: q.correctAnswer === opt,
+          text: this.mergeLegacyTextMap(
+            { ...(tc.quizQuestions?.[qi]?.answers?.[oi]?.text || {}), [defaultLang]: opt },
+            tc.quizQuestions?.[qi]?.answers?.[oi]?.translations as Record<string, { text?: string }> | undefined,
+            'text',
+            defaultLang
+          )
         }))
       }));
 
@@ -902,6 +1019,9 @@ export class AdminCourseDetailsComponent implements OnInit {
 
     const courseDataToSave = {
       ...rest,
+      defaultLanguage: rest.defaultLanguage || defaultLang,
+      translations: nextCourseTranslations,
+      languagesAvailable: mergedLanguages,
       goals: filteredGoals,
       textContent: mappedTextContent
     } as Course;
@@ -1023,6 +1143,352 @@ console.log("📤 Sending course to backend:", courseDataToSave);
         }
       });
     }
+  }
+
+  setTranslationLanguage(lang: string): void {
+    if (!lang) return;
+    this.translationLang = lang;
+  }
+
+  setGoalsTranslationLanguage(lang: string): void {
+    if (!lang) return;
+    this.goalsTranslationLang = lang;
+  }
+
+  setContentTranslationLanguage(index: number, lang: string): void {
+    if (!lang) return;
+    this.contentTranslationLang[index] = lang;
+  }
+
+  getTranslationLanguages(): string[] {
+    return ['en', 'fr', 'ar'];
+  }
+
+  getLanguageOptions(): string[] {
+    return this.languages;
+  }
+
+  getTextContentValue(content: TextContent, field: 'title' | 'content'): string {
+    const lang = this.resolveDefaultLanguage();
+    const map = field === 'title' ? content.title : content.content;
+    return this.getMapValue(map, lang);
+  }
+
+  setTextContentValue(content: TextContent, field: 'title' | 'content', value: string): void {
+    const lang = this.resolveDefaultLanguage();
+    if (field === 'title') {
+      content.title = this.setMapValue(content.title, lang, value);
+    } else {
+      content.content = this.setMapValue(content.content, lang, value);
+    }
+  }
+
+  getQuizQuestionValue(question: QuizQuestion): string {
+    const lang = this.resolveDefaultLanguage();
+    return this.getMapValue(question.question, lang);
+  }
+
+  setQuizQuestionValue(contentIndex: number, questionIndex: number, value: string): void {
+    const content = this.formData.textContent?.[contentIndex];
+    if (!content?.questions?.[questionIndex]) return;
+    const lang = this.resolveDefaultLanguage();
+    const question = content.questions[questionIndex];
+    question.question = this.setMapValue(question.question, lang, value);
+    this.ensureQuizTranslationScaffold(content);
+    const apiQuestion = content.quizQuestions?.[questionIndex];
+    if (apiQuestion) {
+      apiQuestion.question = this.setMapValue(apiQuestion.question, lang, value);
+    }
+  }
+
+  getCourseTranslationValue(lang: string, field: 'title' | 'description'): string {
+    const translations = this.formData.translations || {};
+    return (translations[lang] as any)?.[field] || '';
+  }
+
+  setCourseTranslationValue(lang: string, field: 'title' | 'description', value: string): void {
+    if (!lang) return;
+    this.formData.translations = this.formData.translations || {};
+    const existing = this.formData.translations[lang] || {};
+    this.formData.translations[lang] = { ...existing, [field]: value };
+  }
+
+  getCourseTranslationGoals(lang: string): string[] {
+    const translations = this.formData.translations || {};
+    const goals = (translations[lang] as any)?.goals;
+    return Array.isArray(goals) ? goals : [];
+  }
+
+  addTranslatedGoal(lang: string): void {
+    if (!lang) return;
+    const goals = this.getCourseTranslationGoals(lang);
+    const next = [...goals, ''];
+    this.formData.translations = this.formData.translations || {};
+    const existing = this.formData.translations[lang] || {};
+    this.formData.translations[lang] = { ...existing, goals: next };
+  }
+
+  updateTranslatedGoal(lang: string, index: number, value: string): void {
+    if (!lang) return;
+    const goals = this.getCourseTranslationGoals(lang);
+    const next = goals.slice();
+    next[index] = value;
+    this.formData.translations = this.formData.translations || {};
+    const existing = this.formData.translations[lang] || {};
+    this.formData.translations[lang] = { ...existing, goals: next };
+  }
+
+  removeTranslatedGoal(lang: string, index: number): void {
+    if (!lang) return;
+    const goals = this.getCourseTranslationGoals(lang).filter((_, i) => i !== index);
+    this.formData.translations = this.formData.translations || {};
+    const existing = this.formData.translations[lang] || {};
+    this.formData.translations[lang] = { ...existing, goals };
+  }
+
+  getTextContentTranslationValue(content: TextContent, lang: string, field: 'title' | 'content'): string {
+    if (!lang) return '';
+    const map = field === 'title' ? content.title : content.content;
+    if (!map) return '';
+    if (typeof map === 'string') {
+      return lang === this.resolveDefaultLanguage() ? map : '';
+    }
+    return map[lang] ?? '';
+  }
+
+  setTextContentTranslationValue(content: TextContent, lang: string, field: 'title' | 'content', value: string): void {
+    if (!lang) return;
+    if (field === 'title') {
+      content.title = this.setMapValue(content.title, lang, value);
+    } else {
+      content.content = this.setMapValue(content.content, lang, value);
+    }
+  }
+
+  getQuizQuestionTranslation(content: TextContent, questionIndex: number, lang: string): string {
+    const q = content.quizQuestions?.[questionIndex];
+    const map = q?.question;
+    if (!map) return '';
+    if (typeof map === 'string') {
+      return lang === this.resolveDefaultLanguage() ? map : '';
+    }
+    return map[lang] ?? '';
+  }
+
+  setQuizQuestionTranslation(content: TextContent, questionIndex: number, lang: string, value: string): void {
+    if (!lang) return;
+    this.ensureQuizTranslationScaffold(content);
+    const q = content.quizQuestions?.[questionIndex];
+    if (!q) return;
+    q.question = this.setMapValue(q.question, lang, value);
+  }
+
+  getQuizAnswerTranslation(content: TextContent, questionIndex: number, optionIndex: number, lang: string): string {
+    const q = content.quizQuestions?.[questionIndex];
+    const answer = q?.answers?.[optionIndex];
+    const map = answer?.text;
+    if (!map) return '';
+    if (typeof map === 'string') {
+      return lang === this.resolveDefaultLanguage() ? map : '';
+    }
+    return map[lang] ?? '';
+  }
+
+  setQuizAnswerTranslation(content: TextContent, questionIndex: number, optionIndex: number, lang: string, value: string): void {
+    if (!lang) return;
+    this.ensureQuizTranslationScaffold(content);
+    const q = content.quizQuestions?.[questionIndex];
+    const answer = q?.answers?.[optionIndex];
+    if (!answer) return;
+    answer.text = this.setMapValue(answer.text, lang, value);
+  }
+
+  private getPreferredLanguage(course?: Course | null): string {
+    return course?.defaultLanguage || course?.languagesAvailable?.[0] || this.translate.currentLang || this.translate.defaultLang || 'en';
+  }
+
+  private resolveDefaultLanguage(): string {
+    return this.formData.defaultLanguage || this.formData.languagesAvailable?.[0] || this.translate.currentLang || this.translate.defaultLang || 'en';
+  }
+
+  private resolveCourseTranslation(course: Course, lang: string): { title: string; description: string; goals: string[] } {
+    const translations = course.translations || {};
+    const localized = this.pickTranslation(translations, lang, course.defaultLanguage);
+    return {
+      title: localized?.title ?? course.title ?? '',
+      description: localized?.description ?? course.description ?? '',
+      goals: localized?.goals ?? course.goals ?? []
+    };
+  }
+
+  private resolveTextContentTranslation(tc: TextContent, lang: string, fallbackLang?: string): { title: string; content: string } {
+    const title = this.getMapValue(tc.title, lang, fallbackLang);
+    const content = this.getMapValue(tc.content, lang, fallbackLang);
+    if (title || content) {
+      return { title, content };
+    }
+    const translations = tc.translations || {};
+    const localized = this.pickTranslation(translations, lang, fallbackLang);
+    return {
+      title: localized?.title ?? this.getMapValue(tc.title),
+      content: localized?.content ?? this.getMapValue(tc.content)
+    };
+  }
+
+  private resolveQuizQuestionText(q: QuizQuestionApi, lang: string, fallbackLang?: string): string {
+    const direct = this.getMapValue(q.question, lang, fallbackLang);
+    if (direct) return direct;
+    const translations = q.translations || {};
+    const localized = this.pickTranslation(translations, lang, fallbackLang);
+    return localized?.question || '';
+  }
+
+  private resolveQuizAnswerText(a: QuizAnswer, lang: string, fallbackLang?: string): string {
+    const direct = this.getMapValue(a.text, lang, fallbackLang);
+    if (direct) return direct;
+    const translations = a.translations || {};
+    const localized = this.pickTranslation(translations, lang, fallbackLang);
+    return localized?.text || '';
+  }
+
+  private normalizeTextMap(
+    value: Record<string, string> | string | undefined,
+    lang: string,
+    fallback: string
+  ): Record<string, string> {
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      const map = { ...value } as Record<string, string>;
+      if (Object.keys(map).length) {
+        return map;
+      }
+    }
+    const text = typeof value === 'string' ? value : fallback;
+    return lang ? { [lang]: text || '' } : {};
+  }
+
+  private mergeLegacyTextMap(
+    value: Record<string, string> | string | undefined,
+    translations: Record<string, { title?: string; content?: string; question?: string; text?: string }> | undefined,
+    field: 'title' | 'content' | 'question' | 'text',
+    lang: string
+  ): Record<string, string> {
+    const base = this.normalizeTextMap(value, lang, '');
+    const merged = { ...base };
+    Object.keys(translations || {}).forEach((key) => {
+      const entry = translations?.[key] as any;
+      const text = entry?.[field];
+      if (text !== undefined && text !== null && text !== '') {
+        merged[key] = text;
+      }
+    });
+    return merged;
+  }
+
+  private getMapValue(map: Record<string, string> | string | undefined, lang?: string, fallbackLang?: string): string {
+    if (!map) return '';
+    if (typeof map === 'string') return map;
+    if (lang && map[lang] !== undefined) return map[lang] ?? '';
+    if (fallbackLang && map[fallbackLang] !== undefined) return map[fallbackLang] ?? '';
+    return this.pickValue(map);
+  }
+
+  private setMapValue(
+    map: Record<string, string> | undefined,
+    lang: string,
+    value: string
+  ): Record<string, string> {
+    const next = { ...(map || {}) };
+    if (lang) {
+      next[lang] = value;
+    }
+    return next;
+  }
+
+  private pickValue(map?: Record<string, string>): string {
+    if (!map) return '';
+    const values = Object.values(map);
+    return values[0] ?? '';
+  }
+
+  private mergeCourseTranslations(
+    translations: Record<string, any> | undefined,
+    lang: string,
+    payload: { title: string; description: string; goals: string[] }
+  ): Record<string, any> {
+    const next = { ...(translations || {}) };
+    next[lang] = { title: payload.title, description: payload.description, goals: payload.goals };
+    return next;
+  }
+
+  private mergeTextContentTranslations(
+    translations: Record<string, any> | undefined,
+    lang: string,
+    payload: { title: string; content: string }
+  ): Record<string, any> {
+    const next = { ...(translations || {}) };
+    next[lang] = { title: payload.title, content: payload.content };
+    return next;
+  }
+
+  private mergeQuizQuestionTranslations(
+    translations: Record<string, any> | undefined,
+    lang: string,
+    payload: { question: string }
+  ): Record<string, any> {
+    const next = { ...(translations || {}) };
+    next[lang] = { question: payload.question };
+    return next;
+  }
+
+  private mergeQuizAnswerTranslations(
+    translations: Record<string, any> | undefined,
+    lang: string,
+    payload: { text: string }
+  ): Record<string, any> {
+    const next = { ...(translations || {}) };
+    next[lang] = { text: payload.text };
+    return next;
+  }
+
+  private ensureQuizTranslationScaffold(content: TextContent): void {
+    if (!content.questions) return;
+    const lang = this.resolveDefaultLanguage();
+    content.quizQuestions = content.quizQuestions || [];
+    content.questions.forEach((question, qi) => {
+      const existing = content.quizQuestions?.[qi] || { id: '', question: {}, answers: [] };
+      existing.question = { ...(existing.question || {}), ...(question.question || {}) };
+      existing.answers = existing.answers || [];
+      const options = question.options || [];
+      existing.answers = options.map((opt, oi) => {
+        const answer = existing.answers?.[oi] || { id: '', text: {}, correct: false };
+        if (!answer.text || typeof answer.text !== 'object') {
+          answer.text = {};
+        }
+        if (opt) {
+          answer.text = this.setMapValue(answer.text, lang, opt);
+        }
+        return answer;
+      });
+      content.quizQuestions![qi] = existing;
+    });
+    content.quizQuestions = content.quizQuestions.slice(0, content.questions.length);
+  }
+
+  private pickTranslation<T extends Record<string, any>>(
+    translations: Record<string, T>,
+    lang: string,
+    fallbackLang?: string
+  ): T | undefined {
+    if (!translations) return undefined;
+    if (translations[lang]) return translations[lang];
+    if (fallbackLang && translations[fallbackLang]) return translations[fallbackLang];
+    if (translations['en']) return translations['en'];
+    const firstKey = Object.keys(translations)[0];
+    return firstKey ? translations[firstKey] : undefined;
+  }
+
+  private getInitialTranslationLanguage(): string {
+    return 'en';
   }
 
   handleRetrieve(): void {

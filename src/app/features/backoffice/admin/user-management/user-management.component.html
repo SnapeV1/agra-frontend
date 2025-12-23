@@ -29,7 +29,7 @@
           <th>{{ 'userManagement.table.phone' | translate }}</th>
           <th>{{ 'userManagement.table.country' | translate }}</th>
           <th>{{ 'userManagement.table.language' | translate }}</th>
-          <th>{{ 'userManagement.table.domain' | translate }}</th>
+          <th>{{ 'userManagement.table.profession' | translate }}</th>
           <th>{{ 'userManagement.table.role' | translate }}</th>
           <th>{{ 'userManagement.table.registered' | translate }}</th>
           <th>{{ 'userManagement.table.status' | translate }}</th>
@@ -47,7 +47,7 @@
           <td [attr.data-label]="'userManagement.table.phone' | translate">{{ user.phone || '-' }}</td>
           <td [attr.data-label]="'userManagement.table.country' | translate">{{ user.country || '-' }}</td>
           <td [attr.data-label]="'userManagement.table.language' | translate">{{ user.language || '-' }}</td>
-          <td [attr.data-label]="'userManagement.table.domain' | translate">{{ user.domain || '-' }}</td>
+          <td [attr.data-label]="'userManagement.table.profession' | translate">{{ user.profession || '-' }}</td>
           <td [attr.data-label]="'userManagement.table.role' | translate">
             <span class="role-badge">{{ user.role }}</span>
           </td>
@@ -133,7 +133,6 @@
                     [class.selected]="selectedUser && selectedUser.phoneCountryCode === country.code">
                     <span class="fi fi-{{ country.country.toLowerCase() }}"></span>
                     <span class="country-code">{{ country.code }}</span>
-                    <span class="country-name">{{ country.name }}</span>
                   </div>
                 </div>
               </div>
@@ -149,20 +148,36 @@
         <div class="form-row">
           <div class="form-group">
             <label>{{ 'userManagement.form.language' | translate }}</label>
-            <input type="text" [(ngModel)]="selectedUser.language" class="form-input">
+            <select [(ngModel)]="selectedUser.language" class="form-input">
+              <option value="en">{{ 'userManagement.languages.en' | translate }}</option>
+              <option value="ar">{{ 'userManagement.languages.ar' | translate }}</option>
+              <option value="fr">{{ 'userManagement.languages.fr' | translate }}</option>
+            </select>
           </div>
           <div class="form-group">
-            <label>{{ 'userManagement.form.domain' | translate }}</label>
-            <input type="text" [(ngModel)]="selectedUser.domain" class="form-input">
+            <label>{{ 'userManagement.form.profession' | translate }}</label>
+            <input type="text" [(ngModel)]="selectedUser.profession" class="form-input">
           </div>
         </div>
-        
-        <div class="form-group">
-          <label>{{ 'userManagement.form.role' | translate }}</label>
-          <select [(ngModel)]="selectedUser.role" class="form-input">
-            <option value="ADMIN">{{ 'userManagement.roles.admin' | translate }}</option>
-            <option value="USER">{{ 'userManagement.roles.user' | translate }}</option>
-          </select>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>{{ 'userManagement.form.birthdate' | translate }}</label>
+            <div class="date-input">
+              <input type="date" [(ngModel)]="selectedUser.birthdate" class="form-input">
+              <svg class="date-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M8 3v4M16 3v4M3 9h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>{{ 'userManagement.form.role' | translate }}</label>
+            <select [(ngModel)]="selectedUser.role" class="form-input">
+              <option value="ADMIN">{{ 'userManagement.roles.admin' | translate }}</option>
+              <option value="USER">{{ 'userManagement.roles.user' | translate }}</option>
+            </select>
+          </div>
         </div>
         
         <div class="form-group checkbox-group">

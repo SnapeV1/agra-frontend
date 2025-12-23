@@ -58,7 +58,7 @@ export class UserManagementComponent implements OnInit {
       (user.country?.toLowerCase().includes(searchLower) ?? false) ||
       (user.language?.toLowerCase().includes(searchLower) ?? false) ||
       user.role.toLowerCase().includes(searchLower) ||
-      (user.domain?.toLowerCase().includes(searchLower) ?? false)
+      ((user as any).profession?.toLowerCase().includes(searchLower) ?? false)
     );
   }
 

@@ -22,7 +22,6 @@
         <a class="nav-link" [class.active]="activeSection === 'users'" (click)="setSection('users')"><i class="fas fa-users"></i> {{ 'dashboard.nav.users' | translate }}</a>
         <a class="nav-link" [class.active]="activeSection === 'courses'" (click)="setSection('courses')"><i class="fas fa-book"></i> {{ 'dashboard.nav.courses' | translate }}</a>
         <a class="nav-link" [class.active]="activeSection === 'social'" (click)="setSection('social')"><i class="fas fa-comments"></i> {{ 'dashboard.nav.social' | translate }}</a>
-        <a class="nav-link" [class.active]="activeSection === 'notifications'" (click)="setSection('notifications')"><i class="fas fa-bell"></i> {{ 'dashboard.nav.notifications' | translate }}</a>
       </nav>
 
       <!-- Welcome Banner -->
@@ -93,6 +92,10 @@
           <div>
             <h3 class="section-title">{{ 'dashboard.activity.title' | translate }}</h3>
             <p class="section-subtitle">{{ 'dashboard.activity.subtitle' | translate }}</p>
+          </div>    <div class="section-actions">
+            <button class="btn btn-light btn-sm" (click)="onManageCourses()">
+              <i class="fas fa-book"></i> {{ 'dashboard.actions.manageCourses' | translate }}
+            </button>
           </div>
         </div>
         <div class="two-col-grid">
@@ -148,15 +151,17 @@
       <section class="section-block" *ngIf="activeSection === 'courses'">
         <div class="section-header">
           <div>
-            <h3 class="section-title">Courses insights</h3>
-            <p class="section-subtitle">Modern performance signals across your catalog.</p>
+            <h3 class="section-title">{{ 'dashboard.coursesInsights.title' | translate }}</h3>
+            <p class="section-subtitle">{{ 'dashboard.coursesInsights.subtitle' | translate }}</p>
+            
           </div>
+      
         </div>
         <div class="two-col-grid courses-grid">
           <div class="card">
             <div class="card-header compact">
-              <h4 class="card-title">Courses completed</h4>
-              <span class="muted">Monthly trend</span>
+              <h4 class="card-title">{{ 'dashboard.coursesInsights.coursesCompleted' | translate }}</h4>
+              <span class="muted">{{ 'dashboard.coursesInsights.monthlyTrend' | translate }}</span>
             </div>
             <div class="chart-area short">
               <canvas baseChart [type]="enrollmentsChartType" [data]="enrollmentsChartData" [options]="enrollmentsChartOptions"></canvas>
@@ -165,7 +170,8 @@
               <div class="stat-tile" *ngFor="let stat of coursePulseStats">
                 <div class="stat-label">{{ stat.label | translate }}</div>
                 <div class="stat-value">{{ stat.value }}</div>
-                <div class="stat-sub" *ngIf="stat.sub">{{ stat.sub }}</div>
+                <div class="stat-sub" *ngIf="stat.subKey">{{ stat.subKey | translate:(stat.subParams || { value: stat.subValue }) }}</div>
+                <div class="stat-sub" *ngIf="stat.sub && !stat.subKey">{{ stat.sub }}</div>
               </div>
             </div>
             <ng-template #noCoursePulse>
@@ -174,15 +180,15 @@
           </div>
           <div class="card">
             <div class="card-header compact">
-              <h4 class="card-title">Top courses performance</h4>
-              <span class="muted">Enrollments vs completion</span>
+              <h4 class="card-title">{{ 'dashboard.coursesInsights.topCoursesPerformance' | translate }}</h4>
+              <span class="muted">{{ 'dashboard.coursesInsights.enrollmentsVsCompletion' | translate }}</span>
             </div>
             <div class="course-performance-simple" *ngIf="topCourses.length; else noCourseHighlights">
               <div class="course-simple-list">
                 <div class="course-simple-row" *ngFor="let course of topCourses.slice(0, 3)">
                   <div class="course-simple-main">
                     <span class="course-simple-name">{{ course.name }}</span>
-                    <span class="course-simple-badge">{{ formatValue(course.students) }} enrollments</span>
+                    <span class="course-simple-badge">{{ formatValue(course.students) }} {{ 'dashboard.coursesInsights.enrollments' | translate }}</span>
                   </div>
                   <div class="course-simple-meter">
                     <div class="course-simple-track">
@@ -200,9 +206,10 @@
               </div>
               <div class="course-summary-chips">
                 <div class="course-summary-chip" *ngFor="let stat of courseHighlightStats">
-                  <span class="chip-label">{{ stat.label }}</span>
+                  <span class="chip-label">{{ stat.label | translate }}</span>
                   <span class="chip-value">{{ stat.value }}</span>
-                  <span class="chip-sub" *ngIf="stat.sub">{{ stat.sub }}</span>
+                  <span class="chip-sub" *ngIf="stat.subKey">{{ stat.subKey | translate:(stat.subParams || { value: stat.subValue }) }}</span>
+                  <span class="chip-sub" *ngIf="stat.sub && !stat.subKey">{{ stat.sub }}</span>
                 </div>
               </div>
             </div>
@@ -219,6 +226,11 @@
           <div>
             <h3 class="section-title">{{ 'dashboard.users.title' | translate }}</h3>
             <p class="section-subtitle">{{ 'dashboard.users.subtitle' | translate }}</p>
+          </div>
+          <div class="section-actions">
+            <button class="btn btn-light btn-sm" (click)="onManageUsers()">
+              <i class="fas fa-users"></i> {{ 'dashboard.actions.manageUsers' | translate }}
+            </button>
           </div>
         </div>
         <div class="users-grid">
@@ -386,6 +398,11 @@
             <h3 class="section-title">{{ 'dashboard.social.title' | translate }}</h3>
             <p class="section-subtitle">{{ 'dashboard.social.subtitle' | translate }}</p>
           </div>
+          <div class="section-actions">
+            <button class="btn btn-light btn-sm" (click)="onManageSocial()">
+              <i class="fas fa-comments"></i> {{ 'dashboard.actions.manageFeed' | translate }}
+            </button>
+          </div>
         </div>
         <div class="two-col-grid social-grid">
           <div class="card">
@@ -460,32 +477,32 @@
         </div>
       </section>
 
-      <!-- Notifications -->
-      <section class="section-block" *ngIf="activeSection === 'overview' || activeSection === 'notifications'">
+      <!-- Other -->
+      <section class="section-block" *ngIf="activeSection === 'overview'">
         <div class="section-header">
           <div>
-            <h3 class="section-title">{{ 'dashboard.notifications.title' | translate }}</h3>
-            <p class="section-subtitle">{{ 'dashboard.notifications.subtitle' | translate }}</p>
+            <h3 class="section-title">{{ 'dashboard.other.title' | translate }}</h3>
+            <p class="section-subtitle">{{ 'dashboard.other.subtitle' | translate }}</p>
           </div>
         </div>
         <div class="grid-4">
           <div class="card chart-card small-chart">
             <div class="chart-header">
-              <h4 class="card-title">{{ 'dashboard.notifications.trend' | translate }}</h4>
+              <h4 class="card-title">{{ 'dashboard.other.notificationsTrend' | translate }}</h4>
             </div>
             <div class="chart-area short">
               <canvas baseChart [type]="'line'" [data]="notificationsChartData" [options]="growthChartOptions"></canvas>
             </div>
           </div>
           <div class="card">
-            <h4 class="card-title">{{ 'dashboard.notifications.readStatus' | translate }}</h4>
+            <h4 class="card-title">{{ 'dashboard.other.notificationsRead' | translate }}</h4>
             <ul class="stat-list">
               <li *ngFor="let kv of (notificationRead | keyvalue)"><span>{{ kv.key }}</span><strong>{{ formatValue(kv.value) }}</strong></li>
               <li class="empty" *ngIf="!notificationRead">{{ 'common.noData' | translate }}</li>
             </ul>
           </div>
           <div class="card">
-            <h4 class="card-title">{{ 'dashboard.notifications.topTypes' | translate }}</h4>
+            <h4 class="card-title">{{ 'dashboard.other.notificationsTypes' | translate }}</h4>
             <ul class="stat-list">
               <li *ngFor="let t of notificationTopTypes"><span>{{ t.type }}</span><strong>{{ formatValue(t.count) }}</strong></li>
               <li class="empty" *ngIf="!notificationTopTypes || notificationTopTypes.length === 0">{{ 'common.noData' | translate }}</li>

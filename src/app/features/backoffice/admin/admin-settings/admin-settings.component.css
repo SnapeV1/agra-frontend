@@ -59,6 +59,7 @@
   border-radius: 8px;
   border: 1px solid #e5e7eb;
   background: #f8fafc;
+  color: #0f172a;
   appearance: none;
   -moz-appearance: none;
   -webkit-appearance: none;
@@ -66,6 +67,12 @@
   background-position: calc(100% - 18px) calc(50% - 2px), calc(100% - 12px) calc(50% - 2px);
   background-size: 6px 6px;
   background-repeat: no-repeat;
+  color-scheme: light;
+}
+
+.select-wrapper select option {
+  background: #ffffff;
+  color: #0f172a;
 }
 
 .switch {
@@ -184,6 +191,12 @@ input:checked + .slider:before {
 :host-context([data-theme="dark"]) .select-wrapper select {
   background: #0f172a;
   border-color: #1f2937;
+  color: #e5e7eb;
+  color-scheme: dark;
+}
+
+:host-context([data-theme="dark"]) .select-wrapper select option {
+  background: #0b1220;
   color: #e5e7eb;
 }
 :host-context([data-theme="dark"]) .slider { background: #1f2937; }

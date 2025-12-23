@@ -57,6 +57,7 @@ interface StatTile {
   sub?: string
   subKey?: string
   subValue?: string
+  subParams?: Record<string, string>
 }
 
 @Component({
@@ -69,7 +70,7 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
   otherMetrics: Metric[] = []
   averageCompletion = 0
   roleColors: string[] = ['#3b82f6', '#10b981', '#f59e0b', '#f43f5e', '#06b6d4', '#8b5cf6']
-  activeSection: 'overview' | 'users' | 'courses' | 'social' | 'notifications' | 'activity' = 'overview'
+  activeSection: 'overview' | 'users' | 'courses' | 'social' | 'activity' = 'overview'
   languages = [
     { code: 'en', labelKey: 'lang.en' },
     { code: 'fr', labelKey: 'lang.fr' }
@@ -241,7 +242,7 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
         const tab = (params['tab'] || '').toString().toLowerCase()
-        const allowed = new Set(['overview', 'users', 'courses', 'social', 'notifications', 'activity'])
+        const allowed = new Set(['overview', 'users', 'courses', 'social', 'activity'])
         if (tab && allowed.has(tab) && tab !== this.activeSection) {
           this.activeSection = tab as DashboardAdminComponent['activeSection']
         }
@@ -431,17 +432,24 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
           const topByCompletion = [...this.topCourses].sort((a, b) => b.completion - a.completion)[0]
           this.courseHighlightStats = [
             topByEnrollments ? {
-              label: 'Top course',
+              label: 'dashboard.coursesInsights.topCourse',
               value: topByEnrollments.name,
-              sub: `${this.formatValue(topByEnrollments.students)} enrollments · ${this.formatValue(topByEnrollments.completion)}% completion`
+              subKey: 'dashboard.coursesInsights.enrollmentsWithCompletion',
+              subParams: {
+                enrollments: this.formatValue(topByEnrollments.students),
+                completion: this.formatValue(topByEnrollments.completion)
+              }
             } : null,
             topByCompletion ? {
-              label: 'Best completion',
+              label: 'dashboard.coursesInsights.bestCompletion',
               value: topByCompletion.name,
-              sub: `${this.formatValue(topByCompletion.completion)}% completion`
+              subKey: 'dashboard.coursesInsights.completionWithValue',
+              subParams: {
+                completion: this.formatValue(topByCompletion.completion)
+              }
             } : null,
-            { label: 'Archived courses', value: this.formatValue(this.coursesSummary.archived) },
-            { label: 'Total courses', value: this.formatValue(this.coursesSummary.total) },
+            { label: 'dashboard.coursesInsights.archivedCourses', value: this.formatValue(this.coursesSummary.archived) },
+            { label: 'dashboard.coursesInsights.totalCourses', value: this.formatValue(this.coursesSummary.total) },
           ].filter(Boolean) as StatTile[]
           
 
@@ -484,10 +492,15 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
           const lessonsLatest = lessonsArr.length ? lessonsArr[lessonsArr.length - 1].c : 0
           const lessonsAvg = lessonsArr.length ? Math.round((lessonsTotal / lessonsArr.length) * 100) / 100 : 0
           this.coursePulseStats = [
-            { label: 'Latest courses completed', value: this.formatValue(lessonsLatest), sub: `Total ${this.formatValue(lessonsTotal)}` },
-            { label: 'Avg per period', value: this.formatValue(lessonsAvg) },
-            { label: 'Active courses', value: this.formatValue(this.coursesSummary.published) },
-            { label: 'Avg completion', value: `${this.formatValue(this.averageCompletion)}%` },
+            {
+              label: 'dashboard.coursesInsights.latestCoursesCompleted',
+              value: this.formatValue(lessonsLatest),
+              subKey: 'dashboard.coursesInsights.totalWithValue',
+              subValue: this.formatValue(lessonsTotal)
+            },
+            { label: 'dashboard.coursesInsights.avgPerPeriod', value: this.formatValue(lessonsAvg) },
+            { label: 'dashboard.coursesInsights.activeCourses', value: this.formatValue(this.coursesSummary.published) },
+            { label: 'dashboard.coursesInsights.avgCompletion', value: `${this.formatValue(this.averageCompletion)}%` },
           ].filter(item => item.value !== '0' || lessonsTotal || this.coursesSummary.published || this.averageCompletion)
           const lessonsSlice = lessonsArr.slice(-8)
           const lessonsLabels = lessonsSlice.map(item =>
@@ -853,6 +866,18 @@ export class DashboardAdminComponent implements OnInit, OnDestroy {
 
   onViewTickets(): void {
     this.router.navigate(['/admin/tickets'])
+  }
+
+  onManageUsers(): void {
+    this.router.navigate(['/admin/users'])
+  }
+
+  onManageCourses(): void {
+    this.router.navigate(['/admin/courses'])
+  }
+
+  onManageSocial(): void {
+    this.router.navigate(['/admin/posts'])
   }
 
   setSection(section: DashboardAdminComponent['activeSection']): void {

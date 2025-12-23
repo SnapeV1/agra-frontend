@@ -13,6 +13,8 @@ interface TogglePref {
 interface AdminControlsState {
   maintenanceEnabled: boolean;
   newsSchedule: '15m' | '30m' | '60m' | '120m';
+  newsCountries: string[];
+  newsLanguage: string;
   twoFactorEnabled: boolean;
   email?: string;
 }
@@ -42,6 +44,8 @@ theme: 'light' | 'dark' = (() => {
   prefsError = '';
   maintenanceEnabled = false;
   newsSchedule: AdminControlsState['newsSchedule'] = '60m';
+  newsCountries: string[] = ['tn'];
+  newsLanguage = 'en';
   twoFactorEnabled = false;
   email = '';
   password = '';
@@ -66,7 +70,24 @@ theme: 'light' | 'dark' = (() => {
   showPasswordForm = false;
   notificationsCollapsed = true;
   twoFactorCollapsed = true;
-  language = localStorage.getItem('pref_lang') || 'en';
+  language = 'en';
+  newsCountryOptions: Array<{ code: string; label: string }> = [
+    { code: 'tn', label: 'Tunisia (TN)' },
+    { code: 'dz', label: 'Algeria (DZ)' },
+    { code: 'ma', label: 'Morocco (MA)' },
+    { code: 'eg', label: 'Egypt (EG)' },
+    { code: 'ke', label: 'Kenya (KE)' },
+    { code: 'ng', label: 'Nigeria (NG)' },
+    { code: 'za', label: 'South Africa (ZA)' },
+    { code: 'fr', label: 'France (FR)' },
+    { code: 'gb', label: 'United Kingdom (GB)' },
+    { code: 'us', label: 'United States (US)' }
+  ];
+  newsLanguageOptions: Array<{ code: string; label: string }> = [
+    { code: 'en', label: 'English' },
+    { code: 'fr', label: 'French' },
+    { code: 'ar', label: 'Arabic' }
+  ];
 
   constructor(
     private auth: AuthService,
@@ -75,6 +96,7 @@ theme: 'light' | 'dark' = (() => {
   ) {
  
     this.applyThemeToRoot();
+    this.language = this.languageService.current || 'en';
 
     try {
       const raw = localStorage.getItem('admin_notification_prefs');
@@ -89,6 +111,8 @@ theme: 'light' | 'dark' = (() => {
         const parsed = JSON.parse(controlsRaw) as AdminControlsState;
         this.maintenanceEnabled = !!parsed.maintenanceEnabled;
         this.newsSchedule = parsed.newsSchedule || '60m';
+        this.newsCountries = Array.isArray(parsed.newsCountries) ? parsed.newsCountries : ['tn'];
+        this.newsLanguage = parsed.newsLanguage || 'en';
         this.twoFactorEnabled = !!parsed.twoFactorEnabled;
         this.email = parsed.email || '';
       }
@@ -97,7 +121,6 @@ theme: 'light' | 'dark' = (() => {
 
   saveDisplayPrefs(): void {
     try { localStorage.setItem('pref_theme', this.theme); } catch {}
-    try { localStorage.setItem('pref_lang', this.language); } catch {}
     this.applyThemeToRoot();
     this.languageService.setLanguage(this.language);
     this.profileService.updateUserProfile({ themePreference: this.theme, language: this.language }).subscribe({
@@ -141,6 +164,8 @@ theme: 'light' | 'dark' = (() => {
       const payload: AdminControlsState = {
         maintenanceEnabled: this.maintenanceEnabled,
         newsSchedule: this.newsSchedule,
+        newsCountries: this.newsCountries,
+        newsLanguage: this.newsLanguage,
         twoFactorEnabled: this.twoFactorEnabled,
         email: this.email
       };
@@ -158,6 +183,18 @@ theme: 'light' | 'dark' = (() => {
   fetchNewsNow(): void {
     this.fetchNowMessage = 'adminSettings.operations.fetchRequested';
     setTimeout(() => this.fetchNowMessage = '', 2500);
+  }
+
+  toggleNewsCountry(code: string): void {
+    if (!code) return;
+    const exists = this.newsCountries.includes(code);
+    this.newsCountries = exists
+      ? this.newsCountries.filter(c => c !== code)
+      : [...this.newsCountries, code];
+  }
+
+  isNewsCountrySelected(code: string): boolean {
+    return this.newsCountries.includes(code);
   }
 
   changePassword(): void {

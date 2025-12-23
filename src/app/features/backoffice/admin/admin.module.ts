@@ -15,6 +15,7 @@ import { CourseManagementModule } from './course-management/course-management.mo
 import { TicketManagementComponent } from './ticket-management/ticket-management.component';
 import { CertificatesManagementComponent } from './certificates-management/certificates-management.component';
 import { AdminSettingsComponent } from './admin-settings/admin-settings.component';
+import { ActivityLogsComponent } from '../activity-logs/activity-logs.component';
 import { SettingsModule } from 'src/app/features/frontoffice/settings/settings.module';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -27,6 +28,7 @@ import { TranslateModule } from '@ngx-translate/core';
     TicketManagementComponent,
     CertificatesManagementComponent,
     AdminSettingsComponent,
+    ActivityLogsComponent,
     
   ],
   imports: [

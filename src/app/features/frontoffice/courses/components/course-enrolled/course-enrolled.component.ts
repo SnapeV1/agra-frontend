@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil, Subscription, interval } from 'rxjs';
-import { Course, TextContent } from 'src/app/core/models/course';
+import { Course, QuizQuestion, TextContent } from 'src/app/core/models/course';
 import { ProgressService, LessonProgress, CourseEnrollment } from 'src/app/core/services/progress.service';
 import { CertificateService, CertificateData } from 'src/app/core/services/certificate.service';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
@@ -263,7 +263,14 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
   }
 
   private normalizeQuizLessons(course: Course): Course {
-    const normalized = { ...course };
+    const language = this.resolveCourseLanguage(course);
+    const courseTranslation = this.resolveCourseTranslation(course, language);
+    const normalized = {
+      ...course,
+      title: courseTranslation.title,
+      description: courseTranslation.description,
+      goals: courseTranslation.goals
+    };
     normalized.textContent = (course.textContent || []).map((lesson) => {
       const rawType = (lesson.type || '').toString().toLowerCase();
       const normalizedType: 'lesson' | 'assignment' | 'reading' | 'quiz' =
@@ -275,26 +282,150 @@ export class CourseEnrolledComponent implements OnInit, OnDestroy {
           ? 'reading'
           : 'lesson';
 
+      const localizedLesson = this.resolveTextContentTranslation(lesson, language, course.defaultLanguage);
       if (normalizedType !== 'quiz') {
-        return { ...lesson, type: normalizedType } as TextContent;
+        return {
+          ...lesson,
+          title: this.normalizeTextMap(lesson.title, language, localizedLesson.title),
+          content: this.normalizeTextMap(lesson.content, language, localizedLesson.content),
+          type: normalizedType
+        } as TextContent;
       }
 
       const quizQuestions = (lesson as any).quizQuestions || [];
       const mappedQuestions = (quizQuestions.length ? quizQuestions : lesson.questions || []).map((q: any) => {
         const answers = (q.answers || []) as Array<{ text?: string; correct?: boolean; isCorrect?: boolean; isTrue?: boolean }>;
-        const options = (q.options && q.options.length ? q.options : answers.map(a => a.text).filter(Boolean)) as string[];
-        const correctAnswer = q.correctAnswer || answers.find(a => a?.correct || a?.isCorrect || a?.isTrue)?.text || '';
+        const optionTexts = answers.map(a => this.resolveQuizAnswerText(a, language, course.defaultLanguage)).filter(Boolean);
+        const options = (q.options && q.options.length ? q.options : optionTexts) as string[];
+        const correctAnswerSource = answers.find(a => a?.correct || a?.isCorrect || a?.isTrue);
+        const correctAnswer = q.correctAnswer || (correctAnswerSource ? this.resolveQuizAnswerText(correctAnswerSource, language, course.defaultLanguage) : '') || '';
         return {
           id: q.id,
-          question: q.question || '',
+          question: this.normalizeTextMap(q.question, language, this.resolveQuizQuestionText(q, language, course.defaultLanguage)),
           options: options && options.length ? options : ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
           correctAnswer
         };
       });
 
-      return { ...(lesson as any), type: 'quiz', questions: mappedQuestions } as TextContent;
+      return {
+        ...(lesson as any),
+        title: this.normalizeTextMap(lesson.title, language, localizedLesson.title),
+        content: this.normalizeTextMap(lesson.content, language, localizedLesson.content),
+        type: 'quiz',
+        questions: mappedQuestions
+      } as TextContent;
     }) as TextContent[];
     return normalized;
+  }
+
+  private resolveCourseLanguage(course: Course): string {
+    const userLang = (this.authService.currentUserValue?.user as any)?.language;
+    if (userLang) return userLang;
+    const stored = this.readStoredLanguage();
+    if (stored) return stored;
+    return course.defaultLanguage || this.translate.currentLang || this.translate.defaultLang || 'en';
+  }
+
+  private readStoredLanguage(): string | null {
+    try {
+      const stored = localStorage.getItem('preferredLanguage');
+      if (stored) return stored;
+    } catch {}
+    return null;
+  }
+
+  private resolveCourseTranslation(course: Course, lang: string): { title: string; description: string; goals: string[] } {
+    const translations = course.translations || {};
+    const localized = this.pickTranslation(translations, lang, course.defaultLanguage);
+    return {
+      title: localized?.title ?? course.title ?? '',
+      description: localized?.description ?? course.description ?? '',
+      goals: localized?.goals ?? course.goals ?? []
+    };
+  }
+
+  private resolveTextContentTranslation(lesson: TextContent, lang: string, fallbackLang?: string): { title: string; content: string } {
+    const title = this.getMapValue(lesson.title, lang, fallbackLang);
+    const content = this.getMapValue(lesson.content, lang, fallbackLang);
+    if (title || content) {
+      return { title, content };
+    }
+    const translations = lesson.translations || {};
+    const localized = this.pickTranslation(translations, lang, fallbackLang);
+    return {
+      title: localized?.title ?? this.getMapValue(lesson.title),
+      content: localized?.content ?? this.getMapValue(lesson.content)
+    };
+  }
+
+  private resolveQuizQuestionText(q: any, lang: string, fallbackLang?: string): string {
+    const direct = this.getMapValue(q?.question, lang, fallbackLang);
+    if (direct) return direct;
+    const translations = q?.translations || {};
+    const localized = this.pickTranslation(translations, lang, fallbackLang);
+    return localized?.['question'] || '';
+  }
+
+  private resolveQuizAnswerText(a: any, lang: string, fallbackLang?: string): string {
+    const direct = this.getMapValue(a?.text, lang, fallbackLang);
+    if (direct) return direct;
+    const translations = a?.translations || {};
+    const localized = this.pickTranslation(translations, lang, fallbackLang);
+    return localized?.['text'] || '';
+  }
+
+  getLessonTitle(lesson: TextContent): string {
+    return this.getMapValue(lesson?.title);
+  }
+
+  getLessonContent(lesson: TextContent): string {
+    return this.getMapValue(lesson?.content);
+  }
+
+  getQuizQuestionText(question: QuizQuestion): string {
+    return this.getMapValue(question?.question);
+  }
+
+  private normalizeTextMap(
+    value: Record<string, string> | string | undefined,
+    lang: string,
+    fallback: string
+  ): Record<string, string> {
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      const map = { ...value } as Record<string, string>;
+      if (Object.keys(map).length) {
+        return map;
+      }
+    }
+    const text = typeof value === 'string' ? value : fallback;
+    return lang ? { [lang]: text || '' } : {};
+  }
+
+  private getMapValue(map: Record<string, string> | string | undefined, lang?: string, fallbackLang?: string): string {
+    if (!map) return '';
+    if (typeof map === 'string') return map;
+    if (lang && map[lang] !== undefined) return map[lang] ?? '';
+    if (fallbackLang && map[fallbackLang] !== undefined) return map[fallbackLang] ?? '';
+    return this.pickValue(map);
+  }
+
+  private pickValue(map?: Record<string, string>): string {
+    if (!map) return '';
+    const values = Object.values(map);
+    return values[0] ?? '';
+  }
+
+  private pickTranslation<T extends Record<string, any>>(
+    translations: Record<string, T>,
+    lang: string,
+    fallbackLang?: string
+  ): T | undefined {
+    if (!translations) return undefined;
+    if (translations[lang]) return translations[lang];
+    if (fallbackLang && translations[fallbackLang]) return translations[fallbackLang];
+    if (translations['en']) return translations['en'];
+    const firstKey = Object.keys(translations)[0];
+    return firstKey ? translations[firstKey] : undefined;
   }
 
   private checkDataLoadComplete(): void {

@@ -65,9 +65,9 @@ export class MockDataService {
       textContent: [
         {
           id: 'lesson-1',
-          title: 'Introduction to Sustainable Agriculture',
+          title: { en: 'Introduction to Sustainable Agriculture' },
           order: 1,
-          content: `
+          content: { en: `
             <h1>Welcome to Sustainable Agriculture and Crop Management</h1>
             <p>In this comprehensive course, you'll learn modern sustainable farming techniques that balance productivity with environmental stewardship.</p>
             
@@ -101,14 +101,14 @@ export class MockDataService {
               <li>Develop integrated pest management strategies</li>
               <li>Utilize precision agriculture tools and technologies</li>
             </ul>
-          `,
+          ` },
           type: 'lesson'
         },
         {
           id: 'lesson-2',
-          title: 'Soil Health and Crop Rotation Fundamentals',
+          title: { en: 'Soil Health and Crop Rotation Fundamentals' },
           order: 2,
-          content: `
+          content: { en: `
             <h1>Soil Health and Crop Rotation Fundamentals</h1>
             <p>Learn how to assess, maintain, and improve soil health while implementing effective crop rotation strategies for sustainable farming.</p>
             
@@ -143,14 +143,14 @@ export class MockDataService {
             
             <h2>Practical Exercise</h2>
             <p>Design a 4-year crop rotation plan for a mixed farming operation, considering soil health, market demands, and pest management.</p>
-          `,
+          ` },
           type: 'lesson'
         },
         {
           id: 'lesson-3',
-          title: 'Precision Agriculture and Technology Integration',
+          title: { en: 'Precision Agriculture and Technology Integration' },
           order: 3,
-          content: `
+          content: { en: `
             <h1>Precision Agriculture and Technology Integration</h1>
             <p>Master modern agricultural technologies to optimize crop production, reduce waste, and improve farm efficiency through data-driven decision making.</p>
             
@@ -206,14 +206,14 @@ export class MockDataService {
             
             <h2>Data Management</h2>
             <p>Effective data collection, storage, and analysis are crucial for precision agriculture success. Learn to use farm management software and interpret agricultural data for informed decision-making.</p>
-          `,
+          ` },
           type: 'lesson'
         },
         {
           id: 'assignment-1',
-          title: 'Develop a Comprehensive Farm Management Plan',
+          title: { en: 'Develop a Comprehensive Farm Management Plan' },
           order: 4,
-          content: `
+          content: { en: `
             <h1>Assignment: Comprehensive Farm Management Plan</h1>
             <p>Apply your sustainable agriculture knowledge by creating a detailed farm management plan for a 100-hectare mixed farming operation.</p>
             
@@ -289,14 +289,14 @@ export class MockDataService {
               <li>Visual aids (charts, diagrams, maps)</li>
               <li>Reference list with at least 10 credible sources</li>
             </ul>
-          `,
+          ` },
           type: 'assignment'
         },
         {
           id: 'lesson-4',
-          title: 'Performance Optimization',
+          title: { en: 'Performance Optimization' },
           order: 5,
-          content: `
+          content: { en: `
             <h1>Performance Optimization in Angular</h1>
             <p>Learn techniques to make your Angular applications lightning fast.</p>
             
@@ -350,7 +350,7 @@ const routes: Routes = [
               <li>Lighthouse audits</li>
               <li>Bundle analyzers</li>
             </ul>
-          `,
+          ` },
           type: 'lesson'
         }
       ]

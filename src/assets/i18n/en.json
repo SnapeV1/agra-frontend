@@ -37,6 +37,7 @@
       "users": "Users",
       "posts": "Posts",
       "courses": "Courses",
+      "activityLogs": "Activity Logs",
       "tickets": "Tickets",
       "certificates": "Certificates"
     },
@@ -70,6 +71,52 @@
     },
     "certificatesManagement": {
       "title": "Certificates Management"
+    },
+    "activityLogs": {
+      "title": "Activity Logs",
+      "subtitle": "Monitor user activity across the platform"
+    }
+  },
+  "adminActivityLogs": {
+    "header": {
+      "eyebrow": "Activity",
+      "title": "Activity Logs",
+      "subtitle": "Track and filter the actions users take across the platform"
+    },
+    "filters": {
+      "activityType": "Activity type",
+      "userId": "User ID or email",
+      "userIdPlaceholder": "Enter user ID, email, or username",
+      "start": "Start date/time",
+      "end": "End date/time",
+      "limit": "Limit",
+      "apply": "Filter logs",
+      "reset": "Reset filters"
+    },
+    "status": {
+      "loading": "Loading activity logs...",
+      "empty": "No activity logs found for the current filters."
+    },
+    "table": {
+      "date": "Date / Time",
+      "user": "User",
+      "activity": "Activity",
+      "target": "Target",
+      "details": "Details",
+      "noDetails": "No metadata"
+    },
+    "activityTypes": {
+      "ALL": "All activities",
+      "LIKE": "Likes",
+      "PROFILE_UPDATE": "Profile updates",
+      "COURSE_ENROLLMENT": "Course enrollments",
+      "COURSE_COMPLETION": "Course completions",
+      "TICKET_SUBMISSION": "Ticket submissions",
+      "CHATBOT_USAGE": "Chatbot usage",
+      "OTHER": "Other"
+    },
+    "errors": {
+      "fetchFailed": "Unable to load activity logs."
     }
   },
   "footer": {
@@ -262,8 +309,12 @@
       "overview": "Overview",
       "users": "Users",
       "courses": "Courses",
-      "social": "Social",
-      "notifications": "Notifications"
+      "social": "Social"
+    },
+    "actions": {
+      "manageUsers": "Manage users",
+      "manageCourses": "Manage courses",
+      "manageFeed": "Manage feed"
     },
     "welcome": {
       "eyebrow": "Welcome",
@@ -292,6 +343,26 @@
       "topCourses": "Top Performing Courses",
       "studentsEnrolled": "students enrolled",
       "completion": "completion"
+    },
+    "coursesInsights": {
+      "title": "Courses insights",
+      "subtitle": "Modern performance signals across your catalog.",
+      "coursesCompleted": "Courses completed",
+      "monthlyTrend": "Monthly trend",
+      "latestCoursesCompleted": "Latest courses completed",
+      "totalWithValue": "Total {{value}}",
+      "avgPerPeriod": "Avg per period",
+      "activeCourses": "Active courses",
+      "avgCompletion": "Avg completion",
+      "topCoursesPerformance": "Top courses performance",
+      "enrollmentsVsCompletion": "Enrollments vs completion",
+      "enrollments": "enrollments",
+      "topCourse": "Top course",
+      "bestCompletion": "Best completion",
+      "archivedCourses": "Archived courses",
+      "totalCourses": "Total courses",
+      "enrollmentsWithCompletion": "{{enrollments}} enrollments · {{completion}}% completion",
+      "completionWithValue": "{{completion}}% completion"
     },
     "users": {
       "title": "Users",
@@ -347,6 +418,13 @@
         "resolved": "Resolved",
         "stale": "No recent activity (7d+)"
       }
+    },
+    "other": {
+      "title": "Other",
+      "subtitle": "Secondary operational signals.",
+      "notificationsTrend": "Notifications trend",
+      "notificationsRead": "Notification read status",
+      "notificationsTypes": "Top notification types"
     },
     "northAfrica": {
       "title": "Live Users Map",
@@ -1142,7 +1220,7 @@
       "phone": "Phone",
       "country": "Country",
       "language": "Language",
-      "domain": "Domain",
+      "profession": "Profession",
       "role": "Role",
       "registered": "Registered",
       "status": "Status",
@@ -1173,8 +1251,14 @@
       "phonePlaceholder": "123 456 789",
       "country": "Country",
       "language": "Language",
-      "domain": "Domain",
+      "profession": "Profession",
+      "birthdate": "Birthdate",
       "role": "Role"
+    },
+    "languages": {
+      "en": "English",
+      "ar": "Arabic",
+      "fr": "French"
     },
     "roles": {
       "admin": "Admin",
@@ -1658,7 +1742,36 @@
     },
     "languages": {
       "title": "Available languages",
-      "description": "Select the languages this course is available in"
+      "description": "Select the languages this course is available in",
+      "defaultLabel": "Default language",
+      "defaultHint": "This language is used as the primary content and fallback"
+    },
+    "translations": {
+      "title": "Translations",
+      "courseDescription": "Provide localized titles and descriptions for each language.",
+      "courseTitleLabel": "Translated title",
+      "courseTitlePlaceholder": "Enter translated course title",
+      "courseDescriptionLabel": "Translated description",
+      "courseDescriptionPlaceholder": "Enter translated description",
+      "show": "Show translations",
+      "hide": "Hide translations",
+      "goalsTitle": "Translated goals",
+      "goalsDescription": "Add localized goals for the selected language.",
+      "goalsPlaceholder": "Enter translated goal",
+      "goalsEmpty": "No translated goals yet. Add your first translation.",
+      "addGoal": "Add translated goal",
+      "lessonTitle": "Lesson translations",
+      "lessonDescription": "Localize lesson titles, content, and quiz prompts.",
+      "lessonTitleLabel": "Translated lesson title",
+      "lessonTitlePlaceholder": "Enter translated lesson title",
+      "lessonContentLabel": "Translated lesson content",
+      "lessonContentPlaceholder": "Enter translated lesson content",
+      "quizTitle": "Quiz translations",
+      "quizHint": "Translate questions and answer choices.",
+      "quizQuestionLabel": "Question {{index}} translation",
+      "quizQuestionPlaceholder": "Enter translated question",
+      "quizOptionLabel": "Option {{index}}",
+      "quizOptionPlaceholder": "Enter translated option"
     },
     "sessions": {
       "title": "Sessions",
@@ -1721,6 +1834,7 @@
       "correct": "Correct",
       "optionPlaceholder": "Option text",
       "addOption": "Add option",
+      "saveCollapse": "Save & collapse",
       "questionLabelDetailed": "Quiz \"{{title}}\" question {{index}}",
       "errors": {
         "emptyQuestion": "{{label}} is empty.",

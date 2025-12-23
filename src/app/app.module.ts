@@ -84,6 +84,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { VerifyCertificateComponent } from './features/frontoffice/verify-certificate/verify-certificate.component';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { ChatbotWidgetComponent } from './shared/components/chatbot-widget/chatbot-widget.component';
 const lucideIcons = {
   AlertTriangle,
   ArrowDown,
@@ -203,6 +204,7 @@ export function initializeAuth(authService: AuthService) {
     AppComponent,
     HomeComponent,
     VerifyCertificateComponent,
+    ChatbotWidgetComponent,
 
     
   

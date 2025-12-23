@@ -1,5 +1,7 @@
 export interface Course {
   id?: string; 
+  defaultLanguage?: string;
+  translations?: Record<string, CourseTranslation>;
   title: string;
   imageUrl: string;
   description: string;
@@ -23,6 +25,12 @@ export interface Course {
   goals: string[];
   
 }
+
+export interface CourseTranslation {
+  title?: string;
+  description?: string;
+  goals?: string[];
+}
 export interface CourseFile {
   id?: string;
   name: string;
@@ -35,16 +43,22 @@ export interface CourseFile {
 
 export interface TextContent {
   id?: string;
-  title: string;
-  content: string;
+  title: Record<string, string>;
+  content: Record<string, string>;
   order: number;
   type: 'lesson' | 'assignment' | 'reading' | 'quiz';
+  translations?: Record<string, TextContentTranslation>;
   questions?: QuizQuestion[];
   quizQuestions?: QuizQuestionApi[];
 }
 
+export interface TextContentTranslation {
+  title?: string;
+  content?: string;
+}
+
 export interface QuizQuestion {
-  question: string;
+  question: Record<string, string>;
   options: string[];
   correctAnswer?: string;
   explanation?: string;
@@ -54,14 +68,24 @@ export interface QuizQuestion {
 
 export interface QuizAnswer {
   id?: string;
-  text: string;
+  text: Record<string, string>;
+  translations?: Record<string, QuizAnswerTranslation>;
   correct?: boolean;
+}
+
+export interface QuizAnswerTranslation {
+  text?: string;
 }
 
 export interface QuizQuestionApi {
   id?: string;
-  question: string;
+  question?: Record<string, string>;
+  translations?: Record<string, QuizQuestionTranslation>;
   answers: QuizAnswer[];
+}
+
+export interface QuizQuestionTranslation {
+  question?: string;
 }
 
 export interface CourseProgress {

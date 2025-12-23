@@ -46,6 +46,17 @@ export class AuthService implements OnDestroy {
   private readonly THEME_KEY = 'pref_theme';
   private readonly PROVISIONAL_SIGNUP_KEY = 'signup_google_profile';
   private readonly PASSWORD_SET_TOKEN_KEY = 'password_set_token';
+  private readonly PASSWORD_RESET_COOLDOWN_KEY = 'pwd_reset_cooldown_until';
+  private readonly ACCESS_TOKEN_KEY = 'access_token';
+  private readonly USER_ID_KEY = 'user_id';
+  private readonly ADMIN_NOTIFICATION_PREFS_KEY = 'admin_notification_prefs';
+  private readonly USER_SCOPED_PREFIXES = [
+    'liked_posts_',
+    'liked_comments_',
+    'notif_seen_ids_',
+    'notif_deleted_ids_',
+    'admin_notification_prefs'
+  ];
   // Storage preference: false => localStorage (remember), true => sessionStorage (no remember)
   private useSessionStorage = false;
 
@@ -280,6 +291,11 @@ export class AuthService implements OnDestroy {
   private handleSuccessfulAuth(response: LoginResponse): void {
   const safeRole = this.normalizeRole(response.user.role);
   const isVerified = (response.user as any)?.verified === true;
+  const previousUserId = this.getStoredItem(this.USER_ID_KEY) || this.currentUserSubject.value?.user?.id || '';
+  const nextUserId = response.user?.id || '';
+  if (previousUserId && nextUserId && previousUserId !== nextUserId) {
+    this.clearUserScopedStorage();
+  }
 
   this.setStoredItem(this.TOKEN_KEY, response.token);
   this.setStoredItem(this.EMAIL_KEY, response.user.email);
@@ -287,6 +303,7 @@ export class AuthService implements OnDestroy {
   if (response.user.name) this.setStoredItem(this.NAME_KEY, response.user.name);
   if (response.user.picture) this.setStoredItem(this.PICTURE_KEY, response.user.picture); 
   this.setStoredItem(this.VERIFIED_KEY, isVerified ? 'true' : 'false');
+  if (nextUserId) this.setStoredItem(this.USER_ID_KEY, nextUserId);
   if (!this.useSessionStorage && response.refreshToken) this.setStoredItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
   else if (this.useSessionStorage) this.removeStoredItem(this.REFRESH_TOKEN_KEY);
   // Capture any password-set token and completion flag from backend if provided
@@ -395,13 +412,23 @@ export class AuthService implements OnDestroy {
   }
 
 private clearAuthData(): void {
-  this.removeStoredItem(this.TOKEN_KEY);
-  this.removeStoredItem(this.REFRESH_TOKEN_KEY);
-  this.removeStoredItem(this.EMAIL_KEY);
-  this.removeStoredItem(this.ROLE_KEY);
-  this.removeStoredItem(this.NAME_KEY);
-  this.removeStoredItem(this.PICTURE_KEY); 
-  this.removeStoredItem(this.VERIFIED_KEY);
+  const alwaysClearKeys = [
+    this.TOKEN_KEY,
+    this.REFRESH_TOKEN_KEY,
+    this.ACCESS_TOKEN_KEY,
+    this.EMAIL_KEY,
+    this.ROLE_KEY,
+    this.NAME_KEY,
+    this.PICTURE_KEY,
+    this.VERIFIED_KEY,
+    this.PROVISIONAL_SIGNUP_KEY,
+    this.PASSWORD_SET_TOKEN_KEY,
+    this.PASSWORD_RESET_COOLDOWN_KEY,
+    this.USER_ID_KEY,
+    this.ADMIN_NOTIFICATION_PREFS_KEY
+  ];
+  alwaysClearKeys.forEach(key => this.removeStoredItem(key));
+  this.clearUserScopedStorage();
   // Clear theme so logged-out state doesn't keep last user's preference
   try {
     this.removeStoredItem(this.THEME_KEY);
@@ -438,6 +465,23 @@ private clearAuthData(): void {
   private removeStoredItem(key: string) {
     try { localStorage.removeItem(key); } catch {}
     try { sessionStorage.removeItem(key); } catch {}
+  }
+
+  private clearUserScopedStorage(): void {
+    try { this.removeKeysByPrefix(localStorage, this.USER_SCOPED_PREFIXES); } catch {}
+    try { this.removeKeysByPrefix(sessionStorage, this.USER_SCOPED_PREFIXES); } catch {}
+  }
+
+  private removeKeysByPrefix(store: Storage, prefixes: string[]): void {
+    const keys: string[] = [];
+    for (let i = 0; i < store.length; i += 1) {
+      const key = store.key(i);
+      if (!key) continue;
+      if (prefixes.some(prefix => key.startsWith(prefix))) keys.push(key);
+    }
+    keys.forEach(key => {
+      try { store.removeItem(key); } catch {}
+    });
   }
 
   private handleError = (error: HttpErrorResponse): Observable<never> => {
@@ -562,10 +606,15 @@ isUser(): boolean {
       }
     }).pipe(
       tap(user => {
+        const previousUserId = this.getStoredItem(this.USER_ID_KEY) || this.currentUserSubject.value?.user?.id || '';
+        if (previousUserId && user?.id && previousUserId !== user.id) {
+          this.clearUserScopedStorage();
+        }
         const normalizedRole = this.normalizeRole(user.role);
         // Persist latest profile bits
         this.setStoredItem(this.EMAIL_KEY, user.email);
         this.setStoredItem(this.ROLE_KEY, normalizedRole);
+        if (user.id) this.setStoredItem(this.USER_ID_KEY, user.id);
         if (user.name) this.setStoredItem(this.NAME_KEY, user.name); else this.removeStoredItem(this.NAME_KEY);
         if (user.picture) this.setStoredItem(this.PICTURE_KEY, user.picture); else this.removeStoredItem(this.PICTURE_KEY);
         this.setStoredItem(this.VERIFIED_KEY, (user as any)?.verified ? 'true' : 'false');

@@ -1,0 +1,126 @@
+<app-base-layout>
+  <div class="activity-logs-page">
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">{{ 'adminActivityLogs.header.eyebrow' | translate }}</p>
+        <h1>{{ 'adminActivityLogs.header.title' | translate }}</h1>
+        <span class="subtitle">{{ 'adminActivityLogs.header.subtitle' | translate }}</span>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" type="button" (click)="resetFilters()">
+          {{ 'adminActivityLogs.filters.reset' | translate }}
+        </button>
+        <button class="btn btn-primary" type="button" (click)="applyFilters()">
+          {{ 'adminActivityLogs.filters.apply' | translate }}
+        </button>
+      </div>
+    </header>
+
+    <section class="card filters-card">
+      <div class="filters-grid">
+        <div class="filter-field">
+          <label>{{ 'adminActivityLogs.filters.activityType' | translate }}</label>
+          <select [(ngModel)]="filters.activityType">
+            <option *ngFor="let option of activityTypeOptions" [value]="option.value">
+              {{ option.labelKey | translate }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label>{{ 'adminActivityLogs.filters.userId' | translate }}</label>
+          <input
+            type="text"
+            [(ngModel)]="filters.userId"
+            [placeholder]="'adminActivityLogs.filters.userIdPlaceholder' | translate"
+          >
+        </div>
+
+        <div class="filter-field">
+          <label>{{ 'adminActivityLogs.filters.start' | translate }}</label>
+          <input type="datetime-local" [(ngModel)]="startInput">
+        </div>
+
+        <div class="filter-field">
+          <label>{{ 'adminActivityLogs.filters.end' | translate }}</label>
+          <input type="datetime-local" [(ngModel)]="endInput">
+        </div>
+
+        <div class="filter-field">
+          <label>{{ 'adminActivityLogs.filters.limit' | translate }}</label>
+          <input type="number" min="1" [(ngModel)]="filters.limit">
+        </div>
+      </div>
+    </section>
+
+    <section class="card table-card">
+      <div *ngIf="errorMessageKey" class="alert error">
+        {{ errorMessageKey | translate }}
+      </div>
+      <div *ngIf="loading" class="status-row">
+        {{ 'adminActivityLogs.status.loading' | translate }}
+      </div>
+      <ng-container *ngIf="!loading">
+        <div class="table-wrapper" *ngIf="logs.length; else noLogs">
+          <table class="logs-table">
+            <thead>
+              <tr>
+                <th>{{ 'adminActivityLogs.table.date' | translate }}</th>
+                <th>{{ 'adminActivityLogs.table.user' | translate }}</th>
+                <th>{{ 'adminActivityLogs.table.activity' | translate }}</th>
+                <th>{{ 'adminActivityLogs.table.target' | translate }}</th>
+                <th>{{ 'adminActivityLogs.table.details' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let log of logs; trackBy: trackByLogId">
+                <td>
+                  <div class="date">{{ log.createdAt | date : 'medium' }}</div>
+                  <div class="timestamp">{{ log.createdAt | date : 'shortTime' }}</div>
+                </td>
+                <td>
+                  <div class="user-cell">
+                    <div class="avatar" *ngIf="log.userInfo?.picture">
+                      <img [src]="log.userInfo.picture" [alt]="log.userInfo?.name || 'User'">
+                    </div>
+                    <div class="user-info">
+                      <span class="user-name">{{ log.userInfo?.name || log.userId }}</span>
+                      <span class="user-email" *ngIf="log.userInfo?.email">{{ log.userInfo.email }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="type-chip">
+                    {{ displayActivityLabelKey(log.activityType) | translate }}
+                  </span>
+                  <p class="action">{{ log.action }}</p>
+                </td>
+                <td>
+                  <span class="target-label">{{ formatTargetLabel(log) }}</span>
+                </td>
+                <td>
+                  <ng-container *ngIf="hasMetadataEntries(log); else emptyDetails">
+                    <ul class="metadata-list">
+                      <li *ngFor="let entry of log.metadata | keyvalue">
+                        <span class="meta-key">{{ entry.key }}:</span>
+                        <span class="meta-value">{{ formatMetadataValue(entry.value) }}</span>
+                      </li>
+                    </ul>
+                  </ng-container>
+                  <ng-template #emptyDetails>
+                    <span class="muted">{{ 'adminActivityLogs.table.noDetails' | translate }}</span>
+                  </ng-template>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ng-template #noLogs>
+          <div class="empty-state">
+            {{ 'adminActivityLogs.status.empty' | translate }}
+          </div>
+        </ng-template>
+      </ng-container>
+    </section>
+  </div>
+</app-base-layout>

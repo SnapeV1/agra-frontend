@@ -37,6 +37,7 @@
       "users": "Utilisateurs",
       "posts": "Posts",
       "courses": "Cours",
+      "activityLogs": "Journaux d'activité",
       "tickets": "Tickets",
       "certificates": "Certificats"
     },
@@ -70,6 +71,49 @@
     },
     "certificatesManagement": {
       "title": "Gestion des certificats"
+    },
+    "activityLogs": "Journaux d'activité"
+  },
+  "adminActivityLogs": {
+    "header": {
+      "eyebrow": "Activité",
+      "title": "Journaux d'activité",
+      "subtitle": "Suivez et filtrez les actions récentes des apprenants et des administrateurs"
+    },
+    "filters": {
+      "activityType": "Type d'activité",
+      "userId": "Identifiant ou email",
+      "userIdPlaceholder": "Saisissez un identifiant, un email ou un nom d'utilisateur",
+      "start": "Date/heure de début",
+      "end": "Date/heure de fin",
+      "limit": "Limite",
+      "apply": "Filtrer les journaux",
+      "reset": "Réinitialiser"
+    },
+    "status": {
+      "loading": "Chargement des journaux d'activité...",
+      "empty": "Aucun journal d'activité ne correspond aux filtres."
+    },
+    "table": {
+      "date": "Date / Heure",
+      "user": "Utilisateur",
+      "activity": "Activité",
+      "target": "Cible",
+      "details": "Détails",
+      "noDetails": "Pas de métadonnées"
+    },
+    "activityTypes": {
+      "ALL": "Toutes les activités",
+      "LIKE": "Likes",
+      "PROFILE_UPDATE": "Mises à jour du profil",
+      "COURSE_ENROLLMENT": "Inscriptions aux cours",
+      "COURSE_COMPLETION": "Achèvements des cours",
+      "TICKET_SUBMISSION": "Soumissions de tickets",
+      "CHATBOT_USAGE": "Utilisation du chatbot",
+      "OTHER": "Autre"
+    },
+    "errors": {
+      "fetchFailed": "Impossible de charger les journaux d'activité."
     }
   },
   "footer": {
@@ -262,8 +306,12 @@
       "overview": "Vue d'ensemble",
       "users": "Utilisateurs",
       "courses": "Cours",
-      "social": "Social",
-      "notifications": "Notifications"
+      "social": "Social"
+    },
+    "actions": {
+      "manageUsers": "Gerer les utilisateurs",
+      "manageCourses": "Gerer les cours",
+      "manageFeed": "Gerer le fil"
     },
     "welcome": {
       "eyebrow": "Bienvenue",
@@ -292,6 +340,26 @@
       "topCourses": "Meilleurs cours",
       "studentsEnrolled": "\u00c9tudiants inscrits",
       "completion": "ach\u00e8vement"
+    },
+    "coursesInsights": {
+      "title": "Analyses des cours",
+      "subtitle": "Indicateurs de performance modernes pour tout votre catalogue.",
+      "coursesCompleted": "Cours termin\u00e9s",
+      "monthlyTrend": "Tendance mensuelle",
+      "latestCoursesCompleted": "Derniers cours termin\u00e9s",
+      "totalWithValue": "Total {{value}}",
+      "avgPerPeriod": "Moyenne par p\u00e9riode",
+      "activeCourses": "Cours actifs",
+      "avgCompletion": "Taux de compl\u00e9tion moyen",
+      "topCoursesPerformance": "Performance des meilleurs cours",
+      "enrollmentsVsCompletion": "Inscriptions vs compl\u00e9tion",
+      "enrollments": "inscriptions",
+      "topCourse": "Meilleur cours",
+      "bestCompletion": "Meilleure compl\u00e9tion",
+      "archivedCourses": "Cours archiv\u00e9s",
+      "totalCourses": "Total des cours",
+      "enrollmentsWithCompletion": "{{enrollments}} inscriptions \u00b7 {{completion}}% de compl\u00e9tion",
+      "completionWithValue": "{{completion}}% de compl\u00e9tion"
     },
     "users": {
       "title": "Utilisateurs",
@@ -333,6 +401,13 @@
       "trend": "Tendance",
       "readStatus": "Statut de lecture",
       "topTypes": "Types principaux"
+    },
+    "other": {
+      "title": "Autres",
+      "subtitle": "Signaux operationnels secondaires.",
+      "notificationsTrend": "Tendance des notifications",
+      "notificationsRead": "Lecture des notifications",
+      "notificationsTypes": "Types de notifications"
     },
     "northAfrica": {
       "title": "Carte des utilisateurs en direct",
@@ -1142,7 +1217,7 @@
       "phone": "Telephone",
       "country": "Pays",
       "language": "Langue",
-      "domain": "Domaine",
+      "profession": "Profession",
       "role": "Role",
       "registered": "Inscription",
       "status": "Statut",
@@ -1173,8 +1248,14 @@
       "phonePlaceholder": "123 456 789",
       "country": "Pays",
       "language": "Langue",
-      "domain": "Domaine",
+      "profession": "Profession",
+      "birthdate": "Date de naissance",
       "role": "Role"
+    },
+    "languages": {
+      "en": "Anglais",
+      "ar": "Arabe",
+      "fr": "Francais"
     },
     "roles": {
       "admin": "Admin",
@@ -1658,7 +1739,36 @@
     },
     "languages": {
       "title": "Langues disponibles",
-      "description": "Selectionnez les langues disponibles pour ce cours"
+      "description": "Selectionnez les langues disponibles pour ce cours",
+      "defaultLabel": "Langue par defaut",
+      "defaultHint": "Cette langue sert de contenu principal et de repli"
+    },
+    "translations": {
+      "title": "Traductions",
+      "courseDescription": "Fournissez des titres et descriptions localises pour chaque langue.",
+      "courseTitleLabel": "Titre traduit",
+      "courseTitlePlaceholder": "Saisir le titre du cours traduit",
+      "courseDescriptionLabel": "Description traduite",
+      "courseDescriptionPlaceholder": "Saisir la description traduite",
+      "show": "Afficher les traductions",
+      "hide": "Masquer les traductions",
+      "goalsTitle": "Objectifs traduits",
+      "goalsDescription": "Ajoutez des objectifs localises pour la langue selectionnee.",
+      "goalsPlaceholder": "Saisir un objectif traduit",
+      "goalsEmpty": "Aucun objectif traduit pour l'instant. Ajoutez votre premiere traduction.",
+      "addGoal": "Ajouter un objectif traduit",
+      "lessonTitle": "Traductions des lecons",
+      "lessonDescription": "Localisez les titres, contenus et quiz.",
+      "lessonTitleLabel": "Titre de lecon traduit",
+      "lessonTitlePlaceholder": "Saisir le titre de la lecon traduit",
+      "lessonContentLabel": "Contenu de lecon traduit",
+      "lessonContentPlaceholder": "Saisir le contenu de la lecon traduit",
+      "quizTitle": "Traductions du quiz",
+      "quizHint": "Traduisez les questions et les reponses.",
+      "quizQuestionLabel": "Traduction de la question {{index}}",
+      "quizQuestionPlaceholder": "Saisir la question traduite",
+      "quizOptionLabel": "Option {{index}}",
+      "quizOptionPlaceholder": "Saisir l'option traduite"
     },
     "sessions": {
       "title": "Sessions",
@@ -1721,6 +1831,7 @@
       "correct": "Correct",
       "optionPlaceholder": "Texte de l'option",
       "addOption": "Ajouter une option",
+      "saveCollapse": "Enregistrer et replier",
       "questionLabelDetailed": "Quiz \"{{title}}\" question {{index}}",
       "errors": {
         "emptyQuestion": "{{label}} est vide.",

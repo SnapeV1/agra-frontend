@@ -79,6 +79,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     if (url.includes('/admin/users')) this.activeMenuItem = 'users';
     else if (url.includes('/admin/posts')) this.activeMenuItem = 'posts';
     else if (url.includes('/admin/courses')) this.activeMenuItem = 'courses';
+    else if (url.includes('/admin/activity-logs')) this.activeMenuItem = 'activity-logs';
     else if (url.includes('/admin/dashboard') || url === '/admin' || url.startsWith('/admin/')) this.activeMenuItem = 'dashboard';
   }
 

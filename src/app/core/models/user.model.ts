@@ -11,7 +11,7 @@ export interface User {
   picture?: string;
   country?: string;
   language?: string;
-  domain?: string;
+  profession?: string;
   role: string;
   // User-selected theme preference persisted server-side
   themePreference?: 'light' | 'dark' | 'auto' | string;

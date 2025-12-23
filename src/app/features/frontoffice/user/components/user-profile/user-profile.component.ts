@@ -435,8 +435,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     if (this.editForm.language && this.editForm.language !== this.originalProfile?.language) {
       updateData.language = this.editForm.language;
     }
-    if (this.editForm.domain && this.editForm.domain !== this.originalProfile?.domain) {
-      updateData.domain = this.editForm.domain;
+    if (this.editForm.profession && this.editForm.profession !== this.originalProfile?.profession) {
+      updateData.profession = this.editForm.profession;
     }
     const normalizedBirthdate = this.normalizeDateToInput(this.editForm.birthdate || this.originalProfile?.birthdate);
     if (normalizedBirthdate) {
@@ -632,7 +632,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       composedPhone !== (this.originalProfile.phone || '').trim() ||
       this.editForm.country !== this.originalProfile.country ||
       this.editForm.language !== this.originalProfile.language ||
-      this.editForm.domain !== this.originalProfile.domain ||
+      this.editForm.profession !== this.originalProfile.profession ||
       this.normalizeDateToInput(this.editForm.birthdate) !== this.normalizeDateToInput(this.originalProfile.birthdate)
     );
   }

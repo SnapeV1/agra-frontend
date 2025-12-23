@@ -71,6 +71,16 @@
       <i class="fas fa-graduation-cap"></i>
       <span class="menu-text">{{ 'admin.menu.courses' | translate }}</span>
     </a>
+    
+    <a routerLink="/admin/activity-logs"
+       class="menu-item"
+       routerLinkActive="active"
+       [routerLinkActiveOptions]="{ exact: false }"
+       [attr.data-tooltip]="'admin.menu.activityLogs' | translate"
+       (click)="setActiveMenuItem('activity-logs')">
+      <i class="fas fa-clipboard-list"></i>
+      <span class="menu-text">{{ 'admin.menu.activityLogs' | translate }}</span>
+    </a>
 
     <a routerLink="/admin/tickets"
        class="menu-item"

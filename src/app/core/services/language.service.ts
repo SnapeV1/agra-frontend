@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
 const LANGUAGE_STORAGE_KEY = 'preferredLanguage';
+const LEGACY_LANGUAGE_KEY = 'pref_lang';
 const SUPPORTED_LANGS = ['en', 'fr', 'ar'];
 
 @Injectable({
@@ -13,7 +14,7 @@ export class LanguageService {
   language$;
 
   constructor(private translate: TranslateService) {
-    const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    const stored = this.readStoredLanguage();
     const browser = (navigator?.language || 'en').split('-')[0].toLowerCase();
     const initial = this.normalizeLang(stored) || this.normalizeLang(browser) || 'en';
     this.languageSubject = new BehaviorSubject<string>(initial);
@@ -32,6 +33,7 @@ export class LanguageService {
     const normalized = this.normalizeLang(lang) || 'en';
     this.languageSubject.next(normalized);
     try { localStorage.setItem(LANGUAGE_STORAGE_KEY, normalized); } catch {}
+    try { localStorage.removeItem(LEGACY_LANGUAGE_KEY); } catch {}
     this.translate.use(normalized);
   }
 
@@ -39,6 +41,22 @@ export class LanguageService {
     if (!lang) return null;
     const short = lang.toLowerCase().split('-')[0];
     if (SUPPORTED_LANGS.includes(short)) return short;
+    return null;
+  }
+
+  private readStoredLanguage(): string | null {
+    try {
+      const current = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+      if (current) return current;
+    } catch {}
+    try {
+      const legacy = localStorage.getItem(LEGACY_LANGUAGE_KEY);
+      if (legacy) {
+        localStorage.setItem(LANGUAGE_STORAGE_KEY, legacy);
+        localStorage.removeItem(LEGACY_LANGUAGE_KEY);
+        return legacy;
+      }
+    } catch {}
     return null;
   }
 }

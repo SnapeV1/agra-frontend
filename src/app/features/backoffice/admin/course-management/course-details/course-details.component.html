@@ -126,6 +126,46 @@
                 rows="4"></textarea>
               <div *ngIf="formErrors['description']" class="error-message">{{ formErrors['description'] | translate }}</div>
             </div>
+            <div class="translation-panel">
+              <div class="translation-header">
+                <div>
+                  <h3 class="translation-title">{{ 'adminCourseDetails.translations.title' | translate }}</h3>
+                  <p class="translation-subtitle">{{ 'adminCourseDetails.translations.courseDescription' | translate }}</p>
+                </div>
+                <div class="translation-lang-tabs">
+                  <button
+                    type="button"
+                    class="lang-chip"
+                    *ngFor="let lang of getTranslationLanguages()"
+                    [class.active]="translationLang === lang"
+                    (click)="setTranslationLanguage(lang)">
+                    {{ languageLabel(lang) | translate }}
+                  </button>
+                </div>
+              </div>
+              <div class="translation-body">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label class="form-label">{{ 'adminCourseDetails.translations.courseTitleLabel' | translate }}</label>
+                    <input
+                      type="text"
+                      class="form-input"
+                      [ngModel]="getCourseTranslationValue(translationLang, 'title')"
+                      (ngModelChange)="setCourseTranslationValue(translationLang, 'title', $event)"
+                      [placeholder]="'adminCourseDetails.translations.courseTitlePlaceholder' | translate">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">{{ 'adminCourseDetails.translations.courseDescriptionLabel' | translate }}</label>
+                    <textarea
+                      class="form-textarea"
+                      rows="3"
+                      [ngModel]="getCourseTranslationValue(translationLang, 'description')"
+                      (ngModelChange)="setCourseTranslationValue(translationLang, 'description', $event)"
+                      [placeholder]="'adminCourseDetails.translations.courseDescriptionPlaceholder' | translate"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <!-- Course Goals -->
@@ -161,6 +201,47 @@
                   [placeholder]="'adminCourseDetails.goals.placeholder' | translate">
                 <button type="button" class="btn btn-danger btn-sm" (click)="removeGoal(i)">
                   <i class="icon-trash"></i>
+                </button>
+              </div>
+            </div>
+            <div class="translation-panel">
+              <div class="translation-header">
+                <div>
+                  <h3 class="translation-title">{{ 'adminCourseDetails.translations.goalsTitle' | translate }}</h3>
+                  <p class="translation-subtitle">{{ 'adminCourseDetails.translations.goalsDescription' | translate }}</p>
+                </div>
+                <div class="translation-lang-tabs">
+                  <button
+                    type="button"
+                    class="lang-chip"
+                    *ngFor="let lang of getTranslationLanguages()"
+                    [class.active]="goalsTranslationLang === lang"
+                    (click)="setGoalsTranslationLanguage(lang)">
+                    {{ languageLabel(lang) | translate }}
+                  </button>
+                </div>
+              </div>
+              <div class="translation-body">
+                <div *ngIf="getCourseTranslationGoals(goalsTranslationLang).length === 0" class="empty-state compact">
+                  <p>{{ 'adminCourseDetails.translations.goalsEmpty' | translate }}</p>
+                </div>
+                <div *ngIf="getCourseTranslationGoals(goalsTranslationLang).length > 0" class="goals-list">
+                  <div *ngFor="let goal of getCourseTranslationGoals(goalsTranslationLang); let gi = index; trackBy: trackByIndex" class="goal-item">
+                    <div class="goal-bullet">&bull;</div>
+                    <input
+                      type="text"
+                      class="form-input goal-input"
+                      [ngModel]="goal"
+                      (ngModelChange)="updateTranslatedGoal(goalsTranslationLang, gi, $event)"
+                      [placeholder]="'adminCourseDetails.translations.goalsPlaceholder' | translate">
+                    <button type="button" class="btn btn-danger btn-sm" (click)="removeTranslatedGoal(goalsTranslationLang, gi)">
+                      <i class="icon-trash"></i>
+                    </button>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-outline btn-sm" (click)="addTranslatedGoal(goalsTranslationLang)">
+                  <lucide-icon name="plus"></lucide-icon>
+                  {{ 'adminCourseDetails.translations.addGoal' | translate }}
                 </button>
               </div>
             </div>
@@ -262,12 +343,22 @@
             </div>
           </div>
           <div class="card-content" [class.collapsed]="sectionCollapsed['languages']">
+            <div class="default-language-card">
+              <div class="default-language-info">
+                <h3>{{ 'adminCourseDetails.languages.defaultLabel' | translate }}</h3>
+                <p>{{ 'adminCourseDetails.languages.defaultHint' | translate }}</p>
+              </div>
+              <select class="form-select" [ngModel]="formData.defaultLanguage" (ngModelChange)="setDefaultLanguage($event)">
+                <option *ngFor="let language of getLanguageOptions()" [value]="language">{{ languageLabel(language) | translate }}</option>
+              </select>
+            </div>
             <div class="language-grid">
               <div *ngFor="let language of languages" class="language-item">
                 <label class="switch">
                   <input
                     type="checkbox"
                     [checked]="formData['languagesAvailable'].includes(language)"
+                    [disabled]="formData.defaultLanguage === language"
                     (change)="handleLanguageToggle(language)">
                   <span class="slider"></span>
                 </label>
@@ -442,7 +533,7 @@
                       <span class="content-type">{{ contentTypeLabel(content.type) | translate }}</span>
                     </div>
                     <div class="content-title-preview">
-                      <span *ngIf="content.title; else untitledContent">{{ content.title }}</span>
+                      <span *ngIf="getTextContentValue(content, 'title'); else untitledContent">{{ getTextContentValue(content, 'title') }}</span>
                       <ng-template #untitledContent>
                         <span class="untitled-text">{{ untitledContentLabel(content.type) }}</span>
                       </ng-template>
@@ -481,7 +572,8 @@
                       <input
                         type="text"
                         class="form-input"
-                        [(ngModel)]="formData['textContent'][i].title"
+                        [ngModel]="getTextContentValue(formData['textContent'][i], 'title')"
+                        (ngModelChange)="setTextContentValue(formData['textContent'][i], 'title', $event)"
                         [placeholder]="'adminCourseDetails.textContent.titlePlaceholder' | translate">
                     </div>
                     <div class="form-group flex-1">
@@ -500,9 +592,13 @@
                     <label class="form-label">{{ 'adminCourseDetails.textContent.contentLabel' | translate }}</label>
                     <textarea
                       class="form-textarea"
-                      [(ngModel)]="formData['textContent'][i].content"
+                      [ngModel]="getTextContentValue(formData['textContent'][i], 'content')"
+                      (ngModelChange)="setTextContentValue(formData['textContent'][i], 'content', $event)"
                       [placeholder]="'adminCourseDetails.textContent.contentPlaceholder' | translate"
                       rows="4"></textarea>
+                    <button type="button" class="btn btn-outline btn-sm translation-toggle-btn" (click)="toggleTranslationPanel(i)">
+                      {{ translationPanelVisible[i] ? ('adminCourseDetails.translations.hide' | translate) : ('adminCourseDetails.translations.show' | translate) }}
+                    </button>
                   </div>
 
                   <div *ngIf="formData['textContent'][i].type === 'quiz'" class="quiz-editor">
@@ -536,7 +632,8 @@
                               [attr.id]="'quiz-q-'+i+'-'+qi"
                               [attr.name]="'quiz-question-'+i+'-'+qi"
                               autocomplete="off"
-                              [(ngModel)]="q.question"
+                              [ngModel]="getQuizQuestionValue(q)"
+                              (ngModelChange)="setQuizQuestionValue(i, qi, $event)"
                               [placeholder]="'adminCourseDetails.quiz.questionPlaceholder' | translate">
                           </div>
 
@@ -566,6 +663,84 @@
                             <button type="button" class="btn btn-link" (click)="addQuizOption(i, qi)">
                               <lucide-icon name="plus"></lucide-icon> {{ 'adminCourseDetails.quiz.addOption' | translate }}
                             </button>
+                            <button type="button" class="btn btn-outline btn-sm quiz-collapse-btn" (click)="collapseQuizQuestion(i, qi); revealTranslationPanel(i)">
+                              <lucide-icon name="check"></lucide-icon>
+                              {{ 'adminCourseDetails.quiz.saveCollapse' | translate }}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="translation-panel compact" *ngIf="translationPanelVisible[i]">
+                    <div class="translation-header">
+                      <div>
+                        <h3 class="translation-title">{{ 'adminCourseDetails.translations.lessonTitle' | translate }}</h3>
+                        <p class="translation-subtitle">{{ 'adminCourseDetails.translations.lessonDescription' | translate }}</p>
+                      </div>
+                      <div class="translation-lang-tabs">
+                        <button
+                          type="button"
+                          class="lang-chip"
+                          *ngFor="let lang of getTranslationLanguages()"
+                          [class.active]="contentTranslationLang[i] === lang"
+                          (click)="setContentTranslationLanguage(i, lang)">
+                          {{ languageLabel(lang) | translate }}
+                        </button>
+                      </div>
+                    </div>
+                    <div class="translation-body">
+                      <div class="form-grid">
+                        <div class="form-group">
+                          <label class="form-label">{{ 'adminCourseDetails.translations.lessonTitleLabel' | translate }}</label>
+                          <input
+                            type="text"
+                            class="form-input"
+                            [ngModel]="getTextContentTranslationValue(formData['textContent'][i], contentTranslationLang[i], 'title')"
+                            (ngModelChange)="setTextContentTranslationValue(formData['textContent'][i], contentTranslationLang[i], 'title', $event)"
+                            [placeholder]="'adminCourseDetails.translations.lessonTitlePlaceholder' | translate">
+                        </div>
+                        <div class="form-group" *ngIf="formData['textContent'][i].type !== 'quiz'">
+                          <label class="form-label">{{ 'adminCourseDetails.translations.lessonContentLabel' | translate }}</label>
+                          <textarea
+                            class="form-textarea"
+                            rows="3"
+                            [ngModel]="getTextContentTranslationValue(formData['textContent'][i], contentTranslationLang[i], 'content')"
+                            (ngModelChange)="setTextContentTranslationValue(formData['textContent'][i], contentTranslationLang[i], 'content', $event)"
+                            [placeholder]="'adminCourseDetails.translations.lessonContentPlaceholder' | translate"></textarea>
+                        </div>
+                      </div>
+                      <div *ngIf="formData['textContent'][i].type === 'quiz'" class="translation-quiz-block">
+                        <div class="translation-quiz-header">
+                          <span>{{ 'adminCourseDetails.translations.quizTitle' | translate }}</span>
+                          <span class="translation-quiz-hint">{{ 'adminCourseDetails.translations.quizHint' | translate }}</span>
+                        </div>
+                        <div class="translation-quiz-list">
+                          <div class="translation-quiz-card" *ngFor="let q of formData['textContent'][i].questions || []; let qi = index; trackBy: trackByIndex">
+                            <div class="translation-quiz-card-header">
+                              <span class="translation-quiz-badge">Q{{ qi + 1 }}</span>
+                              <span class="translation-quiz-card-title">{{ 'adminCourseDetails.translations.quizQuestionLabel' | translate:{ index: (qi + 1) } }}</span>
+                            </div>
+                            <div class="translation-quiz-card-body">
+                              <label class="form-label">{{ 'adminCourseDetails.translations.quizQuestionLabel' | translate:{ index: (qi + 1) } }}</label>
+                              <input
+                                type="text"
+                                class="form-input"
+                                [ngModel]="getQuizQuestionTranslation(formData['textContent'][i], qi, contentTranslationLang[i])"
+                                (ngModelChange)="setQuizQuestionTranslation(formData['textContent'][i], qi, contentTranslationLang[i], $event)"
+                                [placeholder]="'adminCourseDetails.translations.quizQuestionPlaceholder' | translate">
+                              <div class="translation-quiz-options-grid">
+                                <div class="translation-quiz-option" *ngFor="let opt of q.options; let oi = index; trackBy: trackByOption">
+                                  <span class="translation-quiz-option-label">{{ 'adminCourseDetails.translations.quizOptionLabel' | translate:{ index: (oi + 1) } }}</span>
+                                  <input
+                                    type="text"
+                                    class="form-input"
+                                    [ngModel]="getQuizAnswerTranslation(formData['textContent'][i], qi, oi, contentTranslationLang[i])"
+                                    (ngModelChange)="setQuizAnswerTranslation(formData['textContent'][i], qi, oi, contentTranslationLang[i], $event)"
+                                    [placeholder]="'adminCourseDetails.translations.quizOptionPlaceholder' | translate">
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>

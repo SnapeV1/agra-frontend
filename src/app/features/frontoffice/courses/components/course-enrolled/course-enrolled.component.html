@@ -79,7 +79,7 @@
           <div class="lesson-number">{{ i + 1 }}</div>
           
           <div class="lesson-content">
-            <h4 class="lesson-title">{{ lesson.title }}</h4>
+            <h4 class="lesson-title">{{ getLessonTitle(lesson) }}</h4>
             <div class="lesson-meta">
               <span class="lesson-type" [class]="lesson.type">{{ lesson.type }}</span>
               <span *ngIf="getLessonProgress(lesson.id || '')?.timeSpent" class="lesson-time">
@@ -110,7 +110,7 @@
             <span class="lesson-type-badge" [class]="currentLesson.type">
               {{ currentLesson.type }}
             </span>
-            <h2 class="lesson-title">{{ currentLesson.title }}</h2>
+            <h2 class="lesson-title">{{ getLessonTitle(currentLesson) }}</h2>
           </div>
           
           <div class="lesson-actions">
@@ -132,7 +132,7 @@
 
         <!-- Lesson Content -->
         <div class="lesson-body" [class.quiz-mode]="currentLesson.type === 'quiz'">
-          <div *ngIf="currentLesson.type !== 'quiz'" class="lesson-text" [innerHTML]="currentLesson.content"></div>
+          <div *ngIf="currentLesson.type !== 'quiz'" class="lesson-text" [innerHTML]="getLessonContent(currentLesson)"></div>
           <div *ngIf="currentLesson.type === 'quiz'" class="quiz-layout">
             <div class="quiz-card">
               <div class="quiz-header-mini">
@@ -151,7 +151,7 @@
               </div>
 
               <div *ngIf="currentQuizQuestion as quizQuestion" class="quiz-body-compact">
-                <div class="quiz-title-small">{{ quizQuestion.question }}</div>
+                <div class="quiz-title-small">{{ getQuizQuestionText(quizQuestion) }}</div>
                 <div class="quiz-options-compact">
                   <label *ngFor="let opt of quizQuestion.options; let oi = index"
                          class="quiz-option-compact"

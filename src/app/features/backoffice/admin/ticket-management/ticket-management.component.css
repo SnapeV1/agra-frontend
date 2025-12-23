@@ -34,6 +34,10 @@
   --badge-low-color: #475569;
   --badge-closed-bg: #e2e8f0;
   --badge-closed-color: #475569;
+  --status-open: #2563eb;
+  --status-pending: #f59e0b;
+  --status-resolved: #10b981;
+  --status-closed: #94a3b8;
   background-color: var(--page-bg);
   color: var(--text-primary);
   min-height: calc(100vh - 120px);
@@ -75,6 +79,10 @@
   --badge-low-color: #e5e7eb;
   --badge-closed-bg: #1f2937;
   --badge-closed-color: #cbd5f5;
+  --status-open: #60a5fa;
+  --status-pending: #fbbf24;
+  --status-resolved: #34d399;
+  --status-closed: #94a3b8;
 }
 
 .ticket-board-header {
@@ -157,6 +165,8 @@
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s;
+  position: relative;
+  padding-left: 28px;
 }
 
 .stat-item:hover {
@@ -167,6 +177,23 @@
   background-color: var(--accent);
   color: #ffffff;
 }
+
+.stat-item[data-status]::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  transform: translateY(-50%);
+  background: var(--status-color, var(--border-color));
+}
+
+.stat-item[data-status='OPEN'] { --status-color: var(--status-open); }
+.stat-item[data-status='PENDING'] { --status-color: var(--status-pending); }
+.stat-item[data-status='RESOLVED'] { --status-color: var(--status-resolved); }
+.stat-item[data-status='CLOSED'] { --status-color: var(--status-closed); }
 
 .stat-label {
   font-size: 14px;
@@ -287,6 +314,19 @@
   border-bottom: 1px solid var(--divider-color);
   cursor: pointer;
   transition: background-color 0.2s;
+  position: relative;
+}
+
+.ticket-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 4px;
+  border-radius: 0 6px 6px 0;
+  background: var(--status-color, var(--border-color));
+  opacity: 0.9;
 }
 
 .ticket-item:hover {
@@ -295,8 +335,17 @@
 
 .ticket-item.active {
   background-color: var(--active-bg);
-  border-left: 3px solid var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
 }
+
+.ticket-item.active::before {
+  width: 6px;
+}
+
+.ticket-item[data-status='OPEN'] { --status-color: var(--status-open); }
+.ticket-item[data-status='PENDING'] { --status-color: var(--status-pending); }
+.ticket-item[data-status='RESOLVED'] { --status-color: var(--status-resolved); }
+.ticket-item[data-status='CLOSED'] { --status-color: var(--status-closed); }
 
 .ticket-avatar {
   width: 40px;
@@ -453,6 +502,9 @@
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .user-info p {
@@ -475,6 +527,17 @@
   font-size: 14px;
   cursor: pointer;
   transition: background-color 0.2s;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
 .status-select:hover:not(:disabled) {
